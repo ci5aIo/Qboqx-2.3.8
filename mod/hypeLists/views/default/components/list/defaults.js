@@ -27,8 +27,6 @@ define(function (require) {
 		scrollTopOffset: -100, // Additional offset in pixels for when the page is scrolled to the top of the list
 		listTime: 0, // Timestamp at which the list was generated, sent with AJAX requests
 		selectorDelete: '.elgg-menu-item-delete > a', // CSS selector of an anchor that will trigger a delete action
-		listClasses: 'elgg-list',
-		
-		classDropbox: 'ui-droppable'
+		listClasses: 'elgg-list'
 	};
 });

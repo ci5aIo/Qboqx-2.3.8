@@ -32,7 +32,7 @@ if ($full) {
 		'entity' => $entity
 	));
 
-	$limit = get_input('limit', 20);
+	$limit = get_input('limit', 0);
 	$offset = get_input("offset-images-$entity->guid", 0);
 
 	$options = array(

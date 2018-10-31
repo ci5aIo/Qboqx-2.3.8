@@ -72,7 +72,7 @@ define(function (require) {
 		 */
 		prepareDom: function () {
 			var self = this;
-			
+
 			self.$noResults = false;
 			if (self.$elem.is('.elgg-no-results')) {
 				self.$list = $('<ul>').addClass(self.options.listClasses).hide();

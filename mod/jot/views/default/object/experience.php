@@ -31,7 +31,7 @@ Switch ($list_type){
         else {
             $selected = ucfirst($aspect);
         }
-        
+
             $i = $experience;
 //  			$list_body = elgg_view('output/url', array('text' => $i->title,'href' =>  "jot/view/{$i->guid}"));
  			elgg_load_library('elgg:market');
@@ -54,8 +54,10 @@ Switch ($list_type){
         
         break;
     case 'list':
-        elgg_load_library('elgg:market');
-        $content = market_render_section(array(
+        elgg_register_library('jot:market', elgg_get_plugins_path() . 'jot/lib/market.php');
+        
+        elgg_load_library('jot:market');
+        $content = jot_render_section(array(
                                          'section'    => 'experience',
                                          'selected'   => $selected,
                                          'selected_state'=> 'closed',

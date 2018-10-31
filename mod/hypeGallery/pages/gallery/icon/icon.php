@@ -14,7 +14,7 @@ if (!$entity) {
 	return false;
 }
 
-$requested_size = $size = strtolower(get_input('size', 'master'));
+$requested_size = $size = elgg_strtolower(get_input('size', 'master'));
 
 $config = get_icon_sizes($entity);
 
@@ -26,12 +26,11 @@ if ($entity->mimetype == 'image/png') {
 	$filename = "icons/" . $entity->guid . $size . ".jpg";
 }
 
-$etag = md5($filehandler->icontime . $size);
-
 $filehandler = new ElggFile();
 $filehandler->owner_guid = $entity->owner_guid;
 $filehandler->setFilename($filename);
 $filehandler->open('read');
+$etag = md5($filehandler->icontime . $size);
 $contents = $filehandler->grabFile();
 $filehandler->close();
 

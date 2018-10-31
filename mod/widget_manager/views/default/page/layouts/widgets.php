@@ -13,7 +13,6 @@ $num_columns = (int) elgg_extract('num_columns', $vars, 3);
 $show_add_widgets = elgg_extract('show_add_widgets', $vars, true);
 $exact_match = elgg_extract('exact_match', $vars, false);
 $show_access = elgg_extract('show_access', $vars, true);
-$quebx_custom_layout = elgg_extract('custom_layout', $vars, false);
 
 $owner = elgg_get_page_owner_entity();
 
@@ -153,13 +152,6 @@ if (elgg_in_context('iframe_dashboard')) {
 	}
 	
 	for ($column_index = 1; $column_index <= $num_columns; $column_index++) {
-		// @EDIT - 2018-02-14 - SAJ - Hack to get a 66|33 layout.
-		$class = "elgg-col-1of$num_columns";
-		if ($quebx_custom_layout == '66|33'){
-			if($column_index == 2){continue;}
-			if($column_index == 3){$class = "elgg-col-2of$num_columns";}
-		}
-		
 		$column_widgets = elgg_extract($column_index, $widgets, []);
 		
 		$column_content = '';
@@ -171,7 +163,7 @@ if (elgg_in_context('iframe_dashboard')) {
 		
 		echo elgg_format_element('div', [
 			'id' => "elgg-widget-col-{$column_index}",
-			'class' => "$class elgg-widgets",
+			'class' => "elgg-col-1of{$num_columns} elgg-widgets",
 		], $column_content);
 	}
 }

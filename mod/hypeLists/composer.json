@@ -1,7 +1,8 @@
 {
 	"name": "hypejunction/hypelists",
+	"version": "4.1.6",
 	"type": "elgg-plugin",
-	"description": "hypeLists Elgg Plugin",
+	"description": "AJAX lists for Elgg",
 	"homepage": "http://hypejunction.com/",
 	"keywords": [
 		"elgg", "plugin", "hypejunction", "hypelist", "lists", "ajax"
@@ -9,22 +10,18 @@
 	"license": "GPL-2.0",
 	"authors": [{
 			"name": "Ismayil Khayredinov",
-			"email": "ismayil.khayredinov@gmail.com"
+			"email": "info@hypejunction.com"
 		}],
 	"extra": {
 		"installer-name": "hypeLists"
 	},
-	"config": {
-		"vendor-dir": "vendors",
-		"preferred-install": "dist"
-	},
 	"require": {
-		"php": ">=5.4",
-		"composer/installers": "1.0.*"
+		"php": ">=5.3",
+		"composer/installers": "~1.0"
 	},
 	"autoload": {
-		"psr-4": {
-			"hypeJunction\\": ["classes/hypeJunction/", "tests/phpunit/classes/hypeJunction"]
+		"psr-0": {
+			"": "classes/"
 		}
 	}
 }

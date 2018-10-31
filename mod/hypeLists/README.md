@@ -1,5 +1,6 @@
 hypeLists
 =========
+![Elgg 2.0](https://img.shields.io/badge/Elgg-2.0.x-orange.svg?style=flat-square)
 
 A set of tools that improve UX and simplify common list patterns for developers.
 
@@ -9,7 +10,7 @@ A set of tools that improve UX and simplify common list patterns for developers.
 - AJAXed list pagination and infinite scroll
 - Lazy loading of preceeding and succeeding list pages
 - Auto refreshing of lists
-
+- An interface for creating sortable/searchable lists
 
 ### Server-Side
 
@@ -65,25 +66,85 @@ $('.elgg-list.my-list').hypeList({
 // Navigate to a page with a certain index
 // For default pagination type, page with pageIndex is loaded and displayed
 // For infinite pagination type, all pages in range from currently visible pages to the page with pageIndex are loaded and displayed
-$('.elgg-list').hypeList('goToPage', pageIndex);
+$('.elgg-list').trigger('goToPage', [pageIndex]);
 
 // Trigger refresh
 // Reloads the page and appends new items if any
 // If no pageIndex is provided, it's determined by pagination type
 // goToPage parameter can be used to navigate to the page once new items have been fetched
 // goToPage flag is useful when a new post was made and you want to display the post to the user
-$('.elgg-list').hypeList('fetchNewItems', pageIndex, goToPage);
+$('.elgg-list').trigger('fetchNewItems', [pageIndex, goToPage]);
 
 // Remove items from the list and reindex
-$('.elgg-list').hypeList('removeItems', $items);
+$('.elgg-list').trigger('removeItems', [$items]);
 
 // Add new items to the list
-$('.elgg-list').hypeList('addFetchedItems', ajaxData);
+$('.elgg-list').trigger('addFetchedItems', [ajaxData]);
+
+
+// Events
+
+// Event triggered whenever the list is first rendered
+// Callback will receive list options as a second parameter
+$('.elgg-list').on('ready', callback);
+
+// Event triggered whenever an item is added, removed or hidden from a list
+// Callback will receive list options as a second parameter
+$('.elgg-list').on('change', callback);
 
 ```
 
+### Sortable list views
 
+Sortable lists can be displayed using one of the following views:
+   - `lists/users` - displays a list of users
+   - `lists/objects` - displays a list of object entities
+   - `lists/groups` - displays a list of groups
 
+Lists can be configured to display search/sort fields:
 
+```php
 
+echo elgg_view('lists/objects', [
+	// Options passed to elgg_list_entities()
+	'options' => [
+		'subtypes' => ['blog', 'bookmarks', 'file'],
+		'container_guids' => $group->guid,
+	],
 
+	// Display a subtype picker
+	'show_subtype' => true,
+	'subtype_options' => ['blog', 'bookmarks', 'file'],
+
+	// Display a sorting picker
+	'show_sort' => true,
+	'sort_options' => [
+		'likes::asc',
+		'likes::desc',
+		'time_created:desc',
+		'alpha::asc',
+	],
+
+	// Force default sorting
+	'sort' => get_input('sort', 'alpha::asc'),
+
+	// Display a search form
+	'show_search' => true,
+
+	// Force default query
+	'query' => get_input('query', 'test'),
+
+	// Add a filter
+	'show_filter' => true,
+	'filter_options' => [
+		'mine',
+		'friends',
+		'custom_filter', // use hooks to append custom queries
+	],
+
+	// Force default filter
+	'filter' => get_input('filter', 'friends'),
+
+]);
+
+```

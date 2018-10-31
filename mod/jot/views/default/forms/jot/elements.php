@@ -57,6 +57,8 @@ Switch($panel){
             	//$view       = 'forms/experiences/edit';
                 break;
         }
+        // @EDIT 2018-10-23 - SAJ - troubleshooting
+        goto eof;
         $things_panel     = elgg_view($view,array(
                                 'action'         => $action,
                                 'selected'       => $selected == 'Things',
@@ -254,3 +256,4 @@ Switch($panel){
 }
 
 echo $main_panel;
+eof:
