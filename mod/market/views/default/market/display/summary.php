@@ -7,6 +7,136 @@ $fields    = market_prepare_brief_view_vars($entity);
 $limit     = 3;
 //echo elgg_dump($fields);
 /**/
+
+/**/
+$documents = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'document',
+	'relationship_guid' => $item_guid,
+	'inverse_relationship' => true,
+	'limit' => $limit,
+	));
+$tasks = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'task',
+	'relationship_guid' => $item_guid,
+	'inverse_relationship' => true,
+	'limit' => $limit,
+	));
+/*$contents = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'contents',
+	'relationship_guid' => $item_guid,
+    'inverse_relationship' => true,
+	'limit' => $limit,
+));*/
+$contents = elgg_get_entities(array(
+                'type' => 'object',
+				'subtypes' => array('market', 'item', 'contents'),
+                'joins'    => array('JOIN elgg_objects_entity e2 on e.guid = e2.guid'),
+				'wheres' => array(
+					"e.container_guid = $item_guid",
+				),
+                'order_by' => 'e2.title',
+                'limit' => $limit,
+			));
+$components = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'component',
+	'relationship_guid' => $item_guid,
+    'inverse_relationship' => true,
+	'limit' => $limit,
+));
+$accessories = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'accessory',
+	'relationship_guid' => $item_guid,
+    'inverse_relationship' => true,
+	'limit' => $limit,
+));
+$parent_items = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'accessory',
+	'relationship_guid' => $item_guid,
+    'inverse_relationship' => false,
+	'limit' => $limit,
+));
+$containers = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'component',
+	'relationship_guid' => $item_guid,
+    'inverse_relationship' => false,
+	'limit' => $limit,
+));
+$issues = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'issue',
+	'relationship_guid' => $item_guid,
+	'inverse_relationship' => true,
+	'limit' => $limit,
+));
+$observations = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'observation',
+	'relationship_guid' => $item_guid,
+	'inverse_relationship' => true,
+	'limit' => $limit,
+));
+$experiences = elgg_get_entities(array(
+    'type'          => 'object', 
+    'subtype'       => 'experience', 
+    'container_guid'=> $item_guid,
+));
+$experiences = array_merge($experiences,
+    		               elgg_get_entities_from_relationship(['type' => 'object',
+																'relationship' => 'experience',
+																'relationship_guid' => $item_guid,
+																'inverse_relationship' => true,
+																'limit' => $limit,]));
+
+$insights = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'insight',
+	'relationship_guid' => $item_guid,
+	'inverse_relationship' => true,
+	'limit' => $limit,
+));
+$supplies = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'supply',
+	'relationship_guid' => $item_guid,
+	'inverse_relationship' => true,
+	'limit' => $limit,
+	));
+$parts = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'part',
+	'relationship_guid' => $item_guid,
+	'inverse_relationship' => true,
+	'limit' => $limit,
+));
+$parts = array_merge($parts, elgg_get_entities_from_relationship(array(
+								'type' => 'object',
+								'relationship' => 'part',
+								'relationship_guid' => $item_guid,
+								'inverse_relationship' => false,
+								'limit' => $limit,
+							)));
+$receipts = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'transfer_receipt',
+	'relationship_guid' => $item_guid,
+	'inverse_relationship' => true,
+	'limit' => $limit,
+));
+$suppliers = elgg_get_entities_from_relationship(array(
+	'type' => 'group',
+	'relationship' => 'supplier_of',
+	'relationship_guid' => $item_guid,
+    'inverse_relationship' => true,
+	'limit' => $limit,
+));
+/*Count the unlimited number of elements in each box*/
 $num_documents = count(elgg_get_entities_from_relationship(array(
 	'type' => 'object',
 	'relationship' => 'document',
@@ -99,129 +229,6 @@ $num_suppliers = count(elgg_get_entities_from_relationship(array(
 	'inverse_relationship' => true,
 	'limit' => false,
 )));
-
-/**/
-$documents = elgg_get_entities_from_relationship(array(
-	'type' => 'object',
-	'relationship' => 'document',
-	'relationship_guid' => $item_guid,
-	'inverse_relationship' => true,
-	'limit' => $limit,
-	));
-$tasks = elgg_get_entities_from_relationship(array(
-	'type' => 'object',
-	'relationship' => 'task',
-	'relationship_guid' => $item_guid,
-	'inverse_relationship' => true,
-	'limit' => $limit,
-	));
-/*$contents = elgg_get_entities_from_relationship(array(
-	'type' => 'object',
-	'relationship' => 'contents',
-	'relationship_guid' => $item_guid,
-    'inverse_relationship' => true,
-	'limit' => $limit,
-));*/
-$contents = elgg_get_entities(array(
-                'type' => 'object',
-				'subtypes' => array('market', 'item', 'contents'),
-                'joins'    => array('JOIN elgg_objects_entity e2 on e.guid = e2.guid'),
-				'wheres' => array(
-					"e.container_guid = $item_guid",
-				),
-                'order_by' => 'e2.title',
-                'limit' => $limit,
-			));
-$components = elgg_get_entities_from_relationship(array(
-	'type' => 'object',
-	'relationship' => 'component',
-	'relationship_guid' => $item_guid,
-    'inverse_relationship' => true,
-	'limit' => $limit,
-));
-$accessories = elgg_get_entities_from_relationship(array(
-	'type' => 'object',
-	'relationship' => 'accessory',
-	'relationship_guid' => $item_guid,
-    'inverse_relationship' => true,
-	'limit' => $limit,
-));
-$parent_items = elgg_get_entities_from_relationship(array(
-	'type' => 'object',
-	'relationship' => 'accessory',
-	'relationship_guid' => $item_guid,
-    'inverse_relationship' => false,
-	'limit' => $limit,
-));
-$containers = elgg_get_entities_from_relationship(array(
-	'type' => 'object',
-	'relationship' => 'component',
-	'relationship_guid' => $item_guid,
-    'inverse_relationship' => false,
-	'limit' => $limit,
-));
-$issues = elgg_get_entities_from_relationship(array(
-	'type' => 'object',
-	'relationship' => 'issue',
-	'relationship_guid' => $item_guid,
-	'inverse_relationship' => true,
-	'limit' => $limit,
-));
-$observations = elgg_get_entities_from_relationship(array(
-	'type' => 'object',
-	'relationship' => 'observation',
-	'relationship_guid' => $item_guid,
-	'inverse_relationship' => true,
-	'limit' => $limit,
-));
-$experiences = elgg_get_entities(array(
-    'type'          => 'object', 
-    'subtype'       => 'experience', 
-    'container_guid'=> $item_guid,
-));
-
-$insights = elgg_get_entities_from_relationship(array(
-	'type' => 'object',
-	'relationship' => 'insight',
-	'relationship_guid' => $item_guid,
-	'inverse_relationship' => true,
-	'limit' => $limit,
-));
-$supplies = elgg_get_entities_from_relationship(array(
-	'type' => 'object',
-	'relationship' => 'supply',
-	'relationship_guid' => $item_guid,
-	'inverse_relationship' => true,
-	'limit' => $limit,
-	));
-$parts = elgg_get_entities_from_relationship(array(
-	'type' => 'object',
-	'relationship' => 'part',
-	'relationship_guid' => $item_guid,
-	'inverse_relationship' => true,
-	'limit' => $limit,
-));
-$parts = array_merge($parts, elgg_get_entities_from_relationship(array(
-								'type' => 'object',
-								'relationship' => 'part',
-								'relationship_guid' => $item_guid,
-								'inverse_relationship' => false,
-								'limit' => $limit,
-							)));
-$receipts = elgg_get_entities_from_relationship(array(
-	'type' => 'object',
-	'relationship' => 'transfer_receipt',
-	'relationship_guid' => $item_guid,
-	'inverse_relationship' => true,
-	'limit' => $limit,
-));
-$suppliers = elgg_get_entities_from_relationship(array(
-	'type' => 'group',
-	'relationship' => 'supplier_of',
-	'relationship_guid' => $item_guid,
-    'inverse_relationship' => true,
-	'limit' => $limit,
-));
 $valid_tags = elgg_get_registered_tag_metadata_names();
 $action    = 'shelf/load';
 $form_vars = array(

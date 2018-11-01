@@ -57,6 +57,7 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
 			$expand_tabs = elgg_extract('expand_tabs', $info, false);
 			$section  = elgg_extract('section' , $info);
 			$aspect   = elgg_extract('aspect'  , $info, false);
+			$action   = elgg_extract('action'  , $info, false);
 			$note     = elgg_extract('note'    , $info, false);
 			$cursor   = 'cursor:pointer';
 			$style    = ($style) ? $style.';'.$cursor : $cursor;
@@ -82,6 +83,7 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
 			$guid_str   = ($guid)   ? "guid=\"$guid\""     : '';
 			$panel_str  = ($panel)  ? "panel=\"$panel\""   : '';
 			$aspect_str = ($aspect) ? "aspect=\"$aspect\"" : '';
+			$action_str = ($ction) ? "aspect=\"$action\"" : '';
 			
 			$options = $info;
 			unset(//$options['class'], 
@@ -126,7 +128,7 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
 			else                   {$text = $link;}
 			if ($note)             {$text = elgg_view('output/span',['content'=>$text, 'options'=>['title'=>$note]]);}
 
-			echo "<li $aspect_str $guid_str $panel_str $style_str $id_str $class_str>$text</li>";
+			echo "<li $aspect_str $action_str $guid_str $panel_str $style_str $id_str $class_str>$text</li>";
 		}
 		?>
 	</ul>

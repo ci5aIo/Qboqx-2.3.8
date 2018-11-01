@@ -5,7 +5,19 @@ $entity = get_entity($guid);
 $category = $entity->marketcategory;
 $access_id = $entity['access_id']; 
 $entity_owner = get_entity($entity->owner_guid);
-
+$documents = elgg_get_entities_from_relationship(array(
+	'type' => 'object',
+	'relationship' => 'document',
+	'relationship_guid' => $guid,
+	'inverse_relationship' => true,
+	'limit' => false,
+	));
+if($documents){
+	foreach($documents as $document){
+		$document_guids[]=$document->guid;
+	}
+}
+//echo elgg_dump($documents);
 ?>
 <style>
 div.scrollimage {
@@ -55,10 +67,10 @@ input.w50 {
 
 </style>
 <?php
-$edit_panel .= "<div class='rTable' style='width:100%'>
+$edit_panel .= "<div id='edit_panel' class='rTable' style='width:100%'>
 		<div class='rTableBody'>";
 
-$item_file_guids = $entity->files;  
+//$item_file_guids = $entity->files; 
 if (!is_array($item_file_guids)){$item_file_guids = array($item_file_guids);}
 foreach ($item_file_guids as $key=>$file_guid){                               $display .= '83 ['.$key.'] => '.$file_guid.'<br>';
 	if ($file_guid == ''){                     
@@ -100,7 +112,7 @@ if (empty($item_image_guids)){$item_image_guids[]=$entity->guid;              $d
 			$input_checkbox = "<span title='remove file from this library'>".$input_checkbox."</span>";
 			$input_radio    = "<span title='set as default file'><input type='radio' name='item[default_file]' value='$file_guid'></span>";
 		}
-		$input_files = elgg_view('input/hidden', array('name'=>'item[files][]', 'value' => $file_guid));
+		$input_files = elgg_view('input/hidden', array('name'=>'attach_guids[]', 'value' => $file_guid));
 		//$thumbnail = "$input_checkbox.$input_radio.$thumbnail";
 		$options = [
 			'text' => $thumbnail, 
@@ -123,41 +135,12 @@ $edit_panel .=  "<div class='rTableRow'>
 
 $edit_panel .=  "		</div>
 	</div>";
-/*********************/
-$add_panel .= "<div class='add_to_library' style='margin:0 auto;'>";
-/*
-$add_panel .= "<div class='rTable' style='width:100%'>
-		<div class='rTableBody'>
-";
 
-$options = array('type'=>'object',
-				 'subtype'=>'file',
-				 'owner_guids'=> array($entity->owner_guid),
-			);
-$albums = elgg_get_entities($options);
-
-//	$upload_to[] = 'New Album';   //Allow upload to new album after analyze how to create new album
-	foreach ($albums as $album){
-		$upload_to[$album->guid] = $album->title;
-	}
-	$upload_to_album = elgg_view('input/select', array('name'          =>'upload_to_album',
-			                                           'options_values'=>$upload_to));
-
-$add_panel .=  "<div class='rTableRow'>
-				<div class='rTableCell' style='padding:0px 5px'><b>Upload to Album: </b>$upload_to_album</div>
-			</div>";
-$add_panel .=  "<div class='rTableRow'>
-				<div class='rTableCell' style='padding:0px 5px'>".elgg_view('input/dropzone', array('name' => 'upload_guids[]',
-																											  'accept' => "*",
-																											  'max' => 25,
-																											  'multiple' => true,
-																											  'container_guid' => $guid,
-						                                                                                      'subtype' => 'file',
-																											))."</div>
-			</div>";
-$add_panel .=  "		</div>
-	</div>";
-*/
+//$form_body .= $edit_panel;
+/*********/
+	$add_panel .= "<div class='add_to_library' style='margin:0 10px;'>
+        		<p>&nbsp;</p>
+        		<h3>New Documents</h3>";
 /*
  * Forked from mod\jot\views\default\forms\jot\attach2.php
  */
@@ -186,46 +169,72 @@ $add_panel .=  "		</div>
         $add_panel .= elgg_view('input/hidden', array('name' => 'owner_guid'    , 'value' => $owner_guid));
         
         $add_panel .= $input_form;
-        $add_panel .= '<div>';
-        $file_selection = array();
-        $checkboxes = '';
-        if ($files) {
-        // version 01
-        foreach ($files as $i) {
-        	$label = elgg_view('output/url', array(
-              'text'     => $i->title,
-              'href'     => 'file/view/'.$i->guid));
-        	$input = elgg_view('input/checkbox', array(
-        	   'id'      => $i->guid, 
-        	   'name'    => "item[files][]", 
-        	   'value'   => $i->guid,
-        	   'default' => false,
-        	   )).'<br>';
-        	$checkboxes .= "<div class='rTableRow'><div class='rTableCell' style='padding:0px;width:0px'>$input</div><div class='rTableCell' style='padding:0px'>$label</div></div>";
-//        	$checkboxes .= "<tr><td>$input</td><td>$label</td></tr>";
-            }
-        }
-        $add_panel .= "<div class='rTable' style='width:100%'>
-		<div class='rTableBody'>$checkboxes
-		</div>
-		</div>";
-        
-//        $add_panel .= "<table width=100%>$checkboxes</table>";
-        
-        $add_panel .= elgg_view('input/hidden', array('name' => 'container_guid', 'value' => $container_guid));
-        
-        if ($guid) {
-        	$add_panel .= elgg_view('input/hidden', array('name' => 'file_guid', 'value' => $guid));
-        }
-        
         $add_panel .= '</div>';
+/*********/
+$collections = elgg_get_entities(array('type'=>'object','subtype'=>'file', 'owner_guid' => $entity_owner->guid, 'limit'=>0 ));
 
-$add_panel .= "</div>";
+if ($collections) {
+	usort($collections, function($a, $b) {
+	//	return strnatcmp(strtolower($a->string), strtolower($b->string));
+		return strnatcmp(strtolower($a->title), strtolower($b->title));
+	});
+	$body = '<div class="row clearfix">
+        		<h3>Linked Documents</h3>';
+		foreach ($collections as $key=>$collection) {
+			if (empty($collection->title)){
+				unset($collections[$key]);
+				continue;
+			}
+			if (in_array($collection->guid, $document_guids)) {
+				$current_labels = array(
+					'id' => 'rdoc_' . $collection->guid,
+					'name' => 'attach_guids[]',
+					'value' => $collection->guid,
+					'checked' => 'checked',
+					'default' => false,
+				);
+		
+	//			$current_labels['checked'] = 'checked';
+				$body .= "<div class=\"elgg-col elgg-col-1of2\">";
+				$body .= elgg_view('input/checkbox', $current_labels);
+	//			$body .= "<label for=\"rtag{$collection->id}\">" . $collection->string . "</label>";
+				$body .= "<label for=\"rdoc_$collection->guid\">" . $collection->title . "</label>";
+				$body .= "</div>";
+			}
+		}
+		
+	$body .= "</div>";
+}
+$body .= $add_panel;
+if ($collections) {
+	$body .= '<div class="row clearfix">
+        		<h3>Unlinked Documents</h3>';
+	foreach ($collections as $collection) {
 
+		//if (!in_array($collection->string, $itemcollections)) {
+		if (!in_array($collection->guid, $document_guids)) {
+		$checkbox_options = array(
+			'id' => 'rdoc_' . $collection->guid,
+			'name' => 'attach_guids[]',
+			//'value' => $collection->string,
+			'value' => $collection->guid,
+			'default' => false
+		);
 
-//echo "<div id='edit_tab' style='cursor:pointer'><h4>Edit Images in This Gallery</h4></div>";
-//echo "<div id='edit_panel' class='elgg-head edit-panel'>$edit_panel</div>";
-//echo "<div id='add_tab' style='cursor:pointer'><h4>Add Images to This Gallery</h4></div>";
-echo "<div id='add_panel' class='elgg-head'>$add_panel</div>";
-       
+//		if (in_array($collection->string, $itemcollections)) {
+//			$checkbox_options['checked'] = 'checked';
+//		}
+		
+		$body .= "<div class=\"elgg-col elgg-col-1of2\">";
+		$body .= elgg_view('input/checkbox', $checkbox_options);
+		//$body .= "<label for=\"rtag{$collection->id}\">" . $collection->string . "</label>";
+		$body .= "<label for=\"rdoc_$collection->guid\">" . $collection->title . "</label>";
+		$body .= "</div>";
+	}
+	}
+	$body .= '</div><br>';
+}
+$form_body .= $body;
+
+echo $form_body;
 //echo $display;

@@ -5,16 +5,18 @@
  * @uses $vars['section']
  */
 
-$selected  = elgg_extract('this_section', $vars);
-$this_guid = elgg_extract('guid'        , $vars);
-$class     = elgg_extract('class'       , $vars);
-$action    = elgg_extract('action'      , $vars);
-$ul_style  = elgg_extract('ul_style'    , $vars);
-$ul_aspect = elgg_extract('ul_aspect'   , $vars);
-$li_style  = elgg_extract('li_style'    , $vars);
-$li_aspect = elgg_extract('li_aspect'   , $vars);
-$state     = elgg_extract('state'       , $vars, 'selected');
-$expand_tabs = elgg_extract('expand_tabs', $vars, false);
+$selected  = elgg_extract('this_section'  , $vars);
+$this_guid = elgg_extract('guid'          , $vars);
+$class     = elgg_extract('class'         , $vars);
+$action    = elgg_extract('action'        , $vars);
+$ul_style  = elgg_extract('ul_style'      , $vars);
+$ul_aspect = elgg_extract('ul_aspect'     , $vars);
+$li_style  = elgg_extract('li_style'      , $vars);
+$li_aspect = elgg_extract('li_aspect'     , $vars);
+$link_class  = elgg_extract('link_class'  , $vars);
+$link_aspect = elgg_extract('link_aspect' , $vars);
+$state     = elgg_extract('state'         , $vars, 'selected');
+$expand_tabs = elgg_extract('expand_tabs' , $vars, false);
 /***/
 $selected_queb     = elgg_extract('this_label'   , $vars);
 $selected_category = elgg_extract('this_collection', $vars);
@@ -41,6 +43,11 @@ Switch ($scope){
         $queb      = get_entity($this_guid);
         $subtype   = elgg_extract('subtype'     , $vars) ?: $queb->getSubtype();   $display .= '39 $subtype: '.$subtype.'<br>';
         $aspect    = $queb->aspect;                                                $display .= '40 $aspect: '. $aspect.'<br>';
+        $compartment = elgg_get_entities([
+        		'type'          =>'object',
+        		'container_guid'=>$this_guid,
+        		'limit'         => 1]);
+        $compartment = $compartment[0];                                           $display .= '46 $compartment->aspect: '.$compartment->aspect.'<br>';
             
         switch ($subtype) {
         	case 'task_top':
@@ -105,7 +112,13 @@ Switch ($scope){
         	            $expand_tab = 'Instructions';
         	            break;
         	        case 'observation':
-        	            $expand_tab = 'Observation';
+        	        	if ($compartment){
+        	        		$expand_tab = $compartment->aspect;
+        	        	}
+        	        	else {
+        	        		$expand_tab = 'Observation';
+        	        	}
+//        	        		$expand_tab = 'Observation';
         	            break;
         	        case 'event':
         	            $expand_tab = 'Event';
@@ -139,7 +152,7 @@ Switch ($scope){
 */
 // @EDIT 2018-07-12 - SAJ - Add Issue tab.  Will later integrate into Expand tab
         				$sections[] = 'Issue';
-        				$sections[] = 'Project';
+        				//$sections[] = 'Project';
         				break;
         			case 'edit':
         	            $selected   = $selected ?: $expand_tab;
@@ -152,6 +165,7 @@ Switch ($scope){
         				}
         				break;
         			case 'view':
+        	            $selected   = $selected ?: $expand_tab;
         				$sections[] = 'Things';
         				$sections[] = 'Documents';
         				$sections[] = 'Gallery';
@@ -251,7 +265,7 @@ Switch ($scope){
                 $id = 'Jot_experience_gallery_tab';
                 $panel = $section;
             }
-            elseif ($subtype == 'experience' && ($section == 'Expand...' || $section == 'Instructions' || $section == 'Observation' || $section == 'Event' || $section == 'Project'  || $section == 'Issue')){
+            elseif ($subtype == 'experience' && ($section == 'Expand...' || $section == 'Instructions' || $section == 'Observation' || $section == 'Event' || $section == 'Project'  || $section == 'Issue'|| $section == 'issue')){
                 $id = 'Expand_tab';
                 $panel = 'Expand';
             }
@@ -283,17 +297,19 @@ Switch ($scope){
         	        break;
         	}        	
         	$tabs[] = array(
-        		'title'    => elgg_echo("$section"),
-        		'selected' => $section == $selected && $state == 'selected',
-        		'id'       => $id,
-        	    'style'    => $li_style,
-        	    'class'    => $li_class,
-        	    'count'    => $count,
-        	    'guid'     => $this_guid,
-        	    'panel'    => $panel,
-        	    'aspect'   => $subtype,
-        	    'section'  => $section,
-        		'expand_tabs'=>$expand_tabs,
+        		'title'      => elgg_echo("$section"),
+        		'selected'   => $section == $selected && $state == 'selected',
+        		'id'         => $id,
+        	    'style'      => $li_style,
+        	    'class'      => $li_class,
+        	    'link_class' => $link_class,
+        	    'count'      => $count,
+        	    'guid'       => $this_guid,
+        	    'panel'      => $panel,
+        	    'aspect'     => $subtype,
+        		'action'     => $action,
+        	    'section'    => $section,
+        		'expand_tabs'=> $expand_tabs,
         	); 
         }
         $vars['tabs']=$tabs;

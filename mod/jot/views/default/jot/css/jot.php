@@ -42,6 +42,7 @@
 .rTableCell {
     	display: table-cell;
     	padding: 3px 5px;
+    	vertical-align: top;
 <!--    	border: 1px solid #999999;-->
 }
 .rTableHead  {

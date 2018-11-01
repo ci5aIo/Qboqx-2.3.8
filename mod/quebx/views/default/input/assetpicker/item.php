@@ -56,7 +56,7 @@ $item = "<li data-guid= $entity_guid>
 		<div class='elgg-image-alt'>$detach_link</div>
 		<div class='elgg-head'>$name_link</div>
 	</div>
-	<input type='hidden' name='{htmlspecialchars($variable_name, ENT_QUOTES, 'UTF-8')}[]' value='$variable_value />
+	<input type='hidden' name='".htmlspecialchars($variable_name, ENT_QUOTES, 'UTF-8')."[]' value='$variable_value' />
 	$snapshot_input
 </li>";
 echo $item;

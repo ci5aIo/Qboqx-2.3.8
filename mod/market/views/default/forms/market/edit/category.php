@@ -154,7 +154,7 @@ $edit_panel .=  "<div class='rTableRow'>
 
 $edit_panel .=  "		</div>
 	</div>";
-
+$title = elgg_view('input/text', array('name' => 'item[title]', 'value' => $entity->title, 'placeholder'=>'Title',)).elgg_view('input/hidden', array('name' => 'jot[title]', 'value' => $entity->title));
 if ($allowhtml != 'yes') {
 	$description  = "<small><small>" . sprintf(elgg_echo("market:text:help"), $numchars) . "</small></small><br />";
 	$description .= <<<HTML
@@ -177,7 +177,16 @@ $category_panel .= "<div class='rTable' style='width:100%'>
 		<div class='rTableBody'>
 			<div class='rTableRow'>
 				<div class='rTableCell' style='width:20%;padding:0px 5px'>Title</div>
-				<div class='rTableCell' style='width:80%;padding:0px 5px'>".elgg_view('input/text', array('name' => 'item[title]', 'value' => $entity->title, 'placeholder'=>'Title',)).elgg_view('input/hidden', array('name' => 'jot[title]', 'value' => $entity->title))."</div>
+				<div class='rTableCell' style='width:80%;padding:0px 5px'>
+					<div data-reactroot='' class='AutosizeTextarea___2iWScFt62' style='display: flex;margin-bottom: 0;'>
+						<div class='AutosizeTextarea__container___31scfkZp' style='flex-basis: 500px;'>
+							$title
+						</div>
+						<div style='margin: 3px 3px 0 15px;float: right;order:2;'>
+							<button class='autosaves button std do' data-guid='$guid' data-qid='q{$guid}' type='submit' tabindex='-1' data-perspective='save'>Save</button>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class='rTableRow'>
 				<div class='rTableCell' style='width:20%;padding:0px 5px;vertical-align:top;'>Description</div>

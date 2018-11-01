@@ -331,11 +331,12 @@ if ($item) {
             								         'data-colorbox-opts' => '{"width":500, "height":525}',
             					                     'href'               => "shelf/show/$item_guid",));
     }
-	
-    foreach($view_menu as $menu_item){
+	if ($view_menu){
+	    foreach($view_menu as $menu_item){
 //@EDIT_TEMP - 2017-11-07 - SAJ - Remove to troubleshoot javascript issues 
 //    	elgg_register_menu_item('page', $menu_item);
-    }
+	    }
+	}
 	elgg_push_breadcrumb(elgg_echo('market:title'), "queb");
 	
     if ($owner_item->getType() == 'user'){

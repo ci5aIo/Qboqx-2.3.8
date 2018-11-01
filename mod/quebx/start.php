@@ -281,6 +281,7 @@ function q_menu($hook, $type, $return, $params) {
 		(!elgg_instanceof($params['entity'], 'object', 'market') 
       && !elgg_instanceof($params['entity'], 'object', 'item') 
       && !elgg_instanceof($params['entity'], 'object', 'transfer')
+      && !elgg_instanceof($params['entity'], 'object', 'experience')
       && !elgg_instanceof($params['entity'], 'object', 'hjalbumimage')
 		) 
 	  || !$params['entity']->canEdit()

@@ -12,41 +12,205 @@ define(function(require) {
        e.preventDefault();
 
        var ajax = new Ajax();
+       var $this = $(this);
        var $receipt_card = $('div.qbox#'+qid);
-       var field_type = $(this).data("element");
-       var guid     = $(this).attr("guid");
-       var qid      = $(this).data("qid");
-       var rows     = +($(this).attr("data-rows"));
+       var element = $(this).attr("data-element");
+       var guid     = $(this).attr("guid") || $(this).attr("data-guid");
+       var qid      = $(this).attr("data-qid");
+       var cid      = $(this).attr("data-cid");
+       var parent_cid = $(this).parents('.edit.details[data-guid='+guid+']').attr('data-cid');
+	   if (typeof parent_cid == 'undefined')
+	       parent_cid = $(this).attr('data-parent-cid');
+       var rows     = +($(this).attr("data-rows")),
+           lastRow  = +($(this).attr("data-last-row")),
+           new_line_items = qid+'_new_line_items',
+           new_property_cards = qid+'_line_item_property_cards';
        console.log('rows from data: '+ rows);
+       console.log('parent_cid: '+parent_cid);
+       console.log('cid: '+cid);
        if (rows == 0){
     	   rows = $(this).parents('div.rTableBody').find('.rTableRow.receipt_item').length;
        }
-       var n          = (rows+1);
+       var n          = (rows + 1);
+       var x          = (lastRow + 1);
        var qid_n      = qid+'_'+n;
+       switch (element){
+	       case 'new_receipt_item':
+	    	   property_element = 'properties';
+	       break;
+	       case 'new_service_item':
+	    	   property_element = 'properties_service_item';
+	    	   cid              = cid;
+	    	   parent_cid       = parent_cid;
+	    	   new_line_items   = cid+'_new_line_items'
+	    	   new_property_cards = cid+'_line_item_property_cards'
+	    	   break;
+	   }
        console.log('rows: '+rows);
+       console.log('qid: '+qid);
        console.log('qid_n: '+qid_n);
+       console.log('guid: '+guid);
        
-       $(this).attr("data-rows", n);
        ajax.view('partials/jot_form_elements',{
     	   data: {
-    		 element: field_type,
-    		 guid: guid,
+    		 element: element,
+//    		 guid: guid,
     		 qid_n: qid_n,
-    		 qid: qid
+    		 qid: qid,
+    		 cid: cid,
+    		 parent_cid: parent_cid,
+    		 n: x,
     	   },
        }).done(function(output) {
-    	   $('div#'+qid+'_new_line_items').before($(output));
+    	   $('div#'+new_line_items).before($(output));
        });
+
        ajax.view('partials/jot_form_elements',{
     	   data: {
-    		 element: 'properties',
-    		 guid: guid,
+    		 element: property_element,
+//    		 guid: guid,
     		 qid_n: qid_n,
-    		 qid: qid
+    		 qid: qid,
+    		 cid: cid,
+    		 parent_cid: parent_cid,
+    		 n: x,
     	   },
        }).done(function(property_card) {
-    	   $('div#'+qid+'_line_item_property_cards').after($(property_card));
+    	   $('div#'+new_property_cards).after($(property_card));
+       }).success(function(){
+    	   $this.attr("data-rows", n);
+	       $this.attr("data-last-row", x);
        });
+	   
+   });
+   $(document).on('click', '.TaskEdit__submit___3m10BkLZ', function(e){
+       e.preventDefault();
+       var cid          = $(this).attr("data-cid"),
+       	   parent_cid   = $(this).parents('.edit.details').attr('data-cid'),
+           qid          = $(this).attr("data-qid"),
+           state        = $(this).attr('data-aid').replace('TaskButton',''),
+           egg          = $(this).hasClass('egg');
+       var service_name = $(this).parents('.TaskEdit__descriptionContainer___3NOvIiZo').find("textarea[data-focus-id=NameEdit--"+cid+"]").val();
+       var service_desc = $(this).parents('.TaskEdit__descriptionContainer___3NOvIiZo').find("textarea[data-focus-id=ServiceEdit--"+cid+"]").val();
+       var service_items= $(this).parents('.TaskEdit__descriptionContainer___3NOvIiZo').find("a.new-item").attr('data-rows'),
+           show_service = true,
+           show_desc    = true;
+       if (typeof service_name == 'undefined')
+    	   show_service = false;
+       if (typeof service_desc == 'undefined')
+           show_desc    = false;
+       var this_element = $(this),
+   	       $this_panel  = $(this).parents('.TaskEdit___1Xmiy6lz'),
+           $container   = $(this).parents('.ServiceEffort__26XCaBQk').parent(),
+           $show_panel  = $(this).parents('.ServiceEffort__26XCaBQk').find('.TaskShow___2LNLUMGe'),
+           $add_panel   = $(this).parents('.ServiceEffort__26XCaBQk').find('.AddSubresourceButton___2PetQjcb'),
+           ajax         = new Ajax(),
+           new_cid      = "c"+Math.floor((Math.random()*200)+1),
+           property_element = 'properties_service_item';
+       var eggs = parseInt($('span.tasks-count[data-cid='+parent_cid+']').attr('eggs'), 10);
+       if (isNaN(eggs)){eggs = 0;}
+       console.log('cid: '+cid);
+       console.log('parent_cid: '+parent_cid);
+       console.log('service_name: '+service_name);
+       console.log('state: '+state);
+       if (show_service){
+    	   if (!show_desc){service_desc='Describe the service';}
+           $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+service_name+'</p>');
+           $show_panel.find('.TaskShow__description___qpuz67f').html('<p>'+service_desc+'</p>');
+           $show_panel.show();
+           $show_panel.find('button.IconButton___2y4Scyq6').show();
+           $this_panel.hide();
+           if (state=='add'){
+        	   $(this).attr('data-aid', 'saveTaskButton');
+        	   $(this).html('Save');
+	           ajax.view('partials/jot_form_elements',{
+		    	   data: {
+		    		   element: 'new_service_task',
+		    		   cid: new_cid,
+		    		   parent_cid: parent_cid,
+		    		   qid: qid
+		    	   },
+		       }).done(function(output) {
+		    	   $container.append($(output));
+		       }).success(function(){
+		    	   if (egg){
+	                 	$('span.tasks-count[data-cid='+parent_cid+']').attr('eggs', ++eggs);
+	                 	$(this_element).removeClass('egg');
+	                 }
+		       });
+           }
+       }
+       else {
+           $add_panel.show();
+           $this_panel.hide();
+       }
+   });
+   // Remedies>Effort
+   $(document).on('click', '.EffortEdit__submit___CfUzEM7s', function(e){
+       e.preventDefault();
+       var cid          = $(this).attr("data-cid"),
+           qid          = $(this).attr("data-qid"),
+           state        = $(this).attr('data-aid').replace('EffortButton','')
+           show_effort  = true,
+           egg          = $(this).hasClass('egg');
+       var this_element = $(this),
+       	   $container   = $(this).parents('.Effort__CPiu2C5N').parent(),
+           $this_panel = $(this).parents('.Effort__CPiu2C5N').children('.EffortEdit_fZJyC62e'),
+           $show_panel = $(this).parents('.Effort__CPiu2C5N').children('.EffortShow_haqOwGZY'),
+           $add_panel  = $(this).parents('.Effort__CPiu2C5N').children('.AddSubresourceButton___S1LFUcMd');
+       var effort_name = $this_panel.find("textarea[data-focus-id=NameEdit--"+cid+"]").val();
+       var ajax         = new Ajax(),
+           new_cid      = "c"+Math.floor((Math.random()*200)+1),
+           service_cid  = "c"+Math.floor((Math.random()*200)+1),
+           property_element = 'properties_service_item';
+       var eggs = parseInt($('span.efforts-eggs[data-qid='+qid+']').attr('eggs'), 10);
+       if (isNaN(eggs)){eggs = 0;}
+       console.log('cid: '+cid);
+       console.log('service_cid'+service_cid);
+       console.log('effort_name: '+effort_name);
+       console.log('state: '+state);
+       if(typeof effort_name == 'undefined'){
+           show_effort = false;
+       }
+       else {
+           if (effort_name.length == 0)
+               show_effort = false;
+       }
+       if (show_effort){
+           $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+effort_name+'</p>');
+           // remove vestigal spans
+           $show_panel.find('span.TaskShow__description___qpuz67f').remove();
+           $show_panel.find('span.TaskShow__service_items___2wMiVig').remove();
+           $show_panel.show();
+           $show_panel.find('button.IconButton___4wjSqnXU').show(); //restore delete button hidden if/when state = add
+           $this_panel.hide();
+           if (state=='add'){
+        	   $(this).attr('data-aid', 'saveEffortButton');
+        	   $container.attr('data-aid', 'edit');
+        	   $container.find('#story_delete_button_'+cid).removeAttr('disabled');
+        	   $(this).html('Save');
+	           ajax.view('partials/jot_form_elements',{
+		    	   data: {
+		    		   element: 'new_remedy_item',
+		    		   cid: new_cid,
+		    		   service_cid: service_cid,
+		    		   qid: qid
+		    	   },
+		       }).done(function(output) {
+		    	   $container.append($(output));
+		       }).success(function(){
+		    	   $('span.qbox-menu[data-qid='+qid+']').show();
+	               if (egg){
+	                 	$('span.efforts-eggs[data-qid='+qid+']').attr('eggs', ++eggs);
+	                 	$(this_element).removeClass('egg');
+	                 }
+		       });
+           }
+       }
+       else {
+           $add_panel.show();
+           $this_panel.hide();
+       }
    });
    $(document).on('click', 'a.jot-q', function(e) {
        e.preventDefault();
@@ -57,7 +221,8 @@ define(function(require) {
            qid        = $(this).data("qid"),
            space      = $(this).data("space"),
            perspective= $(this).data("perspective"),
-           presentation= $(this).data("presentation");
+           presentation= $(this).data("presentation"),
+           action     = $(this).data("action");
        if (perspective == 'add'){
     	   qid        = "q"+Math.floor((Math.random()*200)+1);                 // allow multiple forms for new jots
        }
@@ -109,6 +274,7 @@ define(function(require) {
 	    		 qid: qid,
 	    		 space: space,
 	    		 aspect: aspect,
+	    		 action: action,
 	    		 perspective: perspective,
 	    		 presentation: presentation,
 	    		 context: context
@@ -117,16 +283,20 @@ define(function(require) {
 	    	   switch (context){
 		    	   case "view_item":
 		    		   console.log('context: '+context);
-		    		   $('h3.quebx-menu-q').after($(output));
+		    		   $.colorbox({html:$(output), top:"5px", overlayClose:false, escKey:false, reposition:false});
+		    		   //Doesn't work.  Overridden in lightbox.css.  Not sure of the ramifications.
+		    		   //$('#cboxOverlay').removeClass('overflow');
+		    		   //$.colorbox.resize();
 		    		   break;
 		    	   case "market":
 		    		   console.log('context: '+context);
-		    		   $(this_element).parents('div.quebx-menu-q').append($(output));
+		    		   $(this_element).parents('.quebx-menu-q').append($(output));
 		    		   //$('li#elgg-object-'+guid).prepend($(output));
 		    		   break;
 		    	   case "ajax":
 		    		   console.log('context: '+context);
-		    		   $(this_element).parents("div.menu-q-expand-content").append($(output));
+//		    		   $(this_element).parents(".menu-q-expand-content").append($(output));
+		    		   $('div.qbox-'+guid+'.qbox-details').append($(output));
 		    		   break;
 		    	   case "widgets":
 		    		   console.log('context: '+context);
@@ -134,7 +304,7 @@ define(function(require) {
 		    		   break;
 		    	   case 'quebx':
 		    		   console.log('context: '+context);
-		    		   $("div.elgg-main.elgg-body").children("div.elgg-head.clearfix").append($(output));
+		    		   $("div.elgg-main.elgg-body").children(".elgg-head.clearfix").append($(output));
 		    		   break;
 	    	   }
 	       });   
@@ -144,26 +314,45 @@ define(function(require) {
        e.preventDefault();
        var ajax       = new Ajax();
        var guid       = $(this).attr('guid');
-       var qid        = $(this).data('qid');
-       var qbox_exists = $('div#'+qid).length>0;
-	   var selected   = $(this).parents('li.qbox-q').hasClass('elgg-state-selected');
-	   var aspect     = $(this).attr('aspect');
+       var qid        = $(this).attr('data-qid'),
+           cid        = "c"+Math.floor((Math.random()*200)+1),
+           service_cid= "c"+Math.floor((Math.random()*200)+1);
+       var qbox       = $('div#'+qid);
+       var qbox_exists= qbox.length>0;
+       var section_remove = $(this).parent().children('.qbox-section-remove'),
+           section_remove_exists = true;
+	   var selected   = $(this).parent('li.qbox-q').hasClass('elgg-state-selected');
+	   var aspect     = $(this).attr('aspect'),
+	       action     = $(this).attr('action');
 	   var panel      = $(this).parent().attr('panel');
 	   var element    = $(this).data('element');
 	   var section    = $(this).data('section');
+	   var this_element = $(this);
+/*       if (typeof $qbox == 'undefined')
+	       qbox_exists= false;
+*/       if (typeof section_remove == 'undefined')
+    	   section_remove_exists= false;
 	   console.log('element: '+element);
 	   console.log('selected: '+selected);
 	   console.log('aspect: '+aspect);
 	   console.log('guid: '+guid);
+	   console.log('cid: '+cid);
+	   console.log('service_cid: '+service_cid);
+	   console.log('qid: '+qid);
+	   console.log('section: '+section);
+	   console.log('qbox: '+qbox); 
+	   console.log('qbox.length: '+qbox.length);
+	   console.log('qbox_exists '+qbox_exists);
 	   if(!selected){
 		   $(this).parents('ul').find("li.qbox-q").removeClass('elgg-state-selected');
 	       $(this).parents('.rTableCell').find('div[aspect=attachments]').hide();
 	       $(this).parents('.rTableCell').find('div.menu-q-expand-content').hide();
-		   $(this).parents('li.qbox-q').addClass('elgg-state-selected');
+		   $(this).parent('li.qbox-q').addClass('elgg-state-selected');
 	   }
 	   else {
-		   $(this).parents('li.qbox-q').removeClass('elgg-state-selected');
+		   $(this).parent('li.qbox-q').removeClass('elgg-state-selected');
 	   }
+	   $('div.experience-panel[guid='+guid+']').hide();
 	   /*
 	       $(document).on("click","li.qbox-q", function(e) {
 	           var section = $(this).children('.qbox-q').data('section');
@@ -178,7 +367,7 @@ define(function(require) {
 	   if (section == 'expand...'){
 		   if(qbox_exists){
 			   $('div#'+qid).show();}
-	       if(!selected){
+		   if(!selected){
 	    	   $(this).parents('.rTableCell').find('.menu-q-expand-content').show();
 	       }
 	       else {
@@ -203,14 +392,32 @@ define(function(require) {
 	    		 element: element,
 	    		 guid: guid,
 	    		 qid: qid,
+	    		 cid: cid,
+	    		 service_cid: service_cid,
 	    		 aspect: aspect,
+	    		 action: action,
 	    		 section: section
 	    	   },
 	       }).done(function(output) {
-	    	   $('div.qbox-'+guid+'.qbox-details').append($(output));
-//    		   $('ul.qbox-'+guid+'[aspect=attachments]').after($(output));
+    	   $('div.qbox-'+guid+'.qbox-details').append($(output));
+    	   $(this_element).colorbox.resize();
+		   $('#cboxLoadedContent').css('overflow', 'visible');
+//		   $('ul.qbox-'+guid+'[aspect=attachments]').after($(output));
 	       });   
 	    }
+	   ajax.view('partials/jot_form_elements',{
+    	   data: {
+    		 element: 'qbox-menu',
+    		 guid: guid,
+    		 qid: qid,
+    		 cid: cid,
+    		 service_cid: service_cid,
+    		 aspect: aspect,
+    		 section: section
+    	   },
+       }).done(function(output) {
+	       $(this_element).parent().prepend($(output));
+       });
    });
    $(document).on('click', 'button.do[data-perspective=save]', function(e){
 	   e.preventDefault();
@@ -308,6 +515,10 @@ define(function(require) {
 						console.log('status_tag: '+status_tag);
 						$(transfer).find('td.status').html(status_tag);
 						$(transfer).find('td.status').attr('title', status_msg);
+						break;
+					case 'item':
+						console.log('title: '+title);
+						$(item).find('a.do[data-qid='+qid+'][data-perspective=view]').text(title);
 						break;
 					default:
 						$(item).find('a.do[data-qid='+qid_n+'][data-perspective=view]').text(title);

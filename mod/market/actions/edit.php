@@ -15,7 +15,7 @@ gatekeeper();
 // Get input data
 $guid               = (int) get_input('guid');      
 $jot                =       get_input('jot');                                      //$display .= '$jot: '.$jot.'<br>';
-if (!$guid){$guid   = (int) get_input('marketpost');}                              //$display .= '$guid: '.$guid.'<br>';
+if (!$guid){$guid   = (int) get_input('marketpost');}                              $display .= '18 $guid: '.$guid.'<br>';
 $container_guid     = (int) get_input('container_guid');
 $parent_guid        = (int) get_input('parent_guid');
 $title              =       get_input('title');
@@ -28,14 +28,18 @@ $tags        =       get_input('markettags');
 $access             =       get_input('access_id');
 $item               =       get_input('item');
 $apply              =       get_input('apply');
-$upload_guids       =       get_input('upload_guids', array());                    $display .= '31 upload_guids[][] '.print_r($upload_guids, true).'<br>';
+$library_guids      =       get_input('attach_guids');
+$upload_guids       =       get_input('upload_guids', array());                    //$display .= '31 upload_guids[][] '.print_r($upload_guids, true).'<br>';
 // guids of files uploaded using filedrop
-$filedrop_guids     =       get_input('filedrop_guids', array());                  $display .= '32 filedrop_guids[] '.print_r($filedrop_guids, true).'<br>';
+$filedrop_guids     =       get_input('filedrop_guids', array());                 // $display .= '32 filedrop_guids[] '.print_r($filedrop_guids, true).'<br>';
 if (!is_array($filedrop_guids)) {
 	$filedrop_guids = array();
 }
+if ($library_guids & !is_array($library_guids)){
+	$library_guids = array();
+}
 if ($filedrop_guids & empty($upload_guids)){
-	foreach($filedrop_guids as $image_guid){                                       $display .= '38 $filedrop_guids['.$image_guid.']<br>';
+	foreach($filedrop_guids as $image_guid){                                      // $display .= '38 $filedrop_guids['.$image_guid.']<br>';
 		$upload_guids[][] = $image_guid;
 	}
 }
@@ -69,12 +73,12 @@ elgg_make_sticky_form('market');
 $tagarray = string_to_tag_array($tags);
 $error = FALSE;
 
-if (filter_var($title, FILTER_VALIDATE_URL)){                                         $display .= 'url entered<br>';
+if (filter_var($title, FILTER_VALIDATE_URL)){                                        // $display .= 'url entered<br>';
     // user entered a URL as a title
     $url = true;
     $source_array = hypeScraper()->resources->get ($title, null, true);
     $title        = $source_array['metatags']['og:title'];
-    $title = !empty($title) ? $title : $source_array['title'];                 $display .= '$title: '.$title.'<br>';
+    $title = !empty($title) ? $title : $source_array['title'];                 //$display .= '$title: '.$title.'<br>';
     $description  = $source_array['metatags']['description'];
     $description  = !empty($description) ? $description : $source_array['description'];
     $tags = $source_array['metatags']['keywords'];
@@ -87,7 +91,7 @@ if (filter_var($title, FILTER_VALIDATE_URL)){                                   
             foreach($thumbnails as $key=>$image_url){
                 if (filter_var($image_url, FILTER_VALIDATE_URL)){
                     if (empty($icon_url) && strpos($image_url, 'image')>0){
-                        $icon_url = $thumbnails[$key];                         $display .= '$icon_url: '.$icon_url.'<br>';
+                        $icon_url = $thumbnails[$key];                         //$display .= '$icon_url: '.$icon_url.'<br>';
                         continue;
                     }
                 }
@@ -194,10 +198,10 @@ else {
     	$filehandler->setFilename($prefix . $filehandler->guid. ".jpg");
     	$filehandler->open("write");
     	$filehandler->write(file_get_contents($icon_url));
-    	$filehandler->close();                                                        $display .= 'filename: '.$filehandler->getFilenameOnFilestore().'<br>';
+    	$filehandler->close();                                                       // $display .= 'filename: '.$filehandler->getFilenameOnFilestore().'<br>';
     	hypeJunction\Gallery\generate_entity_icons($filehandler);
-    	$upload_guids[] = [$filehandler->guid];                                       $display .= '189 $upload_guids[0][0]: '.$upload_guids[0][0].'<br>';
-  }
+    	$upload_guids[] = [$filehandler->guid];                                       //$display .= '189 $upload_guids[0][0]: '.$upload_guids[0][0].'<br>';
+	}
 	if ($url){
 	    $item_images  = $filehandler->guid;
 	    $entity->icon = $filehandler->guid;
@@ -216,7 +220,7 @@ else {
 	}
 	else {$remaining = $item_images;}
 	
-	foreach ($remaining as $this_key=>$guid){                                     //$display .= '$remaining['.$this_key.'] => '.$guid.'<br>';
+	foreach ($remaining as $this_key=>$this_guid){                                     //$display .= '$remaining['.$this_key.'] => '.$this_guid.'<br>';
 	}
 	$item['images'] = $remaining;
 	$images         = $remaining; 
@@ -224,7 +228,7 @@ else {
 // @TODO - Analyze how to create new album.  Permit 'New Album' option on input form.
 	
 	if ($upload_guids && !is_array($upload_guids)){$upload_guids = [$upload_guids];}
-	if ($upload_guids) {                                                         $display .= '218 $upload_guids[0]: '.$upload_guids[0].'<br>';
+	if ($upload_guids) {                                                         //$display .= '218 $upload_guids[0]: '.$upload_guids[0].'<br>';
 		
 		$metadata = elgg_get_metadata(array(
 		'guid' => $album->guid,
@@ -240,9 +244,9 @@ else {
 			}
 		}
 		
-		foreach($upload_guids as $key=>$value){                               $display .= '231 $key['.$key.'] = '.$value.'<br>';
-			foreach($value as $this_key=>$upload_guid){	                      $display .= '232 $this_key=>$upload_guid: ['.$this_key.']=>'.$upload_guid.'<br>'; 
-				$images[] = $upload_guid;                                     $display .= '233 $upload_guid:'.$upload_guid.'<br>';
+		foreach($upload_guids as $key=>$value){                               //$display .= '231 $key['.$key.'] = '.$value.'<br>';
+			foreach($value as $this_key=>$upload_guid){	                      //$display .= '232 $this_key=>$upload_guid: ['.$this_key.']=>'.$upload_guid.'<br>'; 
+				$images[] = $upload_guid;                                     //$display .= '233 $upload_guid:'.$upload_guid.'<br>';
 				
 				$image = get_entity($upload_guid);                            //$display .= '169 $image->guid:'.$image->guid.'<br>'; 
 				if (!elgg_instanceof($image)) {                               //$display .= '170 !elgg_instanceof($image)<br>';
@@ -265,7 +269,7 @@ else {
 					$image->$name = $album->$name;
 				}
 		
-				if ($image->save()) {                                                 $display .= '257 image saved: '.$upload_guid.'<br>';
+				if ($image->save()) {                                                // $display .= '257 image saved: '.$upload_guid.'<br>';
 				}
 			}
 		}			
@@ -273,19 +277,44 @@ else {
 
 	if (!is_array($images)){$images = array($images);}
 	$item['images'] = $images; 
-	foreach ($item['images'] as $this_key=>$guid){                                   $display .= '265 $item_images['.$this_key.'] => '.$guid.'<br>';
-	}                                                                                
-
+	foreach ($item['images'] as $this_key=>$this_guid){                                  // $display .= '280 $item_images['.$this_key.'] => '.$this_guid.'<br>';
+	}                                        
+  	
+  	$documents = elgg_get_entities_from_relationship(array(
+		'type' => 'object',
+		'relationship' => 'document',
+		'relationship_guid' => $guid,
+		'inverse_relationship' => true,
+		'limit' => false,
+		));                                                                     $display .= '289 count($documents): '.count($documents).'<br>289 count($library_guids)'.count($library_guids).'<br>289 $guid: '.$guid.'<br>';
+  	// Detach unchecked documents
+	if(count($documents)>0){
+		foreach($documents as $document){                                       $display .= '291 $document: '.$document->guid.'<br>';
+			$document_guids[]=$document->guid;
+			if (!in_array($document->guid, $library_guids) || empty($library_guids)){ $display .= '294 guid not found in library_guids<br>';
+				remove_entity_relationship($document->guid, 'document', $guid);
+			}
+		}
+	}
+// Attach documents	
+  	if ($library_guids){
+		foreach($library_guids as $key=>$file_guid){
+			if (!check_entity_relationship($file_guid, 'document', $guid)){
+				 add_entity_relationship($file_guid, 'document', $guid);
+			}
+		}
+	}
+	
 // Find and remove empty fields that existed previously.
 	if ($jot){
 	    foreach ($jot as $key => $value){
 	        if ($jot[$key] && !$item[$key]){
-	            $item[$key] = NULL;                                           $display .= '$jot[$key] '.$jot[$key].'<br>$item[$key] '.$item[$key].'<br>';
+	            $item[$key] = NULL;                                           //$display .= '311 $jot[$key] '.$jot[$key].'<br>$item[$key] '.$item[$key].'<br>';
 	        }
 	    }
 	}
 // Push processed $item[] to $entity
-  	if (is_array($item)){                                                      $display .= '275 $item values received ...<br>';
+  	if (is_array($item)){                                                      $display .= '317 $item values received ...<br>';
 	  	foreach($item as $key => $value){
 	  	    $entity->$key = $value;                                            //$display .= '&nbsp;&nbsp;&nbsp;'.$key.'=>'.$value.'<br>';
 			                                                                   //$display .= '$entity->'.$key.'=>'.$entity->$key.'<br>';
@@ -311,8 +340,8 @@ else {
 //	if (count($images) == 1){$entity['images'][0] = $images[0];}                //$display .= '222 '.$entity->images.'<br>'; 
 	if ($entity->record_stage == 'newborn' || $entity->record_stage == ''){$entity->record_stage = 'defined';}
 	if (isset($categories)){
-	    $entity->category     = (int) $categories[0];                                   $display .= '302 $entity->category '.$entity->category.'<br>';
-	    $parent_category_guid = (int) $categories[0];                                   $display .= '303 $parent_category_guid:'.$parent_category_guid.'<br>';
+	    $entity->category     = (int) $categories[0];                                   $display .= '343 $entity->category '.$entity->category.'<br>';
+	    $parent_category_guid = (int) $categories[0];                                   $display .= '344 $parent_category_guid:'.$parent_category_guid.'<br>';
 	}
 	if (isset($custom_categories)){
 	    // determine the parent category
@@ -325,10 +354,10 @@ else {
     	if (is_string($custom_categories)) {
     		$ar = explode(":", $custom_categories);
     		foreach ($ar as $a){
-    		    $ar2[] = trim($a);                                                      $display .= 'trim($a):'.trim($a).'<br>';
+    		    $ar2[] = trim($a);                                                      $display .= '357 trim($a):'.trim($a).'<br>';
     		}
     	}
-    	foreach ($ar2 as $key=>$a){                                                     $display .= '$key=>$a: '.$key.'=>'.$a.'<br>';
+    	foreach ($ar2 as $key=>$a){                                                     $display .= '360 $key=>$a: '.$key.'=>'.$a.'<br>';
     		// find existing categories at this level
     	    $subcat_names = array();
     	    $subcategories = hypeJunction\Categories\get_subcategories($parent_category_guid);

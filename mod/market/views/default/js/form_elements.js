@@ -9,22 +9,42 @@ define(function(require) {
    $(document).on('click', '.trigger-element', function(e) {
        e.preventDefault();
 
-       var ajax = new Ajax();
-       var field_type = $(this).data("element");
-       var entity     = $(this).attr("guid");
-       var cid        = "c"+Math.floor((Math.random()*200)+1);
+       var ajax         = new Ajax();
+       var element      = $(this).data("element");
+       var entity       = $(this).attr("guid");
+       var cid          = "c"+Math.floor((Math.random()*200)+1),
+           service_cid  = "c"+Math.floor((Math.random()*200)+1);
+       var qid          = $(this).data('qid');
+       var this_element = this;
+       var container    = $(this).parents('.inline-content-expand');
+       var visible_container = $(container).children('.inline-visible');
+       console.log('#colorbox.top: '+$('#colorbox').offset().top);
+       console.log('container.top: '+$(container).offset().top);
+       console.log('visible_container.top: '+$(visible_container).offset().top);
+       console.log('visible_container.height: '+$(visible_container).height());
+       console.log('cid: '+cid);
+       console.log('service_cid: '+service_cid);
 		
        ajax.view('partials/form_elements',{
     	   data: {
-    		 element: field_type,
+    		 element: element,
     		 guid: entity,
-    		 cid: cid
+    		 cid: cid,
+    		 service_cid: service_cid,
+    		 qid: qid,
     	   },
        }).done(function(output) {
-//          $('.new_progress_marker').append($(output));
-//     	  $(this).parents('header').next('.rTable').find('.new_progress_marker').append($(output));
-    	   $('.new_progress_marker').before($(output));
-       });       
+    	   if (element == 'new_service_effort'){
+    		   $(this_element).parents('.container').find('.new_service_marker').before($(output));
+    	   }
+    	   else {
+    		   $(this_element).parents('.container').find('.new_progress_marker').before($(output));
+    	   }
+       }).success(function(){
+    	   $.colorbox.resize({
+    		 innerHeight: ($(visible_container).offset().top + $(visible_container).height())
+    	   });
+       });
    });
 	$(document).on('keydown', 'input.last_characteristic', function(e) { 
 	    var keyCode = e.keyCode || e.which;

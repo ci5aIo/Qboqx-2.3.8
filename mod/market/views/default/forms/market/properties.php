@@ -13,6 +13,9 @@ $access_id          = elgg_extract('access_id',       $vars, ACCESS_PUBLIC);
 $guid               = elgg_extract('guid',            $vars);
 $qid                = elgg_extract('qid',             $vars);
 $qid_n              = elgg_extract('qid_n',           $vars);					$display .= '15 $qid_n:'.$qid_n.'<br>';
+$parent_cid         = elgg_extract('parent_cid',      $vars);
+$cid                = elgg_extract('cid',             $vars);
+$n                  = elgg_extract('n',               $vars);
 $selected_item      = elgg_extract('item',            $vars, false);
 $element_type       = elgg_extract('element_type',    $vars);
 $elements           = elgg_extract('elements',        $vars);
@@ -41,14 +44,36 @@ if (!$owner_guid) {
 	$owner_guid = elgg_get_logged_in_user_guid();
 }
 $this_container = get_entity($container_guid);                          $display .= '42 $item_guid: '.$this_container->item_guid.'<br>';
-$guid = $guid ?: $this_container->item_guid;
+$guid = $guid ?: $this_container->item_guid;                            $display .= '43 $guid: '.$guid.'<br>';
 $item = get_entity($guid);
+
+$components = elgg_get_entities_from_relationship([
+	'type'                 => 'object',
+	'relationship'         => 'component',
+	'relationship_guid'    => $guid,
+    'inverse_relationship' => true,
+	'limit'                => false,]);
+$accessories = elgg_get_entities_from_relationship([
+	'type'                 => 'object',
+	'relationship'         => 'accessory',
+	'relationship_guid'    => $guid,
+    'inverse_relationship' => true,
+	'limit'                => false,]);
+$parts = elgg_get_entities_from_relationship([
+	'type'                 => 'object',
+	'relationship'         => 'part',
+	'relationship_guid'    => $guid,
+	'inverse_relationship' => true,
+	'limit'                => false,]);
+$num_components  = count($components);
+$num_accessories = count($accessories);
+$num_parts       = count($parts);
 
 if (isset($guid)){
 	  $hidden_fields['line_item['. $guid.'][guid]']      = $guid;
 	  $hidden_fields['line_item['. $guid.'][item_type]'] = $element_type;}
-else {$hidden_fields['line_item['. $qid_n.'][qid]']      = $qid_n;
-      $guid                                              = $qid_n;}
+else {$hidden_fields['line_item['. $qid_n.'][qid]']      = $qid_n;}
+//      $guid                                              = $qid_n;}
 if (isset($line_item_behavior_list_data)){
 	if (!is_array($line_item_behavior_list_data)){
 		$line_item_behavior_list_data = array($line_item_behavior_list_data);
@@ -179,7 +204,7 @@ Switch ($element_type){
     									<div class='rTableCell' style='padding:0px 0px 5px 5px'>$timeline_label</div>
     									</div>";
     	$content .= "			<div class='rTableRow'>
-    									<div class='rTableCell' style='padding:5px 0px 5px 25px'><label>Inventory number</label></div>
+    									<div class='rTableCell' style='padding:5px 0px 5px 25px;white-space: nowrap;'><label>Inventory number</label></div>
     									<div class='rTableCell' style='padding:5px 0px 5px 5px'>$sku</div>
     								</div>";
     	$content .= "			<div class='rTableRow'>
@@ -310,7 +335,125 @@ Switch ($element_type){
 			}
 		}
 	}
-    break; //($element_type == 'item')
+    break; //($element_type == 'receipt_item')
+    
+    case 'service_item':
+    	unset ($hidden_fields);
+		if (isset($guid)){
+			  $hidden_fields["jot[observation][effort][$parent_cid][$cid][$n][guid]"]      = $guid;
+			  $hidden_fields["jot[observation][effort][$parent_cid][$cid][$n][item_type]"] = $element_type;}
+		else {$hidden_fields["jot[observation][effort][$parent_cid][$cid][$n][qid]"]       = $qid_n;}
+//		      $guid                                                                        = $qid_n;}                $display .= '344 $guid: '.$guid.'<br>';
+		      																										
+        $title          = elgg_echo("Properties for service line");
+        
+        if ($container_guid){
+	        $linked_items = elgg_get_entities_from_relationship(array(
+	        	'type' => 'object',
+	        	'relationship' => 'receipt_item',
+	        	'relationship_guid' => $container_guid,
+	        	'inverse_relationship' => true,
+	        	'limit' => false,
+	        ));
+        }
+        if (isset($linked_items)){
+            foreach ($linked_items as $this_item){                                         $display .= '328 $linked_item->guid: '.$linked_item->guid.'<br>';
+                if (elgg_instanceof($this_item, 'object', 'market')){
+                    $linked_item = $this_item;
+                    $hidden_fields["jot[observation][effort][$parent_cid][$cid][$n][item_guid]"] = $linked_item->guid;
+                    break;                          
+                }
+            }
+        }
+        else {
+        	$linked_item = !empty($origin) ?get_entity($origin) :$this_container;
+        }
+        $linked_item = $linked_item ?: get_entity($this_container->item_guid);
+        $linked_item = $linked_item ?: get_entity($item_guid);                             $display .= '340 $linked_item->guid: '.$linked_item->guid.'<br>';
+                
+        if (!empty($origin)){$linked_items[] = get_entity($origin);}
+                
+    	$item_title        = elgg_view('input/text', array(
+				    			'name'  => "jot[observation][effort][$parent_cid][$cid][$n][title]",
+    							'value' => $item->title,
+				    			'placeholder'=> 'title',
+	 			    	        ));
+    	
+    	$sku               = elgg_view('input/text', array(
+    	                        'name'  => "jot[observation][effort][$parent_cid][$cid][$n][sku]",
+    	                        'value' => $item->sku,
+    	                        'placeholder'=> 'sku',
+    	                        ));
+    	
+    	$item_types = elgg_view('input/dropdown', [
+				    			'name'  => "jot[observation][effort][$parent_cid][$cid][$n][item_type]",
+				    			'class' => 'properties-item-type properties-input-selector',
+				    			'options_values' => ['service'   => 'Service',
+				    								 'part'      => 'Part',
+				    					             'component' => 'Component',
+				    					             'accessory' => 'Accessory'],]);
+    	
+    	unset($options_values);
+    	$options_values[]='(none to replace)';
+    	if ($num_components > 0){
+    	$options_values[0]='(none)';
+    		foreach($components as $key=>$component){
+    			$options_values[$component->guid] = $component->title;
+    		}
+    	}
+    	$component_selector = elgg_view('input/dropdown', 
+						    			['name'  => "jot[observation][effort][$parent_cid][$cid][$n][replaces]",
+					    			     'class' => 'properties-input-selector',
+						    			 'options_values' => $options_values,]);
+    	unset($options_values);
+    	$options_values[]='(none to replace)';
+    	if ($num_accessories > 0){
+    	$options_values[0]='(none)';
+    		foreach($accessories as $key=>$accessory){
+    			$options_values[$accessory->guid] = $accessory->title;
+    		}
+    	}
+    	$accessories_selector = elgg_view('input/dropdown', 
+						    			['name'  => "jot[observation][effort][$parent_cid][$cid][$n][replaces]",
+					    			     'class' => 'properties-input-selector',
+						    			 'options_values' => $options_values,]);
+    	unset($options_values);
+    	$options_values[]='(none to replace)';
+    	if ($num_parts > 0){
+    	$options_values[0]='(none)';
+    		foreach($parts as $key=>$part){
+    			$options_values[$part->guid] = $part->title;
+    		}
+    	}
+    	$parts_selector = elgg_view('input/dropdown', 
+					    			['name'  => "jot[observation][effort][$parent_cid][$cid][$n][replaces]",
+					    			 'class' => 'properties-input-selector item-part',
+					    			 'options_values' => $options_values,]);
+    	$content .= "<div class='rTable' style='width:100%'>
+    					<div class='rTableBody'>
+    						<div class='rTableRow'>
+    							<div class='rTableCell' style='padding:5px 0px 5px 5px;white-space: nowrap;width: 150px'><label>Inventory number</label></div>
+    							<div class='rTableCell' style='padding:5px 0px 5px 5px'>$sku</div>
+    						</div>
+    						<div class='rTableRow'>
+    							<div class='rTableCell' style='padding:5px 0px 5px 5px;white-space: nowrap;'><label>Item type</label></div>
+    							<div class='rTableCell' style='padding:5px 0px 5px 5px'>$item_types</div>
+    						</div>
+    						<div class='properties-input-selector item-part'>
+    							<div class='rTableCell' style='padding:5px 0px 5px 5px;white-space: nowrap;'><label>Replaces this part</label></div>
+    							<div class='rTableCell' style='padding:5px 0px 5px 5px'>$parts_selector</div>
+    						</div>
+    						<div class='properties-input-selector item-component'>
+    							<div class='rTableCell' style='padding:5px 0px 5px 5px;white-space: nowrap;'><label>Replaces this component</label></div>
+    							<div class='rTableCell' style='padding:5px 0px 5px 5px'>$component_selector</div>
+    						</div>
+    						<div class='properties-input-selector item-accessory'>
+    							<div class='rTableCell' style='padding:5px 0px 5px 5px;white-space: nowrap;'><label>Replaces this accessory</label></div>
+    							<div class='rTableCell' style='padding:5px 0px 5px 5px'>$accessories_selector</div>
+    						</div>
+    					</div>
+    				</div>";    
+    break; //($element_type == 'service_item')
 }
 
 if ($linked_item && !$containers){
@@ -390,7 +533,8 @@ if ($element_type == 'receipt_item') {
 // 	}
 	$shelf_link = elgg_view('output/url', array('text'=>'Shelf', 'href'=>"shelf"));
 	$shelf_link = "<span title='Set on the shelf to appear in this list'>$shelf_link</span>";
-	$content   .= "Items on the $shelf_link:<br>";
+	if ($element_type != 'service_item'){
+		$content   .= "Items on the $shelf_link:<br>";}
 	if ($link_type == 'single'){
 		$content .= $content_radio_2;
 	}

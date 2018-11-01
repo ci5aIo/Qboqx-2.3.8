@@ -14,7 +14,7 @@ $user_guid = elgg_get_logged_in_user_guid();
 $link_class= elgg_extract('link_class', $vars);
 $data      = elgg_extract('data', $vars, false);
 $compartments = elgg_extract('compartments', $vars,false);
-if ($data && !is_array($data)){$data = array($data);}
+if ($data && !is_array($data)){$data = [$data];}
 
 if (empty($selected)) {
 	 $selected = 'Summary';
@@ -53,9 +53,12 @@ foreach ($sections as $key=>$section) {
 	$data['qid_n']   = $data['qid'].'_'.$key;
 	$tabs[] = ['title'      => elgg_echo("$section"),
 			   'url'        => "$url/$section",
-			   'data'       => $data,
+	           'data'       => $data,
 			   'link_class' => $link_class,
 			   'selected'   => $section == $selected,];
+	foreach($data as $option=>$value){
+	    $tabs_xxx[$option]=$value;
+	}
 	if ($data['presentation']=='inline'){unset($tabs[$key]['url']);}
 }
 

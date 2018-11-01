@@ -61,18 +61,30 @@ $subtitle = "$asset_link $owner_link $tags $date $comments_link";
 	$owner_icon = elgg_view_entity_icon($owner, 'small');
 
 	$params = $params + $vars;
-	$list_body = elgg_view('object/elements/summary', $params);
-
-	$observation_info = elgg_view_image_block($owner_icon, $list_body);
-
-//$text = elgg_view('output/longtext', array('value' => $observation->description));
-$extra = elgg_view("jot/display/observation",array('entity'=>$observation, 'asset'=>$item, 'this_section'=>$section));
-$body = "$text $extra";
-//$body .= elgg_dump($vars);
-
+Switch ($view_type){
+    case 'list':
+/*    	break;
+    case 'compact':
+    case 'compact dropdown':
+    case 'popup':
+    	$perspective = elgg_extract('perspective', $vars);
+    	$space = elgg_extract('space', $vars);
+    	$body = $transfer_info;
+    	break;
+*/    default:
+		$list_body = elgg_view('object/elements/summary', $params);
+	
+		$observation_info = elgg_view_image_block($owner_icon, $list_body);
+	
+		//$text = elgg_view('output/longtext', array('value' => $observation->description));
+		$extra = elgg_view("jot/display/observation",array('entity'=>$observation, 'asset'=>$item, 'this_section'=>$section));
+		$body = "
+			$observation_info
+			<div class='jot elgg-content'>
+				$text $extra
+			</div>";
+	break;
+}
 echo <<<HTML
-$observation_info
-<div class="jot elgg-content">
 	$body
-</div>
 HTML;

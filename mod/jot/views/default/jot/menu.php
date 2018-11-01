@@ -27,10 +27,10 @@ Switch ($this_menu){
 		$context = elgg_get_context();
 		Switch ($space){
 			case 'hjalbumimage':
-				$tabs = [['text'=>'View'       , 'aspect'=>'item'          , 'note'=>'View'  ,                                    'href'=>"gallery/view/$guid", 'perspective'=>'view', 'qid'=>"q{$guid}"],
-						 ['text'=>'Edit'       , 'aspect'=>'item'          , 'note'=>'Edit'  ,                                    'href'=>"gallery/edit/$guid", 'perspective'=>'edit', 'qid'=>"q{$guid}"],
-						 ['text'=>'Delete'     , 'aspect'=>'item'          , 'note'=>'Delete',    'class'=>'do',                  'href'=>"gallery/delete/object?guid=$guid", 'perspective'=>'delete', 'qid'=>"q{$guid}"]];
-				$menu_header       = 'Que';
+				$tabs = [['text'=>'View'       , 'aspect'=>'item'          , 'note'=>'View'  ,                                    'href'=>$site_root."gallery/view/$guid", 'perspective'=>'view', 'qid'=>"q{$guid}"],
+						 ['text'=>'Edit'       , 'aspect'=>'item'          , 'note'=>'Edit'  ,                                    'href'=>$site_root."gallery/edit/$guid", 'perspective'=>'edit', 'qid'=>"q{$guid}"],
+						 ['text'=>'Delete'     , 'aspect'=>'item'          , 'note'=>'Delete',    'class'=>'do',                  'href'=>elgg_add_action_tokens_to_url("gallery/delete/object?guid=$guid"), 'perspective'=>'delete', 'qid'=>"q{$guid}"]];
+				$menu_header       = 'Q:';
 				$menu_title        = 'New';
 				$anchor_right      = 'jq-dropdown-anchor-right';
 				break;
@@ -53,9 +53,9 @@ Switch ($this_menu){
 						$tabs[] = [                   'aspect'=>'divider'];
 
 						if ($view_type == 'full'){
-							$tabs[] = ['text'=>'View'   , 'aspect'=>'receipt'    , 'note'=>'View'  , 'href'=>"jot/view/$guid"                                             , 'perspective'=>'view',   'qid'=>"q{$guid}"];
-							$tabs[] = ['text'=>'Edit'   , 'aspect'=>'receipt'    , 'note'=>'Edit'  , 'href'=>"jot/edit/$guid"                                             , 'perspective'=>'edit',   'qid'=>"q{$guid}"];
-							$tabs[] = ['text'=>'Delete' , 'aspect'=>'receipt'    , 'note'=>'Delete', 'href'=>"jot/delete/$guid"                                           , 'perspective'=>'delete', 'qid'=>"q{$guid}"];
+							$tabs[] = ['text'=>'View'   , 'aspect'=>'receipt'    , 'note'=>'View'  , 'href'=>$site_root."jot/view/$guid"                                             , 'perspective'=>'view',   'qid'=>"q{$guid}"];
+							$tabs[] = ['text'=>'Edit'   , 'aspect'=>'receipt'    , 'note'=>'Edit'  , 'href'=>$site_root."jot/edit/$guid"                                             , 'perspective'=>'edit',   'qid'=>"q{$guid}"];
+							$tabs[] = ['text'=>'Delete' , 'aspect'=>'receipt'    , 'note'=>'Delete', 'href'=>elgg_add_action_tokens_to_url("jot/delete/$guid")                       , 'perspective'=>'delete', 'qid'=>"q{$guid}"];
 						}
 						else {
 							$tabs[] = ['text'=>'View'   , 'aspect'=>'receipt'    , 'note'=>'View'  ,                                   'class'=>'do',    'element'=>'qbox', 'perspective'=>'view',   'qid'=>"q{$guid}"];
@@ -81,7 +81,7 @@ Switch ($this_menu){
 				$menu_title        = 'Que';
 				break;
 			case 'market':
-				$tabs = [['text'=>'New Experience' , 'aspect'=>'experience'     , 'note'=>'Describe what happened',       'class'=>'jot-q', 'presentation'=>'inline'],
+				$tabs = [['text'=>'New Experience' , 'aspect'=>'experience'     , 'note'=>'Describe what happened',       'class'=>'jot-q', 'presentation'=>'inline', 'action'=>'add'],
 				         ['text'=>'Add Pictures'   , 'aspect'=>'image'          , 'note'=>'Attach photos',                'class'=>'jot-q', 'element'=>'Gallery'],
 				         ['text'=>'Add Documents'  , 'aspect'=>'document'       , 'note'=>'Attach documents',             'class'=>'jot-q', 'element'=>'Documents'],
 						 [                           'aspect'=>'divider'],
@@ -107,68 +107,88 @@ Switch ($this_menu){
 //				         ['text'=>'View'       , 'aspect'=>'item'          , 'note'=>'View'  ,                       'href'=>"market/view/$guid", 'perspective'=>'view', 'qid'=>"q{$guid}"],
 						 ['text'=>'Edit'       , 'aspect'=>'item'          , 'note'=>'Edit'  ,                       'class'=>"do", 'perspective'=>'edit', 'qid'=>"q{$guid}", 'element'=>'market'],
 //				         ['text'=>'Edit'       , 'aspect'=>'item'          , 'note'=>'Edit'  ,                       'href'=>"market/edit/$guid", 'perspective'=>'edit', 'qid'=>"q{$guid}"],
-						 ['text'=>'Delete'     , 'aspect'=>'item'          , 'note'=>'Delete',                       'href'=>"market/delete?guid=$guid", 'perspective'=>'delete', 'qid'=>"q{$guid}"]];
-				$menu_header       = 'Que';
+						 ['text'=>'Delete'     , 'aspect'=>'item'          , 'note'=>'Delete',                       'href'=>elgg_add_action_tokens_to_url("market/delete?guid=$guid"), 'perspective'=>'delete', 'qid'=>"q{$guid}"]];
+				$menu_header       = 'Q:';
 				$menu_title        = 'New';
+				$anchor_right      = 'jq-dropdown-anchor-right';
+				break;
+			case 'experience':
+				$tabs = [['text'=>'View'       , 'aspect'=>"$entity->aspect", 'note'=>'View'  ,                       'class'=>"do", 'perspective'=>'view', 'qid'=>"q{$guid}", 'element'=>'experience', 'presentation'=>'inline'],
+						 ['text'=>'Edit'       , 'aspect'=>"$entity->aspect", 'note'=>'Edit'  ,                       'class'=>"do", 'perspective'=>'edit', 'qid'=>"q{$guid}", 'element'=>'experience'],
+						 ['text'=>'Delete'     , 'aspect'=>"$entity->aspect", 'note'=>'Delete',                       'href'=>elgg_add_action_tokens_to_url("action/jot/delete?guid=$guid"), 'perspective'=>'delete', 'qid'=>"q{$guid}"]];
+				$menu_header       = 'Q:';
+				$menu_title        = 'Do';
+				$anchor_right      = 'jq-dropdown-anchor-right';
+				break;
+			default:
+				$tabs = [['text'=>'View'   , 'note'=>'View'  ,                       'class'=>"do", 'perspective'=>'view', 'qid'=>"q{$guid}", 'element'=>"$entity->getSubtype()", 'presentation'=>'inline'],
+						 ['text'=>'Edit'   , 'note'=>'Edit'  ,                       'class'=>"do", 'perspective'=>'edit', 'qid'=>"q{$guid}", 'element'=>$entity->getSubtype()],
+						 ['text'=>'Delete' , 'note'=>'Delete',                       'href'=>elgg_add_action_tokens_to_url("action/jot/delete?guid=$guid"), 'perspective'=>'delete', 'qid'=>"q{$guid}"]];
+				$menu_header       = 'Q:';
+				$menu_title        = 'Do';
 				$anchor_right      = 'jq-dropdown-anchor-right';
 				break;
 		}
 		//Adjust for special circumstances.
 		$n = 0;
-		foreach($tabs as $key=>$tab){
-			$n = ++$n;
-			unset ($data_qid, $a);
-			if ($tab['aspect']=='divider'){
-				$menu .= elgg_format_element('li',['class'=>'jq-dropdown-divider']);
-				$n = --$n;
-				continue;
+		if(!empty($tabs)){
+			foreach($tabs as $key=>$tab){
+				$n = ++$n;
+				unset ($data_qid, $a);
+				if ($tab['aspect']=='divider'){
+					$menu .= elgg_format_element('li',['class'=>'jq-dropdown-divider']);
+					$n = --$n;
+					continue;
+				}
+				if ($tab['aspect']=='section'){
+					$menu .= $tab['text'];
+					$n = --$n;
+					continue;
+				}
+				$data_element       = $tab['element']      ?: 'q';
+				$qid                = $tab['qid']          ?: "q{$guid}_0{$n}";
+				$data_perspective   = $tab['perspective']  ?  "data-perspective = {$tab['perspective']}" : null;
+				$data_presentation  = $tab['presentation'] ?  "{$tab['presentation']}"                   : $data_presentation;
+				
+				if ($context            == 'view_item'){
+					$data_presentation  = 'lightbox';
+				}
+				if ($context            == 'view_item' && 
+					$tab['perspective'] == 'view'){
+					unset($tabs[$key]);
+					continue;
+				}
+				$data_aspect  = $tab['aspect'] ? "data-aspect = {$tab['aspect']}" : null;
+				
+//				$href         = $tab['href']   ? "href=''$tab['href']''"            : null;
+	            if ($tab['class']=='jot-q'||
+	            	$tab['class']=='do'   ||
+	            	$tab['class']=='done'){
+	            	$a  = elgg_format_element(['#tag_name'         => 'a',
+		           			                   '#text'             => $tab['text'],
+	             		                       'class'             => "elgg-menu-content {$tab['class']}",
+		           			                   'data-qid'          => $qid,
+		           			                   'data-guid'         => $guid,
+		           			                   'data-element'      => $data_element,
+		           			                   'data-space'        => $space,
+		           			                   'data-aspect'       => $tab['aspect'],
+		           			                   'data-perspective'  => $tab['perspective'],
+		           			                   'data-presentation' => $data_presentation,
+		           			                   'data-context'      => $context,
+		           			                   'data-action'       => $tab['action']]);
+		           			                    
+	           }
+	           else {
+	           	$confirm = false;
+	           	if ($tab['perspective'] == 'delete'){$confirm = true;}
+	           	$a = elgg_view('output/url',['text'=>$tab['text'],
+	           			                     'class'=> "elgg-menu-content {$tab['class']}",
+	           			                     'href' =>$tab['href'],
+	           			                     'title' => $tab['note'],
+	           			                     'confirm'=> $confirm]);
+	           }
+	           $menu .= elgg_format_element('span',['title'  =>$tab['note']], elgg_format_element('li', [], $a));
 			}
-			if ($tab['aspect']=='section'){
-				$menu .= $tab['text'];
-				$n = --$n;
-				continue;
-			}
-			$data_element       = $tab['element']      ?: 'q';
-			$qid                = $tab['qid']          ?: "q{$guid}_0{$n}";
-			$data_perspective   = $tab['perspective']  ?  "data-perspective = {$tab['perspective']}" : null;
-			$data_presentation  = $tab['presentation'] ?  "{$tab['presentation']}"                   : $data_presentation;
-			
-			if ($context            == 'view_item'){
-				$data_presentation  = 'full_view';
-			}
-			if ($context            == 'view_item' && 
-				$tab['perspective'] == 'view'){
-				unset($tabs[$key]);
-				continue;
-			}
-			$data_aspect  = $tab['aspect'] ? "data-aspect = {$tab['aspect']}" : null;
-			$href         = $tab['href']   ? "href='{$site_root}{$tab['href']}'"          : null;
-            if ($tab['class']=='jot-q'||
-            	$tab['class']=='do'   ||
-            	$tab['class']=='done'){
-            	$a  = elgg_format_element(['#tag_name'         => 'a',
-	           			                   '#text'             => $tab['text'],
-             		                       'class'             => "elgg-menu-content {$tab['class']}",
-	           			                   'data-qid'          => $qid,
-	           			                   'data-guid'         => $guid,
-	           			                   'data-element'      => $data_element,
-	           			                   'data-space'        => $space,
-	           			                   'data-aspect'       => $tab['aspect'],
-	           			                   'data-perspective'  => $tab['perspective'],
-	           			                   'data-presentation' => $data_presentation,
-	           			                   'data-context'      => $context]);
-	           			                    
-           }
-           else {
-           	$confirm = false;
-           	if ($tab['perspective'] == 'delete'){$confirm = true;}
-           	$a = elgg_view('output/url',['text'=>$tab['text'],
-           			                     'class'=> "elgg-menu-content {$tab['class']}",
-           			                     'href' =>$site_root.$tab['href'],
-           			                     'title' => $tab['note'],
-           			                     'confirm'=> $confirm]);
-           }
-           $menu .= elgg_format_element('span',['title'  =>$tab['note']], elgg_format_element('li', [], $a));
 		}
 		$menu = elgg_format_element('ul', ['class'=>'jq-dropdown-menu'], $menu);
 		
@@ -183,7 +203,7 @@ Switch ($this_menu){
 				break;
 			default:
 				$show = "	<div class='drop-down'>
-							   <a class='elgg-menu-content q-menu' data-jq-dropdown='#jq-dropdown-q-$guid' title='$menu_title'>Que</a>
+							   <a class='elgg-menu-content q-menu' data-jq-dropdown='#jq-dropdown-q-$guid' title='$menu_title'>$menu_header</a>
 							   <div  id='jq-dropdown-q-$guid' class='jq-dropdown jq-dropdown-tip jq-dropdown-relative $anchor_right'>
 							     $menu
 							   </div>

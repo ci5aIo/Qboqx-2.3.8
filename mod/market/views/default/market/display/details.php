@@ -618,7 +618,7 @@ else {echo '<tr><td colspan=2>&nbsp;</td></tr>';}
                         			'text' => '+', 
                         		    'class' => 'elgg-button-submit-element elgg-lightbox',
                         		    'data-colorbox-opts' => '{"width":500, "height":525}',
-                                    'href' => "jot/attach?element_type=document"));
+                                    'href' => "jot/attach?container_guid=$item_guid&element_type=document"));
 
 	echo "<tr colspan=2><td>$documentation_button <b>Documentation</b></td>
 		  </tr>";

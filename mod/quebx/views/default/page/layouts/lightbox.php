@@ -9,7 +9,8 @@ $title     = elgg_extract('title', $vars, $vars['entity']->title);
 $content   = elgg_extract('content', $vars);
 $show_title= elgg_extract('show_title', $vars, false);
 $show_save = elgg_extract('show_save', $vars, true);
-$show_full = elgg_extract('show_full_view', $vars, true);
+$show_full = elgg_extract('show_full_view', $vars, false);
+$show_close = elgg_extract('show_close', $vars, false);
 $disable_save = elgg_extract('disable_save', $vars, false);
 $position  = elgg_extract('position', $vars, false);
 $element   = elgg_extract('element', $vars, 'qbox');
@@ -53,9 +54,11 @@ $save_button = $show_save ? "<button  class='do' type='submit' id='qboxSave' dat
 							     $save_icon
 						     </button>":
                            null;
-$close_button = "<button type='button' id='inlineClose' data-qid=$qid data-perspective='$perspective'>
-					$close_icon
-				</button>";
+if ($show_close){
+	$close_button = "<button type='button' id='inlineClose' data-qid=$qid data-perspective='$perspective'>
+						$close_icon
+					</button>";
+}
 $minimize_button = "<button type='button' id='inlineMinimize' data-qid=$qid data-perspective='$perspective'>
 					$minimize_icon
 				</button>";
@@ -106,8 +109,8 @@ if ($show_full){
 			                                'options'=>['id'=>'inlineFullView']]);}
 if (!$show_title){unset($title);}
 
-$form_body = "<div class = 'inline-content-expand' id='$qid'>
-				<div id='$qid' class='inline inline-visible' $pos_style role='data entry' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context'>
+$form_body = "<div class = 'inline-content-expand' id=$qid>
+				<div id=$qid class='inline inline-visible' $pos_style role='data entry' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context'>
 						<div id='inlineLoadedContent'>
 							$title
 							$tabs

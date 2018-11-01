@@ -13,15 +13,15 @@ $location       = (int) get_input('places_list');
 $item_guid      = (int) get_input('item_guid'     , 0);
 $element_type   =       get_input("element_type");
 $attachments    =       get_input('attach_guids');
-system_message("$element_type attached to $location");
 
 $relationship = $element_type;
 
 elgg_make_sticky_form('files_selection');
 
+if ($item_guid == 0){$item_guid = $container_guid;}
 if (!$attachments){
 register_error('No Attachments');
-	forward(REFERER);
+//	forward(REFERER);
 }
 
 if ($attachments){
@@ -32,6 +32,6 @@ foreach($attachments as $i){
 	}	
 }
 
-	forward(REFERER);
+//	forward(REFERER);
 }
 

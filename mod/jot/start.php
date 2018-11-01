@@ -255,6 +255,7 @@ function jot_init() {
 	elgg_register_action("jot/detach/"        , "{$action_url}jot/detach.php");
 	elgg_register_action("jot/edit/"          , "{$action_url}jot/edit.php");
 	// temporary 
+	elgg_register_action("jot/edit_scratch/"  , "{$action_url}jot/edit_scratch.php");
 	elgg_register_action("jot/edit_v4/"       , "{$action_url}jot/edit_v4.php");
 	elgg_register_action("jot/delete/"        , "{$action_url}jot/delete.php");
 	elgg_register_action("jot/route/"         , "{$action_url}jot/route.php");
@@ -400,7 +401,7 @@ function jot_page_handler($page) {
 			include "$pages/jot/view.php";
 			break;
 		default:
-			include "$pages/home.php";
+			include "$pages/world.php";
 		 break;
 	}
 }

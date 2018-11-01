@@ -53,23 +53,20 @@ Switch ($action){
             	$hidden            .= elgg_view('input/hidden'  , array('name' => 'jot[container_guid]' , 'value' => $container_guid));
             	$hidden            .= elgg_view('input/hidden'  , array('name' => 'jot[subtype]'        , 'value' => $aspect));
                 
-        		$form_body = "
-        	    <div class='rTable' style='width:550px'>
-        			<div class='rTableBody'>
-        				<div class='rTableRow'>
-        					<div class='rTableCell' style='padding: 0px 0px'>$title_field".elgg_view('input/submit',	 array('value' => elgg_echo('save'), "class" => 'elgg-button-submit-element'))."</div>
-        				</div>
-        				<div class='rTableRow'>
-        					<div class='rTableCell' style='padding: 0px 0px'>$description_field</div>
-        				</div>
-            			<div class='rTableRow'>
-            				<div class='rTableCell' style='padding: 0px 0px'>Add details or progress to a new level.</div>
-            			</div>
-            			<div class='rTableRow'>
-            				<div class='rTableCell' style='padding: 0px 0px'>$tabs</div>
-            			</div>
-            		</div>
-        		</div>";
+        		
+                unset($form_body, $hidden, $buttons);
+                $title              = elgg_extract('title', $vars, 'Experiences');
+				$now            = new DateTime();
+				$now->setTimezone(new DateTimeZone('America/Chicago'));
+                $title_field        = elgg_view("input/text"    , ["name" => "jot[title]"         , 'placeholder' => 'Give your experience a name', 'style' => 'width:100%', 'id'=>'title', 'data-parsley-required'=>'true']);
+                $description_field  = elgg_view("input/longtext", ["name" => "jot[description]"   , 'placeholder' => 'Describe the experience ...', 'style' => 'word-wrap: break-word; width:520px; height: 52px; margin-left: 0px; margin-right: 0px;', 'id' => $qid.'_description']);
+                $moment_field       = elgg_view('input/date'    , ['name' => 'jot[moment]'        , 'placeholder' => "$now->format('Y-m-d')"      , 'style' => 'width:150px']);
+                // loading styles inline to raise their priority
+                $form_body .= elgg_view('css/quebx/user_agent', ['element'=>'experience']);
+                $hidden['jot[owner_guid]']     = $owner_guid;
+            	$hidden['jot[container_guid]'] = $container_guid;
+            	$hidden['jot[subtype]']        = $aspect;
+            	$buttons = elgg_view('input/submit',	 array('value' => elgg_echo('save'), "class" => 'elgg-button-submit-element'));
         		$form_body .= $hidden;
         		
         		break;
@@ -1322,8 +1319,7 @@ Switch ($action){
                 unset($form_body, $hidden);
                 $title_field        = $title;
             	$description_field  = $jot->description;
-                
-        		$form_body .= "
+            	$form_body .= "
         	    <div class='rTable' style='width:550px'>
         			<div class='rTableBody'>
         				<div class='rTableRow'>

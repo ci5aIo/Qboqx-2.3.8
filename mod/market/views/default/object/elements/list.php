@@ -1,9 +1,9 @@
+<!--View: market/views/default/object/elements/list.php-->
 <?php
 /**
  * Object list
  * Adapted from summary.php
  */
-
 $entity        = elgg_extract('entity'       , $vars);
 $title_link    = elgg_extract('title'        , $vars, '');
 $metadata      = elgg_extract('metadata'     , $vars, false);
@@ -15,6 +15,7 @@ $show_comments = elgg_extract('show_comments', $vars, false);
 $show_contents = elgg_extract('show_contents', $vars, false);
 $add_comment   = elgg_extract('add_comment'  , $vars, $show_comments);
 $include_dropbox = elgg_extract('include_dropbox', $vars, true);
+$view_type     = elgg_extract('view_type'    , $vars, 'list');
 
 if ($title_link === '') {
 	if (isset($entity->title)) {
@@ -49,16 +50,26 @@ if ($show_activity){
         'subtype'       => 'experience', 
         'container_guid'=> $entity->getGUID(),
     ));
-    foreach($experiences as $i){
-        $guids[] = $i->guid;
-    }
-    $options  = array(
-        'guids'          => $guids,
-        'list_type'      => 'brief'
-    );
+
+    $experiences = array_merge($experiences,
+	    		               elgg_get_entities_from_relationship(['type'                 => 'object',
+																	'relationship'         => 'experience',
+																	'relationship_guid'    => $entity->getGUID(),
+																	'inverse_relationship' => true,
+																	'limit'                => $limit,]));
+	if($experiences){
+		$activity .= '<ul><b>Experiences</b>';
+		foreach($experiences as $experience){
+	        $guids[] = $experience->guid;       
+	        $activity .= '<li>'.elgg_view('output/url', array('text' => $experience->title,'href' =>  "jot/view/{$experience->guid}")).'</li>';
+	    }
+	    $activity.= '</ul>';
+	}
+/*    $options  = ['guids'          => $guids,
+    			 'list_type'      => 'brief'];
     if (!empty($experiences)){
-        $activity = elgg_list_entities($options);
-    }
+        $activity .= elgg_list_entities($options);
+    }*/
 }
 //$view_elements .= $tags;
 
@@ -153,16 +164,18 @@ if($show_contents){
 		$compartment_class .= ' compartment-open';
 		$count = count($components);
 		foreach($components as $key=>$object){
-			unset($guid, $title, $qid_n);
+			unset($guid, $title, $qid_n, $delete_button, $delete);
 			$qid_n  = "q{$guid}_042";
-			$delete = elgg_view('output/url', ['data-qid_n' => $qid_n,
+			$delete_button = elgg_view('output/url', [
+                           	       'data-qid_n' => $qid_n,
 		                           'title'=>'remove content',
 							       'class'=>'remove-node',
 							       'style'=> 'cursor:pointer',
 							       'text' => elgg_view_icon('delete-alt')+'&nbsp;',]);
+            $delete = elgg_view("output/span", array("class"=>"remove-progress-marker", "content"=>$delete_button));
 			$guid           = $object->guid;
 			$title = "<a data-guid='$guid' data-qid='q{$guid}' data-qid_n='$qid_n' data-element='market' data-space='market' data-perspective='view' data-presentation='inline' data-context='market' class='do'>{$object->title}</a>";
-			$content_items .= "<li class='compartment-component-item' data-guid='$guid'><span style='white-space:nowrap;'>$delete$title</span></li>";
+			$content_items .= "<li class='compartment-component-item' data-guid='$guid'><span style='white-space:nowrap;'>$delete $title</span></li>";
 		}
 	}
 	else {$compartment_class .= ' compartment-closed';}

@@ -327,8 +327,8 @@ if (!empty($selected_queb)){
 $sidebar .= elgg_view('object/shelf', ['perspective'=>'sidebar']);
 Switch($dimension){
     case 'market':
-	    //$options['subtypes'] = 'market';
-        $options['wheres'][] =  "e.subtype in (11, 72)";
+	    $options['subtypes'] = 'market';
+//        $options['wheres'][] =  "e.subtype in (11, 72)";
         if (!empty($collection)) {
         	elgg_push_breadcrumb(elgg_echo('market:title'), $url."x=$selected_queb&z=$selected_owner".$list_type_filter_2);
             $category_set = hypeJunction\Categories\get_hierarchy($collection, true, true);

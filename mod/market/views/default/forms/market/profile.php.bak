@@ -176,7 +176,7 @@ switch ($presentation){
 		$close_button = "<button type='button' id='inlineClose' data-qid=$qid data-perspective='$perspective'>
 							$close_icon
 						</button>";
-		$form_body = "<div id=$qid class='inline inline-visible' $pos_style role='data entry' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context' 'data-aspect'='item'>
+		$form_body = "<div id=$qid class='inline inline-visible' $pos_style role='data entry' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context'>
 								<div id='inlineLoadedContent'>
 										<div class='elgg-body inline-body'>
 											<div class='elgg-layout elgg-layout-default clearfix'>

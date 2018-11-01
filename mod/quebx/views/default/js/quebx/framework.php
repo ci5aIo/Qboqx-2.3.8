@@ -260,6 +260,15 @@ $(document).ready(function(){
         $("li[guid="+guid+"][panel="+panel+"][aspect=media_input]").toggleClass("elgg-state-selected");
         $("div[guid="+guid+"][panel="+panel+"][aspect=media_input]").toggle();
     });
+    $(document).on("click", "a[aspect=issue_input]", function(e) {
+        e.preventDefault();
+        var guid  = $(this).attr('guid'); 
+        var panel = $(this).attr('panel');
+        $("li[guid="+guid+"][aspect=issue_input]").removeClass("elgg-state-selected");
+        $("div[guid="+guid+"][aspect=issue_input]").hide();
+        $("li[guid="+guid+"][aspect=issue_input][panel="+panel+"]").toggleClass("elgg-state-selected");
+        $("div[guid="+guid+"][aspect=issue_input][panel="+panel+"]").toggle();
+    });
     $(document).on("click", "a[aspect=observation_input]", function(e) {
         e.preventDefault();
         var guid  = $(this).attr('guid'); 
@@ -410,23 +419,38 @@ $(document).ready(function(){
 	});
 */    $(document).on("click", "a.expander", function(e) {
         e.preventDefault();
+        var old_cid = $(this).attr('data-cid');
         var cid = "c"+Math.floor((Math.random()*200)+1);
+        var container = $(this).parents('.story.model.item').parent();        
+        console.log('old_cid: '.old_cid);
         $(this).parents("div.model").removeClass("draggable");
         //$(this).parents("div.model").addClass("pin");
+        $(this).attr('data-cid', cid);
+        $(this).parents('.rTableRow[data-cid='+old_cid+']').attr('data-cid', cid);
+        $(container).attr('data-cid', cid);
+        $(container).find("input[name=\'jot[observation][effort]["+old_cid+"][boqx]\']").attr('name', 'jot[observation][effort]['+cid+'][boqx]');-
+        $('.rTableRow[data-cid='+cid+']').children('.rTableCell').attr('data-cid', cid);
+        $('.rTableCell[data-cid='+cid+']').find('.story.model.item').attr('data-cid', cid);
+        $('.story[data-cid='+cid+']').children('.story.model.item').attr('data-cid', cid);
+        $('.details[data-cid='+old_cid+']').attr('data-cid', cid);
+        $('.collapser[data-cid='+old_cid+']').attr('data-cid', cid);
+        $('.collapser[data-cid='+cid+']').attr("id", "story_collapser_"+cid);
+        $("button.close[data-cid="+old_cid+"]").attr("data-cid", cid);
+        $("button.close[data-cid="+cid+"]").attr("id", "story_close_"+cid);
+        $("button.close[data-cid="+cid+"]").html('Close');
+        $("button.clipboard_button[data-cid="+old_cid+"]").attr("data-cid", cid);
+        $("button.use_click_to_copy[data-cid="+cid+"]").attr("id", "story_copy_id_"+cid);
+        $(this).parent("header.preview").next().find("textarea.NameEdit___2W_xAa_R").attr("data-focus-id", "NameEdit--"+cid);
         $(this).parent("header.preview").removeClass("expanded");
         $(this).parent("header.preview").addClass("collapsed");
-        $(this).parent("header.preview").parents("div.story").attr("data-cid", cid);
+        $(this).parent("header.preview").parentsUntil("div.story").parent("div.story").attr("data-cid", cid);
         $(this).parent("header.preview").next().find("div.edit").attr("data-cid", cid);
         $(this).parent("header.preview").next().find("span.count not_read_only").attr("data-cid", cid);
-        $(this).parent("header.preview").next().find("a.collapser").attr("id", "story_collapser_"+cid);
-        $(this).parent("header.preview").next().find("button.close").attr("id", "story_close_"+cid);
-        $(this).parent("header.preview").next().find("button.clipboard_button").attr("id", "story_copy_link_"+cid);
-        $(this).parent("header.preview").next().find("button.use_click_to_copy").attr("id", "story_copy_id_"+cid);
         $(this).parent("header.preview").next().find("input.text_value").attr("id", "story_copy_id_value_"+cid);
         $(this).parent("header.preview").next().find("button.clone_story").attr("id", "story_clone_button_"+cid);
+        $(this).parent("header.preview").next().find("button.receipt_import").attr("id", "receipt_import_button_"+cid);
         $(this).parent("header.preview").next().find("button.history").attr("id", "story_history_button_"+cid);
         $(this).parent("header.preview").next().find("button.delete").attr("id", "story_delete_button_"+cid);
-        $(this).parent("header.preview").next().find("textarea[data-aid=name]").attr("data-focus-id", "NameEdit--"+cid);
         $(this).parent("header.preview").next().find("div.dropdown.story_type").children("input.honeypot").attr("id", "story_type_dropdown_"+cid+"_honeypot");
         $(this).parent("header.preview").next().find("div.dropdown.story_type").children("a.selection.item_feature").attr("id","story_type_dropdown_"+cid);
         $(this).parent("header.preview").next().find("div.dropdown.story_type").children("a.arrow.target").attr("id","story_type_dropdown_"+cid+"_arrow");
@@ -454,22 +478,40 @@ $(document).ready(function(){
 
 		$(this).parent("header.preview").next().find("div.details").removeClass("collapsed");
         $(this).parent("header.preview").next().find("div.details").addClass("expanded");
+		$(this).parent("header.preview").next(".details").removeClass("collapsed");
+        $(this).parent("header.preview").next(".details").addClass("expanded");
         $(this).parents("div.rTableRow.story").addClass("pin");
         $(this).parents("div.rTableRow.story").css("cursor", "");
     });
     $(document).on("click", "button.close", function(e) {
         e.preventDefault();
-        var cid = $(this).parents("div.story").attr("data-cid");
+        var cid  = $(this).attr("data-cid"),
+            qid  = $(this).attr('data-qid'),
+            egg  = $(this).hasClass('egg');
+        var eggs = parseInt($('span.qbox-menu[data-qid='+qid+']').attr('eggs'), 10);
         //var n = $(this).attr("id").indexOf("story_close_");
         //var cid = $(this).attr("id").substring(n);
         var str = $(this).parents("section.edit").find("textarea[data-focus-id=NameEdit--"+cid+"]").val();
-        $(this).parents("div.model").children("header.preview").removeClass("collapsed");
-        $(this).parents("div.model").children("header.preview").addClass("expanded");
-        $(this).parents("div.model").children("header.preview").find("span.story_name").html(str);
-        $(this).parents("div.rTableRow.story").removeClass("pin");
-        $(this).parents("div.rTableRow.story").css("cursor", "move");
-        $(this).parents("div.details").removeClass("expanded");
-        $(this).parents("div.details").addClass("collapsed");
+        if (isNaN(eggs)){eggs = 0;}
+        $(this).parents(".model[data-cid="+cid+"]").children("header.preview").removeClass("collapsed");
+        $(this).parents(".model[data-cid="+cid+"]").children("header.preview").addClass("expanded");
+        $(this).parents(".model[data-cid="+cid+"]").children("header.preview").find("span.story_name").html(str);
+        $(this).parents(".rTableRow.story").removeClass("pin");
+        $(this).parents(".rTableRow.story").css("cursor", "move");
+        $(this).parents(".details[data-cid="+cid+"]").removeClass("expanded");
+        $(this).parents(".details[data-cid="+cid+"]").addClass("collapsed");
+        $('span.qbox-menu[data-qid='+qid+']').show();
+        if (egg){
+        	$('span.qbox-menu[data-qid='+qid+']').attr('eggs', ++eggs);
+        	$(this).removeClass('egg');
+        }
+    });
+    $(document).on('click', 'span.qbox-section-remove', function(e){
+        e.preventDefault();
+        var qid = $(this).data('qid');
+        $(this).parents('li').removeClass('elgg-state-selected');
+        $(this).parent('div').remove();
+        $('div#'+qid).remove();
     });
     $(document).on("click", "button.clipboard_button", function(e){     //Source: https://stackoverflow.com/questions/22581345/click-button-copy-to-clipboard-using-jquery
         e.preventDefault();
@@ -482,28 +524,141 @@ $(document).ready(function(){
      });
     $(document).on("click", "a.collapser", function(e) {
           e.preventDefault();
-          var cid = $(this).parents("div.story").attr("data-cid");
+          var cid = $(this).attr("data-cid");
           var str = $(this).parent().find("textarea[data-focus-id=NameEdit--"+cid+"]").val();
-          $(this).parents("div.model").children("header.preview").removeClass("collapsed");
-          $(this).parents("div.model").children("header.preview").addClass("expanded");
-          $(this).parents("div.model").children("header.preview").find("span.story_name").html(str);
-          $(this).parents("div.rTableRow.story").removeClass("pin");
-          $(this).parents("div.rTableRow.story").css("cursor", "move");
-          $(this).parents("div.details").removeClass("expanded");
-          $(this).parents("div.details").addClass("collapsed");
+          console.log('cid: '+cid);
+          $(".model[data-cid="+cid+"]").children("header.preview").removeClass("collapsed");
+          $(".model[data-cid="+cid+"]").children("header.preview").addClass("expanded");
+          $(".model[data-cid="+cid+"]").children("header.preview").find("span.story_name").html(str);
+          $(".rTableRow.story[data-cid="+cid+"]").removeClass("pin");
+          $(".rTableRow.story[data-cid="+cid+"]").css("cursor", "move");
+          $(".details[data-cid="+cid+"]").removeClass("expanded");
+          $(".details[data-cid="+cid+"]").addClass("collapsed");
       });
-    $(document).on("click", "div.DescriptionShow___3-QsNMNj", function(e) {
+    $(document).on("click", "a.collapser-effort", function(e) {
         e.preventDefault();
-        var edit = $(this).next("div.DescriptionEdit___1FO6wKeX");
+        var cid = $(this).attr("data-cid"),
+            show_effort = true;
+        var effort_name = $(this).parent().find("textarea[data-focus-id=NameEdit--"+cid+"]").val(),
+            state       = $(this).parents('.Effort__CPiu2C5N').attr('data-aid');
+        var $this_panel = $(this).parents('.Effort__CPiu2C5N').children('.EffortEdit_fZJyC62e');
+        var $show_panel = $(this).parents('.Effort__CPiu2C5N').children('.EffortShow_haqOwGZY');
+        var $add_panel  = $(this).parents('.Effort__CPiu2C5N').children('.AddSubresourceButton___S1LFUcMd');
+        console.log('cid: '+cid);
+        if(typeof effort_name == 'undefined'){
+            show_effort = false;
+        }
+        else {
+            if (effort_name.length == 0)
+                show_effort = false;
+        }
+        if (state == 'add' || state == 'edit'){
+	        if (show_effort){
+	            $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+effort_name+'</p>');
+	            // remove vestigal spans
+	            $show_panel.find('span.TaskShow__description___qpuz67f').remove();
+	            $show_panel.find('span.TaskShow__service_items___2wMiVig').remove();
+	            if (state == 'add'){                                       // hide delete button when state = add
+	                $show_panel.find('button.IconButton___4wjSqnXU').hide();
+	            }
+	            $show_panel.show();
+	            $this_panel.hide();
+	        }
+	        else {
+	            $add_panel.show();
+	            $this_panel.hide();
+	        }
+        }
+        else{                                        // state == 'view'
+            $show_panel.show();
+            $this_panel.hide();
+        }
+    });
+    $(document).on("click", "a.collapser-service-item", function(e) {
+        e.preventDefault();
+        var cid = $(this).attr("data-cid"),
+            show_service = true;
+        var service_name = $(this).parent().find("textarea[data-focus-id=NameEdit--"+cid+"]").val();
+        var service_desc = $(this).parent().find("textarea[data-focus-id=ServiceEdit--"+cid+"]").val(),
+            state        = $(this).parents('.Effort__CPiu2C5N').attr('data-aid');
+/*	    if (typeof service_name == 'undefined')
+	    	show_service = false;
+*/		if (service_name.length==0)
+			show_service = false;
+        var $this_panel  = $(this).parent('.TaskEdit___1Xmiy6lz');
+        var $show_panel  = $(this).parent('.TaskEdit___1Xmiy6lz').parents('.ServiceEffort__26XCaBQk').find('.TaskShow___2LNLUMGe');
+        var $add_panel   = $(this).parent('.TaskEdit___1Xmiy6lz').parents('.ServiceEffort__26XCaBQk').find('.AddSubresourceButton___2PetQjcb');
+        console.log('cid: '+cid);
+        console.log('service_name: '+service_name);
+        console.log('service_name.length: '+service_name.length);
+        console.log('show_service: '+show_service);
+
+        if (state == 'add' || state == 'edit'){
+		    if (show_service){
+	            $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+service_name+'</p>');
+	            $show_panel.find('.TaskShow__description___qpuz67f').html('<p>'+service_desc+'</p>');
+	            if (state == 'add'){                                       // hide delete button when state = add
+	                $show_panel.find('button.IconButton___2y4Scyq6').hide();
+	            }
+	            $show_panel.show();
+	            $this_panel.hide();
+	        }
+	        else {
+	            $add_panel.show();
+	            $this_panel.hide();
+	        }
+        }
+        else{                                        // state == 'view'
+            $show_panel.show();
+            $this_panel.hide();
+        }
+    });
+    $(document).on("click", ".DescriptionShow___3-QsNMNj", function(e) {
+        e.preventDefault();
+        var edit = $(this).next(".DescriptionEdit___1FO6wKeX");
+        var textarea = edit.find(".AutosizeTextarea__container___31scfkZp").children('textarea');
+        var cid = edit.parents('.edit.details').data('cid');
+        autosize($(textarea));
         $(edit).show();
         $(this).hide();
-        
+        $(textarea).focus();
     });
-    $(document).on("click", "button[data-aid=cancel]", function(e) {
+    $(document).on("click", ".ServiceShow___3-QsNMNj", function(e) {
         e.preventDefault();
-        
+        var edit = $(this).next(".ServiceEdit___1FO6wKeX");
+        var textarea = edit.find(".AutosizeTextarea__container___31scfkZp").children('textarea');
+        var cid = edit.parents('.edit.details').data('cid');
+        autosize($(textarea));
+        $(edit).show();
+        $(this).hide();
+        $(textarea).focus();
     });
-
+    $(document).on("click", ".TaskShow___2LNLUMGe", function(e) {
+        e.preventDefault();
+        var edit = $(this).next(".TaskEdit___1Xmiy6lz");
+        $(edit).show();
+        $(this).hide();        
+    });
+    $(document).on("click", ".EffortShow_haqOwGZY", function(e) {
+        e.preventDefault();
+        var edit = $(this).next(".EffortEdit_fZJyC62e");
+        $(edit).show();
+        $(this).hide();        
+    });
+    $(document).on('click', '.AutosizeTextarea__container___31scfkZp', function(){
+        var textarea = $(this).children('textarea');
+        autosize($(textarea));
+        $(textarea).focus();
+    });
+    $(document).on('click', '.AddSubresourceButton___2PetQjcb, .AddSubresourceButton___S1LFUcMd', function(){
+        var $cid = $(this).data('cid');
+        $(this).hide();
+        $('.TaskEdit___1Xmiy6lz[data-cid = '+$cid+']').show();
+        $('.EffortEdit_fZJyC62e[data-cid = '+$cid+']').show();        
+    });
+    $(document).on("click", "button[data-aid=cancel]", function (e) {
+        e.preventDefault();
+    });
     $(".edit_experience").hide();
 
     $(document).on("click", "a.done", function(e){
@@ -604,6 +759,24 @@ $(document).ready(function(){
         $(this).children('span').attr('title', 'Minimize');
         $(this).attr('id', 'maximizedMinimize');
     }); 
+    $(document).on('click', 'button.IconButton___2y4Scyq6', function(e){
+        e.preventDefault();
+        var cid        = $(this).data('cid'),
+            parent_cid = $(this).data('parent-cid');
+        var eggs = parseInt($('span.tasks-count[data-cid='+parent_cid+']').attr('eggs'), 10);
+        console.log('button.IconButton___2y4Scyq6.cid: '+cid);
+ 	   $('span.tasks-count[data-cid='+parent_cid+']').attr('eggs', eggs-1);
+        $('div.ServiceEffort__26XCaBQk[data-cid='+cid+']').remove();
+    }); 
+    $(document).on('click', 'button.IconButton___4wjSqnXU', function(e){
+        e.preventDefault();
+        var cid        = $(this).data('cid'),
+            parent_cid = $(this).data('parent-cid');
+        var eggs = parseInt($('span.tasks-count[data-cid='+parent_cid+']').attr('eggs'), 10);
+        console.log('button.IconButton___4wjSqnXU.cid: '+cid);
+ 		$('span.tasks-count[data-cid='+parent_cid+']').attr('eggs', eggs-1);
+        $('div.Effort__CPiu2C5N[data-cid='+cid+']').remove();
+    });
     $(".qbox").resizable({
         handles: 's, se',minHeight: 57
     });
@@ -671,6 +844,15 @@ $(document).ready(function(){
 		 	else            {$(save).removeAttr('disabled');
 	                         $(save).children('span.fa-check').attr('title','Save');}
         }
+    });
+    $(document).on('blur', 'textarea.AutosizeTextarea__textarea___1LL2IPEy', function(){
+        contents = $(this).val();
+        this_container = $(this).parents('.DescriptionEdit___1FO6wKeX');
+        show_container =  $(this_container).parent().children('.DescriptionShow___3-QsNMNj');
+        $(show_container).text(contents)
+        $(show_container).show();
+        $(this_container).hide();
+        
     });
     $(document).on("blur", "input:text.recipient_input", function(){
         var name = $(this).val();
@@ -810,14 +992,14 @@ $(document).ready(function(){
  		        $(this).parents('div.receive_item').find('input[data-name=bo_qty]').prop('readonly', false);
 		        $(this).parents('div.receive_item').find('input[data-name=bo_delivery_date]').prop('readonly', false);}
    });
-   /**Calculate values for receipts**/
-   $(document).on('blur', "input[data-name='qty'], input[data-name='cost']",function(e){ console.log('input changed');
+   /**Calculate values for receipts and service items**/
+   $(document).on('change', "input[data-name='qty'], input[data-name='cost']",function(e){
 	    var qid_n      = $(this).data('qid');
 	    var qid        = $(this).parents('div.qbox').attr('id');
-	    var $qty       = $(this).parents('.rTableRow.receipt_item').find("input[data-name='qty'][data-qid="+qid_n+"]");
-	    var $cost      = $(this).parents('.rTableRow.receipt_item').find("input[data-name='cost'][data-qid="+qid_n+"]");
-	    var $line_total= $(this).parents('.rTableRow.receipt_item').find("span#"+qid_n+"_line_total");
-	    var $line_total_raw = $(this).parents('.rTableRow.receipt_item').find("span."+qid+"_line_total");
+	    var $qty       = $(this).parents('.rTableRow.receipt_item, .rTableRow.service_item').find("input[data-name='qty'][data-qid="+qid_n+"]");
+	    var $cost      = $(this).parents('.rTableRow.receipt_item, .rTableRow.service_item').find("input[data-name='cost'][data-qid="+qid_n+"]");
+	    var $line_total= $(this).parents('.rTableRow.receipt_item, .rTableRow.service_item').find("span#"+qid_n+"_line_total");
+	    var $line_total_raw = $(this).parents('.rTableRow.receipt_item, .rTableRow.service_item').find("span."+qid+"_line_total");
 	    var $sales_tax = $(this).parents('div.qbox#'+qid).find("input[name='jot[sales_tax]'][data-qid="+qid+"]");
 	    var $shipping  = $(this).parents('div.qbox#'+qid).find("input[name='jot[shipping_cost]'][data-qid="+qid+"]");
 	    var $subtotal  = $(this).parents('div.qbox#'+qid).find("span#"+qid+"_subtotal");
@@ -891,6 +1073,12 @@ $(document).ready(function(){
 	    }
 	    return '$'+ x1 + x2;
 	}
+	$(document).on('change', 'select.properties-item-type', function(e){
+		var item_type = $(this).find(':selected').val();
+		console.log('item_type: '+item_type);
+		$(this).parents('.rTableBody').find('div.properties-input-selector').css('display', '')
+		$(this).parents('.rTableBody').find('div.item-'+item_type).css('display', 'table-row');
+	});
 	
 };
     
@@ -1125,8 +1313,11 @@ quebx.framework.dunno = function() {
 	$(document).on('click', '.remove-node', function(e){
 		e.preventDefault();
 		// remove the node
-		var property_card = $(this).parents('div.rTableRow').data('qid');
-		var is_receipt_item = property_card.length>0;
+		var property_card = $(this).parents('div.rTableRow').data('qid'),
+		    element_type  = $(this).data('element');
+		var is_receipt_item = true;
+	    if (typeof property_card == 'undefined')
+	    	is_receipt_item = false;
 		console.log('property_card:'+property_card);
 		$this = $(this);
 		var qid_n = $(this).parents('div.receipt_item').data('qid');
@@ -1162,7 +1353,20 @@ quebx.framework.dunno = function() {
 		   $total.text(moneyFormat(total)); 
 		   $total_raw.text(total);                                            console.log('total = '+total);
 	   }
-		$this.parents('div').parents('div').eq(0).remove();
+		$this.parents('div.rTableRow').eq(0).remove();
+		
+	});
+	$(document).on('click', '.remove-service-item', function(e){
+		e.preventDefault();
+		// remove the node
+		var element_type  = $(this).data('element'),
+		    qid_n         = $(this).data('qid');
+	    $service_item_add = $(this).parents('.rTable.service-line-items').find('a.new-item');
+	     item_rows = $service_item_add.attr('data-rows');
+	    $service_item_add.attr('data-rows', item_rows-1);
+		$('.rTableRow.service_item[data-qid='+qid_n+']').remove();
+	    $('.ServiceEffort__26XCaBQk[data-qid='+qid_n+']').remove();
+	    $('div.jq-dropdown#'+qid_n).remove();
 		
 	});
 	// Source: https://www.codeproject.com/Questions/1103675/How-to-set-thousand-saprator-in-javascript-or-jque
@@ -1196,9 +1400,32 @@ quebx.framework.dunno = function() {
 	});
 	$(document).on('click', '.remove-progress-marker', function(e){
 		e.preventDefault();
+       var container    = $('.inline-content-expand'),
+	       qid  = $(this).attr('data-qid');
+	   var eggs = parseInt($('span.qbox-menu[data-qid='+qid+']').attr('eggs'), 10);
+       var visible_container = $(container).children('.inline-visible');
 		// remove the node
-		$(this).parents('div.rTableRow').eq(0).remove();
+		$(this).parents('.rTableRow').eq(0).remove();
+		$.colorbox.resize({
+	  		innerHeight: ($(visible_container).offset().top + $(visible_container).height())
+	  	});
+	  	
+		$('span.qbox-menu[data-qid='+qid+']').attr('eggs', eggs-1);
+	  	if (eggs <= 1){
+	  		$('span.qbox-menu[data-qid='+qid+']').hide();
+	  	}
 	});
+	$(document).on('click', '.remove-effort-card', function(e){
+		   e.preventDefault();
+	      var container  = $(this).parents('.Effort__CPiu2C5N'),
+		       qid       = $(this).attr('data-qid'),
+		       $container = $(this).parents('.Effort__CPiu2C5N').parent();
+	      var action = $container.attr('data-aid');
+		  var eggs = parseInt($('span.efforts-eggs[data-qid='+qid+']').attr('eggs'), 10);
+			// remove the card
+			$(container).remove();		  	
+			$('span.efforts-eggs[data-qid='+qid+']').attr('eggs', eggs-1);
+		});
     $( "#sortable" ).sortable({
 	    revert: true,
 	    items: "> div:not(.pin)"
@@ -1404,6 +1631,10 @@ quebx.framework.dunno = function() {
 		// clone the node
 		var html = $('.individual_features1').html();
 		$(html).insertBefore('.new_individual_feature1');
+	});
+	$('.Description___3oUx83yQ').on('click', function(){
+		$(this).next('.DescriptionEdit___1FO6wKeX').show();
+		$(this).hide();
 	});
 };	
 

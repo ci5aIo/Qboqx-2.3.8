@@ -37,7 +37,7 @@ if ($solo){
         }
     }
      
-    $view = elgg_view_exists("object/$subtype") ? "object/$subtype" : "object/jot"; 
+//    $view = elgg_view_exists("object/$subtype") ? "object/$subtype" : "object/jot"; 
     
     if (!$jot) {
     	register_error(elgg_echo("jot not found: {$jot_guid}"));
@@ -92,7 +92,7 @@ if ($solo){
     elgg_push_breadcrumb($item->title);
 	
     // Display it
-    $content = elgg_view_list_item($jot, array('full_view' => true, 'this_section'=>$section, 'selected'=>$selected));
+    $content = elgg_view_list_item($jot, ['full_view' => true, 'this_section'=>$section, 'selected'=>$selected, 'list_type'=>'page']);
     $content .= elgg_view_comments($jot);
 }
 if ($command == 'shelf'){
