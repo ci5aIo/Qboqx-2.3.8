@@ -40,7 +40,7 @@ $num_items = 16;  // 0 = Unlimited
 
 $options = array(
 	'types' => 'object',
-	'subtypes' => array('jot', 'experience', 'observation'), //'transfer', 'issue', 'observation',
+	'subtypes' => array('jot', 'observation'), //'transfer', 'issue', 'observation',
 	'limit' => $num_items,
 	'full_view' => false,
 	'pagination' => true,

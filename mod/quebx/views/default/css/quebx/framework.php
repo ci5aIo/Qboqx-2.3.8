@@ -885,7 +885,7 @@ table.ledger .link-rollover{
 	position:relative;
 	min-height:57px;
 	height:auto;
-	width:550px;
+	/*width:550px;*/
 	z-index:2;
 	display: block;
     box-shadow: inset 0 0 3px #888;

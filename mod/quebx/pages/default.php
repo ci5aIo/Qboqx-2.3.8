@@ -290,7 +290,7 @@ $dbprefix = elgg_get_config('dbprefix');
 
 $options = array(
 	'types'            => 'object',
-	'limit'            => 10,           // 0 = Unlimited
+	'limit'            => 0,            // 0 = Unlimited
 //	'full_view'        => true,         // default = false
 	'pagination'       => true,         // default = false
 	'pagination_type'  => 'infinite',
@@ -398,13 +398,18 @@ if (!empty($items)){
 	$file->open('write');
 	$file->write(json_encode($referrer));
 	$file->close();
-}	
+}
 
 // display a sortable list.  See https://github.com/hypeJunction/hypeLists for configuration values
 $items_list =elgg_view('lists/objects',['options'          => $options,
 										 'show_search'      => true,
 										 'show_filter'      => true,
-		                                 'show_sort'        => true,
+                                         'show_sort'        => true,
+                                         'sort_options' => [
+                                             'likes::asc',
+                                             'likes::desc',
+                                             'time_created:desc',
+                                             'alpha::asc',],
 ]);
 //$items_list = elgg_list_entities($options);
 $content .= $items_list;
