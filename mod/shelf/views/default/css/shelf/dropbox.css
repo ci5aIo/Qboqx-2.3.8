@@ -8,7 +8,7 @@
 .dropbox {
   /*position: absolute;*/
   position: relative;
-  z-index: 1039;
+  /*z-index: 1039;*/
   display: none;
 }
 .dropbox .dropbox-menu,

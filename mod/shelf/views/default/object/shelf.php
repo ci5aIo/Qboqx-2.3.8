@@ -16,8 +16,9 @@ foreach($data as $key=>$contents){
     $qty = NULL; $entity = NULL;
     foreach($contents as $position=>$value){ 
         while (list($position, $value) = each($contents)){
-            if ($position == 'guid'){                     
-                $entity = get_entity($value);             
+            if ($position == 'guid'){
+                $guid   = $value;
+                $entity = get_entity($guid);
             }
             if ($position == 'quantity'){                 
                 $qty = $value;                            
@@ -27,7 +28,22 @@ foreach($data as $key=>$contents){
     if (isset($subtype) && $entity->getSubtype() != $subtype){
     	continue;
     }
-    $content .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective]);
+    else {
+        if (elgg_entity_exists($guid)){
+            $subtype = $entity->getSubtype();
+        }
+    }
+    switch ($subtype){
+        case 'market':
+        case 'item':
+            $content_item .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective]);
+            break;
+        case 'receipt':
+            $content_receipt .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective]);
+            break;
+        default:
+            $content_default .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective]);
+    }
 }
 Switch ($perspective){
 	case 'page':
@@ -55,11 +71,34 @@ Switch ($perspective){
 		</div>";
 		break;
 	case 'sidebar':
-		$content = "<div id='shelf_list_items' class='shelf-list-items'>
-		     <ul>
-				$content
-		    </ul>
-		</div>";		
+	    unset ($content);
+	    if ($content_item){
+	        $content .="<div>Items
+                    	    <ul>
+                    	    $content_item
+                    	    </ul>
+                	    </div>"; 
+	    }
+	    if ($content_receipt){
+	        $content .="<div>Receipts
+                	        <ul>
+                	        $content_receipt
+                	        </ul>
+            	        </div>";
+	    }
+	    if ($content_default){
+	        $content .="<div>
+                	        <ul>
+                	        $content_default
+                	        </ul>
+            	        </div>";
+	    }
+	    
+	    $content = "<div id='shelf_list_items' class='shelf-list-items'>
+    	    <div>Shelf
+        	    $content
+    	    </div>
+	    </div>";
 		break;
 }
 			

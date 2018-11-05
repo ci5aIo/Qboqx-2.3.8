@@ -1,6 +1,6 @@
 <?php
-$inventory = $vars['inventory'];
-$item = $vars['entity'];
+$inventory   = elgg_extract('inventory'  , $vars);
+$item        = elgg_extract('entity'     , $vars);
 $perspective = elgg_extract('perspective', $vars, 'page');
 
 	$element_type = 'receipt item';
@@ -27,6 +27,11 @@ Switch ($perspective){
 		$this_item = elgg_view_image_block($icon, $item->title, $image_vars);//, $vars);
 		$content = "<li class='quebx-shelf-item' data-perspective=$perspective id='quebx-shelf-item-$item->guid' data-container-guid=$item->container_guid >
 						$this_item
+						<nav class='TaskShow__actions___3dCdQMej undefined TaskShow__actions--unfocused___3SQSv294'>
+							<button class='IconButton___4wjSqnXU IconButton--small___3D375vVd' data-aid='delete' aria-label='Delete' data-cid='c2'>
+								<span><a title='remove from shelf'><span class='elgg-icon fa elgg-icon-delete-alt fa-times-circle'></span></a></span>
+							</button>
+						</nav>
 					</li>";
 		break;
 	case 'page':
