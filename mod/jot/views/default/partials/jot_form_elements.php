@@ -780,6 +780,7 @@ Switch ($element){
 			case 'view':
 				$max_width = $max_width ?: '500px';
 				Switch ($space){
+				    case 'experience':
 		 			case 'transfer':
 		 					$body_vars = ['guid'          =>$guid,
 									      //'container_guid'=>$guid,
@@ -801,7 +802,7 @@ Switch ($element){
 							//$form_body  = elgg_view('output/div', ['options' => ['id'=>'form-messages']]);
 							$form_body .= elgg_view('output/div', ['content' => elgg_view('output/div',['content'=> elgg_view_entity($entity, $body_vars),
 									                                                                    'class'  =>'jq-dropdown-panel',
-									                                                                    'options'=>['style'=>"overflow:auto;max-width:$max_width;"]]),
+									                                                                    'options'=>['style'=>"overflow:visible;max-width:$max_width;"]]),
 									                              'class'    => 'jq-dropdown jq-dropdown-tip',
 									                              'options'  => ['id'=>$qid]]);
 						break;

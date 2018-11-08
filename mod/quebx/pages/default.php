@@ -445,7 +445,8 @@ if (elgg_is_logged_in()){
 								                'href'               => "jot/box/0/item/add"));
 //		elgg_register_menu_item('page', $view_menu[0]);
 
-		$items_on_shelf = shelf_count_items();
+/*@EDIT - 2018-11-08 - SAJ - Removed Shelf menu item from sidebar.  Shelf expanded to full sidebar item.
+  		$items_on_shelf = shelf_count_items();
     	$view_menu[12] = ElggMenuItem::factory(array('name'               => '02shelf',
     	                                             'text'               => "Shelf ($items_on_shelf)", 
 //            								         'class'              => 'elgg-lightbox',
@@ -453,7 +454,7 @@ if (elgg_is_logged_in()){
             					                     'href'               => "shelf",
     	));
     	elgg_register_menu_item('page', $view_menu[12]);
-
+*/
 // @TODO Expand the add something tab to include experiences    	
 		$view_menu = ElggMenuItem::factory(array('name'           => '001b_item',
 		                                         'id'             => 'add_something_tab',

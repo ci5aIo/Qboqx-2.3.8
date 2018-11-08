@@ -11,6 +11,7 @@ if ($file->exists()) {
 }
 
 $data = json_decode($json, true);
+unset($n_items, $n_receipts);
 
 foreach($data as $key=>$contents){                        
     $qty = NULL; $entity = NULL;
@@ -25,7 +26,8 @@ foreach($data as $key=>$contents){
             }
         }
     }
-    if (isset($subtype) && $entity->getSubtype() != $subtype){
+    if (isset($subtype) && elgg_entity_exists($guid)){
+       if ($entity->getSubtype() != $subtype)
     	continue;
     }
     else {
@@ -36,9 +38,11 @@ foreach($data as $key=>$contents){
     switch ($subtype){
         case 'market':
         case 'item':
+            ++$n_items;
             $content_item .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective]);
             break;
         case 'receipt':
+            ++$n_receipts;
             $content_receipt .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective]);
             break;
         default:
@@ -73,18 +77,26 @@ Switch ($perspective){
 	case 'sidebar':
 	    unset ($content);
 	    if ($content_item){
-	        $content .="<div>Items
-                    	    <ul>
-                    	    $content_item
-                    	    </ul>
+	        $content .="<div class='quebx-shelf-items'>
+                            <div class='shelf-area'>
+                        	    <ul class='shelf-items-compartment'>
+                        	    $content_item
+                        	    </ul>
+                            </div>
+                            <span title='Hide items' class='shelf-items-expanded'>
+                                <div class='shelf-label'>Items (<span class='shelf-item-count' data-count='$n_items'>$n_items</span>)</div>
+                            </span>
                 	    </div>"; 
 	    }
 	    if ($content_receipt){
-	        $content .="<div>Receipts
-                	        <ul>
-                	        $content_receipt
-                	        </ul>
-            	        </div>";
+	        $content .="<div class='quebx-shelf-receipts'>
+                            <div class='shelf-area'>
+                        	    <ul class='shelf-items-compartment'>
+                        	    $content_receipt
+                        	    </ul>
+                            </div>
+                            <div class='shelf-label'>Receipts ($n_receipts)</div>
+                	    </div>"; 
 	    }
 	    if ($content_default){
 	        $content .="<div>
@@ -95,7 +107,8 @@ Switch ($perspective){
 	    }
 	    
 	    $content = "<div id='shelf_list_items' class='shelf-list-items'>
-    	    <div>Shelf
+    	    <div>".
+    	        elgg_view('output/url', ['href'=>'shelf', 'text'=>'Shelf','class'=>'shelf-menu-page', 'title'=>'Jump to the Shelf'])."
         	    $content
     	    </div>
 	    </div>";

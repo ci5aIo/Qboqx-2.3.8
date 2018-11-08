@@ -883,9 +883,12 @@ if ($suppliers) {
                 				    'title' => 'Edit this experience',
                 			    ));
                 			}
-                
+                			$link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$i->title, 'class'=>'do', 'data-perspective'=>'view', 'data-guid'=>$i->getGUID(), 'data-element'=>'popup', 'data-space'=>'experience', 'data-aspect'=>$i->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$i->getGUID(),'data-qid'=>'q'.$i->getGUID()]),'class'  =>'drop-down']);
                 			$render .= "<div class='rTableRow'>
-                			                 <div class='rTableCell' style='width:90%; padding: 0px 0px'>".elgg_view('output/url', array('text' => $i->title,'href' =>  "jot/view/{$i->guid}"))."</div>
+                			                 <div class='rTableCell' style='width:90%; padding: 0px 0px'>".
+                			                     $link
+//                			                     elgg_view('output/url', array('text' => $i->title,'href' =>  "jot/view/{$i->guid}"))
+                			                     ."</div>
                 			                 <div class='rTableCell' style='width:10%; padding: 0px 0px'>$edit $delete</div>
                 			            </div>";
                 	}

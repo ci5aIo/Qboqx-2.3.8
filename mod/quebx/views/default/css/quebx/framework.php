@@ -889,7 +889,9 @@ table.ledger .link-rollover{
 	z-index:2;
 	display: block;
     box-shadow: inset 0 0 3px #888;
-    padding: 15px 0 0 1px;
+    /*padding: 15px 0 0 1px;*/
+    background-color: #e5eecc;
+    padding: 5px;
 }
 .inline div.rTable {
 	width:100%;
@@ -912,6 +914,7 @@ table.ledger .link-rollover{
 
 #inlineLoadedContent{
 	overflow: visible;
+    background-color: #ffffff;
 }
 #inlineLoadedContent > * {
     padding: 0px 0px 0px 0px;
@@ -1182,4 +1185,8 @@ li.quebx-shelf-item{
 	min-width:500px;
 	display: flex;
     flex-flow: row wrap;
+}
+.quebx-body-list{
+	overflow:visible!important;
+	padding: 5px;
 }

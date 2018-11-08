@@ -3,6 +3,7 @@ $inventory   = elgg_extract('inventory'  , $vars);
 $item        = elgg_extract('entity'     , $vars);
 $perspective = elgg_extract('perspective', $vars, 'page');
 
+if ($item){
 	$element_type = 'receipt item';
     $title = $item->title;
     $content_item = elgg_view('output/url', [
@@ -17,7 +18,7 @@ $perspective = elgg_extract('perspective', $vars, 'page');
 				'name'  => 'item[quantity][]',
 	            'value' => $vars['quantity'],
 	        	'max'   => $inventory,]);
-        
+}        
 Switch ($perspective){
 	case 'sidebar':
 		if (!empty($item->icon)){$icon_guid = $item->icon;}              
@@ -25,13 +26,15 @@ Switch ($perspective){
 		$icon = elgg_view('market/thumbnail', ['marketguid' => $icon_guid, 'size' => 'tiny', 'item_guid'=>$item->guid]);
 		$image_vars=['item_guid'=>$item->guid];
 		$this_item = elgg_view_image_block($icon, $item->title, $image_vars);//, $vars);
-		$content = "<li class='quebx-shelf-item' data-perspective=$perspective id='quebx-shelf-item-$item->guid' data-container-guid=$item->container_guid >
-						$this_item
-						<nav class='TaskShow__actions___3dCdQMej undefined TaskShow__actions--unfocused___3SQSv294'>
-							<button class='IconButton___4wjSqnXU IconButton--small___3D375vVd' data-aid='delete' aria-label='Delete' data-cid='c2'>
-								<span><a title='remove from shelf'><span class='elgg-icon fa elgg-icon-delete-alt fa-times-circle'></span></a></span>
-							</button>
-						</nav>
+		$content = "<li class='quebx-shelf-item' data-perspective=$perspective id='quebx-shelf-item-$item->guid' data-container-guid='$item->container_guid' >
+						<div class='ShelfShow__elw1jufs'>
+    						$this_item
+    						<nav class='ShelfShow__actions___oosero4fs undefined ShelfShow__actions--unfocused___234slkj65'>
+    							<button class='IconButton___0po345dx IconButton--small___ew4pds0kd' data-aid='delete' aria-label='Delete' data-item-guid='$item->guid'>
+    								<span><a title='remove from shelf'><span class='elgg-icon fa elgg-icon-delete-alt fa-times-circle'></span></a></span>
+    							</button>
+    						</nav>
+                        </div>
 					</li>";
 		break;
 	case 'page':

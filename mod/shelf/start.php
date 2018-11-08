@@ -19,6 +19,8 @@ elgg_register_event_handler('init', 'system', 'shelf_init');
  * @return void
  */
 function shelf_init() {
+       
+    elgg_register_ajax_view('partials/shelf_form_elements');
     
      // Register libraries of helper functions
 	elgg_register_plugin_hook_handler('register', 'menu:user_hover', 'shelf_owner_block_menu');
@@ -46,6 +48,8 @@ function shelf_init() {
 	// extend js
 	elgg_extend_view("js/elgg", "js/shelf/site");
 	elgg_extend_view("js/elgg", "js/shelf/dropbox");
+	$shelf_ajax_js            = elgg_get_simplecache_url('js' , 'shelf_form_elements');
+	elgg_require_js($shelf_ajax_js);
 	
 	// register JS libraries
 	$vendors = elgg_get_site_url() . "mod/shelf/vendors/";
@@ -168,14 +172,30 @@ function shelf_entity_menu2($hook, $type, $return, $params) {
         			'priority' => 300,
         		));
 		
+		$guid = $params['entity']->getGUID();	// 'Pick' menu
+		$params['guid'] = $guid;
+		$params['menu'] = 'pick';
+		$params['text'] = 'Pick';
+		$params['title']= elgg_echo('shelf:load');
+		$params['data-guid'] = $guid;
+		$params['data-element'] ='load';
+		$params['class'] = ['shelf-load'];
+		//$params['priority'] = 300;
+		
+		$return[]= new ElggMenuItem('pick', elgg_view('output/url',$params), false);
+		
 		// 'place on shelf' link
-		$return[] = ElggMenuItem::factory(array(
+/*		$return[] = ElggMenuItem::factory([
         			'name' => 'pick',
         		    'text' => 'Pick',
-        			'title' => elgg_echo('shelf:load'),
-        			'href' => elgg_add_action_tokens_to_url('action/shelf/load?guid=' . $params['entity']->guid),
+        			'title'=> elgg_echo('shelf:load'),
+		            'data-guid' => $params['entity']->guid,
+		            'data-element' =>'load',
+		            'linkClass' => ['shelf-load'],
+		            'href'  =>FALSE,
+//        			'href' => elgg_add_action_tokens_to_url('action/shelf/load?guid=' . $params['entity']->guid),
         			'priority' => 300,
-        		));
+        		]);*/
 		
 	return $return;
 /*	

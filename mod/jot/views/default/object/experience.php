@@ -8,7 +8,9 @@ $guid          = $experience->guid;
 $container_guid= $experience->container_guid;
 $item_guid     = elgg_extract('asset', $vars, $experience->asset);
 $selected      = elgg_extract('selected', $vars);
-$list_type     = elgg_extract('list_type', $vars, 'page');                            $display .= '11 $list_type = '.$list_type.'<br>';
+$view_type     = elgg_extract('view_type', $vars, 'page');
+    if ($view_type == 'compact') $view_type = 'list';
+$list_type     = elgg_extract('list_type', $vars, $view_type);                            $display .= '11 $list_type = '.$list_type.'<br>';
 $space         = elgg_extract('space', $vars, 'market');
 $context       = elgg_extract('context', $vars, 'market');
 $perspective   = elgg_extract('perspective', $vars, 'view');
@@ -209,16 +211,17 @@ Switch ($list_type){
 			</div>";
         	$params = array(
         		'metadata' => $metadata,
-		    	    'tags'          => 'none',
+		    	'tags'     => 'none',
         	    'content'  => $content,
-		    	    'show_comments' => false,
+		    	'show_comments' => false,        	    
         	);
         
         	$params = array_merge($params, $vars);
+        	$image_block_params = ['body_class' =>'quebx-body-list',];
 		    	$list_body = elgg_view('object/elements/list', $params);
         	
 		    	$body = "<div class='jot elgg-content'>".
-		    	         elgg_view_image_block($owner_icon, $list_body).
+		  		    	elgg_view_image_block($owner_icon, $list_body, $image_block_params).
 		    	         "</div>";
 }
 	
