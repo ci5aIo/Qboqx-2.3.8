@@ -93,6 +93,7 @@ Switch ($element){
         }
         else {
             system_message(elgg_echo('Item is already on the shelf.  Skipping.'));
+            $content = false;
         }
         break;
     default:
