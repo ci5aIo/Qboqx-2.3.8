@@ -58,12 +58,33 @@ if ($show_activity){
 																	'inverse_relationship' => true,
 																	'limit'                => $limit,]));
 	if($experiences){
-		$activity .= '<ul><b>Experiences</b>';
+//		$activity .= '<ul><b>Experiences</b>';
+	    unset($n_items);
 		foreach($experiences as $experience){
-	        $guids[] = $experience->guid;       
-	        $activity .= '<li>'.elgg_view('output/url', array('text' => $experience->title,'href' =>  "jot/view/{$experience->guid}")).'</li>';
-	    }
-	    $activity.= '</ul>';
+		    unset($link);
+	        $guids[] = $experience->guid;
+	        ++$n_items;
+	        $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$experience->title, 'class'=>'do', 'data-perspective'=>'view', 'data-guid'=>$experience->getGUID(), 'data-element'=>'popup', 'data-space'=>'experience', 'data-aspect'=>$experience->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$experience->getGUID(),'data-qid'=>'q'.$experience->getGUID()]),'class'  =>'drop-down']);
+	        $content_item .= "<li class='quebx-shelf-item'>$link</li>";
+//	        $activity .= "<li>$link</li>";
+//	        $activity .= '<li>'.elgg_view('output/url', array('text' => $experience->title,'href' =>  "jot/view/{$experience->guid}")).'</li>';
+		}
+//		$activity.= '</ul>';
+		
+		$activity .= "<div class='shelf-list-items'>
+                        <div>
+                        <div class='quebx-shelf-items'>
+                		<div class='shelf-area'>
+                    		<ul class='shelf-items-compartment'>
+                    		$content_item
+                    		</ul>
+                		</div>
+                		<span title='Hide items' class='shelf-items-expanded'>
+                		  <div class='shelf-label'>Experiences (<span class='shelf-item-count' data-count='$n_items'>$n_items</span>)</div>
+                		</span>
+                	 </div>
+                    </div>
+                 </div>";
 	}
 /*    $options  = ['guids'          => $guids,
     			 'list_type'      => 'brief'];
