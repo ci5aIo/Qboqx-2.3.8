@@ -152,28 +152,158 @@ Switch ($view_type){
 // 11/02/2013 - Experimental
 		// list view
 		$market_img = elgg_view('output/url', array(
-				'href'    => "market/view/$marketpost->guid",
+				'href'    => "market/view/$guid",
 				'text'    => elgg_view('market/thumbnail', array('marketguid' => $icon_guid, 'size' => 'tiny', 'tu' => $tu)),
 				));
+		$contents = elgg_get_entities(array(
+		    'type' => 'object',
+		    'subtypes' => array('market', 'item', 'contents'),
+		    'joins'    => array('JOIN elgg_objects_entity e2 on e.guid = e2.guid'),
+		    'wheres' => array(
+		        "e.container_guid = $guid",
+		        "NOT EXISTS (SELECT *
+	                                 from elgg_entity_relationships s1
+	                                 WHERE s1.relationship = 'component'
+	                                   AND s1.guid_two = e.container_guid)"
+		    ),
+		    'order_by' => 'e2.title',
+		    'limit' => false,
+		));
+		$components = elgg_get_entities_from_relationship(array(
+		    'type' => 'object',
+		    'relationship' => 'component',
+		    'relationship_guid' => $guid,
+		    'inverse_relationship' => true,
+		    'limit' => false,
+		));
+		$accessories = elgg_get_entities_from_relationship(array(
+		    'type' => 'object',
+		    'relationship' => 'accessory',
+		    'relationship_guid' => $guid,
+		    'inverse_relationship' => true,
+		    'limit' => false,
+		));
+		
+	    $experiences = elgg_get_entities(array(
+	        'type'          => 'object',
+	        'subtype'       => 'experience',
+	        'container_guid'=> $guid,
+	    ));
+	    
+	    $experiences = array_merge($experiences,
+	        elgg_get_entities_from_relationship(['type'                 => 'object',
+	            'relationship'         => 'experience',
+	            'relationship_guid'    => $guid,
+	            'inverse_relationship' => true,
+	            'limit'                => $limit,]));
+        if($experiences){
+            unset($n, $experiences_boqx);
+            $n= count($experiences);
+            foreach($experiences as $experience){
+                unset($link);
+                $guids[] = $experience->guid;
+                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$experience->title, 'class'=>'do', 'data-perspective'=>'view', 'data-guid'=>$experience->getGUID(), 'data-element'=>'popup', 'data-space'=>'experience', 'data-aspect'=>$experience->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$experience->getGUID(),'data-qid'=>'q'.$experience->getGUID()]),'class'  =>'drop-down']);
+                $content_item .= "<li class='quebx-list-boqx-item'>$link</li>";
+            }
+            
+            $experiences_boqx .= "<div class='quebx-list-boqx'>
+            	            <div class='quebx-list-boqx-viewarea'>
+                	            <ul class='quebx-list-boqx-compartment'>
+                	               $content_item
+                	            </ul>
+            	            </div>
+        	               <span title='Open boqx' class='boqx-items-collapsed'>
+        	                   <div class='boqx-label'>Experiences (<span class='boqx-item-count' data-count='$n'>$n</span>)</div>
+        	               </span>
+        	            </div>";
+        }
+        if($contents){
+            //		$activity .= '<ul><b>Experiences</b>';
+            unset($n, $contents_boqx);
+            $n= count($contents);
+            foreach($contents as $q){
+                unset($link);
+                $guids[] = $q->guid;
+                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$q->title, 'class'=>'do', 'data-perspective'=>'view', 'data-guid'=>$q->getGUID(), 'data-element'=>'popup', 'data-space'=>'market', 'data-aspect'=>$q->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$q->getGUID(),'data-qid'=>'q'.$q->getGUID(), 'data-view_type'=>'list']),'class'  =>'drop-down']);
+                $content_item .= "<li class='quebx-list-boqx-item'>$link</li>";
+            }
+            
+            $contents_boqx .= "<div class='quebx-list-boqx'>
+                            <div class='quebx-list-boqx-viewarea'>
+                                <ul class='quebx-list-boqx-compartment'>
+                                $content_item
+                                </ul>
+                            </div>
+                            <span title='Open boqx' class='boqx-items-collapsed'>
+                                <div class='boqx-label'>Contents (<span class='boqx-item-count' data-count='$n'>$n</span>)</div>
+                            </span>
+                        </div>";
+        }
+        if($components){
+            //		$activity .= '<ul><b>Experiences</b>';
+            unset($n, $components_boqx);
+            $n= count($components);
+            foreach($components as $q){
+                unset($link);
+                $guids[] = $q->guid;
+//                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$q->title, 'class'=>'do', 'data-perspective'=>'view', 'data-guid'=>$q->getGUID(), 'data-element'=>'market', 'data-space'=>'market', 'data-aspect'=>$q->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$q->getGUID(),'data-qid'=>'q'.$q->getGUID(), 'data-view_type'=>'list', 'data-presentation'=>'popup']),'class'  =>'drop-down']);
+                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$q->title, 'class'=>'do', 'data-perspective'=>'view', 'data-guid'=>$q->getGUID(), 'data-element'=>'popup', 'data-space'=>'market', 'data-aspect'=>$q->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$q->getGUID(),'data-qid'=>'q'.$q->getGUID(), 'data-view_type'=>'list']),'class'  =>'drop-down']);
+                $content_item .= "<li class='quebx-list-boqx-item'>$link</li>";
+            }
+            
+            $components_boqx .= "<div class='quebx-list-boqx'>
+            <div class='quebx-list-boqx-viewarea'>
+            <ul class='quebx-list-boqx-compartment'>
+            $content_item
+            </ul>
+            </div>
+            <span title='Open boqx' class='boqx-items-collapsed'>
+            <div class='boqx-label'>Components (<span class='boqx-item-count' data-count='$n'>$n</span>)</div>
+            </span>
+            </div>";
+        }
+        if($accessories){
+            //		$activity .= '<ul><b>Experiences</b>';
+            unset($n, $accessories_boqx);
+            $n= count($accessories);
+            foreach($accessories as $q){
+                unset($link);
+                $guids[] = $q->guid;
+                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$q->title, 'class'=>'do', 'data-perspective'=>'view', 'data-guid'=>$q->getGUID(), 'data-element'=>'popup', 'data-space'=>'market', 'data-aspect'=>$q->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$q->getGUID(),'data-qid'=>'q'.$q->getGUID(), 'data-view_type'=>'list']),'class'  =>'drop-down']);
+                $content_item .= "<li class='quebx-list-boqx-item'>$link</li>";
+            }
+            
+            $accessories_boqx .= "<div class='quebx-list-boqx'>
+            <div class='quebx-list-boqx-viewarea'>
+            <ul class='quebx-list-boqx-compartment'>
+            $content_item
+            </ul>
+            </div>
+            <span title='Open boqx' class='boqx-items-collapsed'>
+            <div class='boqx-label'>Accessories (<span class='boqx-item-count' data-count='$n'>$n</span>)</div>
+            </span>
+            </div>";
+        }
+        
 		$params = array(
-			'entity'     => $marketpost,
+			'entity'     => $item,
 			'metadata'   => $metadata,
 			// omit 'title' to revert to the default getURL() link
 			'title'      => elgg_view('output/url', ['data-guid'        => $guid,
 					                                 'data-qid'         => "q{$guid}",
 					                                 'data-qid_n'       => "q{$guid}_0",
 					                                 'data-element'     => 'market',
-					                                 'data-space'       => $marketpost->getSubtype(),
+					                                 'data-space'       => $item->getSubtype(),
 					                                 'data-perspective' => 'view',
 					                                 'data-presentation'=> 'inline',
 					                                 'data-context'     => elgg_get_context(),
-					                                 'text'             => $marketpost->title,
+					                                 'text'             => $item->title,
 					                                 'class'            => 'do']),
 			'subtitle'       => $subtitle,
 			'tags'           => $tags,
 	//		'content'        => $excerpt,
 	        'show_activity'  => true,
-	        'show_contents'  => true,
+	        'show_contents'  => false,
 		    'show_comments'  => false,
 		    'include_dropbox'=> false,
 		);
@@ -186,12 +316,22 @@ Switch ($view_type){
 	        $params2 = array('inline'=>false, 'show_heading'=>false);
 	        $params2 = array_merge($vars, $params2);
 	        $add_comment = true;
-	        $count_comments = $marketpost->countComments();
-	    	$comments = elgg_view_comments($marketpost, $add_comment, $params2);
+	        $count_comments = $item->countComments();
+	    	$comments = elgg_view_comments($item, $add_comment, $params2);
 	    }
 		$list_body = str_replace("elgg-body", "elgg-body elgg-menu-q", $list_body);
 		$content .= elgg_view_image_block($market_img, $list_body, $vars);
-		$content .= elgg_view('output/url', array('guid'=>$marketpost->getGUID(), 'text'=>$count_comments.' comments', 'do'=>'show_comments', 'style'=>array('cursor:pointer')));
+		if ($experiences_boqx || $contents_boqx || $components_boqx || $accessories_boqx){
+    		$content .= "<div class='quebx-list-pallet' data-qid='q{$guid}'>
+    		               <div>
+    		                  $experiences_boqx
+    		                  $contents_boqx
+    		                  $components_boqx
+    		                  $accessories_boqx
+    		               </div>
+    		             </div>";
+		}
+		$content .= elgg_view('output/url', array('guid'=>$guid, 'text'=>$count_comments.' comments', 'do'=>'show_comments', 'style'=>array('cursor:pointer')));
 	    if ($comments){
 	    	$content .= "<div panel='comments' guid='".$marketpost->getGUID()."' class='elgg-comments' style='display: none'>$comments</div>";    
 	    }

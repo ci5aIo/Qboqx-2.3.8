@@ -1190,3 +1190,31 @@ li.quebx-shelf-item{
 	overflow:visible!important;
 	padding: 5px;
 }
+.quebx-tagline-site{
+	margin:0 0 0 10px;
+}
+.quebx-list-pallet{
+    background: white;
+    width: 210px;
+}
+.quebx-list-boqx{
+    padding: 5px;
+    text-align: center;
+    background-color: #e5eecc;
+    border: solid 1px #c3c3c3;
+}
+.quebx-list-boqx-viewarea{
+    max-height: 250px;
+    overflow: auto;
+    display: none;
+}
+.quebx-list-boqx-compartment{
+    list-style: none;
+}
+li.quebx-list-boqx-item{
+	border: 1px solid rgba(0,0,0,0.44);
+    background: white;
+}
+.boqx-label{
+	cursor: pointer;
+}

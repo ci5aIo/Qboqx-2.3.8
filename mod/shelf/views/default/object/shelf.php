@@ -78,24 +78,24 @@ Switch ($perspective){
 	    unset ($content);
 	    if ($content_item){
 	        $content .="<div class='quebx-shelf-items'>
-                            <div class='shelf-area'>
+                            <div class='quebx-list-boqx-viewarea' style='display: block;'>
                         	    <ul class='shelf-items-compartment'>
                         	    $content_item
                         	    </ul>
                             </div>
-                            <span title='Hide items' class='shelf-items-expanded'>
-                                <div class='shelf-label'>Items (<span class='shelf-item-count' data-count='$n_items'>$n_items</span>)</div>
+                            <span title='Close boqx' class='boqx-items-expanded'>
+                                <div class='boqx-label'>Things (<span class='shelf-item-count' data-count='$n_items'>$n_items</span>)</div>
                             </span>
                 	    </div>"; 
 	    }
 	    if ($content_receipt){
 	        $content .="<div class='quebx-shelf-receipts'>
-                            <div class='shelf-area'>
+                            <div class='quebx-list-boqx-viewarea' style='display: block;'>
                         	    <ul class='shelf-items-compartment'>
                         	    $content_receipt
                         	    </ul>
                             </div>
-                            <div class='shelf-label'>Receipts ($n_receipts)</div>
+                            <div class='boqx-label'>Receipts ($n_receipts)</div>
                 	    </div>"; 
 	    }
 	    if ($content_default){

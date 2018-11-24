@@ -73,7 +73,7 @@ elgg_make_sticky_form('market');
 $tagarray = string_to_tag_array($tags);
 $error = FALSE;
 
-if (filter_var($title, FILTER_VALIDATE_URL)){                                        // $display .= 'url entered<br>';
+if (filter_var($title, FILTER_VALIDATE_URL)){                                         $display .= 'url entered<br>';
     // user entered a URL as a title
     $url = true;
     $source_array = hypeScraper()->resources->get ($title, null, true);
@@ -209,22 +209,25 @@ else {
 	else {
 	    $item_images = $item['images'];
 	} 
-	if (!is_array($item_images)){array($item_images);}
-	$item_images = array_unique($item_images);
-/*	foreach ($item_images as $this_key=>$guid){                                   //$display .= '$item_images['.$this_key.'] => '.$guid.'<br>';
-	}
-	foreach ($unlink as $this_key=>$guid){                                        //$display .= '$unlink['.$this_key.'] => '.$guid.'<br>';
-	}
-*/	if (isset($unlink)){
-		  $remaining = array_diff ($item_images, $unlink);
-	}
-	else {$remaining = $item_images;}
+	if ($item_images){
+	    if (!is_array($item_images)) 
+	        $item_images = (array)$item_images;
+	   $item_images = array_unique($item_images);
 	
-	foreach ($remaining as $this_key=>$this_guid){                                     //$display .= '$remaining['.$this_key.'] => '.$this_guid.'<br>';
-	}
-	$item['images'] = $remaining;
-	$images         = $remaining; 
-
+    /*	foreach ($item_images as $this_key=>$guid){                                   //$display .= '$item_images['.$this_key.'] => '.$guid.'<br>';
+    	}
+    	foreach ($unlink as $this_key=>$guid){                                        //$display .= '$unlink['.$this_key.'] => '.$guid.'<br>';
+    	}
+    */	if (isset($unlink)){
+    		  $remaining = array_diff ($item_images, $unlink);
+    	}
+    	else {$remaining = $item_images;}
+    	
+    	foreach ($remaining as $this_key=>$this_guid){                                     //$display .= '$remaining['.$this_key.'] => '.$this_guid.'<br>';
+    	}
+    	$item['images'] = $remaining;
+    	$images         = $remaining; 
+}
 // @TODO - Analyze how to create new album.  Permit 'New Album' option on input form.
 	
 	if ($upload_guids && !is_array($upload_guids)){$upload_guids = [$upload_guids];}
@@ -236,22 +239,22 @@ else {
 			));
 	
 		// for display only ...
-		foreach($upload_guids as $key => $values){                             //$display .= '156 ['.$key.']=>'.$values.'<br>';
-			foreach ($values as $this_key => $value){                          //$display .= '157 ['.$this_key.']=>'.$value.'<br>';
+		foreach($upload_guids as $key => $values){                             $display .= '241 ['.$key.']=>'.$values.'<br>';
+			foreach ($values as $this_key => $value){                          $display .= '242 ['.$this_key.']=>'.$value.'<br>';
 				$upload_file = get_entity($value);
-				foreach ($upload_file as $key => $value){                      //$display .= '159 ['.$key.']=>'.$value.'<br>';
+				foreach ($upload_file as $key => $value){                      $display .= '244 ['.$key.']=>'.$value.'<br>';
 				}
 			}
 		}
-		
-		foreach($upload_guids as $key=>$value){                               //$display .= '231 $key['.$key.'] = '.$value.'<br>';
-			foreach($value as $this_key=>$upload_guid){	                      //$display .= '232 $this_key=>$upload_guid: ['.$this_key.']=>'.$upload_guid.'<br>'; 
-				$images[] = $upload_guid;                                     //$display .= '233 $upload_guid:'.$upload_guid.'<br>';
+		foreach($upload_guids as $key=>$value){                               $display .= '248 $key['.$key.'] = '.$value.'<br>';
+			foreach($value as $this_key=>$upload_guid){	                      $display .= '249 $this_key=>$upload_guid: ['.$this_key.']=>'.$upload_guid.'<br>'; 
+				$images[] = $upload_guid;                                     $display .= '250 $upload_guid:'.$upload_guid.'<br>';
 				
-				$image = get_entity($upload_guid);                            //$display .= '169 $image->guid:'.$image->guid.'<br>'; 
+				$image = get_entity($upload_guid);                            $display .= '252 $image->guid:'.$image->guid.'<br>'; 
 				if (!elgg_instanceof($image)) {                               //$display .= '170 !elgg_instanceof($image)<br>';
 					continue;
 				}
+			goto eof;
 				$image->container_guid = $album->guid; // in case these were uploaded with filedrop
 				
 				if (!$image->title) {
@@ -275,11 +278,12 @@ else {
 		}			
 	} //END - if ($upload_guids)
 
+/*
 	if (!is_array($images)){$images = array($images);}
 	$item['images'] = $images; 
 	foreach ($item['images'] as $this_key=>$this_guid){                                  // $display .= '280 $item_images['.$this_key.'] => '.$this_guid.'<br>';
 	}                                        
-  	
+  	*/
   	$documents = elgg_get_entities_from_relationship(array(
 		'type' => 'object',
 		'relationship' => 'document',
@@ -533,4 +537,4 @@ if (!$error){
 	}
 }
 eof:
-//register_error($display);
+register_error($display);

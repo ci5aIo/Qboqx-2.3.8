@@ -1079,6 +1079,24 @@ $(document).ready(function(){
 		$(this).parents('.rTableBody').find('div.properties-input-selector').css('display', '')
 		$(this).parents('.rTableBody').find('div.item-'+item_type).css('display', 'table-row');
 	});
+
+	$(document).on( "click", ".boqx-label", function(e) {
+		var $this = $(this),
+		    state;
+	    if ($this.parent('span').hasClass('boqx-items-expanded')) state = 'expanded';
+	    if ($this.parent('span').hasClass('boqx-items-collapsed')) state = 'collapsed';
+		if (state == 'expanded'){
+			$this.parent('span').removeClass('boqx-items-expanded');
+			$this.parent('span').addClass('boqx-items-collapsed');
+			$this.parent('span').attr('title', 'Open boqx'); 
+		}
+		if (state == 'collapsed'){
+			$this.parent('span').removeClass('boqx-items-collapsed');
+			$this.parent('span').addClass('boqx-items-expanded');
+			$this.parent('span').attr('title', 'Close boqx'); 
+		}
+		$this.parent('span').prev(".quebx-list-boqx-viewarea").slideToggle("slow");
+    });
 	
 };
     

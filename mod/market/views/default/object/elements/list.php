@@ -43,55 +43,6 @@ if ($title_link) {
 if ($subtitle){
     $view_elements .= "<div class=\"elgg-subtext\">$subtitle</div>";
 }
-if ($show_activity){
-
-    $experiences = elgg_get_entities(array(
-        'type'          => 'object', 
-        'subtype'       => 'experience', 
-        'container_guid'=> $entity->getGUID(),
-    ));
-
-    $experiences = array_merge($experiences,
-	    		               elgg_get_entities_from_relationship(['type'                 => 'object',
-																	'relationship'         => 'experience',
-																	'relationship_guid'    => $entity->getGUID(),
-																	'inverse_relationship' => true,
-																	'limit'                => $limit,]));
-	if($experiences){
-//		$activity .= '<ul><b>Experiences</b>';
-	    unset($n_items);
-		foreach($experiences as $experience){
-		    unset($link);
-	        $guids[] = $experience->guid;
-	        ++$n_items;
-	        $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$experience->title, 'class'=>'do', 'data-perspective'=>'view', 'data-guid'=>$experience->getGUID(), 'data-element'=>'popup', 'data-space'=>'experience', 'data-aspect'=>$experience->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$experience->getGUID(),'data-qid'=>'q'.$experience->getGUID()]),'class'  =>'drop-down']);
-	        $content_item .= "<li class='quebx-shelf-item'>$link</li>";
-//	        $activity .= "<li>$link</li>";
-//	        $activity .= '<li>'.elgg_view('output/url', array('text' => $experience->title,'href' =>  "jot/view/{$experience->guid}")).'</li>';
-		}
-//		$activity.= '</ul>';
-		
-		$activity .= "<div class='shelf-list-items'>
-                        <div>
-                        <div class='quebx-shelf-items'>
-                		<div class='shelf-area'>
-                    		<ul class='shelf-items-compartment'>
-                    		$content_item
-                    		</ul>
-                		</div>
-                		<span title='Hide items' class='shelf-items-expanded'>
-                		  <div class='shelf-label'>Experiences (<span class='shelf-item-count' data-count='$n_items'>$n_items</span>)</div>
-                		</span>
-                	 </div>
-                    </div>
-                 </div>";
-	}
-/*    $options  = ['guids'          => $guids,
-    			 'list_type'      => 'brief'];
-    if (!empty($experiences)){
-        $activity .= elgg_list_entities($options);
-    }*/
-}
 //$view_elements .= $tags;
 
 if (elgg_get_plugin_setting('market_comments', 'market') == 'yes' &&
@@ -102,9 +53,11 @@ if (elgg_get_plugin_setting('market_comments', 'market') == 'yes' &&
 }
 
 $view_elements .= elgg_view('object/summary/extend', $vars);
-$view_elements .= $activity;
 if ($content) {
 	$view_elements .= "<div class=\"elgg-content\">$content</div>";
+}
+if ($activity){
+    $view_elements .= $activity;
 }
 if ($comments && $show_comments){
 	$view_elements .= "<div class=\"elgg-comments\">$comments</div>";    

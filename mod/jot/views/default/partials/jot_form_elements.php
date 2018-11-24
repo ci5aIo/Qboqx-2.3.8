@@ -1,4 +1,66 @@
 <?php
+/****************************************
+ * Cascade
+ *  $element
+ *      qbox-menu
+ *      new_item_details
+ *      properties
+ *      properties_service_items
+ *      new_receipt_item
+ *      new_discovery_item
+ *      new_service_item
+ *      new_service_task
+ *      new_remedy_item
+ *      q
+            $aspect
+            	content
+            	experience
+            		$presentation
+            			inline
+            			lightbox
+            			default
+            	image
+            	document
+            	project
+            	transfer
+            		$perspective
+            			add
+            			list
+            	return
+            	replace
+            	default
+ *      qbox
+        	$space
+        		transfer
+        		markete
+        		default
+ *      qbox_maximized
+        	$perspective
+        		edit
+        		view
+ *      Expand
+ *      Things
+ *      Documents
+ *      Gallery
+ *      Transfer
+ *      Market
+        	$perspective
+        		edit
+        		view
+ *      inline
+        	$perspective
+        		edit
+        		view
+ *      popup
+        	$perspective
+        		edit
+        		view
+        			$space
+        				market
+        				experience
+        				transfer
+ * 
+ ******************************************/
 $element      = elgg_extract('element', $vars);
 $guid         = elgg_extract('guid', $vars);
 $parent_cid   = elgg_extract('parent_cid', $vars);
@@ -11,11 +73,13 @@ $space        = elgg_extract('space', $vars);
 $aspect       = elgg_extract('aspect', $vars);
 $action       = elgg_extract('action', $vars);
 $perspective  = elgg_extract('perspective', $vars);
-$presentation = elgg_extract('presentation', $vars, 'qbox');
+$presentation = elgg_extract('presentation', $vars, 'qbox'); // Desired presentation of the form
+$presence     = elgg_extract('presence', $vars);             // Current presentation of the form
 $context      = elgg_extract('context', $vars);
 $section      = elgg_extract('section', $vars, false);
 $compartment  = elgg_extract('compartment', $vars, 'Profile');
 $form_class   = elgg_extract('form_class', $vars, 'inline-container');
+$view_type    = elgg_extract('view_type', $vars, 'compact');
 if (elgg_entity_exists($guid)){
 	$entity  = get_entity($guid);
 	$subtype = $entity->getSubtype();
@@ -774,14 +838,68 @@ Switch ($element){
 		$form_body = elgg_view_layout('inline', $vars);
 		break;
 	case 'popup':
+	    switch ($perspective){
+	        case 'edit':
+	            $max_width = '500px';
+	            break;
+	        case 'view':
+	            $max_width = $max_width ?: '500px';
+	            break;
+	    }
 		switch ($perspective){
 			case 'edit':
-				$max_width = '500px';
+/*			    $max_width = '500px';
+			    $container_guid = $entity->container_guid;
+			    $tab_vars  = ['menu'         => 'q_expand',
+            			      'guid'         => $guid,
+            			      'class'        => "qbox-$guid",
+            			      'qid_parent'   => $qid,];
+			    $expand_tabs =  elgg_view('jot/menu', $tab_vars);
+			    $forms_action =  'forms/experiences/edit';
+			    $body_vars = ['guid'    => $guid,
+			        'container_guid'=> $guid,
+			        'qid'     => $qid.'_1',
+			        'section' => 'things',
+			        'selected'=> true,
+			        'style'   => 'display:none;',
+			        'presentation'=>'qbox_experience',
+			        'action'  => 'view'];
+			    $thing_panel = elgg_view($forms_action, $body_vars);
+			    $tab_vars  = ['subtype'      => 'experience',
+			        'this_section' => 'Expand',
+			        'state'        => 'selected',
+			        'action'       => 'add',
+			        'guid'         => $guid,
+			        'presentation' => 'qbox',
+			        'class'        => "qbox-$guid",
+			        'ul_style'     => 'border-bottom: 0px solid #cccccc',
+			        'ul_aspect'    => 'attachments',
+			        'link_class'   => 'qbox-q qbox-menu',
+			        'attachments'  => ['things'=>1]];
+			    $tabs      =  elgg_view('quebx/menu', $tab_vars);
+				
+				$form_body = elgg_view('forms/experiences/edit',[
+				    'guid'          => $guid,
+				    'container_guid'=> $container_guid,
+				    'section'       => 'main',
+				    'tabs'          => $tabs,
+				    'expand_tabs'   => $expand_tabs,
+				    'selected'      => true,
+				    'presentation'  => $presentation,
+				    'action'        => $action,
+				    'preloaded_panels'=>$thing_panel,]);
+*/              $presentation = elgg_extract('presentation', $vars);
+			    $returns = 'content';
+//			    break;
+				
 			case 'view':
-				$max_width = $max_width ?: '500px';
+//				$max_width = $max_width ?: '500px';
 				Switch ($space){
+				    case 'market':
 				    case 'experience':
-		 			case 'transfer':
+				            $qid_n = $qid."_01";
+				    case 'transfer':
+		 			      
 		 					$body_vars = ['guid'          =>$guid,
 									      //'container_guid'=>$guid,
 									      'qid'           =>$qid,
@@ -792,19 +910,26 @@ Switch ($element){
 									      'perspective'   =>$perspective,
 									      'element'       =>$element,
 									      'presentation'  =>'popup',
+									      'presence'      =>$presence,
+									      'action'        =>$action,
 								          'context'       =>$context,
 									      'selected'      =>true,
-									      'view_type'     =>'compact',
-									      'disable_save'  =>$perspective == 'view',
+									      'view_type'     =>$view_type,
+									      'disable_save'  =>$perspective == $action,
 									      'show_title'    =>true,
-									      'let_edit'      =>$perspective == 'view',
-									      'let_view'      =>$perspective == 'edit',];
+									      'let_edit'      =>$perspective == $action,
+									      'let_view'      =>$perspective == $action,];
 							//$form_body  = elgg_view('output/div', ['options' => ['id'=>'form-messages']]);
-							$form_body .= elgg_view('output/div', ['content' => elgg_view('output/div',['content'=> elgg_view_entity($entity, $body_vars),
-									                                                                    'class'  =>'jq-dropdown-panel',
-									                                                                    'options'=>['style'=>"overflow:visible;max-width:$max_width;"]]),
-									                              'class'    => 'jq-dropdown jq-dropdown-tip',
-									                              'options'  => ['id'=>$qid]]);
+		 					if ($perspective == 'edit'){
+		 					    $form_body .= elgg_view_entity($entity, $body_vars);
+		 					}
+		 					else {
+    							$form_body .= elgg_view('output/div', ['content' => elgg_view('output/div',['content'=> elgg_view_entity($entity, $body_vars),
+    									                                                                    'class'  =>'jq-dropdown-panel',
+    									                                                                    'options'=>['style'=>"overflow:visible;max-width:$max_width;"]]),
+    									                              'class'    => 'jq-dropdown jq-dropdown-tip',
+    									                              'options'  => ['id'=>$qid]]);
+		 					}
 						break;
 				}
 				break;

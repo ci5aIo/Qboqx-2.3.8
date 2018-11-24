@@ -558,21 +558,23 @@ define(function(require) {
 		    return '$'+ x1 + x2;
 		}
    });
-   $(document).on('click', 'a.do', function(e){
+   $(document).on('click', 'a.do, button.do', function(e){
 	   e.preventDefault();
        var ajax       = new Ajax(),
            this_element = this,
-           element    = $(this).data('element'),
-           guid       = $(this).data('guid'),
-           qid        = $(this).data('qid'),
-           qid_n      = $(this).data('qid_n'),
-           space      = $(this).data('space'),
-           context    = $(this).data('context'),
-           aspect     = $(this).attr('data-aspect'),
-           perspective= $(this).data('perspective'),
+           element      = $(this).data('element'),
+           guid         = $(this).data('guid'),
+           qid          = $(this).data('qid'),
+           qid_n        = $(this).data('qid_n'),
+           space        = $(this).data('space'),
+           context      = $(this).data('context'),
+           aspect       = $(this).attr('data-aspect'),
+           perspective  = $(this).data('perspective'),
            presentation = $(this).data('presentation'),
-           compartment = $(this).data('compartment') || null,
-           form_class  = 'inline-container';
+           presence     = $(this).data('presence'),
+           view_type    = $(this).data('view_type'),
+           compartment  = $(this).data('compartment') || null,
+           form_class   = 'inline-container';
 	          
        var maximized_container = $(this).parents('.qbox-maximized');
        var full_view_container = $(this).parents('.quebx-item-body');
@@ -589,6 +591,8 @@ define(function(require) {
 	   console.log('compartment:'+compartment);
 	   console.log('context: '+context);
 	   console.log('qbox_compartment_exists: '+qbox_compartment_exists);
+	   console.log('view_type: '+view_type);
+	   console.log('action: '+action);
 	   switch (context){
 	   		case 'market':
 	   			var this_container = $(this).parents('div.quebx-menu-q');
@@ -673,7 +677,8 @@ define(function(require) {
 				    		 perspective: perspective,
 				    		 presentation: presentation,
 				    		 context: context,
-				             compartment: compartment
+				             compartment: compartment,
+				             view_type: view_type
 				    	   },
 				       }).done(function(output) {
 				    	   //$('table.ledger-'+guid).after($(output));
@@ -719,7 +724,8 @@ define(function(require) {
 			    		 perspective: perspective,
 			    		 presentation: presentation,
 			    		 context: context,
-			             compartment: compartment
+			             compartment: compartment,
+			             view_type: view_type
 			    	   },
 			       }).done(function(output) {
 					   $('body').append($(output));
@@ -893,6 +899,35 @@ define(function(require) {
 						   $(this).parents('form').find('.receive-line-items').hide();
 						   break;
 					   }
+					   break;
+				   case 'experience':
+					   var presentation = 'qbox_experience',
+					       action = 'edit',
+					       selected = true;
+					   var $this = $(this);
+					   element = 'popup';
+					   console.log('experience > element: '+element);
+					   console.log('experience > perspective: '+perspective);
+					   console.log('experience > guid: '+guid);
+					   console.log('experience > qid: '+qid);
+					   console.log('experience > presentation: '+presentation);
+					   console.log('experience > action: '+action);
+					   console.log('experience > space: '+space);
+					   ajax.view('partials/jot_form_elements',{
+				    	   data: {
+				    		 element: element,
+				    		 guid: guid,
+				    		 perspective: perspective,
+				    		 presentation: presentation,
+				             action: action,
+				             space: space,
+				             selected: selected,
+				    	   },
+				       }).done(function(output) {
+				    	   $this.
+					    	   parents('.elgg-layout.elgg-layout-default').
+						    	  html($(output));
+				       });
 					   break;
 			   }
 			   break;

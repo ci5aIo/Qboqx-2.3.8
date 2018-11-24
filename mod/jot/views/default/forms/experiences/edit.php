@@ -20,6 +20,7 @@ $tabs        = elgg_extract('tabs'             , $vars);
 $expand_tabs = elgg_extract('expand_tabs'      , $vars, false);
 $tabs_expand = elgg_extract('tabs_expand'      , $vars);
 $presentation = elgg_extract('presentation'    , $vars);
+$presence    = elgg_extract('presence'         , $vars);
 $qid         = elgg_extract('qid'              , $vars);
 $qid_n       = elgg_extract('qid_n'            , $vars);
 $n           = elgg_extract('n'                , $vars);
@@ -1388,7 +1389,7 @@ Switch ($action){
                 unset($form_body, $hidden, $buttons);
                 $title              = elgg_extract('title', $vars, 'Experiences');
                 $title_field        = elgg_view("input/text"    , ["name" => "jot[title]"         , 'value'=>$jot->title      , 'placeholder' => 'Give your experience a name', 'style' => 'width:100%', 'id'=>'title', 'data-parsley-required'=>'true']);
-                $description_field  = elgg_view("input/longtext", ["name" => "jot[description]"   , 'value'=>$jot->description, 'placeholder' => 'Describe the experience ...', 'style' => 'word-wrap: break-word; width:520px; height: 52px; margin-left: 0px; margin-right: 0px;', 'id' => $qid.'_description']);
+                $description_field  = elgg_view("input/longtext", ["name" => "jot[description]"   , 'value'=>$jot->description, 'placeholder' => 'Describe the experience ...', 'style' => 'word-wrap: break-word; /*width:520px; */height: 52px; margin-left: 0px; margin-right: 0px;', 'id' => $qid.'_description']);
                 $moment_field       = elgg_view('input/date'    , ['name' => 'jot[moment]'        , 'value'=>$moment          , 'placeholder' => $now->format('Y-m-d')        , 'style' => 'width:150px']);
             	$buttons            = "<button class='autosaves button std do_xxx' data-qid='$qid' type='submit' tabindex='-1' data-perspective='save' data-action='$action'>Save</button>";
                 // loading styles inline to raise their priority
@@ -1399,6 +1400,7 @@ Switch ($action){
             	$hidden['jot[container_guid]'] = $container_guid;
             	$hidden['jot[subtype]']        = $subtype;
             	$hidden['jot[aspect]']         = $aspect;
+            	$form_body .= "<br>from 'forms/experiences/edit.php'";
             break;
             /****************************************
 *edit********** $section = 'things'                 *****************************************************************
@@ -2776,8 +2778,8 @@ Switch ($action){
                 $moment_field       = $entity->moment;
                 $expansion_objects  = elgg_get_entities(['type'=>'object', 'container_guid'=>$guid]);
                 $expansion          = $expansion_objects[0]; // There must be only one expansion of an experience
-            	$buttons            = elgg_view('input/button',	['value' => elgg_echo('edit'), "class" => 'elgg-button-submit-element']);
-            	$buttons            = "<button class='autosaves button std do_xxx' data-qid='$qid' type='submit' tabindex='-1' data-perspective='edit'>Edit</button>";
+//            	$buttons            = elgg_view('input/button',	['value' => elgg_echo('edit'), "class" => 'elgg-button-submit-element']);
+            	$buttons            = "<button class='std do' data-guid='$guid' data-qid='$qid' type='submit' tabindex='-1' data-perspective='edit' data-element='experience' data-space='experience' data-presence='$presence'>Edit</button>";
                 // loading styles inline to raise their priority
                 $form_body .= elgg_view('css/quebx/user_agent', ['element'=>'experience']);
             break;
@@ -3339,8 +3341,8 @@ Switch ($section){
                 			$body_vars = ['guid'          => $guid,
 									      'container_guid'=> $guid,
 	                				      'expansion'     => $expansion,
-									      'qid'           => $panel['qid'],
-					                      'section'       => $panel['panel'],
+									      'qid'           => $panel->qid,
+					                      'section'       => $panel->panel,
 									      'selected'      => true,
 									      'style'         => 'display:none',
 									      'presentation'  =>'qbox_experience',

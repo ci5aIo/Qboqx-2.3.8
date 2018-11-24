@@ -24,19 +24,6 @@ elgg.provide("quebx.shelf_tools.pack");
 })( jQuery );
 
 quebx.shelf_tools.pack.init = function() {
-	$(document).on( "click", ".shelf-label", function(e) {
-        $(this).parent('span').prev(".shelf-area").slideToggle("slow");
-		if ($(this).parent('span').hasClass('shelf-items-expanded')){
-		    $(this).parent('span').removeClass('shelf-items-expanded');
-		    $(this).parent('span').addClass('shelf-items-collapsed');
-		    $(this).parent('span').attr('title', 'Show items'); 
-		}
-		if ($(this).parent('span').hasClass('shelf-items-collapsed')){
-		    $(this).parent('span').removeClass('shelf-items-collapsed');
-		    $(this).parent('span').addClass('shelf-items-expanded');
-		    $(this).parent('span').attr('title', 'Hide items'); 
-		}
-    });
     
     var shelf_exists = $('.shelf-list-items').length> 0;
     if (shelf_exists){

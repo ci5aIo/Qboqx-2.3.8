@@ -5,8 +5,9 @@
  */
 // Get input data
 if (isset($page[1])){
-    $jot_guid = (int) $page[1]; 
-    if ($jot_guid > 0){
+    $input_1 = $page[1];
+    $guid = (int) $input_1; 
+    if (elgg_entity_exists($guid)){
         $solo = true;
     }
     else {                              //assume command
@@ -18,7 +19,7 @@ $section = isset($page[2]) ? $page[2] : 'Summary';
 
 if ($solo){ 
     // $section       = get_input('section');
-    $jot           = get_entity($jot_guid);
+    $jot           = get_entity($guid);
     $subtype       = $jot->getSubtype();
     $aspect        = $jot->aspect;
     $item          = get_entity($jot->asset ?: ($jot->item_guid ?: $jot->guid));
@@ -40,14 +41,14 @@ if ($solo){
 //    $view = elgg_view_exists("object/$subtype") ? "object/$subtype" : "object/jot"; 
     
     if (!$jot) {
-    	register_error(elgg_echo("jot not found: {$jot_guid}"));
+    	register_error(elgg_echo("jot not found: {$guid}"));
     	REFERRER;
     }
     	$category = $item->category ?: $item->marketcategory;                                        $display .= '$category: '.$category.'<br>';
 	    $category_name = get_entity($category)->title ?: elgg_echo("market:category:{$category}");                                      
 	    $category_set = hypeJunction\Categories\get_hierarchy($category, true, true);
     
-    $tabs = elgg_view('jot/menu', array('guid' =>$jot_guid, 'this_section' => $section, 'aspect' => $subtype)); // path: mod\jot\views\default\jot\menu.php
+    $tabs = elgg_view('jot/menu', array('guid' =>$guid, 'this_section' => $section, 'aspect' => $subtype)); // path: mod\jot\views\default\jot\menu.php
     
 //    group_gatekeeper();
     
@@ -69,8 +70,8 @@ if ($solo){
     												'text'               => 'Return items ...', 
     											    'class'              => 'elgg-lightbox',
     											    'data-colorbox-opts' => '{"width":500, "height":525}',
-    								                'href'               => "jot/box/$jot_guid/$aspect/return"));
-    */		$view_menu[0] = new ElggMenuItem('00return', 'Return items ...', "jot/edit/$jot_guid/return");
+    								                'href'               => "jot/box/$guid/$aspect/return"));
+    */		$view_menu[0] = new ElggMenuItem('00return', 'Return items ...', "jot/edit/$guid/return");
     		elgg_register_menu_item('page', $view_menu[0]);
     	}
 
