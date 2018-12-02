@@ -75,7 +75,8 @@ ul.edit_gallery li {
 .activity_entry_group,.deadline .preview,.done_bar,.dropdown .selection,.epics .done_bar.hide,.manual_planning_indicator,.model .preview,.sidebar_footer,.sidebar_footer .width_mode,.tn_smart_delete_story_list_select_prev_toggle,aside.sidebar .item.sidebar_link .sidebar_link,aside.sidebar .sidebar_header,aside.sidebar label,section.edit .controls.copied .bubble{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;user-select:none}
 .addButton___3-z3g3BH {display: block;width: 20px;height: 20px;background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/plus-gray.svg) no-repeat 50%;}
 .AddSubresourceButton___2PetQjcb, 
-.AddSubresourceButton___S1LFUcMd {-ms-flex-align: center;align-items: center;background: #e9e8e0;border-radius: 4px;color: #717170;cursor: pointer;display: -ms-flexbox;display: flex;font-size: 12px;margin-top: 4px;width: 100%;}
+.AddSubresourceButton___S1LFUcMd,
+.AddSubresourceButton___k1dvTuKc {-ms-flex-align: center;align-items: center;background: #e9e8e0;border-radius: 4px;color: #717170;cursor: pointer;display: -ms-flexbox;display: flex;font-size: 12px;margin-top: 4px;width: 100%;}
 .AddSubresourceButton__icon___h1-Z9ENT {background: url(http://assets.pivotaltracker.com/next/assets/next/77478e4c-blocker-add.svg) no-repeat 50%;cursor: pointer;height: 14px;margin-left: 8px;width: 14px;}
 .AddSubresourceButton__message___2vsNCBXi {border-bottom: 1px solid transparent;border-left: 1px solid transparent;line-height: 18px;padding: 10px 8px;}
 .attachment.not_thumbnailable .thumbnail,.dropdown .selection span,.edit_project_ghost .edit_project .name span,.flyover.epic_flyover footer p.scribe,.flyover.epic_flyover hgroup .labels,.flyover.epic_flyover hgroup .pill.label span,.flyover.followers_flyover footer p.scribe,.flyover.followers_flyover hgroup .labels,.flyover.followers_flyover hgroup .pill.label span,.flyover.integration_story_flyover footer p.scribe,.flyover.integration_story_flyover hgroup .labels,.flyover.integration_story_flyover hgroup .pill.label span,.flyover.story_flyover footer p.scribe,.flyover.story_flyover hgroup .labels,.flyover.story_flyover hgroup .pill.label span,.info_box .row.other_integration span,.info_box .row.participant .story_participants .name,.info_box .row.requester .dropdown_label,.info_box .row.requester a.selection div.name,.item.integration_story .preview section .scribe,.item.notification .project_name,.lightbox .lightbox.participant .name,.lightbox .lightbox.participant h2,.menu ol.items .item a,.menu ol.items .item button,.menu ol.items .item label,.menu ol.items .item span,.menu ul.items .item a,.menu ul.items .item button,.menu ul.items .item label,.menu ul.items .item span,.panel.labels .labels_items .label .incomplete,.panel.labels .labels_items .label .name,.person_controls .person_name .anchor,aside.sidebar .add_projects .edit_project .name span,aside.sidebar .name span.full,aside.sidebar .projects .edit_project .name span,aside.sidebar .searches .panel_name,aside.sidebar a.panel_toggle .panel_name,ul.attachments .thumbnail abbr{-ms-text-overflow:ellipsis;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -194,7 +195,8 @@ ul.edit_gallery li {
 /*.model .collapsed {display:none;}*/    
 .model .edit .collapser, 
 .collapser-service-item,
-.collapser-effort {float:left;width:17px;height:24px}
+.collapser-effort,
+.collapser-thing {float:left;width:17px;height:24px}
 .model .expanded {display:block;}
 .model .preview .expander{float:left;width:17px;<!-- height:24px -->}
 .model .preview .expander:before{content:'';width:100%;height:13px;background-size:13px 13px;background-repeat:no-repeat;background-image:url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/expander.png);margin:0 0 0 1px;float:left}
@@ -252,6 +254,7 @@ ul.edit_gallery li {
 .timestamp .timestamps .updated_at{display:none}
 .tn-panel-items-container___1Fk42hjC {-webkit-box-flex: 1;-ms-flex-positive: 1;flex-grow: 1;overflow-y: auto;height: 100%;}
 .tn-DropdownButton___nNklb3UY {display: block;width: 20px;height: 20px;background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/kebab-gray.svg) no-repeat 50%;}
+.tn-DropdownButton___CFgliR88w {display: block;width: 15px;height: 15px;background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/kebab-gray.svg) no-repeat 50%;}
 .tn-PanelHeader--single___2ns28dRL {height: 32px;}
 .tn-PanelHeader__actionsArea___EHMT4f1g {-webkit-box-flex: 0;-ms-flex-positive: 0;flex-grow: 0;-ms-flex-negative: 0;flex-shrink: 0;margin-right: 7px;}
 .tn-PanelHeader__action___3zvuQp6Z {text-align: center;float: left;margin: 0 2px;}
@@ -540,7 +543,7 @@ td.trans .qbox{
 	width: 100px;
 }
 .qbox-body{
-	overflow: visible;
+	overflow: visible !important;
 }
 .qbox-details input.currency {
     text-align: right;

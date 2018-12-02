@@ -538,23 +538,23 @@ $(document).ready(function(){
     $(document).on("click", "a.collapser-effort", function(e) {
         e.preventDefault();
         var cid = $(this).attr("data-cid"),
-            show_effort = true;
-        var effort_name = $(this).parent().find("textarea[data-focus-id=NameEdit--"+cid+"]").val(),
+            show = true;
+        var name = $(this).parent().find("textarea[data-focus-id=NameEdit--"+cid+"]").val(),
             state       = $(this).parents('.Effort__CPiu2C5N').attr('data-aid');
         var $this_panel = $(this).parents('.Effort__CPiu2C5N').children('.EffortEdit_fZJyC62e');
         var $show_panel = $(this).parents('.Effort__CPiu2C5N').children('.EffortShow_haqOwGZY');
         var $add_panel  = $(this).parents('.Effort__CPiu2C5N').children('.AddSubresourceButton___S1LFUcMd');
         console.log('cid: '+cid);
-        if(typeof effort_name == 'undefined'){
-            show_effort = false;
+        if(typeof name == 'undefined'){
+            show = false;
         }
         else {
-            if (effort_name.length == 0)
-                show_effort = false;
+            if (name.length == 0)
+                show = false;
         }
         if (state == 'add' || state == 'edit'){
-	        if (show_effort){
-	            $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+effort_name+'</p>');
+	        if (show){
+	            $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+name+'</p>');
 	            // remove vestigal spans
 	            $show_panel.find('span.TaskShow__description___qpuz67f').remove();
 	            $show_panel.find('span.TaskShow__service_items___2wMiVig').remove();
@@ -650,11 +650,12 @@ $(document).ready(function(){
         autosize($(textarea));
         $(textarea).focus();
     });
-    $(document).on('click', '.AddSubresourceButton___2PetQjcb, .AddSubresourceButton___S1LFUcMd', function(){
+    $(document).on('click', '.AddSubresourceButton___2PetQjcb, .AddSubresourceButton___S1LFUcMd, .AddSubresourceButton___k1dvTuKc', function(){
         var $cid = $(this).data('cid');
         $(this).hide();
         $('.TaskEdit___1Xmiy6lz[data-cid = '+$cid+']').show();
-        $('.EffortEdit_fZJyC62e[data-cid = '+$cid+']').show();        
+        $('.EffortEdit_fZJyC62e[data-cid = '+$cid+']').show();
+        $('.ThingEdit__BYcwmNJJ[data-cid = '+$cid+']').show();        
     });
     $(document).on("click", "button[data-aid=cancel]", function (e) {
         e.preventDefault();
@@ -709,17 +710,23 @@ $(document).ready(function(){
         $(this).children('span').attr('title', 'Minimize');
         $(this).attr('id', 'qboxMinimize');
     }); 
-    $(document).on( "click", "button#inlineClose", function(e) {
+    $(document).on( "click", "button.inlineClose", function(e) {
         e.preventDefault();
-        var qid         = $(this).data('qid');
-	  	$('div.inline-content-expand#'+qid).remove();
-	    $('div.inline-container#'+qid).remove();
+        var qid         = $(this).data('qid'),
+            cid         = $(this).data('cid'),
+            perspective = $(this).data('perspective');
+        if (typeof qid != 'undefined'){
+    	  	$('div.inline-content-expand#'+qid).remove();
+    	    $('div.inline-container#'+qid).remove();}
+	    if (perspective == 'add' && typeof cid != 'undefined'){
+	    	$('div.inline-content-expand[data-cid'+cid+']').remove();
+	    }	    
     });
-    $(document).on('click', 'button#inlineMinimize', function(e){
+    $(document).on('click', 'button.inlineMinimize', function(e){
         e.preventDefault();
         var contentWidth = $(this).parents('.qbox').find('div#inlineLoadedContent').width();
         $(this).parents('.inline').css('min-height', '0');
-        $(this).parents('.inline').find('div#inlineLoadedContent').css('width', contentWidth);
+        $(this).parents('.inline').find('div.inlineLoadedContent').css('width', contentWidth);
         $(this).parents(".inline").find('div.inline-body').hide();
         $(this).children('span').removeClass('fa-window-minimize');
         $(this).children('span').addClass('fa-window-restore');

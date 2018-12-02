@@ -216,11 +216,7 @@ Switch ($list_type){
                                                        'presentation'  => 'qbox_experience',
                                                        'presence'      => $presence,
                                                        'action'        => 'view',
-            'preloaded_panels'=>$thing_panel.$documents_panel.$gallery_panel,]);
-        if ($presence == 'popup'){               // The request originated from a popup.  Assume ajax replacement of content.
-            $body = $content;
-        }
-        else {                                   // Assume the destination requires a new popup.
+            'preloaded_panels'=>$thing_panel,]);
             $content = "<div class = 'inline-content-expand'>
                             <div class='inline inline-visible' role='display' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context'>
                                 <div id='inlineLoadedContent'>
@@ -244,11 +240,19 @@ Switch ($list_type){
             $image_block_params = ['body_class' =>'quebx-body-list',];
             $list_body = elgg_view('object/elements/list', $params);
             
+//             $body = "<div class='jot elgg-content'>".
+//                 elgg_view_image_block(false, $list_body, $image_block_params).
+//                 "</div>";
+                
+            $vars['content']      = $list_body;
+            $vars['disable_save'] = elgg_extract('disable_save', $vars, false);
+            $vars['show_title']   = elgg_extract('show_title', $vars, false);
+            $vars['position']     = 'relative';
+            $vars['message']      = $entity->status;
+            $form                 = elgg_view_layout('qbox', $vars);
             $body = "<div class='jot elgg-content'>".
-    //            $list_body.
-                elgg_view_image_block(false, $list_body, $image_block_params).
+                $form.
                 "</div>";
-        }
         break;
     default:
     	$tab_vars  = ['menu'         => 'q_expand',
@@ -312,9 +316,18 @@ Switch ($list_type){
         	$image_block_params = ['body_class' =>'quebx-body-list',];
 		    	$list_body = elgg_view('object/elements/list', $params);
         	
-		    	$body = "<div class='jot elgg-content'>".
-		  		    	elgg_view_image_block($owner_icon, $list_body, $image_block_params).
-		    	         "</div>";
+// 		    	$body = "<div class='jot elgg-content'>".
+// 		  		    	elgg_view_image_block($owner_icon, $list_body, $image_block_params).
+// 		    	         "</div>";
+		  		$vars['content']      = $list_body;
+  		    	$vars['disable_save'] = elgg_extract('disable_save', $vars, false);
+  		    	$vars['show_title']   = elgg_extract('show_title', $vars, false);
+  		    	$vars['position']     = 'relative';
+  		    	$vars['message']      = $entity->status;
+  		    	$form                 = elgg_view_layout('qbox', $vars);
+  		    	$body = "<div class='jot elgg-content'>".
+  		  		    	   $form.
+  		  		    	"</div>";
 		    break;
 }
 	

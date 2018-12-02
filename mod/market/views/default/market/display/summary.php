@@ -4,7 +4,7 @@ $section   = $vars['this_section'];
 $category  = $entity->marketcategory;
 $item_guid = $entity->guid;
 $fields    = market_prepare_brief_view_vars($entity);
-$limit     = 3;
+$limit     = 0;
 //echo elgg_dump($fields);
 /**/
 

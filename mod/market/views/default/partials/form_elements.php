@@ -82,7 +82,32 @@ Switch ($element){
 			            		            		            	
 		$form_body = str_replace('<<cid>>', $cid, $story_model);                                   $display.= 'form_elements 90 new_effort>$cid: '.$cid.'<br>form_elements  90 new_effort>$service_cid: '.$service_cid.'<br>';
 //register_error($display);
-	break;
+		break;
+	case 'new_thing':
+// DRAFT	    
+	    unset($view_summary);
+	    $delete_button = "<label class=remove-progress-marker>".
+	   	    elgg_view('output/url', ['title'=>'remove progress marker','class'=>'remove-progress-marker','text' => elgg_view_icon('delete-alt'), 'data-qid'=>$qid,]).
+	   	    "</label>";
+	   	    $delete       = elgg_view("output/span", ["class"  =>"remove-progress-marker", "content"=>$delete_button]);
+	   	    $expander     = elgg_view("output/url",  ['text'   => '','class'   => 'expander undraggable','id'=> 'toggle_marker', 'data-cid'=>$cid, 'data-qid'=>$qid, 'tabindex'=> '-1',]);
+	   	    $story_span   = elgg_view('output/span', ['content'=>'dig?','class'=>'story_name']);
+	   	    $preview      = elgg_view('output/span', ['content'=>$story_span,'class'=>'name tracker_markup']);
+	   	    $form         = 'forms/experiences/edit';
+	   	    if ($show_view_summary){
+	   	        $view_summary = elgg_view('output/header', ['content'=>$expander.$preview.$delete, 'class'=>'preview collapsed']);
+	   	    }
+	   	    $hidden_fields= elgg_view('input/hidden', ['name'=>"jot[observation][effort][$cid][aspect]", 'value'=>'effort']);
+	   	    $edit_details = elgg_view('output/div',['class'=>'story model item draggable feature unscheduled point_scale_linear estimate_-1 is_estimatable',
+	   	        'options'=> ['data-cid'=>$cid, 'data-qid'=>$qid],
+	   	        'content'=>$view_summary
+	   	        . elgg_view($form,['section'=>'issue_resolve', 'action'=>'add', 'snippet'=>'marker', 'cid'=>$cid, 'service_cid'=>$service_cid, 'qid'=>$qid, 'guid'=>$guid])]);
+	   	    $story_model .= elgg_view('output/div',  ['class' =>'story model item pin',
+	   	        'options'=> ['data-cid'=>$cid, 'data-qid'=>$qid],
+	   	        'content'=>$hidden_fields.$edit_details]);
+	   	    
+	   	    $form_body = str_replace('<<cid>>', $cid, $story_model);                                   $display.= 'form_elements 90 new_effort>$cid: '.$cid.'<br>form_elements  90 new_effort>$service_cid: '.$service_cid.'<br>';
+	   	    
 	case 'new_service_effort':
 		$delete_button = "<label class=remove-progress-marker>". 
 		           	     elgg_view('output/url', ['title'=>'remove progress marker','class'=>'remove-progress-marker','text' => elgg_view_icon('delete-alt'), 'data-qid'=>$qid,]).

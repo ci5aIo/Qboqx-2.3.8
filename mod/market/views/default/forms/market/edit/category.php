@@ -189,8 +189,8 @@ $category_panel .= "<div class='rTable' style='width:100%'>
 				</div>
 			</div>
 			<div class='rTableRow'>
-				<div class='rTableCell' style='width:20%;padding:0px 5px;vertical-align:top;'>Description</div>
-				<div class='rTableCell' style='width:80%;padding:0px 5px'>$description</div>
+				<div class='rTableCell' style='width:20%;vertical-align:top;'>Description</div>
+				<div class='rTableCell' style='width:80%;'>$description</div>
 			</div>
 			<div class='rTableRow'>
 				<div class='rTableCell' style='width:20%;padding:0px 5px'>Category</div>

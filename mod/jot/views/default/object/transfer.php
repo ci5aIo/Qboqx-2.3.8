@@ -89,11 +89,10 @@ else {
 }
 
 $params = array_merge(
-              array('header' => $header,
+                   ['header'   => $header,
                 	'metadata' => $metadata,
                 	'subtitle' => $subtitle,
-                    'tags'     => false,
-              ), 
+                    'tags'     => false,], 
               $vars);                                                $display .= '95 $params: '.print_r($params, true).'<br>';
 
 Switch ($view_type){
@@ -125,7 +124,7 @@ Switch ($view_type){
     	$space = elgg_extract('space', $vars);
     	switch ($perspective){
     		case 'view':
-    			$transfer_info = elgg_view('jot/display/transfer/summary', $params);
+    			$transfer_info = elgg_view('jot/display/transfer/summary', $params);    			
     			break;
     		case 'add':
     		case 'edit':

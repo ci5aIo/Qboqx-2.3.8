@@ -63,6 +63,7 @@ function quebx_init() {
      $moment_src             = elgg_get_simplecache_url('js' , 'moment.js');
      elgg_define_js('moment_js', ['src' => $moment_src,'exports' => 'moment',]);
      $jquery_dropdown_js     = 'mod/quebx/vendors/jquery/dropdown/jquery.dropdown.js';
+     $qboqx_dropdown_js     = 'mod/quebx/views/default/js/quebx/qboqx.dropdown.js';
      $jquery_inputmask       = 'https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js';
      $infinite_scroll        = 'https://unpkg.com/infinite-scroll@3/dist/infinite-scroll.pkgd.js';
      //css
@@ -72,12 +73,14 @@ function quebx_init() {
      $quebx_icons            = elgg_get_simplecache_url('css', 'quebx/icomoon_sprites_16');
      $quebx_css_from_pivotal = elgg_get_simplecache_url('css', 'quebx/from_pivotal.css');
      $jquery_dropdown_css    = 'mod/quebx/vendors/jquery/dropdown/jquery.dropdown.css';
+     $qboqx_dropdown_css    = 'mod/quebx/views/default/css/quebx/qboqx.dropdown.css';
 //register
      //js
      elgg_register_js('quebx.slide_menu.js' , $quebx_js_slide_menu);
      elgg_register_js('autosize.js'         , $autosize);
      elgg_register_js('validation.js'       , $parsley_validation);
      elgg_register_js('dropdown.js'         , $jquery_dropdown_js);
+     elgg_register_js('qboqx_dropdown.js'   , $qboqx_dropdown_js);
      elgg_register_js('inputmask.js'        , $jquery_inputmask);
 //     elgg_register_js('infinite_scroll.js'  , $infinite_scroll, 'head', 500);
      //css 
@@ -87,6 +90,7 @@ function quebx_init() {
      elgg_register_css('parsley.validation.css' , $parsley_validation_css);
      elgg_register_css('quebx.icons'            , $quebx_icons);
      elgg_register_css('dropdown.css'           , $jquery_dropdown_css);
+     elgg_register_css('qboqx_dropdown.css'     , $qboqx_dropdown_css);
 //load
      //js
 //     elgg_load_js('infinite_scroll.js');
@@ -94,12 +98,14 @@ function quebx_init() {
      elgg_load_js('autosize.js');
      elgg_load_js('validation.js');
      elgg_load_js('dropdown.js');
+     elgg_load_js('qboqx_dropdown.js');
      elgg_load_js('inputmask.js');
      //css
      elgg_load_css('quebx.framework.css');
      elgg_load_css('quebx.slide_menu.css');
      elgg_load_css('quebx.icons');
      elgg_load_css('dropdown.css');
+     elgg_load_css('qboqx_dropdown.css');
      elgg_load_css('parsley.validation.css');
 //require
      elgg_require_js($infinite_scroll);

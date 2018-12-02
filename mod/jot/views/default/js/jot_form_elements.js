@@ -585,6 +585,7 @@ define(function(require) {
 	   console.log('qid: '+qid);
 	   console.log('qid_n: '+qid_n);
 	   console.log('perspective: '+perspective);
+	   console.log('presentation: '+presentation);
 	   console.log('space: '+space);
 	   console.log('aspect: '+aspect);
 	   console.log('element: '+element);
@@ -724,7 +725,7 @@ define(function(require) {
 			    		 perspective: perspective,
 			    		 presentation: presentation,
 			    		 context: context,
-			             compartment: compartment,
+//			             compartment: compartment,
 			             view_type: view_type
 			    	   },
 			       }).done(function(output) {

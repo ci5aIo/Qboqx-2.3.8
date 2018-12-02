@@ -84,31 +84,32 @@ Switch ($this_menu){
 				$tabs = [['text'=>'New Experience' , 'aspect'=>'experience'     , 'note'=>'Describe what happened',       'class'=>'jot-q', 'presentation'=>'inline', 'action'=>'add'],
 				         ['text'=>'Add Pictures'   , 'aspect'=>'image'          , 'note'=>'Attach photos',                'class'=>'jot-q', 'element'=>'Gallery'],
 				         ['text'=>'Add Documents'  , 'aspect'=>'document'       , 'note'=>'Attach documents',             'class'=>'jot-q', 'element'=>'Documents'],
-						 [                           'aspect'=>'divider'],
-/*				         ['text'=>'Issue'      , 'aspect'=>'issue'          , 'note'=>'What went wrong?',             'class'=>'jot-q'],
+/*						 [                           'aspect'=>'divider'],
+				         ['text'=>'New Issue'      , 'aspect'=>'issue'          , 'note'=>'What went wrong?',             'class'=>'jot-q'],
 				         ['text'=>'Assemble'   , 'aspect'=>'assemble'       , 'note'=>'Connect and attach things',    'class'=>'jot-q'],
 				         ['text'=>'Maintain'   , 'aspect'=>'maintenance'    , 'note'=>'Perform maintainance',         'class'=>'jot-q'],
 				         ['text'=>'Manage'     , 'aspect'=>'management'     , 'note'=>'Decide who owns or maintains', 'class'=>'jot-q'],
 				         ['text'=>'Move'       , 'aspect'=>'move'           , 'note'=>'Change the location',          'class'=>'jot-q'],
-*/				         ['text'=>'Show Contents'   , 'aspect'=>'content'        , 'note'=>'Items inside',             'class'=>'jot-q', 'perspective'=>'list'],
+*//*			         ['text'=>'Show Contents'   , 'aspect'=>'content'        , 'note'=>'Items inside',             'class'=>'jot-q', 'perspective'=>'list'],
 						 ['text'=>'Show Experiences', 'aspect'=>'experience'     , 'note'=>'Show experiences'],
 				         ['text'=>'Show Pictures'   , 'aspect'=>'image'          , 'note'=>'Show photos'],
 				         ['text'=>'Show Documents'  , 'aspect'=>'document'       , 'note'=>'Show documents'],
 				         ['text'=>'Show Transfers'  , 'aspect'=>'transfer'       , 'note'=>'Show transfers',            'class'=>'jot-q', 'perspective'=>'list'],
-/*						 ['text'=>'Expenses'   , 'aspect'=>'xxx'            , 'note'=>'See expenses'],
+*//*					 ['text'=>'Expenses'   , 'aspect'=>'xxx'            , 'note'=>'See expenses'],
 						 ['text'=>'Maintenance', 'aspect'=>'xxx'            , 'note'=>'See maintenance history'],
 						 ['text'=>'Issues'     , 'aspect'=>'issue'          , 'note'=>'See what went wrong'],
 */						 [                       'aspect'=>'divider'],
-				         ['text'=>'Move'       , 'aspect'=>'transfer'       , 'note'=>'Give|Loan|Sell|Trash',         'class'=>'jot-q', 'perspective'=>'add'],
+				         ['text'=>'Transfer'   , 'aspect'=>'transfer'       , 'note'=>'Give|Loan|Sell|Trash',         'class'=>'jot-q', 'perspective'=>'add'],
 				         ['text'=>'Replace'    , 'aspect'=>'replace'        , 'note'=>'Replace parts or the whole thing', 'class'=>'jot-q', 'perspective'=>'replace'],
-						 ['text'=>'Return'     , 'aspect'=>'return'         , 'note'=>'Return',                   'class'=>'jot-q', 'element'=>'qbox'],
+						 ['text'=>'Return'     , 'aspect'=>'return'         , 'note'=>'Return',                      'class'=>'jot-q', 'element'=>'qbox'],
 				         [                       'aspect'=>'divider'],
 				         ['text'=>'View'       , 'aspect'=>'item'          , 'note'=>'View'  ,                       'class'=>"do", 'perspective'=>'view', 'qid'=>"q{$guid}", 'element'=>'market', 'presentation'=>'inline'],
 //				         ['text'=>'View'       , 'aspect'=>'item'          , 'note'=>'View'  ,                       'href'=>"market/view/$guid", 'perspective'=>'view', 'qid'=>"q{$guid}"],
 						 ['text'=>'Edit'       , 'aspect'=>'item'          , 'note'=>'Edit'  ,                       'class'=>"do", 'perspective'=>'edit', 'qid'=>"q{$guid}", 'element'=>'market'],
 //				         ['text'=>'Edit'       , 'aspect'=>'item'          , 'note'=>'Edit'  ,                       'href'=>"market/edit/$guid", 'perspective'=>'edit', 'qid'=>"q{$guid}"],
 						 ['text'=>'Delete'     , 'aspect'=>'item'          , 'note'=>'Delete',                       'href'=>elgg_add_action_tokens_to_url("market/delete?guid=$guid"), 'perspective'=>'delete', 'qid'=>"q{$guid}"]];
-				$menu_header       = 'Q:';
+//				$menu_header       = 'Q:';
+				$menu_header       = '<div title="Q actions" class="tn-DropdownButton___CFgliR88w"></div>';
 				$menu_title        = 'New';
 				$anchor_right      = 'jq-dropdown-anchor-right';
 				break;
@@ -116,7 +117,8 @@ Switch ($this_menu){
 				$tabs = [['text'=>'View'       , 'aspect'=>"$entity->aspect", 'note'=>'View'  ,                       'class'=>"do", 'perspective'=>'view', 'qid'=>"q{$guid}", 'element'=>'experience', 'presentation'=>'inline'],
 						 ['text'=>'Edit'       , 'aspect'=>"$entity->aspect", 'note'=>'Edit'  ,                       'class'=>"do", 'perspective'=>'edit', 'qid'=>"q{$guid}", 'element'=>'experience'],
 						 ['text'=>'Delete'     , 'aspect'=>"$entity->aspect", 'note'=>'Delete',                       'href'=>elgg_add_action_tokens_to_url("action/jot/delete?guid=$guid"), 'perspective'=>'delete', 'qid'=>"q{$guid}"]];
-				$menu_header       = 'Q:';
+//				$menu_header       = 'Q:';
+				$menu_header       = '<div title="Q actions" class="tn-DropdownButton___CFgliR88w"></div>';
 				$menu_title        = 'Do';
 				$anchor_right      = 'jq-dropdown-anchor-right';
 				break;
@@ -124,7 +126,8 @@ Switch ($this_menu){
 				$tabs = [['text'=>'View'   , 'note'=>'View'  ,                       'class'=>"do", 'perspective'=>'view', 'qid'=>"q{$guid}", 'element'=>"$entity->getSubtype()", 'presentation'=>'inline'],
 						 ['text'=>'Edit'   , 'note'=>'Edit'  ,                       'class'=>"do", 'perspective'=>'edit', 'qid'=>"q{$guid}", 'element'=>$entity->getSubtype()],
 						 ['text'=>'Delete' , 'note'=>'Delete',                       'href'=>elgg_add_action_tokens_to_url("action/jot/delete?guid=$guid"), 'perspective'=>'delete', 'qid'=>"q{$guid}"]];
-				$menu_header       = 'Q:';
+//				$menu_header       = 'Q:';
+				$menu_header       = '<div title="Q actions" class="tn-DropdownButton___CFgliR88w"></div>';
 				$menu_title        = 'Do';
 				$anchor_right      = 'jq-dropdown-anchor-right';
 				break;
@@ -203,7 +206,7 @@ Switch ($this_menu){
 				break;
 			default:
 				$show = "	<div class='drop-down'>
-							   <a class='elgg-menu-content q-menu' data-jq-dropdown='#jq-dropdown-q-$guid' title='$menu_title'>$menu_header</a>
+							   <a class='elgg-menu-content q-menu' data-jq-dropdown='#jq-dropdown-q-$guid' data-horizontal-offset='25' data-vertical-offset='15' title='$menu_title'>$menu_header</a>
 							   <div  id='jq-dropdown-q-$guid' class='jq-dropdown jq-dropdown-tip jq-dropdown-relative $anchor_right'>
 							     $menu
 							   </div>

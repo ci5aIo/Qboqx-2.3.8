@@ -10,11 +10,11 @@
  */
 
 /* @var ElggEntity $entity */
-$entity        = $vars['entity'];
-$take_snapshot = $vars['snapshot'];
+$entity        = elgg_extract('entity', $vars);
+$take_snapshot = elgg_extract('snapshot', $vars);
 $container_guid = elgg_extract('container_guid', $vars);
 if (elgg_instanceof($entity, 'object', 'market') || elgg_instanceof($entity, 'object', 'item')){
-    $variable_name  = $vars['input_name'];
+    $variable_name  = elgg_extract('input_name', $vars);
     $variable_value = $entity->getGUID();
     $icon        = elgg_view_entity_icon($entity, 'tiny');
     $name        = $entity->title;

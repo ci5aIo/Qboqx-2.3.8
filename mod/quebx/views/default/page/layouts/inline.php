@@ -48,15 +48,15 @@ else {
 							     $save_icon
 						     </a>":
                            null;*/
-$save_button = $show_save ? "<button  class='do' type='submit' id='qboxSave' data-qid=$qid value='Save' $disabled data-perspective='save'
+$save_button = $show_save ? "<button  class='do' type='submit' id='qboxSave' data-qid='$qid' value='Save' $disabled data-perspective='save'
                                       style='right:16px'>
 							     $save_icon
 						     </button>":
                            null;
-$close_button = "<button type='button' id='inlineClose' data-qid=$qid data-perspective='$perspective'>
+$close_button = "<button class='inlineClose' type='button' id='inlineClose' data-qid='$qid' data-perspective='$perspective'>
 					$close_icon
 				</button>";
-$minimize_button = "<button type='button' id='inlineMinimize' data-qid=$qid data-perspective='$perspective'>
+$minimize_button = "<button class='inlineMinimize' type='button' id='inlineMinimize' data-qid='$qid' data-perspective='$perspective'>
 					$minimize_icon
 				</button>";
 /*$full_view_link = elgg_view('output/url',['text'=>elgg_view_icon('external-link',['title'=>'full view']),
@@ -106,9 +106,9 @@ if ($show_full){
 			                                'options'=>['id'=>'inlineFullView']]);}
 if (!$show_title){unset($title);}
 
-$form_body = "<div class = 'inline-content-expand' id='$qid'>
+$form_body = "<div class='inline-content-expand' id='$qid'>
 				<div id='$qid' class='inline inline-visible' $pos_style role='data entry' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context'>
-						<div id='inlineLoadedContent'>
+						<div class='inlineLoadedContent'>
 							$title
 							$tabs
 							<div class='elgg-body inline-body'>

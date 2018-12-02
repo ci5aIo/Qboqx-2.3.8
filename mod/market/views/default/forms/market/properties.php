@@ -27,6 +27,7 @@ $sort_order         = elgg_extract('sort_order',      $vars);
 $line_item_behavior_list_class  = elgg_extract('line_item_behavior_list_class',     $vars);
 $line_item_behavior_list_data   = elgg_extract('line_item_behavior_list_data',      $vars);
 $line_item_behavior_radio_class = elgg_extract('line_item_behavior_radio_class',     $vars);
+$action             = elgg_extract('action',          $vars, 'add');
 $submit_label       = elgg_echo('Set');
 $owner              = elgg_get_page_owner_entity();
 $owner_guid         = $owner->guid;
@@ -339,7 +340,7 @@ Switch ($element_type){
     
     case 'service_item':
     	unset ($hidden_fields);
-		if (isset($guid)){
+    	if (isset($guid)){
 			  $hidden_fields["jot[observation][effort][$parent_cid][$cid][$n][guid]"]      = $guid;
 			  $hidden_fields["jot[observation][effort][$parent_cid][$cid][$n][item_type]"] = $element_type;}
 		else {$hidden_fields["jot[observation][effort][$parent_cid][$cid][$n][qid]"]       = $qid_n;}
@@ -372,27 +373,68 @@ Switch ($element_type){
         $linked_item = $linked_item ?: get_entity($item_guid);                             $display .= '340 $linked_item->guid: '.$linked_item->guid.'<br>';
                 
         if (!empty($origin)){$linked_items[] = get_entity($origin);}
-                
-    	$item_title        = elgg_view('input/text', array(
-				    			'name'  => "jot[observation][effort][$parent_cid][$cid][$n][title]",
-    							'value' => $item->title,
-				    			'placeholder'=> 'title',
-	 			    	        ));
-    	
-    	$sku               = elgg_view('input/text', array(
-    	                        'name'  => "jot[observation][effort][$parent_cid][$cid][$n][sku]",
-    	                        'value' => $item->sku,
-    	                        'placeholder'=> 'sku',
-    	                        ));
-    	
-    	$item_types = elgg_view('input/dropdown', [
-				    			'name'  => "jot[observation][effort][$parent_cid][$cid][$n][item_type]",
-				    			'class' => 'properties-item-type properties-input-selector',
-				    			'options_values' => ['service'   => 'Service',
-				    								 'part'      => 'Part',
-				    					             'component' => 'Component',
-				    					             'accessory' => 'Accessory'],]);
-    	
+        switch ($action){
+            case 'add':
+                $item_title = elgg_view('input/text', [
+                                'name'  => "jot[observation][effort][$parent_cid][$cid][$n][title]",
+                                'value' => $item->title,
+                                'placeholder'=> 'title',
+                                ]);
+                $sku        = elgg_view('input/text', [
+                                'name'  => "jot[observation][effort][$parent_cid][$cid][$n][sku]",
+                                'value' => $item->sku,
+                                'placeholder'=> 'sku',
+                                ]);
+                $item_types = elgg_view('input/dropdown', [
+                                'name'  => "jot[observation][effort][$parent_cid][$cid][$n][item_type]",
+                                'class' => 'properties-item-type properties-input-selector',
+                                'options_values' => ['service'   => 'Service',
+                                    'part'      => 'Part',
+                                    'component' => 'Component',
+                                    'accessory' => 'Accessory'],]);
+                break;
+            case 'edit':
+                $item_title = elgg_view('input/text', [
+                                'name'  => "jot[observation][effort][$parent_cid][$cid][$n][title]",
+                                'value' => $item->title,
+                                'placeholder'=> 'title',
+                                ]);
+                $sku        = elgg_view('input/text', [
+                                'name'  => "jot[observation][effort][$parent_cid][$cid][$n][sku]",
+                                'value' => $item->sku,
+                                'placeholder'=> 'sku',
+                ]);
+                $item_types = elgg_view('input/dropdown', [
+                                'name'  => "jot[observation][effort][$parent_cid][$cid][$n][item_type]",
+                                'class' => 'properties-item-type properties-input-selector',
+                                'options_values' => ['service'   => 'Service',
+                                    'part'       => 'Part',
+                                    'component'  => 'Component',
+                                    'accessory'  => 'Accessory'],]);
+                break;
+            case 'view':
+                $item_title = elgg_view('input/text', [
+                                'name'  => 'item title',
+                                'value' => $item->title,
+                                'placeholder'=> 'title',
+                                'disabled'   => 'disabled'
+                                ]);
+                $sku        = elgg_view('input/text', [
+                                'name'  => "sku",
+                                'value' => $item->sku,
+                                'placeholder'=> 'sku',
+                                'disabled'   => 'disabled'
+                            ]);
+                $item_types = elgg_view('input/text', [
+                                'name'       => "item type",
+                                'value'      => $item->item_type,
+                                'placeholder'=> 'item type',
+                                'disabled'   => 'disabled'
+                            ]);
+                break;
+            default:
+                break;
+        }
     	unset($options_values);
     	$options_values[]='(none to replace)';
     	if ($num_components > 0){

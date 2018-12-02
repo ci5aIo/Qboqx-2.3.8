@@ -1,6 +1,6 @@
 <?php
 /****************************************
- * Cascade
+ * Switch ...
  *  $element
  *      qbox-menu
  *      new_item_details
@@ -71,7 +71,7 @@ $qid_n        = elgg_extract('qid_n', $vars);
 $n            = elgg_extract('n', $vars);
 $space        = elgg_extract('space', $vars);
 $aspect       = elgg_extract('aspect', $vars);
-$action       = elgg_extract('action', $vars);
+$action       = elgg_extract('action', $vars, false);
 $perspective  = elgg_extract('perspective', $vars);
 $presentation = elgg_extract('presentation', $vars, 'qbox'); // Desired presentation of the form
 $presence     = elgg_extract('presence', $vars);             // Current presentation of the form
@@ -915,7 +915,7 @@ Switch ($element){
 								          'context'       =>$context,
 									      'selected'      =>true,
 									      'view_type'     =>$view_type,
-									      'disable_save'  =>$perspective == $action,
+									      'disable_save'  =>$perspective == 'view',
 									      'show_title'    =>true,
 									      'let_edit'      =>$perspective == $action,
 									      'let_view'      =>$perspective == $action,];
@@ -926,7 +926,7 @@ Switch ($element){
 		 					else {
     							$form_body .= elgg_view('output/div', ['content' => elgg_view('output/div',['content'=> elgg_view_entity($entity, $body_vars),
     									                                                                    'class'  =>'jq-dropdown-panel',
-    									                                                                    'options'=>['style'=>"overflow:visible;max-width:$max_width;"]]),
+    									                                                                    'options'=>['style'=>"overflow:hidden;max-width:$max_width;"]]),
     									                              'class'    => 'jq-dropdown jq-dropdown-tip',
     									                              'options'  => ['id'=>$qid]]);
 		 					}

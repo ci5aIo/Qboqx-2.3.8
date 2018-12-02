@@ -202,7 +202,7 @@ Switch ($view_type){
             foreach($experiences as $experience){
                 unset($link);
                 $guids[] = $experience->guid;
-                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$experience->title, 'class'=>'do', 'data-perspective'=>'view', 'data-guid'=>$experience->getGUID(), 'data-element'=>'popup', 'data-space'=>'experience', 'data-aspect'=>$experience->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$experience->getGUID(),'data-qid'=>'q'.$experience->getGUID()]),'class'  =>'drop-down']);
+                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$experience->title, 'class'=>'do', 'data-perspective'=>'view','data-presentation'=> 'inline','data-guid'=>$experience->getGUID(), 'data-element'=>'popup', 'data-space'=>'experience', 'data-aspect'=>$experience->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$experience->getGUID(),'data-qid'=>'q'.$experience->getGUID()]),'class'  =>'drop-down']);
                 $content_item .= "<li class='quebx-list-boqx-item'>$link</li>";
             }
             
@@ -431,18 +431,6 @@ Switch ($view_type){
 		else {  $view2 .= 'whazzup!';}
 		break;
 	case 'inline':
-// 		$item_icon = elgg_view('output/url', array(
-// 			'text' => elgg_view('market/thumbnail', ['marketguid' => $icon_guid, 'size' => 'medium', 'tu' => $tu]), 
-// 		    'class' => 'elgg-lightbox',
-// 		    'data-colorbox-opts' => json_encode(['width'=>500, 'height'=>525]),
-//             'href' => "market/viewimage/$icon_guid",
-// 		));
-		
-// 		$list_body = elgg_view('object/elements/inline', array(
-// 			'entity' => $item,
-// 			'summary' => $summary,
-// 			'body' => $body,
-// 		));
         $selected_compartment  = elgg_extract('compartment', $vars);
 		$compartments = elgg_extract('compartments', $vars);
 		if (is_array($compartments)){

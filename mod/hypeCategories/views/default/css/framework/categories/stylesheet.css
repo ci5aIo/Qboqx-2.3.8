@@ -79,11 +79,8 @@
   margin: 10px;
 }
 
-.elgg-menu-categories .categories-icon-plus,
-.elgg-menu-categories .categories-icon-minus {
-  float: right;
-  margin: 12px 10px;
-}
+.elgg-menu-categories .categories-icon-plus,
+.elgg-menu-categories .categories-icon-minus {  float: right;  margin: 12px 10px;}
 
 .elgg-menu-categories .categories-icon-info,
 .elgg-menu-categories .categories-icon-icon {
