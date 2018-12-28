@@ -187,7 +187,7 @@ $header .= $filter;
 $num_items = 0;  // 0 = Unlimited
 $dbprefix = elgg_get_config('dbprefix');
 
-$options = array(
+$options = [
 	'types' => 'object',
 	'subtypes' => 'market',
 	'limit' => $num_items,
@@ -196,13 +196,13 @@ $options = array(
 	'list_type_toggle' => true, // default = false
 	'view_type'=> $list_type,
 //	'view_type' => 'list',   // custom option
-    'wheres'    => array("NOT EXISTS (SELECT *
+    'wheres'    => ["NOT EXISTS (SELECT *
 	                                  FROM {$dbprefix}metadata md
             	                      JOIN {$dbprefix}metastrings ms1 ON ms1.id = md.name_id
             	                      JOIN {$dbprefix}metastrings ms2 ON ms2.id = md.value_id
             	                      WHERE ms1.string = 'visibility_choices'
             	                        AND ms2.string = 'hide_in_catalog'
-            	                        AND e.guid = md.entity_guid)"),
+            	                        AND e.guid = md.entity_guid)"],
             
 //* hypelist options *//
 	'lazy_load'       => 1,            // Number of pages to lazy load
@@ -211,7 +211,7 @@ $options = array(
 	'show_filter'     => true,
 	'reversed'        => true,
 	'position'        => 'both',
-);
+];
 /*
 	return elgg_get_entities(array(
 		'type' => 'user',

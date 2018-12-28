@@ -262,12 +262,12 @@ $(document).ready(function(){
     });
     $(document).on("click", "a[aspect=issue_input]", function(e) {
         e.preventDefault();
-        var qid  = $(this).parent().data('qid'); 
+        var guid  = $(this).attr('guid'); 
         var panel = $(this).attr('panel');
-        $("li[data-qid="+qid+"][aspect=issue_input]").removeClass("elgg-state-selected");
-        $("div[data-qid="+qid+"][aspect=issue_input]").hide();
-        $("li[data-qid="+qid+"][aspect=issue_input][panel="+panel+"]").toggleClass("elgg-state-selected");
-        $("div[data-qid="+qid+"][aspect=issue_input][panel="+panel+"]").toggle();
+        $("li[guid="+guid+"][aspect=issue_input]").removeClass("elgg-state-selected");
+        $("div[guid="+guid+"][aspect=issue_input]").hide();
+        $("li[guid="+guid+"][aspect=issue_input][panel="+panel+"]").toggleClass("elgg-state-selected");
+        $("div[guid="+guid+"][aspect=issue_input][panel="+panel+"]").toggle();
     });
     $(document).on("click", "a[aspect=observation_input]", function(e) {
         e.preventDefault();
@@ -355,28 +355,6 @@ $(document).ready(function(){
         var guid  = $(this).attr('guid');
         $("div[guid="+guid+"][panel=comments]").toggle();
     });
-    
-    $(document).on("click", "a.pallet-compartment", function(e) {
-        e.preventDefault();
-        var parent_cid = $(this).parents('ul').data('cid'),
-            cid        = $(this).parent().data('cid');
-        var qbox       = $('div[data-cid='+cid+']'),
-            selected   = $(this).parent().hasClass('elgg-state-selected');
-        console.log('cid: '+cid);
-        console.log('parent_cid: '+parent_cid);
-        console.log('qbox: ',qbox);
-	   if(!selected){
-		   $(this).parents('ul').children("li.pallet-compartment").removeClass('elgg-state-selected');
-		   $(this).parent('li.pallet-compartment').addClass('elgg-state-selected');
-    		$("div[data-parent-cid="+parent_cid+"]").hide();
-    		qbox.show();
-	   }
-	   else {
-		   $(this).parent('li.pallet-compartment').removeClass('elgg-state-selected');
-    		qbox.hide();
-	   }
-    });
-    
     $(document).on("click", "a#properties_set", function(e) {
         e.preventDefault();
         var qid = $(this).data('qid');
@@ -530,10 +508,10 @@ $(document).ready(function(){
     });
     $(document).on('click', 'span.qbox-section-remove', function(e){
         e.preventDefault();
-        var qid = $(this).data('cid');
+        var qid = $(this).data('qid');
         $(this).parents('li').removeClass('elgg-state-selected');
         $(this).parent('div').remove();
-        $('div#'+cid).remove();
+        $('div#'+qid).remove();
     });
     $(document).on("click", "button.clipboard_button", function(e){     //Source: https://stackoverflow.com/questions/22581345/click-button-copy-to-clipboard-using-jquery
         e.preventDefault();
@@ -808,25 +786,24 @@ $(document).ready(function(){
     });
     $(document).on('click', '.IconButton___23o4ips', function(e) {
         e.preventDefault();
-        var item_guid  = $(this).data('item-guid'),
-           qid         = $(this).data('qid'),
-           element     = $(this).data('element')
-           aspect      = $(this).data('aspect'),
-           section     = $(this).data('section'),
-           perspective = $(this).data('perspective');
+
+        var ajax = new Ajax();
+        var $this = $(this);
+        var shelf_item = $(this).data('item-guid');
         var element = $(this).data('aid');
-        var item_count = $("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").attr('data-count');
+        var item_count = $(this).parents('ul').prev('.things-eggs').attr('data-count');
         
-        console.log('aspect: '+aspect);
-        console.log('section: '+section);
-        console.log('qid: '+qid);
-        console.log('item_count string: '+"."+aspect+"-"+section+"-count[data-qid='"+qid+"']");
-        console.log('item_count: '+item_count);
-		   
-        $(this).parents('li[data-guid='+item_guid+']').remove();
-	    $("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").attr('data-count', --item_count);
-	    if (item_count > 0){$("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").html(" ("+item_count+")");}
-	    else               {$("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").html("");}
+        ajax.view('partials/shelf_form_elements',{
+     	   data: {
+     		 element: element,
+     		 guid: shelf_item
+     	   },
+        }).done(function(output) {
+     	   $this.parents('li[data-guid='+shelf_item+']').remove();
+        }).success(function(){
+        	$this.parents('ul').prev('.things-eggs').attr('data-count', --item_count);
+        	$this.parents('ul').prev('.things-eggs').html(item_count);
+        });	   
     });
     $(".qbox").resizable({
         handles: 's, se',minHeight: 57
@@ -1484,7 +1461,7 @@ quebx.framework.dunno = function() {
 	  		$('span.qbox-menu[data-qid='+qid+']').hide();
 	  	}
 	});
-	$(document).on('click', '.remove-card', function(e){
+	$(document).on('click', '.remove-effort-card', function(e){
 		   e.preventDefault();
 	      var container  = $(this).parents('.Effort__CPiu2C5N'),
 		       qid       = $(this).attr('data-qid'),
@@ -1542,11 +1519,10 @@ quebx.framework.dunno = function() {
         cursorAt: { left: 50, top: 15 },
         zIndex: 1050,
         helper: function(event){
-        	item       = $(this);
-        	item_guid  = item.find('div.elgg-image').data('item-guid');
-        	item_title = item.find('div.elgg-body').html(); 
-            icon       = item.find('div.elgg-image').html();
-        	return $("<div class='elgg-image' data-item-guid='"+item_guid+"'>"+icon+"</div>");
+        	item = $(this);
+        	item_guid = item.find('div.elgg-image').data('item-guid'); 
+            icon = item.find('div.elgg-image').html();
+        	return $("<div class='elgg-image' data-item-guid='"+item_guid+"'>"+icon+"</div>" );
         }
     });
     $('.qbox-open').droppable({
@@ -1554,12 +1530,6 @@ quebx.framework.dunno = function() {
      	tolerance: "touch",
 //     	hoverClass: "box-state-highlight"
     });
-    $('.dropboqx').droppable({
-    	greedy: true,
-    	accept: '.quebx-shelf-item',
-    	tolerance: "touch",
-     	hoverClass: "box-state-highlight",
-	});
 /*    $('.dropboqx').droppable({
     	accept: '.quebx-shelf-item',
     	tolerance: "touch",
@@ -1576,17 +1546,21 @@ quebx.framework.dunno = function() {
     });
 */    $(document).on('dropactivate','.dropboqx', function( event, ui ) {
     	console.log('+framework.dropboqx.on(dropactivate)');
+    	  $( document )
+  	        .find( ".dropboqx-dropspot" )
+  	        .html( "started moving " );
     	  	//boqx = $(this);
         	boqx_div = $('.dropboqx');
 //        	item = ui.draggable;
-//        	boqx_div.addClass( "box-state-highlight" );
+        	boqx_div.addClass( "box-state-highlight" );
 //             boqx_div.css('border-bottom','thin dashed red;');
   	     });
     $(document).on('dropdeactivate', '.dropboqx',function( event, ui ) {
     	console.log('+framework.dropboqx.on(dropdeactivate)');
-    	  $( this )
-          .find( ".dropboqx-dropspot" )
-          .html( "Add something from the shelf " );
+	      $( document )
+	        .find( ".dropboqx-dropspot" )
+	        .html( "stopped " );
+	     boqx_div.removeClass( "box-state-highlight" );
 	     });
 /*    $('.qbox-open').on('dropactivate',function( event, ui ) {
     	console.log('+framework.qbox-open.on(dropactivate)');
@@ -1608,27 +1582,9 @@ quebx.framework.dunno = function() {
     });
     $(document).on( "dropover", '.dropboqx', function( event, ui ) {
     	console.log('+framework.dropboqx.on(dropover)');
-    	var boqx = $(this),
-        	boqx_div = boqx.parents('.things_add_pallet_boqx'),
-        	item = ui.draggable;
-    	var item_title = item.find('.elgg-body').html();
-//    	item_title = item.attr('id');
-        $( boqx )
-          .find( ".dropboqx-dropspot" )
-          .html( "Add: <br>"+item_title );
-//     	boqx_div.addClass( "box-state-highlight" );
-//         boqx_div.css('border-bottom','thin dashed red;');
-    });
-    $(document).on( "dropover", '.dropboqx', function( event, ui ) {
-    	console.log('+framework.dropboqx.on(dropover)');
-    	var boqx = $(this),
-        	boqx_div = boqx.parents('.things_add_pallet_boqx'),
-        	item = ui.draggable;
-    	var item_title = item.find('.elgg-body').html();
-//    	item_title = item.attr('id');
-        $( boqx )
-          .find( ".dropboqx-dropspot" )
-          .html( "Add: <br>"+item_title );
+    	boqx = $(this);
+    	boqx_div = boqx.parents('.things_add_pallet_boqx');
+    	item = ui.draggable;
 //     	boqx_div.addClass( "box-state-highlight" );
 //         boqx_div.css('border-bottom','thin dashed red;');
     });
@@ -1703,14 +1659,7 @@ quebx.framework.dunno = function() {
         console.log('item_guid: '+item_guid);
         //boqx.addClass('ui-droppable-hover');
     });
-    $('.qbox-drop, .dropboqx').on('drop', function(event, ui){
-        /**
-         * Used to select:
-           * Content of an item
-           * Accessory for an item
-           * Component of an item
-           * Thing for an experience (proposed)
-        **/
+    $('.qbox-drop').on('drop', function(event, ui){
         boqx = $(this);
         item = ui.draggable;
         boqx_guid = boqx.parent('.qbox-pallet').data('boqx-guid');

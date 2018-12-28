@@ -108,7 +108,6 @@ function init() {
 	elgg_register_js('gallery.popup.js', elgg_get_simplecache_url('js', 'framework/gallery/popup'));
 	elgg_register_ajax_view('object/hjalbum/slideshow');
 	elgg_register_ajax_view('object/hjalbumimage/ajaxmeta');
-
 	elgg_register_simplecache_view('js/framework/gallery/cropper');
 	elgg_register_js('gallery.cropper.js', elgg_get_simplecache_url('js', 'framework/gallery/cropper'));
 	elgg_register_ajax_view('framework/gallery/tools/cropper');

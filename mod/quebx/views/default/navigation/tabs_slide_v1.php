@@ -14,14 +14,13 @@
  * 	'link_class' => string, // Class to pass to the link
  * 	'link_id' => string, // ID to pass to the link
  * )
- */                                                                                         $display .= 'quebx/views/default/navigation/tabs_slide<br>';
+ */
 $options = _elgg_clean_vars($vars);
 
 $type         = elgg_extract('type', $vars, 'horizontal');
 $presentation = elgg_extract('presentation', $vars,'full');
 $element      = elgg_extract('element', $vars, 'qbox');
 $space        = elgg_extract('space', $vars);
-$qid          = elgg_extract('qid', $vars, false);
 
 if ($type == 'horizontal') {
 	$options['class'] = "elgg-tabs elgg-htabs";
@@ -34,6 +33,9 @@ if (isset($vars['class'])) {
 if (isset($vars['style'])) {
 	$options['style'] = "{$vars['style']}";
 }
+if (isset($vars['qid'])){
+	$qid = $vars['qid'];
+}
 
 unset($options['tabs']);
 unset($options['type']);
@@ -45,16 +47,15 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
 	<ul <?php echo $attributes; ?>>
 		<?php
 		foreach ($vars['tabs'] as $key=>$info) {
-		    unset($count_label, $parent_cid);                                               $display .= '48 title = '.$info['title'].'<br>';
-		    $class    = $info['class'];                                                     //$display .= '49 $class = '.$class.'<br>';
+		    unset($count_label);
+			$class    = elgg_extract('class'   , $info, '');
 			$style    = elgg_extract('style'   , $info, '');
 			$id       = elgg_extract('id'      , $info, '');
-//			$parent_cid = elgg_extract('parent_cid' , $info, $options['data-cid']); //derive $parent_cid from the DOM
 			$cid      = elgg_extract('cid'     , $info, false);
 			$guid     = elgg_extract('guid'    , $info, false);
 			$panel    = elgg_extract('panel'   , $info, false);
-			$count    = elgg_extract('count'   , $info, false);                              //$display .= '55 $count: '.$count.'<br>';
-			$selected = elgg_extract('selected', $info, false);                              $display .= '57 $selected: '.$selected.'<br>';
+			$count    = elgg_extract('count'   , $info, false);                              $display .= '55 $count: '.$count.'<br>';
+			$selected = elgg_extract('selected', $info, false);
 			$expand_tabs = elgg_extract('expand_tabs', $info, false);
 			$section  = elgg_extract('section' , $info);
 			$aspect   = elgg_extract('aspect'  , $info, false);
@@ -63,6 +64,8 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
 			$cursor   = 'cursor:pointer';
 			$style    = ($style) ? $style.';'.$cursor : $cursor;
 			$n        = $key+1;
+			if ($count && $count>0) $count_label = " ($count)";
+			
 			if ($selected) {
 				Switch ($space){
 					case 'transfer':
@@ -77,16 +80,13 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
 				}
 			}
 
-			$class_str  = ($class)  ? " class=\"$class\""   : '';                             $display .= '79 $class_str = '.$class_str.'<br>';
-			$style_str  = ($style)  ? " style=\"$style\""   : '';
-			$id_str     = ($id)     ? " id=\"$id\""         : '';
-			$qid_str    = ($qid)    ? " data-qid=\"$qid\""     : '';
-			$parent_cid_str    = ($parent_cid)    ? " data-parent-cid=\"$parent_cid\""     : '';
-			$cid_str    = ($cid)    ? " data-cid=\"$cid\""     : '';
-			$guid_str   = ($guid)   ? " guid=\"$guid\""     : '';
-			$panel_str  = ($panel)  ? " panel=\"$panel\""   : '';
-			$aspect_str = ($aspect) ? " aspect=\"$aspect\"" : '';
-			$action_str = ($action) ? " action=\"$action\"" : '';
+			$class_str  = ($class)  ? "class=\"$class\""   : '';
+			$style_str  = ($style)  ? "style=\"$style\""   : '';
+			$id_str     = ($id)     ? "id=\"$id\""         : '';
+			$guid_str   = ($guid)   ? "guid=\"$guid\""     : '';
+			$panel_str  = ($panel)  ? "panel=\"$panel\""   : '';
+			$aspect_str = ($aspect) ? "aspect=\"$aspect\"" : '';
+			$action_str = ($ction) ? "aspect=\"$action\"" : '';
 			
 			$options = $info;
 			unset(//$options['class'], 
@@ -101,22 +101,17 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
 				unset($options['url']);
 			}
 */			
-			if ($presentation == 'qbox' || $presentation == 'popup'){
+			if ($presentation == 'qbox'){
 				$options['data-section'] = elgg_strtolower($section);
 				$options['data-element'] = $element;
 //				$options['class']        = 'qbox-q';
 				if (isset($qid))           {$options['data-qid']="{$qid}_{$n}";}
 				else                       {$options['data-qid']="q{$guid}_01_{$n}";}
-				if (isset($parent_cid))    {$options['data-parent-cid']=$parent_cid;}
 				if (isset($cid))           {$options['data-cid']=$cid;}
 //				if ($space == 'transfer')  {$options['class']='qbox-q2';}
 // 				if ($space == 'transfer' && !$selected){$options['class']='qbox-q2';}
 // 				if ($space == 'transfer' &&  $selected){$options['class']='elgg-state-selected';}
 			}
-			
-			if ($count && $count>0) $count_label = "<span class='$aspect-".strtolower($section)."-count' data-qid='{$options['data-qid']}' data-count=$count> ($count)</span>";
-			else                    $count_label = "<span class='$aspect-".strtolower($section)."-count' data-qid='{$options['data-qid']}' data-count=0></span>";
-			
             if (!isset($info['text']) && isset($info['title'])) {
                 $options['text'] = $options['title'].$count_label;
 				unset($options['title']);
@@ -124,7 +119,6 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
             if (isset($info['count'])) {
                 $options['data-count'] = $count;
                 unset($options['count']);
-                
             }
 			if (isset($info['link_class'])) {
 				$options['class'] = $options['link_class'];
@@ -144,19 +138,10 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
 			else                   {$text = $link;}
 			if ($note)             {$text = elgg_view('output/span',['content'=>$text, 'options'=>['title'=>$note]]);}
 
-			echo "<li $id_str
-        			  $class_str
-        			  $aspect_str
-			          $action_str
-			          $guid_str
-			          $qid_str
-			          $parent_cid_str
-			          $cid_str
-			          $panel_str
-			          $style_str>$text</li>";
+			echo "<li $aspect_str $action_str $guid_str $panel_str $style_str $id_str $class_str>$text</li>";
 		}
 		?>
 	</ul>
 	<?php
 }
-//register_error($display);
+//echo register_error($display);

@@ -310,31 +310,34 @@ define(function(require) {
 		    		   $("div.elgg-main.elgg-body").children(".elgg-head.clearfix").append($(output));
 		    		   break;
 	    	   }
-	       }).success(function(){
-	    	   console.log('+jot_form_elements.a.jot-q>success');
-	    	   if (element == 'q' && aspect == 'experience'){
-		    	   $('.dropboqx').droppable({
-		      	    	greedy: true,
-		      	    	accept: '.quebx-shelf-item',
-		      	    	tolerance: "touch",
-		      	     	hoverClass: "box-state-highlight",
-	//	      	    	create: function(event, ui){
-	//	      	    		alert ('Dropboqx Created!')
-	//	      	    	},
-		   	   	    });
-	    	   }
-	       });
+	       })/*.success(function(){
+	    	   console.log('success');
+	    	   $('.things_add_pallet_boqx > .dropboqx').droppable({
+	      	    	accept: '.quebx-shelf-item',
+	      	    	tolerance: "touch",
+	      	    	activate: function( event, ui ) {
+	      	  	      $( this )
+	      	  	        .find( ".dropboqx-dropspot" )
+	      	  	        .html( "started moving " );
+	      	  	     },
+	      	      	 deactivate: function( event, ui ) {
+	      	      	      $( this )
+	      	      	        .find( ".dropboqx-dropspot" )
+	      	      	        .html( "stopped  " );
+	      	      	     }
+	   	   	    });
+	       })*/;
 	    };
    });
    $(document).on('click', 'a.qbox-q', function(e) {
        e.preventDefault();
        var ajax       = new Ajax();
        var guid       = $(this).attr('guid');
-       var card_qid   = $(this).parents('ul').attr('qid');
-           cid        = $(this).data('cid');
+       var qid        = $(this).attr('data-qid'),
+           cid        = "c"+Math.floor((Math.random()*200)+1),
            service_cid= "c"+Math.floor((Math.random()*200)+1);
-       var qbox       = $('div[data-cid='+cid+']'),
-           qbox_exists;
+       var qbox       = $('div#'+qid);
+       var qbox_exists= qbox.length>0;
        var section_remove = $(this).parent().children('.qbox-section-remove'),
            section_remove_exists = true;
 	   var selected   = $(this).parent('li.qbox-q').hasClass('elgg-state-selected');
@@ -344,12 +347,9 @@ define(function(require) {
 	   var element    = $(this).data('element');
 	   var section    = $(this).data('section');
 	   var this_element = $(this);
-	   if (typeof cid == 'undefined')
-		   cid        = "c"+Math.floor((Math.random()*200)+1);
-       qbox_exists= qbox.length>0;
-       if (typeof qbox == 'undefined')
-	       qbox_exists = false;
-       if (typeof section_remove == 'undefined')
+/*       if (typeof $qbox == 'undefined')
+	       qbox_exists= false;
+*/       if (typeof section_remove == 'undefined')
     	   section_remove_exists= false;
 	   console.log('element: '+element);
 	   console.log('selected: '+selected);
@@ -357,6 +357,7 @@ define(function(require) {
 	   console.log('guid: '+guid);
 	   console.log('cid: '+cid);
 	   console.log('service_cid: '+service_cid);
+	   console.log('qid: '+qid);
 	   console.log('section: '+section);
 	   console.log('qbox: '+qbox); 
 	   console.log('qbox.length: '+qbox.length);
@@ -384,7 +385,7 @@ define(function(require) {
 	   // for Experience
 	   if (section == 'expand...'){
 		   if(qbox_exists){
-			   qbox.show();}
+			   $('div#'+qid).show();}
 		   if(!selected){
 	    	   $(this).parents('.rTableCell').find('.menu-q-expand-content').show();
 	       }
@@ -400,15 +401,16 @@ define(function(require) {
 	   
 	   if(qbox_exists){
 	    	if (!selected){
-	    		qbox.show();}
+	    		$('div#'+qid).show();}
 	    	else {
-	    		qbox.hide();}
+	    		$('div#'+qid).hide();}
 	    } 
 	    else {
 		   ajax.view('partials/jot_form_elements',{
 	    	   data: {
 	    		 element: element,
 	    		 guid: guid,
+	    		 qid: qid,
 	    		 cid: cid,
 	    		 service_cid: service_cid,
 	    		 aspect: aspect,
@@ -416,15 +418,17 @@ define(function(require) {
 	    		 section: section
 	    	   },
 	       }).done(function(output) {
-	    	   $("div.qbox-details[data-qid='"+card_qid+"']").append($(output));
+	    	   $('div.qbox-'+guid+'.qbox-details').append($(output));
 	    	   $(this_element).colorbox.resize();
 			   $('#cboxLoadedContent').css('overflow', 'visible');
+	//		   $('ul.qbox-'+guid+'[aspect=attachments]').after($(output));
 		   });   
 	    }
 	   ajax.view('partials/jot_form_elements',{
     	   data: {
     		 element: 'qbox-menu',
     		 guid: guid,
+    		 qid: qid,
     		 cid: cid,
     		 service_cid: service_cid,
     		 aspect: aspect,
@@ -434,13 +438,33 @@ define(function(require) {
 	       $(this_element).parent().prepend($(output));
        }).success(function(){
     	   console.log('+jot_form_elements.a.qbox-q>success');
+    	   $('.dropboqx').droppable({
+      	    	greedy: true,
+      	    	accept: '.quebx-shelf-item',
+      	    	tolerance: "touch",
+      	     	hoverClass: "box-state-highlight"
+//      	    	create: function(event, ui){
+//      	    		alert ('Dropboqx Created!')
+//      	    	},
+//      	    	activate: function( event, ui ) {
+//      	  	      $(document )
+//      	  	        .find( ".dropboqx-dropspot" )
+//      	  	        .html( "thing started moving " );
+////        	  	  alert( 'Thing Started Moving!' );
+//      	  	     },
+//      	      	 deactivate: function( event, ui ) {
+//      	      	      $( document )
+//      	      	        .find( ".dropboqx-dropspot" )
+//      	      	        .html( "thing stopped  " );
+//            	  	  alert( 'Thing Stopped Moving!' );
+//      	      	     }
+   	   	    });
        });
    });
    $(document).on('click', 'div.AddSubresourceButton___k1dvTuKc', function(e){
-	   var ajax       = new Ajax(),
+	   var ajax       = new Ajax();
+       var guid       = $(this).data('guid'),
            element    = $(this).data('element'),
-           this_element = $(this),
-           guid       = $(this).data('guid'),
            qid        = $(this).data('qid'),
            cid        = $(this).data('cid'),
            aspect     = $(this).data('aspect'),
@@ -452,6 +476,7 @@ define(function(require) {
     		 guid: guid,
     		 qid: qid,
     		 cid: cid,
+    		 service_cid: service_cid,
     		 aspect: aspect,
     		 action: action,
     		 section: section
@@ -647,7 +672,6 @@ define(function(require) {
 	   			break;
 	   }
 	   switch (perspective){
-	   //perspective == 'add'
 	   		case 'add':
 	   			ajax.view('partials/jot_form_elements',{
 			    	   data: {
@@ -671,7 +695,6 @@ define(function(require) {
 					    	   break;
 			    	   }});
 	   			break;
-	   //perspective == 'delete'
 	   		case 'delete':
 			   $(this).parents('table.ledger').parent('li').remove();
 			   ajax.view('partials/jot_form_elements',{
@@ -685,12 +708,9 @@ define(function(require) {
 		    	   },
 		       })
 			   break;
-	   //perspective == 'view'
 		   case 'view':
 			   switch (element){
-	   //perspective == 'view'; element == 'qbox';
 			   case 'qbox':
-	   //perspective == 'view'; element == 'market';
 			   case 'market':
 				   var qbox_exists = $('div#'+qid+'[data-perspective='+perspective+']').length>0;
 			       var qbox_visible = $('div.qbox-visible#'+qid).length>0; // Another qbox is visible.
@@ -724,7 +744,6 @@ define(function(require) {
 				    		 qid_n: qid_n,
 				    		 space: space,
 				    		 aspect: aspect,
-				    		 action: perspective,
 				    		 perspective: perspective,
 				    		 presentation: presentation,
 				    		 context: context,
@@ -750,7 +769,7 @@ define(function(require) {
 						   };
 				       });
 					   break;
-	   //perspective == 'view'; element == 'popup';
+
 			   case "popup":
 				   var hoffset_container = $(this_element).parents('div.jq-dropdown').css('left') || false,
 		               voffset_container = $(this_element).parents('div.jq-dropdown').css('top') || false;
@@ -785,7 +804,6 @@ define(function(require) {
 					   $('div.jq-dropdown#'+qid).css('top',voffset);
 			       });
 				   break;
-			//perspective == 'view'; element == 'compartment';
 			   case 'compartment':
 				   if(qbox_compartment_visible && context == 'inline'){
 					   if($('div.inline-compartment-visible#'+qid_n).data('perspective') == perspective){
@@ -805,13 +823,10 @@ define(function(require) {
 			   }
 			   
 			   break;
-	   //perspective == 'edit';
 		   case 'edit':
 			   switch (element){
 				   case 'qbox':
-				//perspective == 'edit'; element == 'qbox';
 				   case 'market':
-				//perspective == 'edit'; element == 'market';
 					   var qbox_exists = $('div#'+qid+'[data-perspective='+perspective+']').length>0;
 				       var qbox_visible = $('div.qbox-visible#'+qid).length>0; // Another qbox is visible.
 				       
@@ -852,7 +867,6 @@ define(function(require) {
 				       }).done(function(output) {
 				    	   //$('table.ledger-'+guid).after($(output));
 				    	   switch (context){
-				    	    //perspective == 'edit'; element == 'qbox' || 'market'; context == 'widgets';
 					    	   case "widgets":
 					    		   console.log('context: '+context);
 					    		   $('table.ledger-'+guid).after($(output));
@@ -874,38 +888,30 @@ define(function(require) {
 									   break;
 					    		   }
 						    	   break;
-						    //perspective == 'edit'; element == 'qbox' || 'market'; context == 'market';
 					    	   case "market":
 					    		   console.log('context: '+context);
 				    		      $(this_container).append($(output));
 					    		   break;
-						    //perspective == 'edit'; element == 'qbox' || 'market'; context == 'inline';
 					    	   case "inline":
 								   $(this_container).append($(output));
 								   break;
-						    //perspective == 'edit'; element == 'qbox' || 'market'; context == 'maximized';
 							   case "maximized":
 					    		   $(maximized_container).prepend($(output));
 					    		   break;
-						    //perspective == 'edit'; element == 'qbox' || 'market'; context == 'view_item';
 							   case 'view_item':
 								   $(full_view_container).append($(output));								   
 								   break;
 						   };
 				       });
 					   break;
-				//perspective == 'edit'; element == 'popup';
 				   case 'popup':
-					   var action   = perspective,
-					       selected = true
-					       $this    = $(this);
 					   var hoffset_container = $(this_element).parents('div.jq-dropdown').css('left') || false,
 			               voffset_container = $(this_element).parents('div.jq-dropdown').css('top') || false;
 				       var hoffset = hoffset_container || $(this_element).offset().left + parseInt($(this).attr('data-horizontal-offset') || 0, 10),
 				           voffset = voffset_container || $(this_element).offset().top + $(this_element).outerHeight() + parseInt($(this_element).attr('data-vertical-offset') || 0, 10);
 				       qbox_exists = $('div.jq-dropdown#'+qid).length>0;
 					   
-					   //$(this_element).parents('div.jq-dropdown').hide();
+					   $(this_element).parents('div.jq-dropdown').hide();
 					   
 				       if(qbox_exists){
 						   $('div.jq-dropdown#'+qid).show();
@@ -917,7 +923,6 @@ define(function(require) {
 				    		 guid: guid,
 				    		 qid: qid,
 				    		 qid_n: qid_n,
-				    		 action: action,
 				    		 space: space,
 				    		 aspect: aspect,
 				    		 perspective: perspective,
@@ -926,24 +931,15 @@ define(function(require) {
 				             compartment: compartment
 				    	   },
 				       }).done(function(output) {
-				    	   if (presence = element){        //The element originated from a popup
-				    		   $this.
-					    	   parents('.elgg-layout.elgg-layout-default').
-						    	  html($(output));
-				    	   }
-				    	   else {
-							   $('body').append($(output));
-							   $('div.jq-dropdown#'+qid).show();
-							   $('div.jq-dropdown#'+qid).css('left',hoffset);
-							   $('div.jq-dropdown#'+qid).css('top',voffset);
-				    	   }
+						   $('body').append($(output));
+						   $('div.jq-dropdown#'+qid).show();
+						   $('div.jq-dropdown#'+qid).css('left',hoffset);
+						   $('div.jq-dropdown#'+qid).css('top',voffset);
 				       });
 					   
 					   break;
-				//perspective == 'edit'; element == 'phase';
 				   case 'phase':
 					   switch (aspect){
-					//perspective == 'edit'; element == 'phase'; aspect == 'receive';
 					   case 'receive':
 						   $(this).attr('data-aspect', 'receipt');
 						   $(this).parents('.qbox').find('#qboxTitle').text('Receive');
@@ -958,7 +954,6 @@ define(function(require) {
 						   $(this).parents('form').find('.receipt-line-items').hide();
 						   $(this).parents('form').find('.message-stamp').hide();
 						   break;
-					//perspective == 'edit'; element == 'phase'; aspect == 'receipt';
 					   case 'receipt':
 						   $(this).attr('data-aspect', 'receive');
 						   $(this).parents('.qbox').find('#qboxTitle').text('Receipt');
@@ -975,13 +970,11 @@ define(function(require) {
 						   break;
 					   }
 					   break;
-				//perspective == 'edit'; element == 'experience';
 				   case 'experience':
-					   var presentation = 'popup',
+					   var presentation = 'qbox_experience',
 					       action = 'edit',
 					       selected = true;
 					   var $this = $(this);
-					   //Switch element to 'popup'
 					   element = 'popup';
 					   console.log('experience > element: '+element);
 					   console.log('experience > perspective: '+perspective);
@@ -994,7 +987,6 @@ define(function(require) {
 				    	   data: {
 				    		 element: element,
 				    		 guid: guid,
-				    		 qid: qid,
 				    		 perspective: perspective,
 				    		 presentation: presentation,
 				             action: action,
@@ -1059,44 +1051,6 @@ define(function(require) {
     	   $('div#'+qid_n+'_new_item_details').hide();
     	   $(this).parents('ul').find('input[value="create"]').parent('label').removeClass('new-item-details-visible');
        }
-   });
-   $(document).on('drop', '.dropboqx', function(e, ui) {
-       e.preventDefault();
-
-       var ajax        = new Ajax(),
-           item        = ui.draggable,
-           qid         = $(this).data('qid'),
-           element     = $(this).data('element')
-           aspect      = $(this).data('aspect'),
-           section     = $(this).data('section'),
-           perspective = $(this).data('perspective');
-      var  destination = $('.ThingsPallet__23erasdeR[data-qid="'+qid+'"]'),
-		   item_guid   = item.attr("id").split("-").pop(),
-		   item_count  = $("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").attr('data-count');
-      
-      console.log('aspect: '+aspect);
-      console.log('section: '+section);
-      console.log('qid: '+qid);
-      console.log('item_count string: '+"."+aspect+"-"+section+"-count[data-qid='"+qid+"']");
-      console.log('item_count: '+item_count);
-       
-       ajax.view('partials/jot_form_elements',{
-    	   data: {
-    		 element       : element,
-    		 aspect        : aspect,
-    		 perspective   : perspective,
-    		 guid          : item_guid,
-    		 qid           : qid,
-    		 action        : 'add',
-    		 section       : 'things_used',
-    		 snippet       : 'things_used_view',
-    		 container_type: 'experience',
-    	   },
-       }).done(function(output) {
-    	   destination.append($(output));
-       });
-		   $("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").attr('data-count', ++item_count);
-		   $("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").html(" ("+item_count+")");
    });
 
 });

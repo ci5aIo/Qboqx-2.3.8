@@ -39,7 +39,7 @@ $take_snapshot = elgg_extract('snapshot', $vars, false);
 ?>
 <div class="elgg-asset-picker ui-front" data-limit="<?php echo $limit ?>" data-name="<?php echo $name ?>" data-handler="<?php echo $handler ?>">
 	<input type="text" class="elgg-input-asset-picker" size="30" placeholder="<?php echo $placeholder ?>" name="<?php echo $name ?>" value="<?php echo $label ?>"/>
-	<ul class="elgg-asset-picker-list">
+	<ul class="elgg-asset-picker-list ThingsPallet__23erasdeR">
 		<?php
 		foreach ($assets as $asset) {
 		    if (elgg_entity_exists($asset)){

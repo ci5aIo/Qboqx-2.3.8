@@ -19,8 +19,8 @@ $action      = elgg_extract('action'           , $vars);                      $d
 $tabs        = elgg_extract('tabs'             , $vars);
 $expand_tabs = elgg_extract('expand_tabs'      , $vars, false);
 $tabs_expand = elgg_extract('tabs_expand'      , $vars);
+$presentation = elgg_extract('presentation'    , $vars);
 $presence    = elgg_extract('presence'         , $vars);
-$presentation = elgg_extract('presentation'    , $vars, $presence);
 $qid         = elgg_extract('qid'              , $vars);
 $qid_n       = elgg_extract('qid_n'            , $vars);
 $n           = elgg_extract('n'                , $vars);
@@ -61,36 +61,13 @@ Switch ($action){
     case 'add':
         Switch ($section){
             case 'main':
-                unset($form_body, $hidden, $buttons, $preloaded_panels);
+                unset($form_body, $hidden, $buttons);
                 $title              = elgg_extract('title', $vars, 'Experiences');
                 $title_field        = elgg_view("input/text"    , ["name" => "jot[title]"         , 'placeholder' => 'Give your experience a name', 'style' => 'width:100%', 'id'=>'title', 'data-parsley-required'=>'true']);
                 $description_field  = elgg_view("input/longtext", ["name" => "jot[description]"   , 'placeholder' => 'Describe the experience ...', 'style' => 'word-wrap: break-word; width:520px; height: 52px; margin-left: 0px; margin-right: 0px;', 'id' => $qid.'_description']);
                 $moment_field       = elgg_view('input/date'    , ['name' => 'jot[moment]'        , 'placeholder' => $now->format('Y-m-d')        , 'style' => 'width:150px']);
 //            	$buttons            = elgg_view('input/submit',	 array('value' => elgg_echo('save'), "class" => 'elgg-button-submit-element'));
             	$buttons            = "<button class='autosaves button std do_xxx' data-qid='$qid' type='submit' tabindex='-1' data-perspective='save'>Save</button>";
-            	$forms_action       = 'forms/experiences/edit';
-            	$view_sections[]    = ['section' => 'things'            , 'visibility' => 'display:none'];
-            	$view_sections[]    = ['section' => 'documents'         , 'visibility' => 'display:none'];
-            	$view_sections[]    = ['section' => 'gallery'           , 'visibility' => 'display:none'];
-            	$view_sections[]    = ['section' => 'issue'             , 'visibility' => 'display:none'];
-            	foreach ($view_sections as $i=>$view_section) {
-            	    unset($qid_n, $child_cid);
-            	    $qid_n        = $qid.'_'.$i;
-            	    $child_cid    = 'c'.mt_rand(1,999);
-            	    $cid_array[$i] = $child_cid;
-            	    $view_sections[$i]['cid'] = $child_cid;
-            	    $body_vars = ['container_guid'=> $guid,
-                            	  'qid'           => $qid_n,
-                            	  'cid'           => $child_cid,
-                            	  'parent_cid'    => $cid,
-                            	  'section'       => $view_section['section'],
-                            	  'visibility'    => $view_section['visibility'],
-                            	  'presentation'  => 'qbox_experience',
-                            	  'action'        => $action];
-            	    $preloaded_panels            .= elgg_view($forms_action, $body_vars);
-            	}
-            	$vars['preloaded_panels'] = $preloaded_panels;
-            	
                 // loading styles inline to raise their priority
                 $form_body .= elgg_view('css/quebx/user_agent', ['element'=>'experience']);
                 $hidden['jot[owner_guid]']     = $owner_guid;
@@ -109,15 +86,13 @@ Switch ($action){
                 $remove_button = "<a href='#' class='remove-node'>".elgg_view_icon('delete-alt')."</a>";
                 $quebx_assets  = array($current_asset_guid);
 
-                if($presentation == 'qbox_experience' || 
-                   $presentation == 'popup'){
-                     $div_id = elgg_extract('qid', $vars);
-                     $style  = elgg_extract('style', $vars, $style);}
+                if($presentation == 'qbox_experience'){$div_id = elgg_extract('qid', $vars);
+                                                       $style  = elgg_extract('style', $vars, $style);}
                 else                       {$div_id = 'Things_panel';}
                 if (!empty($hidden)){                
                     foreach($hidden as $field=>$value){
                         $things .= elgg_view('input/hidden', array('name'=>$field, 'value'=>$value));}}
-                $things_used_vars            = ['action'=>$action, 'section'=>'things_used', 'data-qid'=>$div_id, 'cid' => $cid, 'qid'=> $qid];
+                $things_used_vars            = ['action'=>'add', 'section'=>'things_used', 'data-qid'=>$div_id, 'cid' => $cid, 'qid'=> $qid];
                 $things_used_vars['things'] = $quebx_assets;
                 $things_used                 = elgg_view($form, $things_used_vars);
                 unset($things_used_vars['things']);
@@ -125,25 +100,15 @@ Switch ($action){
                 $things_used_add             = elgg_view($form, $things_used_vars);
                 $things_used_vars['snippet'] = 'things_used_dropboqx';
                 $things_used_dropboqx        = elgg_view($form, $things_used_vars);
-                $things_used_content         = elgg_view('output/div', ['content'=> $things_used, 'class'=>'things_used_pallet']).
-                                               elgg_view('output/div', ['content'=> $things_used_add.$things_used_dropboqx, 'class'=>'things_add_pallet']);
-                $things .= elgg_view('output/div',['content'=>$things_used_content,
-                                                   'class'  => 'elgg-head experience-panel',
-                                                   'options'=> ['panel'      => 'Things',
-                                                                'aspect'     => 'attachments',
-                                                                'data-qid'   => $div_id,
-                                                                'parent-cid' => $parent_cid,
-                                                                'data-cid'   => $cid,
-                                                                'style'      => $vars['visibility']]]);
-//                $things .= "<div panel='Things' aspect='attachments' data-qid='$div_id' class='elgg-head experience-panel' style='$style'>";
-//                 $things .= "<div class='things_used_pallet'>
-//                                 $things_used
-//                             </div>
-//                             <div class='things_add_pallet'>
-//                                 $things_used_add
-//                                 $things_used_dropboqx   
-//                             </div>";
-//                 $things .= "</div>";
+                $things .= "<div panel='Things' aspect='attachments' id='$div_id' class='things_pallet' style='$style;'>";
+                $things .= "<div class='things_used_pallet'>
+                                $things_used
+                            </div>
+                            <div class='things_add_pallet'>
+                                $things_used_add
+                                $things_used_dropboqx
+                            </div>";
+                $things .= "</div>";
                 break;
                 /****************************************
  *add********** $section = 'things_used'                 *****************************************************************
@@ -178,18 +143,13 @@ Switch ($action){
                                                                                'input_name'    => 'jot[assets]',
                                                                                'snapshot'      => true,
                                                                                'container_type'=> 'experience',
-                                                                               'aspect'        => $aspect,
-                                                                               'section'       => 'things',
-                                                                               'qid'           => $qid,
                                                                               ]);
                         break;
                     case 'things_used_dropboqx':
-                        $drop_boqx = "<div id='qbox-pack-$guid' data-qid='$qid' class='dropboqx dropboqx-anchor-top' data-element='market' data-aspect='experience' data-section='things' data-perspective='attach' >
+                        $drop_boqx = "<div id='qbox-pack-$guid' class='dropboqx dropboqx-anchor-top'>
                                         <div class='dropboqx-panel'>
                                             <div class='dropboqx-pallet' data-boqx-guid=$guid >
-                                                <span title='Drag an item from the shelf and drop it here'>
-                                                    <div class='dropboqx-dropspot' label='Add something from the shelf'></div>
-                                                </span>
+                                                <div class='dropboqx-dropspot' data-aspect='attachment' label='Drop something from the shelf'></div>
                                             </div>
                                         </div>
                                      </div>";
@@ -211,10 +171,10 @@ Switch ($action){
                             $things_used_view                  .= elgg_view($form, $things_used_vars);
                             
                         }
-/*                        $things_used ="<div class='ServiceEffort__26XCaBQk issue_effort_service-marker1' data-qid='$qid' data-parent-cid='$parent_cid' data-cid='$cid' data-guid='$guid'>
+                        $things_used ="<div class='ServiceEffort__26XCaBQk issue_effort_service-marker1' data-qid='$qid' data-parent-cid='$parent_cid' data-cid='$cid' data-guid='$guid'>
                                             $things_used_view
                                        </div>";
-*/                                            
+                                            
                         $things_used ="<ul class='ThingsPallet__23erasdeR' data-qid='$qid' data-cid='$cid' data-guid='$guid'>
                                             $things_used_view
                                       </ul>";
@@ -247,6 +207,10 @@ Switch ($action){
                                 .elgg_view_layout('inline', $vars)
                             ."</div>";
                 break;
+                
+                /****************************************
+*add********** $section = 'things_used_dropboqx'                 *****************************************************************
+                 ****************************************/
             /****************************************
 *add********** $section = 'documents'                 *****************************************************************
              ****************************************/
@@ -704,11 +668,11 @@ Switch ($action){
                 case 'issue':                                                                  $display .= '530 issue>$service_cid: '.$service_cid.'<br>';
                     unset($input_tabs, $form_body, $hidden);
                     $qid             = elgg_extract('qid', $vars);
-/*                    $input_tabs[]    = array('title'=>'Discoveries', 'selected' => true , 'link_class' => '', 'link_id' => '', 'panel'=>'issue_discoveries', 'aspect'=>'issue_input');
-	                $input_tabs[]    = array('title'=>'Remedies'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_resolve'    , 'aspect'=>'issue_input');
-	                $input_tabs[]    = array('title'=>'Assign'     , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_assign'     , 'aspect'=>'issue_input');
-	                $input_tabs[]    = array('title'=>'Complete'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_complete'   , 'aspect'=>'issue_input');
-	                $input_tabs      = elgg_view('navigation/tabs_slide', ['type'=>'vertical', 'aspect'=>'issue_input', 'tabs'=>$input_tabs, 'qid'=>$qid]);
+                    $input_tabs[]    = array('title'=>'Discoveries', 'selected' => true , 'link_class' => '', 'link_id' => '', 'panel'=>'issue_discoveries', 'guid'=>$guid, 'aspect'=>'issue_input');
+	                $input_tabs[]    = array('title'=>'Remedies'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_resolve'    , 'guid'=>$guid, 'aspect'=>'issue_input');
+	                $input_tabs[]    = array('title'=>'Assign'     , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_assign'     , 'guid'=>$guid, 'aspect'=>'issue_input');
+	                $input_tabs[]    = array('title'=>'Complete'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_complete'   , 'guid'=>$guid, 'aspect'=>'issue_input');
+	                $input_tabs      = elgg_view('navigation/tabs_slide', ['type'=>'vertical', 'aspect'=>'issue_input', 'tabs'=>$input_tabs]);
 	                
                     $hidden["jot[aspect]"]              = "observation";
                     $hidden["jot[observation][aspect]"] = "issue";
@@ -716,13 +680,13 @@ Switch ($action){
                     $discoveries_panel = elgg_view('forms/experiences/edit', array(
                                                    'action'         => $action,
                                                    'section'        => 'issue_discovery',
-                                                   //'guid'           => $guid,
+                                                   'guid'           => $guid,
                     							   'qid'            => $qid,
                     		                       'cid'            => $cid,));
                     $resolve_panel = elgg_view('forms/experiences/edit', array(
                                                    'action'         => $action,
                                                    'section'        => 'issue_resolve',
-                                                   //'guid'           => $guid,
+                                                   'guid'           => $guid,
                     							   'qid'            => $qid,
                     							   'parent_cid'     => $parent_cid,
                     		                       'cid'            => $cid,
@@ -741,7 +705,7 @@ Switch ($action){
                                                    'action'         => $action,
                                                    'section'        => 'observation_complete',
                                                    'guid'           => $guid,));
-*/                break;
+                break;
                 
             /****************************************
 *add********** $section = 'issue_discovery'              *****************************************************************
@@ -1077,15 +1041,15 @@ Switch ($action){
                		       'n'              => $n,
                     	   'service_cid'    => $service_cid));
                     
-            	$delete_button = "<label class=remove-card>". 
+            	$delete_button = "<label class=remove-effort-card>". 
                             	    elgg_view('output/url', array(
                             	        'title'    =>'remove effort card',
-                            	        'class'    =>'remove-card',
+                            	        'class'    =>'remove-effort-card',
                             	        'text'     => elgg_view_icon('delete-alt'),
                             	    	'data-qid' => $qid,
                             	    )).
                             	 "</label>";
-            	$delete = elgg_view("output/span", ["class"=>"remove-card", "content"=>$delete_button]);
+            	$delete = elgg_view("output/span", ["class"=>"remove-effort-card", "content"=>$delete_button]);
             	
             	$add_effort = "<button data-aid='addEffortButton' class='EffortEdit__submit___CfUzEM7s autosaves button std egg' type='button' tabindex='-1' style='margin: 3px 3px 0 15px;' data-cid='$cid' data-qid='$qid'>Add</button>";
            	
@@ -1553,10 +1517,8 @@ Switch ($action){
 					}
 				}
 
-                if($presentation == 'qbox_experience' ||
-                   $presentation == 'popup'){
-                      $div_id = elgg_extract('qid', $vars);
-                      $style  = elgg_extract('style', $vars, $style);}
+                if($presentation == 'qbox_experience'){$div_id = elgg_extract('qid', $vars);
+                                                       $style  = elgg_extract('style', $vars, $style);}
                 else                       {$div_id = 'Things_panel';}
                 if (!empty($hidden)){                
                     foreach($hidden as $field=>$value){
@@ -1639,7 +1601,6 @@ Switch ($action){
                 Switch ($presentation){
                 	case 'qbox_experience':
                 	case 'qbox':
-                	case 'popup':
                 		
                 	break;
                 	default:
@@ -2049,11 +2010,11 @@ Switch ($action){
                 case 'issue':                                                                  $display .= '530 issue>$service_cid: '.$service_cid.'<br>';
                     unset($input_tabs, $form_body, $hidden);
                     $qid             = elgg_extract('qid', $vars);
-                    $input_tabs[]    = array('title'=>'Discoveries', 'selected' => true , 'link_class' => '', 'link_id' => '', 'panel'=>'issue_discoveries', 'aspect'=>'issue_input');
-	                $input_tabs[]    = array('title'=>'Remedies'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_resolve'    , 'aspect'=>'issue_input');
-	                $input_tabs[]    = array('title'=>'Assign'     , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_assign'     , 'aspect'=>'issue_input');
-	                $input_tabs[]    = array('title'=>'Complete'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_complete'   , 'aspect'=>'issue_input');
-	                $input_tabs      = elgg_view('navigation/tabs_slide', ['type'=>'vertical', 'aspect'=>'issue_input', 'tabs'=>$input_tabs, 'qid'=>$qid]);
+                    $input_tabs[]    = array('title'=>'Discoveries', 'selected' => true , 'link_class' => '', 'link_id' => '', 'panel'=>'issue_discoveries', 'guid'=>$guid, 'aspect'=>'issue_input');
+	                $input_tabs[]    = array('title'=>'Remedies'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_resolve'    , 'guid'=>$guid, 'aspect'=>'issue_input');
+	                $input_tabs[]    = array('title'=>'Assign'     , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_assign'     , 'guid'=>$guid, 'aspect'=>'issue_input');
+	                $input_tabs[]    = array('title'=>'Complete'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_complete'   , 'guid'=>$guid, 'aspect'=>'issue_input');
+	                $input_tabs      = elgg_view('navigation/tabs_slide', ['type'=>'vertical', 'aspect'=>'issue_input', 'tabs'=>$input_tabs]);
 	                
                     $hidden["jot[aspect]"]              = "observation";
                     $hidden["jot[observation][aspect]"] = "issue";
@@ -2418,15 +2379,15 @@ Switch ($action){
                		       'n'              => $n,
                     	   'service_cid'    => $service_cid));
                     
-            	$delete_button = "<label class=remove-card>". 
+            	$delete_button = "<label class=remove-effort-card>". 
                             	    elgg_view('output/url', array(
                             	        'title'    =>'remove effort card',
-                            	        'class'    =>'remove-card',
+                            	        'class'    =>'remove-effort-card',
                             	        'text'     => elgg_view_icon('delete-alt'),
                             	    	'data-qid' => $qid,
                             	    )).
                             	 "</label>";
-            	$delete = elgg_view("output/span", ["class"=>"remove-card", "content"=>$delete_button]);
+            	$delete = elgg_view("output/span", ["class"=>"remove-effort-card", "content"=>$delete_button]);
             	
             	$add_effort = "<button data-aid='addEffortButton' class='EffortEdit__submit___CfUzEM7s autosaves button std egg' type='button' tabindex='-1' style='margin: 3px 3px 0 15px;' data-cid='$cid' data-qid='$qid'>Add</button>";
            	
@@ -2902,82 +2863,15 @@ Switch ($action){
 *view******* $section = 'main'                      *****************************************************************
              ****************************************/
             case 'main':
-            unset($form_body, $hidden, $buttons, $cid_array);
-                $n                  = 0;
-                $id_value           = $guid;
+                unset($form_body, $hidden, $buttons);
+            	$id_value           = $guid;
                 $title_field        = "<span>$entity->title</span>";
                 $description_field  = $entity->description;
                 $moment_field       = $entity->moment;
                 $expansion_objects  = elgg_get_entities(['type'=>'object', 'container_guid'=>$guid]);
                 $expansion          = $expansion_objects[0]; // There must be only one expansion of an experience
 //            	$buttons            = elgg_view('input/button',	['value' => elgg_echo('edit'), "class" => 'elgg-button-submit-element']);
-            	$buttons            = "<button class='std do' data-guid='$guid' data-qid='$qid' type='submit' tabindex='-1' data-perspective='edit' data-element='popup' data-space='experience' data-presence='$presence' data-presentation='$presentation'>Edit</button>";
-            	$forms_action       = 'forms/experiences/edit';
-            	$view_sections[]    = ['section' => 'things'   , 'visibility' => 'display:block', 'subtypes'=>['market']];
-            	$view_sections[]    = ['section' => 'documents', 'visibility' => 'display:none' , 'subtypes'=>['file']];
-            	$view_sections[]    = ['section' => 'gallery'  , 'visibility' => 'display:none' , 'subtypes'=>['image', 'hjalbumimage']];
-            	if (is_object($expansion)) {                                                                $display .= '2886 $expansion is an object<br>';
-            	   $view_sections[] = ['section' => $expansion->aspect, 'visibility' => 'display:block'];
-            	   $view_sections[0]['visibility'] = 'display:none';
-            	}
-            	$class      = "qbox-$guid";
-            	$li_class   = 'qbox-q';
-            	$link_class = 'qbox-q qbox-menu';
-            	$ul_style   = 'border-bottom: 0px solid #cccccc';
-            	$ul_aspect  = 'attachments';
-/*            	foreach ($view_sections as $i=>$attachment){
-            	    unset($attachment_count);
-            	    $attachment_count = elgg_get_entities_from_relationship_count(
-            	       ['type'                 => 'object',
-            	        'subtypes'             => $attachment['subtypes'],
-            	        'relationship'         => 'experience',
-            	        'relationship_guid'    => $guid,
-            	        'inverse_relationship' => false,
-            	        'limit'                => 0,]);
-            	    if ($attachment_count) 
-            	        unset($view_sections[$i]);
-            	}
-*/            	foreach ($view_sections as $i=>$view_section) {
-                    unset($qid_n, $child_cid);
-                    $qid_n      = $qid.'_'.$i; 
-                    $child_cid  = 'c'.mt_rand(1,999);
-                    $section    = $view_section['section'];
-                    $cid_array[$i] = $child_cid;
-                    $view_sections[$i]['cid'] = $child_cid;
-                    $body_vars = ['container_guid'=> $guid,
-                                  'cid'           => $child_cid,
-                                  'parent_cid'    => $cid,
-                                  'section'       => $view_section['section'],
-                                  'style'         => $view_section['visibility'],
-                                  'presentation'  => $presentation,
-                                  'action'        => $action];
-                    $preloaded_panels            .= elgg_view($forms_action, $body_vars);
-                    
-                    $this_tab = ['title'         => elgg_echo("$section"),
-                                'selected'       => $section == $selected && $state == 'selected',
-                                'guid'           => $this_guid,
-                                'id'             => $id,
-                                'qid'            => $qid,
-                                'cid'            => $child_cid,
-                                'style'          => $li_style,
-                                'class'          => $li_class,
-                                'link_class'     => $link_class,
-                                'count'          => $count,
-                                'panel'          => $panel,
-                                'aspect'         => $subtype,
-                                'action'         => $action,
-                                'section'        => $section,
-                                'expand_tabs'    => $expand_tabs,];
-                    $attachment_tabs[] = $this_tab;
-            	}
-            	$nav_vars['tabs']   = $attachment_tabs;
-            	$nav_vars['style']  = $ul_style;
-            	$nav_vars['aspect'] = $ul_aspect;
-            	$nav_vars['class']  = $class;
-            	$nav_vars['cid']    = $cid;
-//                $tabs               = elgg_view('navigation/tabs_slide', $nav_vars);
-                $vars['preloaded_panels'] = $preloaded_panels;
-                unset ($preloaded_panels, $expansion);
+            	$buttons            = "<button class='std do' data-guid='$guid' data-qid='$qid' type='submit' tabindex='-1' data-perspective='edit' data-element='experience' data-space='experience' data-presence='$presence'>Edit</button>";
                 // loading styles inline to raise their priority
                 $form_body .= elgg_view('css/quebx/user_agent', ['element'=>'experience']);
             break;
@@ -2993,10 +2887,8 @@ Switch ($action){
 																		   'relationship_guid'    => $guid,
 																		   'inverse_relationship' => false,
 																		   'limit'                => 0,]);                
-                if($presentation == 'qbox_experience' ||
-                   $presentation == 'popup'){
-                      $div_id = elgg_extract('qid', $vars);
-                      $style  = elgg_extract('style', $vars, $style);}
+                if($presentation == 'qbox_experience'){$div_id = elgg_extract('qid', $vars);
+                                                       $style  = elgg_extract('style', $vars, $style);}
                 else                       {$div_id = 'Things_panel';}
                 if ($quebx_assets > 0 ){
                 	$these_things = elgg_list_entities_from_relationship(['type'                 => 'object',
@@ -3008,14 +2900,11 @@ Switch ($action){
                 }
                 $things = elgg_view('output/div',['class'   => 'elgg-head experience-panel',
                 		                          'content' => $these_things,
-                		                          'options' =>['panel'      => 'Things',
-                		                          		       'aspect'     => 'attachments',
-                		                          		       'guid'       => $guid,
-                        		                               'id'         => $div_id,
-                		                                       'parent-cid' => $parent_cid,
-                        		                               'data-qid'   => $div_id,
-                		                                       'data-cid'   => $cid,
-                		                          		       'style'      => $style]]);
+                		                          'options' =>['panel' => 'Things',
+                		                          		       'aspect'=> 'attachments',
+                		                          		       'guid'  => $guid,
+                		                          		       'id'    => $div_id,
+                		                          		       'style' => $style]]);
                 break;
             /****************************************
 *view******* $section = 'documents'                 *****************************************************************
@@ -3063,56 +2952,40 @@ Switch ($action){
                 case 'issue':
                     unset($input_tabs, $form_body);
                     $qid             = elgg_extract('qid', $vars);
-//                     for ($i = $n++; $i <= $n+4; $i++) {
-//                         unset($panel);
-//                         $cid = 'c'.mt_rand(1,200);
-//                         switch ($i){
-//                             case 1 : $panel = 'things'   ; break;
-//                             case 2 : $panel = 'documents'; break;
-//                             case 3 : $panel = 'gallery'  ; break;
-//                             case 4 : $panel = 'issue'    ; break;
-//                             default: continue;
-//                         }
-//                         $preload_panels [$i]= [
-//                             'qid'           => $qid.'_'.$i,
-//                             'cid'           => $cid,
-//                             'panel'         => $panel];
-//                         $cid_array[$i]      =  $cid;
-//                     }
-//                     $input_tabs[]    = array('title'=>'Discoveries', 'selected' => true , 'link_class' => '', 'link_id' => '', 'panel'=>'issue_discoveries', 'aspect'=>'issue_input');
-// 	                $input_tabs[]    = array('title'=>'Remedies'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_resolve'    , 'aspect'=>'issue_input');
-// 	                $input_tabs[]    = array('title'=>'Assign'     , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_assign'     , 'aspect'=>'issue_input');
-// 	                $input_tabs[]    = array('title'=>'Complete'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_complete'   , 'aspect'=>'issue_input');
-// 	                $input_tabs      = elgg_view('navigation/tabs_slide', ['type'=>'vertical', 'aspect'=>'issue_input', 'tabs'=>$input_tabs, 'qid'=>$qid]);
-// 	                $expansion       = elgg_extract('expansion', $vars);  //Received from 'main' when preloading panels
-//                     $discoveries_panel = elgg_view('forms/experiences/edit', array(
-//                                                    'action'         => $action,
-//                                                    'section'        => 'issue_discovery',
-//                                                    'guid'           => $guid,
-//                     							   'qid'            => $qid,
-//                     		                       'cid'            => $cid,));
-//                     $resolve_panel     = elgg_view('forms/experiences/edit', array(
-//                     							   'action'         => $action,
-//                                                    'section'        => 'issue_resolve',
-//                                                    'guid'           => $guid,
-//                     							   'qid'            => $qid,
-//                     							   'parent_cid'     => $parent_cid,
-//                     		                       'cid'            => $cid,
-//                     		                       'service_cid'    => $service_cid,
-//                     		                       'efforts'        => elgg_get_entities([
-// 												                           'type'           => 'object',
-// 								                    		               'subtype'        => 'effort',
-// 												                           'container_guid' => $expansion->guid,
-// 												                           'limit'          => 0,
-// 												                        ]),));
-//                     $assign_panel      = elgg_view('forms/experiences/edit', array(
-//                                                    'action'         => $action,
-//                                                    'section'        => 'issue_request',
-//                                                    'guid'           => $guid,));
-//                     $complete_panel    = elgg_view('forms/experiences/edit', array(
-//                                                    'action'         => $action,
-//                                                    'section'        => 'issue_complete',
-//                                                    'guid'           => $guid,));
+                    $input_tabs[]    = array('title'=>'Discoveries', 'selected' => true , 'link_class' => '', 'link_id' => '', 'panel'=>'issue_discoveries', 'guid'=>$guid, 'aspect'=>'issue_input');
+	                $input_tabs[]    = array('title'=>'Remedies'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_resolve'    , 'guid'=>$guid, 'aspect'=>'issue_input');
+	                $input_tabs[]    = array('title'=>'Assign'     , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_assign'     , 'guid'=>$guid, 'aspect'=>'issue_input');
+	                $input_tabs[]    = array('title'=>'Complete'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_complete'   , 'guid'=>$guid, 'aspect'=>'issue_input');
+	                $input_tabs      = elgg_view('navigation/tabs_slide', ['type'=>'vertical', 'aspect'=>'issue_input', 'tabs'=>$input_tabs]);
+	                $expansion       = elgg_extract('expansion', $vars);  //Received from 'main' when preloading panels
+                    $discoveries_panel = elgg_view('forms/experiences/edit', array(
+                                                   'action'         => $action,
+                                                   'section'        => 'issue_discovery',
+                                                   'guid'           => $guid,
+                    							   'qid'            => $qid,
+                    		                       'cid'            => $cid,));
+                    $resolve_panel     = elgg_view('forms/experiences/edit', array(
+                    							   'action'         => $action,
+                                                   'section'        => 'issue_resolve',
+                                                   'guid'           => $guid,
+                    							   'qid'            => $qid,
+                    							   'parent_cid'     => $parent_cid,
+                    		                       'cid'            => $cid,
+                    		                       'service_cid'    => $service_cid,
+                    		                       'efforts'        => elgg_get_entities([
+												                           'type'           => 'object',
+								                    		               'subtype'        => 'effort',
+												                           'container_guid' => $expansion->guid,
+												                           'limit'          => 0,
+												                        ]),));
+                    $assign_panel      = elgg_view('forms/experiences/edit', array(
+                                                   'action'         => $action,
+                                                   'section'        => 'issue_request',
+                                                   'guid'           => $guid,));
+                    $complete_panel    = elgg_view('forms/experiences/edit', array(
+                                                   'action'         => $action,
+                                                   'section'        => 'issue_complete',
+                                                   'guid'           => $guid,));
                 break;
                 
             /****************************************
@@ -3549,69 +3422,32 @@ Switch ($section){
                 }
                 $url = elgg_get_site_url().'jot';
             	//if ($presentation == 'qbox' || $presentation == 'inline' || $presentation == 'lightbox'){
-                $preloaded_panels = elgg_extract('preloaded_panels', $vars);
-               	$preload_panels   = elgg_extract('preload_panels', $vars);
-//                	$preload_panels   = $preload_panels ?: elgg_extract('preload_panels', $vars);
-                	if ($expansion) {
+                	$preloaded_panels = elgg_extract('preloaded_panels', $vars);
+                	$preload_panels   = elgg_extract('preload_panels', $vars);
+	                if ($expansion) {
 	                	$preload_panels[] = ['panel'=>$expansion->aspect,
-	                	                     'qid'  => $qid.'_4',
-	                	                     'cid' => 'c'.mt_rand(1,999)];
+	                			             'qid'  => $qid.'_4'];
 	                }
                 	if ($preload_panels){
                 		unset($n);
 				    	$forms_action =  'forms/experiences/edit';
                 		foreach($preload_panels as $key=>$panel){
-                		    $cid_array[] = $panel['cid'];
                 			$body_vars = ['container_guid'=> $guid,
 	                				      'expansion'     => $expansion,
 									      'qid'           => $panel['qid'],
-                			              'cid'           => $panel['cid'],
 					                      'section'       => $panel['panel'],
 									      'selected'      => true,
 									      'style'         => 'display:none',
-									      'presentation'  => $presentation,
+									      'presentation'  =>'qbox_experience',
 									      'action'        => $action];
-                			if ($action == 'edit' || $action == 'view'){$body_vars['container_guid']=$guid;}
+                			if ($action == 'edit' || $action == 'view'){$body_vars['guid']=$guid;}
                 			if ($action == 'add')                      {$body_vars['cid'] = $cid;}
 	                		$preloaded_panels             .= elgg_view($forms_action, $body_vars);
                 		}
                 	}
-                	
-                	$tab_vars  =   ['subtype'        => 'experience',
-                            	    'this_section'   => 'issue',
-                            	    'state'          => 'selected',
-                            	    'action'         => $action,
-                            	    'guid'           => $guid,
-                            	    'qid'            => $qid_n,
-                	                'cid_array'      => $cid_array,
-                            	    'presentation'   => 'qbox',
-                            	    'class'          => "qbox-$guid",
-                            	    'ul_style'       => 'border-bottom: 0px solid #cccccc',
-                            	    'ul_aspect'      => 'attachments',
-                            	    'link_class'     => 'qbox-q qbox-menu',
-                            	    'attachments'    => ['things'=>1]];
-                	$tabs      =  elgg_view('quebx/menu', $tab_vars);
-                	/*
-                	for ($i = $n++; $i <= $n+4; $i++) {
-                	    switch ($i){
-                	        case 1 : $section = 'things'   ; break;
-                	        case 2 : $section = 'documents'; break;
-                	        case 3 : $section = 'gallery'  ; break;
-                	        case 4 : $section = 'issue'    ; break;
-                	        default: continue;
-                	    }
-                	    $preloaded_panels .= elgg_view($forms_action, [
-                	        'guid'          => $guid,
-                	        'container_guid'=> $guid,
-                	        'qid'           => $qid.'_'.$i,
-                	        'section'       => $section,
-                	        'style'         => 'display:none;',
-                	        'presentation'  => $presentation,
-                	        'action'        => $perspective]);
-                	}*/
             	if ($disabled      == 'disabled'){$disabled_label      = ' (disabled)';}
             	if ($disabled_view == 'disabled'){$disabled_view_label = ' (disabled)';}
-                	$qbox_content = "<div class='qbox-details' data-qid='$qid'>$preloaded_panels</div>";
+                	$qbox_content = "<div class='qbox-details qbox-$guid'>$preloaded_panels</div>";//}
                 $content .= "<b>$title</b>
 				<div class='model_xxx'>
                 	<section class='edit' data-aid='StoryDetailsEdit' tabindex='-1' action = '$action'>
@@ -3644,7 +3480,7 @@ Switch ($section){
 											<button type='button' id='receipt_import_button_$cid' title='Import receipt (disabled)' class='autosaves import_receipt hoverable left_endcap' tabindex='-1' disabled></button>
 											<button type='button' id='story_clone_button_$cid' title='Clone this experience".$disabled_view_label."' class='autosaves clone_story hoverable left_endcap' tabindex='-1' $disabled $disabled_view></button>
 											<button type='button' id='story_history_button_$cid' title='View the history of this experience".$disabled_view_label."' class='autosaves history hoverable capped' tabindex='-1' $disabled $disabled_view></button>
-											<button type='button' id='story_delete_button_$cid' title='Delete this experience".$disabled_view_label."' class='autosaves delete hoverable right_endcap remove-card' data-qid=$qid tabindex='-1'$disabled $disabled_view></button>
+											<button type='button' id='story_delete_button_$cid' title='Delete this experience".$disabled_view_label."' class='autosaves delete hoverable right_endcap remove-effort-card' data-qid=$qid tabindex='-1'$disabled $disabled_view></button>
 										  </div>
 										</section>
 								  </nav>
@@ -3820,9 +3656,7 @@ $section = 'documents'                ******************************************
             	else {
             	    $options['wheres'][] = "e.guid is NULL";
             	}
-            	if ($presentation == 'qbox'             || 
-            	    $presentation == 'qbox_experience'  ||
-            	    $presentation == 'popup')           {
+            	if ($presentation == 'qbox' || $presentation == 'qbox_experience'){
             		$options['item_guid']    = $guid;
             		$options['presentation'] = $presentation;
             	}
@@ -3860,10 +3694,8 @@ $section = 'documents'                ******************************************
                               </ul>
                          </div>";
                 }
-                if($presentation == 'qbox_experience' ||
-                   $presentation == 'popup')         {
-                      $div_id = elgg_extract('qid', $vars);}
-                else {$div_id = 'Documents_panel';}
+                if($presentation == 'qbox_experience'){$div_id = elgg_extract('qid', $vars);}
+                else                       {$div_id = 'Documents_panel';}
                 
                 $input.="
                  </div>";
@@ -3872,7 +3704,7 @@ $section = 'documents'                ******************************************
                         $hidden_fields .= elgg_view('input/hidden', array('name'=>$field, 'value'=>$value));}}
                 $content .= elgg_view('output/div',['content'=>$hidden_fields.$input,
                 		                            'class'  => 'elgg-head experience-panel',
-                    'options'=>['panel'=>'Documents','guid'=>$guid,'aspect'=>'attachments','id'=>$div_id, 'parent-cid'=>$parent_cid,'data-qid'=>$div_id,'data-cid'=>$cid, 'style'=>$vars['visibility']]
+                		                            'options'=>['panel'=>'Documents','guid'=>$guid,'aspect'=>'attachments','id'=>$div_id, 'style'=>$style]
                 ]);
                 Switch ($presentation){
                 	case 'qbox':
@@ -3983,16 +3815,14 @@ $section = 'gallery'                  ******************************************
 		                 </div>";
                 }
 
-                if($presentation == 'qbox_experience' ||
-                    $presentation == 'popup')         {
-                      $div_id = elgg_extract('qid', $vars);}
+                if($presentation == 'qbox_experience'){$div_id = elgg_extract('qid', $vars);}
                 else                       {$div_id = 'Gallery_panel';}
                 if (!empty($hidden)){                
                     foreach($hidden as $field=>$value){
                         $hidden_fields .= elgg_view('input/hidden', array('name'=>$field, 'value'=>$value));}}
                 $content .= elgg_view('output/div',['content'=>$hidden_fields.$input,
                 		                            'class'  => 'elgg-head experience-panel',
-                    'options'=>['panel'=>'Gallery','guid'=>$guid,'aspect'=>'attachments', 'data-qid'=>$div_id,'id'=>$div_id,'parent-cid'=>$parent_cid,'data-cid'=>$cid, 'style'=>$vars['visibility']]
+                		                            'options'=>['panel'=>'Gallery','guid'=>$guid,'aspect'=>'attachments','id'=>$div_id, 'style'=>$style]
                 ]);
                 Switch ($presentation){
                 	case 'qbox':
@@ -4067,9 +3897,7 @@ $section = 'expand'                     ****************************************
 		                if (!empty($hidden)){                
 		                    foreach($hidden as $field=>$value){
 		                        $form_body .= elgg_view('input/hidden', array('name'=>$field, 'value'=>$value));}}
-		                        if($presentation == 'qbox_experience' ||
-		                           $presentation == 'popup'){
-		                              $div_id = elgg_extract('qid', $vars);}
+		                if($presentation == 'qbox_experience'){$div_id = elgg_extract('qid', $vars);}
 		                else                       {$div_id = 'Expand_panel';}
 		                $form_body .= "
 		                <div panel='Expand' guid=$guid id=$div_id aspect='attachments' class='elgg-head' style='$style;'>";
@@ -4136,8 +3964,7 @@ $section = 'instruction'                ****************************************
                 if ($presentation == 'qbox'){
                 	$form_body = elgg_view('output/div',['content'=>$content_body,
                 			                             'class'=>'elgg-head qbox-content-expand',
-                			                             'options'=>['id'      => $qid,
-                			                                         'data-cid'=> $cid]]);                	
+                			                             'options'=>['id'=>$qid]]);                	
                 }
                 else {$form_body = elgg_view('output/div',['content'=>$content_title.$content_body.'<hr>',
                 		                                   'class'  => 'elgg-head',
@@ -5688,9 +5515,7 @@ $section = 'transfer'                   ****************************************
                     foreach($hidden as $field=>$value){
                         $hidden_fields .= elgg_view('input/hidden', array('name'=>$field, 'value'=>$value));}}
 
-                        if ($presentation == 'qbox_experience' ||
-                            $presentation == 'popup'){
-                              $div_id = elgg_extract('qid', $vars);}
+                if ($presentation == 'qbox_experience'){$div_id = elgg_extract('qid', $vars);}
                 else                                   {$div_id = 'Documents_panel';}
                 
 			    $body_vars = array('element_type'   => 'item',
@@ -5724,133 +5549,44 @@ $section = 'transfer'                   ****************************************
 /****************************************
 $section = 'issue'                      *****************************************************************
 ****************************************/
-            case 'issue':                                                               $display .= '5673 $container_guid: '.$container_guid.'<br>';
+            case 'issue':
                 unset($hidden_fields);
                 if (!empty($hidden)){
                     foreach($hidden as $field=>$value){
                         $hidden_fields .= elgg_view('input/hidden', array('name'=>$field, 'value'=>$value));}}
                 $content_title .= "<h3>Something is wrong</h3>Let's fix it";
-                $expansion      = elgg_extract('expansion', $vars);  //Received from 'main' when preloading panels
-                $n = 0;
-                for ($i = $n++; $i <= $n+2; $i++) {
-                    unset($child_cid, $panel, $title, $subtype, $this_compartment, $visibility);
-                    $child_cid = 'c'.mt_rand(1,999);
-                    $visibility = 'display:none';
-                    switch ($i){
-                        case 0 : $compartment = 'discovery'; $title = 'Discoveries'; $subtype = 'discovery'; $visibility = 'display:block'; break;
-                        case 1 : $compartment = 'resolve'  ; $title = 'Remedies';    $subtype = 'effort';   break;
-                        case 2 : $compartment = 'assign'   ; $title = 'Assign';      $subtype = 'task';     break;
-                        case 3 : $compartment = 'complete' ; $title = 'Complete';    break;
-                        default: continue;
-                    }                                                                                   $display .= '5691 $subtype: '.$subtype.'<br>';
-                    $input_tabs[$i]      = ['title'=>$title, 
-                                            'class'=>'pallet-compartment', 
-                                            'selected' => $compartment == 'discovery', 
-                                            'compartment'=>'issue_'.$compartment , 
-                                            'action'     => $action,
-                                            'presentation'=> 'popup',
-                                            'parent_cid' => $cid, 
-                                            'cid'=>$child_cid];
-                    $cid_array[$i]       =  $child_cid;
-                    $contents            = elgg_get_entities([
-                        'type'           => 'object',
-                        'subtype'        => $subtype,
-                        'container_guid' => $container_guid,
-                        'limit'          => 0,]);                                                       $display .= '5705 $contents count: '.count($contents).'<br>';
-                    $this_compartment    = elgg_view('forms/experiences/edit', [
-                        'action'         => $action,
-                        'section'        => 'issue_'.$compartment,
-                        'parent_cid'     => $cid,
-                        'cid'            => $child_cid,
-                        "{$subtype}s"    => $contents,]);
-                    $compartments       .= elgg_view('output/div', ['content'=> $this_compartment,
-                                                                    'class'  => 'pallet-compartment',
-                                                                    'options'=> ['compartment'     => 'issue_'.$compartment ,
-                                                                                 'data-qid'        => $qid,
-                                                                                 'data-parent-cid' => $cid,
-                                                                                 'data-cid'        => $child_cid,
-                                                                                 'aspect'          => 'issue_input',
-                                                                                 'style'           => $visibility]
-                                                                   ]);
-                }
-//                 $input_tabs[]    = array('title'=>'Discoveries', 'selected' => true , 'link_class' => '', 'link_id' => '', 'panel'=>'issue_discoveries', 'aspect'=>'issue_input');
-//                 $input_tabs[]    = array('title'=>'Remedies'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_resolve'    , 'aspect'=>'issue_input');
-//                 $input_tabs[]    = array('title'=>'Assign'     , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_assign'     , 'aspect'=>'issue_input');
-//                 $input_tabs[]    = array('title'=>'Complete'   , 'selected' => false, 'link_class' => '', 'link_id' => '', 'panel'=>'issue_complete'   , 'aspect'=>'issue_input');
-                $input_tabs      = elgg_view('navigation/tabs_slide', ['type'=>'vertical', 'aspect'=>'issue_input', 'tabs'=>$input_tabs, 'data-qid'=>$qid, 'data-cid'=>$cid]);
-/*                $discoveries_panel = elgg_view('forms/experiences/edit', [
-                'action'         => $action,
-                'section'        => 'issue_discovery',
-                'guid'           => $guid,
-                'qid'            => $qid,
-                'cid'            => $cid,]);
-                $resolve_panel     = elgg_view('forms/experiences/edit', array(
-                    'action'         => $action,
-                    'section'        => 'issue_resolve',
-                    'guid'           => $guid,
-                    'qid'            => $qid,
-                    'parent_cid'     => $parent_cid,
-                    'cid'            => $cid,
-                    'service_cid'    => $service_cid,
-                    'efforts'        => elgg_get_entities([
-                        'type'           => 'object',
-                        'subtype'        => 'effort',
-                        'container_guid' => $expansion->guid,
-                        'limit'          => 0,
-                    ]),));
-                $assign_panel      = elgg_view('forms/experiences/edit', array(
-                    'action'         => $action,
-                    'section'        => 'issue_request',
-                    'guid'           => $guid,));
-                $complete_panel    = elgg_view('forms/experiences/edit', array(
-                    'action'         => $action,
-                    'section'        => 'issue_complete',
-                    'guid'           => $guid,));
-*//*                $content_body .="
+                $content_body .="
                     <div class='rTable' style='width:100%'>
                 		<div class='rTableBody'>
                 				<div class='rTableRow'>
                 					<div class='rTableCell' style='width:15%;padding:0px;vertical-align:top'>$input_tabs
                                     </div>
                 					<div class='rTableCell' style='width:85%;padding:5px;'>
-                                		<div panel='issue_discoveries' data-qid='$qid' data-cid='$cid' aspect='issue_input' id='issue_discoveries_panel'   class='elgg-head' style='display:block'>
+                                		<div panel='issue_discoveries'guid=$guid data-qid='$qid' aspect='issue_input' id='issue_discoveries_panel'   class='elgg-head' style='display:block'>
                                 		    $discoveries_panel</div>
-                                		<div panel='issue_resolve'    data-qid='$qid' aspect='issue_input' id='issue_resolve_panel'   class='elgg-head' style='display:none' action='$action'>
+                                		<div panel='issue_resolve'    guid=$guid data-qid='$qid' aspect='issue_input' id='issue_resolve_panel'   class='elgg-head' style='display:none' action='$action'>
                                 		    $resolve_panel</div>
-                                		<div panel='issue_assign'     data-qid='$qid' aspect='issue_input' id='issue_assign_panel' class='elgg-head' style='display:none'>
+                                		<div panel='issue_assign'     guid=$guid data-qid='$qid' aspect='issue_input' id='issue_assign_panel' class='elgg-head' style='display:none'>
                                 		    $assign_panel</div>
-                                		<div panel='issue_complete'   data-qid='$qid' aspect='issue_input' id='issue_complete_panel' class='elgg-head' style='display:none'>
+                                		<div panel='issue_complete'     guid=$guid data-qid='$qid' aspect='issue_input' id='issue_complete_panel' class='elgg-head' style='display:none'>
                                 		    $complete_panel</div>
                                     </div>
                                 </div>
                         </div>
-                    </div>";*/
-                $content_body .="
-                <div class='rTable' style='width:100%'>
-                    <div class='rTableBody'>
-                        <div class='rTableRow'>
-                            <div class='rTableCell' style='width:15%;padding:0px;vertical-align:top'>$input_tabs</div>
-                            <div class='rTableCell' style='width:85%;padding:5px;'>$compartments</div>
-                        </div>
-                    </div>
-                </div>";
-                
+                    </div>";
                 if ($presentation == 'qbox'){
                 	$form_body = elgg_view('output/div',['content'=>$content_body.$hidden_fields,
                 			                             'class'=>'elgg-head qbox-content-expand',
-                			                             'options'=>['data-qid'=>$qid]]);                	
+                			                             'options'=>['id'=>$qid]]);                	
                 }
                 else {$form_body = elgg_view('output/div',['content'=>$content_title.$content_body.$hidden_fields,
                 		                                   'class'  => 'elgg-head experience-panel',
-                                                           'options'=>['panel'      => 'Issue',
-                                                                       'guid'       => $guid,
-                                                                       'aspect'     => 'attachments',
-                                                                       'data-qid'   => $qid,
-                                                                       'parent-cid' => $parent_cid,
-                            		                                   'data-cid'   => $cid,
-                                                                       'action'     => $action,
-                                                                       'style'      => $vars['visibility']]]);}
-                register_error($display);
+                		                                   'options'=>['style'      => 'display:block;',
+                                                                       'id'         => $qid,
+                		                                   		       'action'     => $action,
+                		                                   		       'panel'      => 'Issue',
+                		                                   		       'aspect'     => 'issue',
+                		                                   		       'guid'       => $guid]]);}
                 break;
 /****************************************
 $section = 'issue_discovery'              *****************************************************************
@@ -5941,7 +5677,7 @@ $section = 'issue_resolve'              ****************************************
 		                                                                <button type='button' id='receipt_import_button_$cid' title='Import receipt (disabled)' class='autosaves import_receipt hoverable left_endcap' tabindex='-1' disabled></button>
 		                                                                <button type='button' id='story_clone_button_$cid' title='Clone this effort".$disabled_view_label."' class='autosaves clone_story hoverable left_endcap' tabindex='-1' $disabled $disabled_view></button>
 		                                                                <button type='button' id='story_history_button_$cid' title='View the history of this effort".$disabled_view_label."' class='autosaves history hoverable capped' tabindex='-1' $disabled $disabled_view></button>
-		                                                                <button type='button' id='story_delete_button_$cid' title='Delete this effort".$disabled_view_label."' class='autosaves delete hoverable right_endcap remove-card' data-qid=$qid tabindex='-1'$disabled $disabled_view></button>
+		                                                                <button type='button' id='story_delete_button_$cid' title='Delete this effort".$disabled_view_label."' class='autosaves delete hoverable right_endcap remove-effort-card' data-qid=$qid tabindex='-1'$disabled $disabled_view></button>
 		                                                              </div>
 		                                                            </section>
 		                                                      </nav>
@@ -6229,9 +5965,7 @@ $section = 'issue_effort_service'        ***************************************
 $section = default                        *****************************************************************
 ****************************************/
             default:
-				    if($presentation == 'qbox_experience' ||
-				        $presentation == 'popup'){
-				           $div_id = elgg_extract('qid', $vars);}
+                if($presentation == 'qbox_experience'){$div_id = elgg_extract('qid', $vars);}
                 else                       {$div_id = 'Gallery_panel';}
                 if (!empty($hidden)){                
                     foreach($hidden as $field=>$value){

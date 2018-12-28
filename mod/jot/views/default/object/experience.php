@@ -15,11 +15,12 @@ $view_type     = elgg_extract('view_type', $vars, 'page');
 $list_type     = elgg_extract('list_type', $vars, $view_type);                            $display .= '11 $list_type = '.$list_type.'<br>';
 $space         = elgg_extract('space', $vars, 'market');
 $context       = elgg_extract('context', $vars, 'market');
-$perspective   = elgg_extract('perspective', $vars, 'view');
+$perspective   = elgg_extract('perspective', $vars, 'view');                              $display .= '18 $perspective = '.$perspective.'<br>';
     if (empty($item_guid)){$item_guid = $experience->assets;}
-$presentation  = elgg_extract('presentation', $vars, 'popup');
-    if ($presentation == 'popup') $presence = $presentation;
-$action        = elgg_extract('action', $vars, 'view');
+$presentation  = elgg_extract('presentation', $vars, 'popup');                            $display .= '20 $presentation = '.$presentation.'<br>';
+if ($presentation == 'popup'){
+    $presence  = $presentation;}
+$action        = elgg_extract('action', $vars, $perspective);                             $display .= '23 $action = '.$action.'<br>';
 $item          = get_entity($item_guid);
 $view          = get_subtype_from_id($experience->guid);
 $owner         = $experience->getOwnerEntity();
@@ -132,12 +133,12 @@ Switch ($list_type){
 						'expand_tabs'   => $expand_tabs,
 						'selected'      => true,
 						'presentation'  =>'qbox_experience',
-                                         'action'     => 'view', 
+                        'action'        => 'view', 
 //						'preloaded_panels'=>$thing_panel,
 						'preload_panels'=>['things'],]);
 		$content = "<div class = 'inline-content-expand'>
 				<div class='inline inline-visible' role='display' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context'>
-						<div id='inlineLoadedContent'>
+						<div class='inlineLoadedContent'>
 							$title
 							<div class='elgg-body inline-body'>
 								<div class='elgg-layout elgg-layout-default clearfix'>
@@ -169,7 +170,7 @@ Switch ($list_type){
                       'qid_parent'   => $qid,];
         $expand_tabs =  elgg_view('jot/menu', $tab_vars);
         $forms_action =  'forms/experiences/edit';
-        $thing_panel = elgg_view($forms_action,     ['guid'          => $guid,
+/*        $thing_panel = elgg_view($forms_action,     ['guid'          => $guid,
                                                      'container_guid'=> $guid,
                                                      'qid'           => $qid_n.'_1', // Things is tab #1
                                                      'section'       => 'things',
@@ -192,11 +193,11 @@ Switch ($list_type){
                                                     'selected'       => false,
                                                     'style'          => 'display:none;',
                                                     'presentation'   =>'qbox_experience',
-                                                    'action'         => $action]);
-        $tab_vars  =                               ['subtype'        => 'experience',
+                                                    'action'         => $action]);*/
+/*        $tab_vars  =                               ['subtype'        => 'experience',
                                                     'this_section'   => 'Issue',
                                                     'state'          => 'selected',
-                                                    'action'         => 'add',
+                                                    'action'         => $action,
                                                     'guid'           => $guid,
                                                     'qid'            => $qid_n,
                                                     'presentation'   => 'qbox',
@@ -205,22 +206,38 @@ Switch ($list_type){
                                                     'ul_aspect'      => 'attachments',
                                                     'link_class'     => 'qbox-q qbox-menu',
                                                     'attachments'    => ['things'=>1]];
-        $tabs      =  elgg_view('quebx/menu', $tab_vars);
+        $tabs      =  elgg_view('quebx/menu', $tab_vars);*/
         
-        $content = elgg_view('forms/experiences/edit',['guid'          => $guid,
+        $object_body = elgg_view('forms/experiences/edit',['guid'          => $guid,
                                                        'qid'           => $qid_n,
                                                        'container_guid'=> $container_guid,
                                                        'section'       => 'main',
-                                                       'tabs'          => $tabs,
+                                                       //'title'         => $title,
+                                                       //'tabs'          => $tabs,
                                                        'expand_tabs'   => $expand_tabs,
-                                                       'presentation'  => 'qbox_experience',
+                                                       'presentation'  => $presentation,
                                                        'presence'      => $presence,
-                                                       'action'        => 'view',
-            'preloaded_panels'=>$thing_panel,]);
-            $content = "<div class = 'inline-content-expand'>
+                                                       'action'        => $action,
+                                                       'space'         => $space,
+                                                       'perspective'   => $perspective,
+                                                       'context'       => $context,
+                                                       //'preloaded_panels'=>$thing_panel,
+        ]);
+        $layout_vars = array_merge(
+             $vars, 
+            ['content'       => $object_body,
+             'show_full'     => false,
+             'show_save'     => false,
+             'show_edit'     => false,
+             'show_close'    => true,
+             'show_title'    => false,
+             'space'         => $space,
+             'perspective'   => $perspective,
+             'context'       => $context
+            ]);
+/*            $content = "<div class = 'inline-content-expand'>
                             <div class='inline inline-visible' role='display' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context'>
-                                <div id='inlineLoadedContent'>
-                                $title
+                                <div class='inlineLoadedContent'>
                                     <div class='elgg-body inline-body'>
                                         <div class='elgg-layout elgg-layout-default clearfix'>
                                             $content
@@ -229,30 +246,33 @@ Switch ($list_type){
                                 </div>
                             </div>
                         </div>";
+*/            $content = elgg_view_layout('inline',$layout_vars);
             $params = array(
-                'metadata' => false,
-                'tags'     => 'none',
-                'content'  => $content,
+                'metadata'      => false,
+                'tags'          => 'none',
+                'content'       => $content,
                 'show_comments' => false,
+                'show_title'    => false,
             );
             
-            $params = array_merge($params, $vars);
+            $params = array_merge($vars, $params);
             $image_block_params = ['body_class' =>'quebx-body-list',];
             $list_body = elgg_view('object/elements/list', $params);
             
-//             $body = "<div class='jot elgg-content'>".
-//                 elgg_view_image_block(false, $list_body, $image_block_params).
-//                 "</div>";
+            $body = "<div class='jotboqx elgg-content' data-cid='$cid'>".
+                elgg_view_image_block(false, $list_body, $image_block_params)
+//                  elgg_view_layout('content', ['content'=>$list_body] )
+                ."</div>";
                 
-            $vars['content']      = $list_body;
-            $vars['disable_save'] = elgg_extract('disable_save', $vars, false);
-            $vars['show_title']   = elgg_extract('show_title', $vars, false);
-            $vars['position']     = 'relative';
-            $vars['message']      = $entity->status;
-            $form                 = elgg_view_layout('qbox', $vars);
-            $body = "<div class='jot elgg-content'>".
-                $form.
-                "</div>";
+//             $vars['content']      = $list_body;
+//             $vars['disable_save'] = elgg_extract('disable_save', $vars, false);
+//             $vars['show_title']   = elgg_extract('show_title', $vars, false);
+//             $vars['position']     = 'relative';
+//             $vars['message']      = $entity->status;
+//             $form                 = elgg_view_layout('qbox', $vars);
+//             $body = "<div class='jot elgg-content'>".
+//                 $form.
+//                 "</div>";
         break;
     default:
     	$tab_vars  = ['menu'         => 'q_expand',
@@ -268,7 +288,7 @@ Switch ($list_type){
 				      'selected'=> true,
 				      'style'   => 'display:none;',
 				      'presentation'=>'qbox_experience',
-				      'action'  => 'view'];
+				      'action'  => $perspective];
         $thing_panel = elgg_view($forms_action, $body_vars);
 		$tab_vars  = ['subtype'      => 'experience',
 		              'this_section' => 'Expand',
@@ -290,12 +310,12 @@ Switch ($list_type){
 						'tabs'          => $tabs,
 						'expand_tabs'   => $expand_tabs,
 						'selected'      => true,
-						'presentation'  =>'qbox_experience',
-                                             'action'     => 'view', 
+						'presentation'  => $presentation,
+                        'action'        => 'view', 
 						'preloaded_panels'=>$thing_panel,]);
 		$content = "<div class = 'inline-content-expand'>
 				<div class='inline inline-visible' role='display' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context'>
-						<div id='inlineLoadedContent'>
+						<div class='inlineLoadedContent'>
 							$title
 							<div class='elgg-body inline-body'>
 								<div class='elgg-layout elgg-layout-default clearfix'>
@@ -316,18 +336,18 @@ Switch ($list_type){
         	$image_block_params = ['body_class' =>'quebx-body-list',];
 		    	$list_body = elgg_view('object/elements/list', $params);
         	
-// 		    	$body = "<div class='jot elgg-content'>".
-// 		  		    	elgg_view_image_block($owner_icon, $list_body, $image_block_params).
-// 		    	         "</div>";
-		  		$vars['content']      = $list_body;
-  		    	$vars['disable_save'] = elgg_extract('disable_save', $vars, false);
-  		    	$vars['show_title']   = elgg_extract('show_title', $vars, false);
-  		    	$vars['position']     = 'relative';
-  		    	$vars['message']      = $entity->status;
-  		    	$form                 = elgg_view_layout('qbox', $vars);
-  		    	$body = "<div class='jot elgg-content'>".
-  		  		    	   $form.
-  		  		    	"</div>";
+		    	$body = "<div class='jot elgg-content'>".
+		  		    	elgg_view_image_block($owner_icon, $list_body, $image_block_params).
+		    	         "</div>";
+// 		  		$vars['content']      = $list_body;
+//   		    	$vars['disable_save'] = elgg_extract('disable_save', $vars, false);
+//   		    	$vars['show_title']   = elgg_extract('show_title', $vars, false);
+//   		    	$vars['position']     = 'relative';
+//   		    	$vars['message']      = $entity->status;
+//   		    	$form                 = elgg_view_layout('qbox', $vars);
+//   		    	$body = "<div class='jot elgg-content'>".
+//   		  		    	   $form.
+//   		  		    	"</div>";
 		    break;
 }
 	

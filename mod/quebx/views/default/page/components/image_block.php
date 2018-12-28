@@ -53,5 +53,6 @@ if ($alt_image) {
 
 $params = $vars;
 $params['class'] = $class;
-
+//@EDIT 2018-12-12 - SAJ - Remove $params used as options to filter the list in market/pages/market/category.php.  Probably not the best way to prevent these options from becoming attributes of the containing <div> element.
+unset($params['offset'], $params['limit'], $params['types'], $params['wheres'], $params['subytpes'], $params['joins'], $params['position'], $params['subtypes'], $params['count']);
 echo elgg_format_element('div', $params, $image . $alt_image . $body);

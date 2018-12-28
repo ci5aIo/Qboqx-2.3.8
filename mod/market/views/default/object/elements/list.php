@@ -1,4 +1,4 @@
-<!--View: market/views/default/object/elements/list.php-->
+<!--View: market/views/default/object/elements/list_xxx.php-->
 <?php
 /**
  * Object list
@@ -13,11 +13,12 @@ $tags          = elgg_extract('tags'         , $vars, false);
 $show_activity = elgg_extract('show_activity', $vars, false);
 $show_comments = elgg_extract('show_comments', $vars, false);
 $show_contents = elgg_extract('show_contents', $vars, false);
+$show_title    = elgg_extract('show_title'   , $vars, true);
 $add_comment   = elgg_extract('add_comment'  , $vars, $show_comments);
 $include_dropbox = elgg_extract('include_dropbox', $vars, true);
 $view_type     = elgg_extract('view_type'    , $vars, 'list');
 
-if ($title_link === '') {
+if ($title_link === '' && $show_title) {
 	if (isset($entity->title)) {
 		$text = $entity->title;
 	} else {

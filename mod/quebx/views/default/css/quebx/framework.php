@@ -75,8 +75,8 @@ ul.edit_gallery li {
 .activity_entry_group,.deadline .preview,.done_bar,.dropdown .selection,.epics .done_bar.hide,.manual_planning_indicator,.model .preview,.sidebar_footer,.sidebar_footer .width_mode,.tn_smart_delete_story_list_select_prev_toggle,aside.sidebar .item.sidebar_link .sidebar_link,aside.sidebar .sidebar_header,aside.sidebar label,section.edit .controls.copied .bubble{-moz-user-select:none;-ms-user-select:none;-webkit-user-select:none;user-select:none}
 .addButton___3-z3g3BH {display: block;width: 20px;height: 20px;background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/plus-gray.svg) no-repeat 50%;}
 .AddSubresourceButton___2PetQjcb, 
-.AddSubresourceButton___S1LFUcMd,
-.AddSubresourceButton___k1dvTuKc {-ms-flex-align: center;align-items: center;background: #e9e8e0;border-radius: 4px;color: #717170;cursor: pointer;display: -ms-flexbox;display: flex;font-size: 12px;margin-top: 4px;width: 100%;}
+.AddSubresourceButton___S1LFUcMd {-ms-flex-align: center;align-items: center;background: #e9e8e0;border-radius: 4px;color: #717170;cursor: pointer;display: -ms-flexbox;display: flex;font-size: 12px;margin-top: 4px;width: 100%;}
+.AddSubresourceButton___k1dvTuKc {cursor: pointer;}
 .AddSubresourceButton__icon___h1-Z9ENT {background: url(http://assets.pivotaltracker.com/next/assets/next/77478e4c-blocker-add.svg) no-repeat 50%;cursor: pointer;height: 14px;margin-left: 8px;width: 14px;}
 .AddSubresourceButton__message___2vsNCBXi {border-bottom: 1px solid transparent;border-left: 1px solid transparent;line-height: 18px;padding: 10px 8px;}
 .attachment.not_thumbnailable .thumbnail,.dropdown .selection span,.edit_project_ghost .edit_project .name span,.flyover.epic_flyover footer p.scribe,.flyover.epic_flyover hgroup .labels,.flyover.epic_flyover hgroup .pill.label span,.flyover.followers_flyover footer p.scribe,.flyover.followers_flyover hgroup .labels,.flyover.followers_flyover hgroup .pill.label span,.flyover.integration_story_flyover footer p.scribe,.flyover.integration_story_flyover hgroup .labels,.flyover.integration_story_flyover hgroup .pill.label span,.flyover.story_flyover footer p.scribe,.flyover.story_flyover hgroup .labels,.flyover.story_flyover hgroup .pill.label span,.info_box .row.other_integration span,.info_box .row.participant .story_participants .name,.info_box .row.requester .dropdown_label,.info_box .row.requester a.selection div.name,.item.integration_story .preview section .scribe,.item.notification .project_name,.lightbox .lightbox.participant .name,.lightbox .lightbox.participant h2,.menu ol.items .item a,.menu ol.items .item button,.menu ol.items .item label,.menu ol.items .item span,.menu ul.items .item a,.menu ul.items .item button,.menu ul.items .item label,.menu ul.items .item span,.panel.labels .labels_items .label .incomplete,.panel.labels .labels_items .label .name,.person_controls .person_name .anchor,aside.sidebar .add_projects .edit_project .name span,aside.sidebar .name span.full,aside.sidebar .projects .edit_project .name span,aside.sidebar .searches .panel_name,aside.sidebar a.panel_toggle .panel_name,ul.attachments .thumbnail abbr{-ms-text-overflow:ellipsis;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -254,7 +254,8 @@ ul.edit_gallery li {
 .timestamp .timestamps .updated_at{display:none}
 .tn-panel-items-container___1Fk42hjC {-webkit-box-flex: 1;-ms-flex-positive: 1;flex-grow: 1;overflow-y: auto;height: 100%;}
 .tn-DropdownButton___nNklb3UY {display: block;width: 20px;height: 20px;background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/kebab-gray.svg) no-repeat 50%;}
-.tn-DropdownButton___CFgliR88w {display: block;width: 15px;height: 15px;background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/kebab-gray.svg) no-repeat 50%;}
+.tn-DropdownButton___CFgliR88w       {display: block;width: 15px;height: 15px;background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/kebab-gray.svg) no-repeat 50%;}
+.tn-DropdownButton___CFgliR88w:hover {display: block;width: 15px;height: 15px;background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/kebab-gray-hover.svg) no-repeat 50%;}
 .tn-PanelHeader--single___2ns28dRL {height: 32px;}
 .tn-PanelHeader__actionsArea___EHMT4f1g {-webkit-box-flex: 0;-ms-flex-positive: 0;flex-grow: 0;-ms-flex-negative: 0;flex-shrink: 0;margin-right: 7px;}
 .tn-PanelHeader__action___3zvuQp6Z {text-align: center;float: left;margin: 0 2px;}
@@ -570,7 +571,7 @@ div.qbox-section-remove{float:right;position:relative;z-index:1}
     background: white;
     border-bottom: 2px solid white;
 }
-#qboxClose, #qboxSave, #qboxEdit, #qboxMinimize, #qboxRestore, #qboxView, #fullView, #qboxReceive{
+#qboxClose, /*#qboxSave,*/ #qboxEdit, #qboxMinimize, #qboxRestore, #qboxView, #fullView, #qboxReceive{
 	cursor: pointer;
 	border: 0;
     background: none;
@@ -584,7 +585,7 @@ div.qbox-section-remove{float:right;position:relative;z-index:1}
 	right: 16px
 }
 #qboxSave{
-    right: 32px;
+    /*right: 32px;*/
 }
 #qboxEdit, #qboxView{
     right: 48px;
@@ -884,12 +885,12 @@ table.ledger .link-rollover{
 
 /*************Inline***************/
 .inline{
-	float:left;
+	/*float:left;*/
 	position:relative;
 	min-height:57px;
 	height:auto;
 	/*width:550px;*/
-	z-index:2;
+	/*z-index:2;*/
 	display: block;
     box-shadow: inset 0 0 3px #888;
     /*padding: 15px 0 0 1px;*/
@@ -915,31 +916,47 @@ table.ledger .link-rollover{
 	width: 650px;
 }
 
-#inlineLoadedContent{
+#inlineLoadedContent,       /*@TODO: retire*/
+.inlineLoadedContent{
 	overflow: visible;
     background-color: #ffffff;
 }
-#inlineLoadedContent > * {
+#inlineLoadedContent > *,   /*@TODO: retire*/
+.inlineLoadedContent > * {
     padding: 0px 0px 0px 0px;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
-#inlineClose, #inlineEdit, #inlineMinimize, #inlineRestore, #inlineView, #inlineFullView{
+#inlineClose, #inlineEdit, #inlineMinimize, #inlineRestore, #inlineView, #inlineFullView, /*@TODO: retire*/
+.inlineClose, .inlineEdit, .inlineMinimize, .inlineRestore, .inlineView, .inlineFullView, .inlineSave{
 	cursor: pointer;
 	border: 0;
     background: none;
     /*margin: -5px;*/
-    position: absolute;
-    padding: 0;
+    position: relative;
+    padding: 0 2px 0 2px;
     top: 0;
     right: 0;
 }
-#inlineEdit, #inlineView{
+#inlineEdit, #inlineView, /*@TODO: retire*/
+.inlineEdit, .inlineView
+{
 	right: 16px;
 }
-#inlineFullView {
+#inlineFullView, /*@TODO: retire*/ {
+.inlineFullView
 	right: 32px
+}
+.inline-controls{
+	display: flex;
+	justify-content: flex-end;
+}
+.inline-controls-button, .inline-controls-title{
+	flex:none;
+}
+.inline-controls-title{
+	align-self:flex-end;
 }
 form.inline-container{
 	float:left;
@@ -1221,3 +1238,57 @@ li.quebx-list-boqx-item{
 .boqx-label{
 	cursor: pointer;
 }
+.things_add_pallet{
+	display:flex;
+	justify-content:space-evenly; 
+}
+.things_add_pallet_boqx{
+	align-items: center;
+    background: #e9e8e0;
+    border-radius: 4px;
+    color: #717170;
+    display: -ms-flexbox;
+    display: flex;
+    font-size: 12px;
+    margin-top: 4px;
+    /**/
+    flex:none;
+    width: 49%;    
+}
+.things_add_pallet_boqx:hover{
+	background: #e9e8e0;
+}
+.SpotShow__elw1jufs {
+    -ms-flex-align: center;
+    align-items: center;
+    /*background-color: #e9e8e0;*/
+    border-bottom: 1px solid transparent;
+    border-radius: 3px;
+    display: -ms-flexbox;
+    display: flex;
+    font-size: 12px;
+    line-height: 18px;
+    margin-top: 4px;
+    overflow: hidden;
+    padding: 4px;
+}
+.SpotShow__elw1jufs:hover 
+	.ThingShow__actions___oosero4fs        {opacity: inherit;}
+.ThingShow__actions___oosero4fs            {opacity: inherit;-ms-flex-item-align: start;-ms-grid-row-align: start;align-self: start;box-sizing: border-box;margin: 0 4px;}
+.ThingShow__actions--unfocused___234slkj65 {opacity: 0;}
+.ThingShow__alskdjlse                      {width: 100%}
+.IconButton___23o4ips {
+    cursor: pointer;
+    position: relative;
+    display: block;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    height: 30px;
+    width: 30px;
+    opacity: 1;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    padding: 0;
+}
+.IconButton--small___w40sDoiq3             {background-color: #eee;width: 23px;height: 23px;}
+.IconButton--small___w40sDoiq3:not(.IconButton--disabled___2cvk-s8R):not(.IconButton--inverted___2OWhVJqP):hover {background-color: #fff;}

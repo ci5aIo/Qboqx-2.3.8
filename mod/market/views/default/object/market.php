@@ -202,7 +202,7 @@ Switch ($view_type){
             foreach($experiences as $experience){
                 unset($link);
                 $guids[] = $experience->guid;
-                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$experience->title, 'class'=>'do', 'data-perspective'=>'view','data-presentation'=> 'inline','data-guid'=>$experience->getGUID(), 'data-element'=>'popup', 'data-space'=>'experience', 'data-aspect'=>$experience->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$experience->getGUID(),'data-qid'=>'q'.$experience->getGUID()]),'class'  =>'drop-down']);
+                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$experience->title, 'class'=>'do', 'data-perspective'=>'view', 'data-presence'=>'pallet', 'data-presentation'=> 'popup', 'data-guid'=>$experience->getGUID(), 'data-element'=>'popup', 'data-space'=>'experience', 'data-aspect'=>$experience->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$experience->getGUID(),'data-qid'=>'q'.$experience->getGUID()]),'class'  =>'drop-down']);
                 $content_item .= "<li class='quebx-list-boqx-item'>$link</li>";
             }
             
@@ -224,7 +224,7 @@ Switch ($view_type){
             foreach($contents as $q){
                 unset($link);
                 $guids[] = $q->guid;
-                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$q->title, 'class'=>'do', 'data-perspective'=>'view', 'data-guid'=>$q->getGUID(), 'data-element'=>'popup', 'data-space'=>'market', 'data-aspect'=>$q->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$q->getGUID(),'data-qid'=>'q'.$q->getGUID(), 'data-view_type'=>'list']),'class'  =>'drop-down']);
+                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$q->title, 'class'=>'do', 'data-perspective'=>'view', 'data-presence'=>'pallet', 'data-presentation'=> 'popup', 'data-guid'=>$q->getGUID(), 'data-element'=>'popup', 'data-space'=>'market', 'data-aspect'=>$q->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$q->getGUID(),'data-qid'=>'q'.$q->getGUID(), 'data-view_type'=>'list']),'class'  =>'drop-down']);
                 $content_item .= "<li class='quebx-list-boqx-item'>$link</li>";
             }
             
@@ -247,7 +247,7 @@ Switch ($view_type){
                 unset($link);
                 $guids[] = $q->guid;
 //                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$q->title, 'class'=>'do', 'data-perspective'=>'view', 'data-guid'=>$q->getGUID(), 'data-element'=>'market', 'data-space'=>'market', 'data-aspect'=>$q->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$q->getGUID(),'data-qid'=>'q'.$q->getGUID(), 'data-view_type'=>'list', 'data-presentation'=>'popup']),'class'  =>'drop-down']);
-                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$q->title, 'class'=>'do', 'data-perspective'=>'view', 'data-guid'=>$q->getGUID(), 'data-element'=>'popup', 'data-space'=>'market', 'data-aspect'=>$q->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$q->getGUID(),'data-qid'=>'q'.$q->getGUID(), 'data-view_type'=>'list']),'class'  =>'drop-down']);
+                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$q->title, 'class'=>'do', 'data-perspective'=>'view', 'data-presence'=>'pallet', 'data-presentation'=> 'popup', 'data-guid'=>$q->getGUID(), 'data-element'=>'popup', 'data-space'=>'market', 'data-aspect'=>$q->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$q->getGUID(),'data-qid'=>'q'.$q->getGUID(), 'data-view_type'=>'list']),'class'  =>'drop-down']);
                 $content_item .= "<li class='quebx-list-boqx-item'>$link</li>";
             }
             
@@ -269,7 +269,7 @@ Switch ($view_type){
             foreach($accessories as $q){
                 unset($link);
                 $guids[] = $q->guid;
-                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$q->title, 'class'=>'do', 'data-perspective'=>'view', 'data-guid'=>$q->getGUID(), 'data-element'=>'popup', 'data-space'=>'market', 'data-aspect'=>$q->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$q->getGUID(),'data-qid'=>'q'.$q->getGUID(), 'data-view_type'=>'list']),'class'  =>'drop-down']);
+                $link  = elgg_view('output/div', ['content'=>elgg_view('output/url', ['text'=>$q->title, 'class'=>'do', 'data-perspective'=>'view', 'data-presence'=>'pallet', 'data-presentation'=> 'popup', 'data-guid'=>$q->getGUID(), 'data-element'=>'popup', 'data-space'=>'market', 'data-aspect'=>$q->aspect, 'data-context'=>'market', 'data-jq-dropdown'=>'#q'.$q->getGUID(),'data-qid'=>'q'.$q->getGUID(), 'data-view_type'=>'list']),'class'  =>'drop-down']);
                 $content_item .= "<li class='quebx-list-boqx-item'>$link</li>";
             }
             

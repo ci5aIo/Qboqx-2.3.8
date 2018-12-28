@@ -23,6 +23,9 @@ Switch ($aspect){
 	case 'transfer':
 	    $relationship  = $aspect;
 	    break;
+	case 'thing':
+	    $relationship  = $aspect;
+	    break;
 	default:
 		$relationship  = $aspect;
 		$subtype       = $aspect;
@@ -238,7 +241,7 @@ if ($guid){                                           $display .= 'Packing a sin
     		// Clean-up
     		remove_entity_relationship($guid, 'component', $guid);                 // can't be a component of itself
     		remove_entity_relationship($guid, 'accessory', $guid);                 // can't be an accessory of itself
-/* Remove while in Development
+/* Remove writing to river while in Development
 	    	$options = array('action_type' => 'create', 
 					         'subject_guid' => elgg_get_logged_in_user_guid(), 
 					         'object_guid' => $guid,
@@ -254,6 +257,7 @@ if ($guid){                                           $display .= 'Packing a sin
 				$options['view'] = "river/object/jot/create";
 			}
 			elgg_create_river_item($options);*/
+    		break;
     	case 'component':
     		if ($contents->container_guid == $boqx_guid){ 
     			$contents->container_guid = $contents->owner_guid;
@@ -269,7 +273,7 @@ if ($guid){                                           $display .= 'Packing a sin
     		// Clean-up
     		remove_entity_relationship($guid, 'component', $guid);                 // can't be a component of itself
     		remove_entity_relationship($guid, 'accessory', $guid);                 // can't be an accessory of itself
-/* Remove while in Development	    	
+/* Remove writing to river while in Development	    	
 	    	$options = array('action_type' => 'create', 
 					         'subject_guid' => elgg_get_logged_in_user_guid(), 
 					         'object_guid' => $guid,
@@ -285,6 +289,7 @@ if ($guid){                                           $display .= 'Packing a sin
 				$options['view'] = "river/object/jot/create";
 			}
 			elgg_create_river_item($options);*/
+    		break;
     }
 }
 eof:

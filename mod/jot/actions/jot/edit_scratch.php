@@ -75,6 +75,8 @@ $now            = new DateTime(null, new DateTimeZone('America/Chicago'));
 $moment         = $jot_input['moment'] ?: $now;                                 $display .= '76 $moment = '.$moment->format('Y-m-d').'<br>';
 $boqx_type      = $jot_input['boqx'];
 $assets         = $jot_input['assets'];
+$documents      = $jot_input['documents'];
+$images         = $jot_input['images'];
 
 if ($exists){// get the jot
 	$jot = get_entity($guid);                                                    $display .= '81 $jot->guid = '.$jot->guid.'<br>';
@@ -93,13 +95,25 @@ else {       // create a new jot
 	$guid                = $jot->guid;
 }
 if($assets){                                                                     //$display .= '95 attached assets: '.print_r($assets, true).'<br>';
-	foreach($assets as $key=>$asset_guid){                                         $display .= '96 attached asset: '.get_entity($asset_guid)->title.'<br>';
-		if(!check_entity_relationship($guid, $relationship, $asset_guid)){     $display .= '97 relationship does not exists: '.$guid.' is not a '.$relationship.' to '.$asset_guid.'<br>';
-			  add_entity_relationship($guid, $relationship, $asset_guid);
-		}
-		else {                                                                     $display .= '100 relationship exists: '.$guid.' is a '.$relationship.' to '.$asset_guid.'<br>';
+	foreach($assets as $key=>$attachment_guid){                                         $display .= '96 attached asset: '.get_entity($asset_guid)->title.'<br>';
+    	if(!check_entity_relationship($guid, $relationship, $attachment_guid)){     $display .= '97 relationship does not exists: '.$guid.' is not a '.$relationship.' to '.$asset_guid.'<br>';
+      	      add_entity_relationship($guid, $relationship, $attachment_guid);
 		}
 	}
+}
+if($documents){
+    foreach($documents as $key=>$attachment_guid){
+    if(!check_entity_relationship($guid, $relationship, $attachment_guid)){
+          add_entity_relationship($guid, $relationship, $attachment_guid);
+        }
+    }
+}
+if($images){
+    foreach($images as $key=>$attachment_guid){
+    if(!check_entity_relationship($guid, $relationship, $attachment_guid)){
+          add_entity_relationship($guid, $relationship, $attachment_guid);
+        }
+    }
 }
 
 //goto eof;            

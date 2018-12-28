@@ -1,3 +1,4 @@
+<!-- Layout: quebx\views\default\page\layouts\inline.php -->
 <?php
 $guid      = elgg_extract('guid', $vars);
 $qid       = elgg_extract('qid', $vars);
@@ -15,7 +16,7 @@ $position  = elgg_extract('position', $vars, false);
 $element   = elgg_extract('element', $vars, 'qbox');
 $close_icon= elgg_view_icon('window-close',['title'=>'Close']);
 $minimize_icon = elgg_view_icon('window-minimize',['title'=>'Minimize']);
-$tabs      = elgg_extract('tabs', $vars);
+$tabs      = elgg_extract('tabs', $vars, false);
 //$close_icon= elgg_view_icon('delete',['title'=>'Close']);
 $let_edit  = elgg_extract('let_edit', $vars, false);
 $let_view  = elgg_extract('let_view', $vars, false);
@@ -48,15 +49,14 @@ else {
 							     $save_icon
 						     </a>":
                            null;*/
-$save_button = $show_save ? "<button  class='do' type='submit' id='qboxSave' data-qid='$qid' value='Save' $disabled data-perspective='save'
-                                      style='right:16px'>
+$save_button = $show_save ? "<button  class='do inlineSave inline-controls-button' type='submit' id='qboxSave' data-qid='$qid' value='Save' $disabled data-perspective='save'>
 							     $save_icon
 						     </button>":
                            null;
-$close_button = "<button class='inlineClose' type='button' id='inlineClose' data-qid='$qid' data-perspective='$perspective'>
+$close_button = "<button class='inlineClose inline-controls-button' type='button' data-qid='$qid' data-perspective='$perspective'>
 					$close_icon
 				</button>";
-$minimize_button = "<button class='inlineMinimize' type='button' id='inlineMinimize' data-qid='$qid' data-perspective='$perspective'>
+$minimize_button = "<button class='inlineMinimize inline-controls-button' type='button' data-qid='$qid' data-perspective='$perspective'>
 					$minimize_icon
 				</button>";
 /*$full_view_link = elgg_view('output/url',['text'=>elgg_view_icon('external-link',['title'=>'full view']),
@@ -85,7 +85,9 @@ if ($let_edit){
 			                                                                  'data-qid'=>$qid,
 			                                                                  'data-perspective'=>'edit',
 			                                                                  'data-presentation'=>'inline']),
-			                               'options'=>['id'=>'inlineEdit']]);
+	                                       'class'  => 'inlineEdit inline-controls-button',
+//			                               'options'=>['id'=>'inlineEdit']
+	]);
 }
 if ($let_view){
 	$edit_button = elgg_view('output/div',['content'=>elgg_view('output/url',['text'=>elgg_view_icon('file',['title'=>'View','class'=>'far']), 
@@ -98,27 +100,34 @@ if ($let_view){
 			                                                                  'data-qid'=>$qid,
 			                                                                  'data-perspective'=>'view',
 			                                                                  'data-presentation'=>'inline']),
-			                               'options'=>['id'=>'inlineView']]);
+                                    	    'class'=>'inlineView inline-controls-button',
+//                                    	    'options'=>['id'=>'inlineView']
+	]);
 }
 $full_view_link = elgg_view('output/url', $full_options);
 if ($show_full){
 	$full_button = elgg_view('output/div', ['content'=>$full_view_link,
-			                                'options'=>['id'=>'inlineFullView']]);}
+	                                        'class' => 'inlineFullView inline-controls-button',
+//			                                'options'=>['id'=>'inlineFullView']	    
+	]);}
+	if ($title && $show_title) $title = "<div class='inline-controls-title'>$title</div>";
 if (!$show_title){unset($title);}
 
 $form_body = "<div class='inline-content-expand' id='$qid'>
-				<div id='$qid' class='inline inline-visible' $pos_style role='data entry' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context'>
+				<div class='inline inline-visible' $pos_style role='data entry' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context'>
 						<div class='inlineLoadedContent'>
-							$title
+                            <div class='inline-controls'>
+    							$title
+    							$full_button
+    							$save_button
+    	                        $edit_button
+    	                        $close_button
+							</div>
 							$tabs
 							<div class='elgg-body inline-body'>
 								<div class='elgg-layout elgg-layout-default clearfix'>
                                     $content
                                 </div>
-							$full_button
-	                        $edit_button
-	                        $close_button
-							$save_button
                             </div>
 						</div>
 				</div>
