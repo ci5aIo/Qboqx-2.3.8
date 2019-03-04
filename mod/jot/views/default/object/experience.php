@@ -7,6 +7,7 @@ $experience    = elgg_extract('entity', $vars, FALSE);
 $guid          = $experience->guid;
 $qid           = elgg_extract('qid', $vars, "q{$guid}");
 $qid_n         = elgg_extract('qid_n', $vars, "{$qid}_01");
+$cid           = elgg_extract('cid', $vars);
 $container_guid= $experience->container_guid;
 $item_guid     = elgg_extract('asset', $vars, $experience->asset);
 $selected      = elgg_extract('selected', $vars);
@@ -193,8 +194,8 @@ Switch ($list_type){
                                                     'selected'       => false,
                                                     'style'          => 'display:none;',
                                                     'presentation'   =>'qbox_experience',
-                                                    'action'         => $action]);*/
-/*        $tab_vars  =                               ['subtype'        => 'experience',
+                                                    'action'         => $action]);
+        $tab_vars  =                               ['subtype'        => 'experience',
                                                     'this_section'   => 'Issue',
                                                     'state'          => 'selected',
                                                     'action'         => $action,
@@ -206,10 +207,10 @@ Switch ($list_type){
                                                     'ul_aspect'      => 'attachments',
                                                     'link_class'     => 'qbox-q qbox-menu',
                                                     'attachments'    => ['things'=>1]];
-        $tabs      =  elgg_view('quebx/menu', $tab_vars);*/
-        
+        $tabs      =  elgg_view('quebx/menu', $tab_vars);
+*/        
         $object_body = elgg_view('forms/experiences/edit',['guid'          => $guid,
-                                                       'qid'           => $qid_n,
+                                                       'qid'           => $qid,
                                                        'container_guid'=> $container_guid,
                                                        'section'       => 'main',
                                                        //'title'         => $title,
@@ -352,4 +353,4 @@ Switch ($list_type){
 }
 	
 echo $body;
-//register_error($display);
+register_error($display);

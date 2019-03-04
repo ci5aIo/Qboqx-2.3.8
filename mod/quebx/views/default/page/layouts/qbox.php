@@ -1,6 +1,7 @@
 <?php
 $guid      = elgg_extract('guid', $vars);
 $qid       = elgg_extract('qid', $vars);
+$cid       = elgg_extract('cid', $vars);
 $space     = elgg_extract('space',$vars);
 $aspect    = elgg_extract('aspect',$vars);
 $perspective=elgg_extract('perspective', $vars);
@@ -11,16 +12,38 @@ $content   = elgg_extract('content', $vars);
 $show_save = elgg_extract('show_save', $vars, true);
 $show_full = elgg_extract('show_full_view', $vars, true);
 $disable_save = elgg_extract('disable_save', $vars, false);
-$show_receive = elgg_extract('show_receive', $vars, false);                                  $display .='14 $vars[show_receive] = '.$vars['show_receive'].'<br>';                                
+$show_receive = elgg_extract('show_receive', $vars, false); 
+$show_tip  = elgg_extract('show_tip', $vars, true);                                 $display .='14 $vars[show_receive] = '.$vars['show_receive'].'<br>';                                
 $position  = elgg_extract('position', $vars, false);
-$close_icon= elgg_view_icon('window-close',['title'=>'Close']);
-$minimize_icon = elgg_view_icon('window-minimize',['title'=>'Minimize']);
-$receive_icon  = elgg_view_icon('sign-in',['title'=>'Receive']);
 //$close_icon= elgg_view_icon('delete',['title'=>'Close']);
 $let_edit = elgg_extract('let_edit', $vars, false);
 $let_view = elgg_extract('let_view', $vars, false);
 $element   = elgg_extract('element', $vars, 'qbox');
 $message   = elgg_extract('message', $vars, false);
+
+$close_icon= elgg_view_icon('window-close',['title'=>'Close']);
+$minimize_icon = elgg_view_icon('window-minimize',['title'=>'Minimize']);
+$receive_icon  = elgg_view_icon('sign-in',['title'=>'Receive']);
+
+$class        = 'qboqx-dropdown';
+$close_button = "<button type='button' id='qboxClose' data-qid='$qid' data-cid='$cid' data-perspective='$perspective'>
+                    $close_icon
+                </button>";
+if ($presentation == 'popup'){
+    if ($position == 'relative'){
+        $class_xxx       .= ' qboqx-dropdown-relative';
+        // Remove qid data from button.  Allows it to operate.
+        $close_button = "<button type='button' id='qboxClose' data-cid='$cid' data-perspective='$perspective'>
+                            $close_icon
+                         </button>";
+        unset($position);
+    }
+    if ($show_tip)
+        $class .= ' qboqx-dropdown-tip';
+   if ($vars['anchored']){
+       $class .= ' qboqx-dropdown-anchored';
+       $panel_style = "style = 'max-width:none;background: #e9e8e0'";}
+}
 if(elgg_extract('show_title', $vars, true)==true){
 	$qbox_title = "<div id='qboxTitle'>$title</div>";
 }
@@ -44,14 +67,11 @@ else {
 							     $save_icon
 						     </a>":
                            null;*/
-$save_button = $show_save ? "<button  class='do' type='submit' id='qboxSave' data-qid=$qid value='Save' $disabled data-perspective='save'>
+$save_button = $show_save ? "<button  class='do' type='submit' id='qboxSave' data-qid='$qid' data-cid='$cid' value='Save' $disabled data-perspective='save'>
 							     $save_icon
 						     </button>":
                            null;
-$close_button = "<button type='button' id='qboxClose' data-qid=$qid data-perspective='$perspective'>
-					$close_icon
-				</button>";
-$minimize_button = "<button type='button' id='qboxMinimize' data-qid=$qid data-perspective='$perspective'>
+$minimize_button = "<button type='button' id='qboxMinimize' data-qid='$qid' data-cid='$cid' data-perspective='$perspective'>
 					$minimize_icon
 				</button>";
 switch ($space){case 'market':  $plugin = 'market';break;
@@ -109,7 +129,32 @@ if ($message){
 	$msg = elgg_view('output/div', ['content'=>$message,
 			                        'class'  =>'message-stamp']);
 }
-$form_body = "<div id=$qid class='qbox qbox-visible ui-moveable' $pos_style role='data entry' tabindex='-1' data-space='$space' data-aspect='$aspect' data-perspective='$perspective' data-context = '$context'>
+switch ($presentation){
+    case 'popup':
+        $form_body = "<div id='$cid' class='$class'>
+                        <div class='qboqx-dropdown-panel' $panel_style>
+                            <div>
+                                <div id='qboxContent' style='float:none;background: #e9e8e0;'>
+                                    $qbox_title
+                                    $msg
+                                    <div id='qboxLoadedContent'>
+                                        <div>
+                                            <div class='elgg-body qbox-body'>
+                                                <div class='elgg-layout elgg-layout-default clearfix'>
+                                                    $content
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    $full_button
+                                    $close_button
+                                </div>
+                            </div>
+                        </div>
+                     </div>";
+        break;
+    default:
+    $form_body = "<div id='$qid' class='qbox qbox-visible ui-moveable' $pos_style role='data entry' tabindex='-1' data-space='$space' data-aspect='$aspect' data-perspective='$perspective' data-context = '$context'>
 				<div id='qboxWrapper'>
 					<div>
 						<div id='qboxContent'>
@@ -134,5 +179,6 @@ $form_body = "<div id=$qid class='qbox qbox-visible ui-moveable' $pos_style role
 					</div>
 				</div>
 			</div>";
+     }
 echo $form_body;
 //echo register_error($display);

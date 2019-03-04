@@ -12,13 +12,14 @@ define(function(require) {
        e.preventDefault();
 
        var ajax = new Ajax();
-       var $this = $(this);
+       var $this = $(this),
+           presence = $(this).data('presence');
        var $receipt_card = $('div.qbox#'+qid);
        var element = $(this).attr("data-element");
        var guid     = $(this).attr("guid") || $(this).attr("data-guid");
        var qid      = $(this).attr("data-qid");
-       var cid      = $(this).attr("data-cid");
-       var parent_cid = $(this).parents('.edit.details[data-guid='+guid+']').attr('data-cid');
+       var cid      = $(this).attr("data-cid") || "c"+Math.floor((Math.random()*999)+1);
+       var parent_cid = $(this).parents('.edit.details').attr('data-cid');
 	   if (typeof parent_cid == 'undefined')
 	       parent_cid = $(this).attr('data-parent-cid');
        var rows     = +($(this).attr("data-rows")),
@@ -33,10 +34,15 @@ define(function(require) {
        }
        var n          = (rows + 1);
        var x          = (lastRow + 1);
-       var qid_n      = qid+'_'+n;
+       var qid_n;
+       if (typeof qid != 'undefined')
+    	   qid_n      = qid+'_'+x;
+       else qid_n     = cid+'_'+x;
+	   new_line_items   = cid+'_new_line_items'
+	   new_property_cards = cid+'_line_item_property_cards'
        switch (element){
 	       case 'new_receipt_item':
-	    	   property_element = 'properties';
+	    	   property_element = 'properties_receipt_item';
 	       break;
 	       case 'new_service_item':
 	    	   property_element = 'properties_service_item';
@@ -60,6 +66,7 @@ define(function(require) {
     		 cid: cid,
     		 parent_cid: parent_cid,
     		 n: x,
+    		 presence: presence
     	   },
        }).done(function(output) {
     	   $('div#'+new_line_items).before($(output));
@@ -74,9 +81,10 @@ define(function(require) {
     		 cid: cid,
     		 parent_cid: parent_cid,
     		 n: x,
+    		 presence: presence
     	   },
        }).done(function(property_card) {
-    	   $('div#'+new_property_cards).after($(property_card));
+    	   $('div#'+new_property_cards).append($(property_card));
        }).success(function(){
     	   $this.attr("data-rows", n);
 	       $this.attr("data-last-row", x);
@@ -105,7 +113,7 @@ define(function(require) {
            $show_panel  = $(this).parents('.ServiceEffort__26XCaBQk').find('.TaskShow___2LNLUMGe'),
            $add_panel   = $(this).parents('.ServiceEffort__26XCaBQk').find('.AddSubresourceButton___2PetQjcb'),
            ajax         = new Ajax(),
-           new_cid      = "c"+Math.floor((Math.random()*200)+1),
+           new_cid      = "c"+Math.floor((Math.random()*999)+1),
            property_element = 'properties_service_item';
        var eggs = parseInt($('span.tasks-count[data-cid='+parent_cid+']').attr('eggs'), 10);
        if (isNaN(eggs)){eggs = 0;}
@@ -145,12 +153,160 @@ define(function(require) {
            $this_panel.hide();
        }
    });
+   $(document).on('click', '.ReceiptEdit__submit___6pelZHn', function(e){
+       e.preventDefault();
+       var cid          = $(this).attr("data-cid"),
+       	   parent_cid   = $(this).parents('.edit.details').attr('data-cid'),
+           qid          = $(this).attr("data-qid"),
+           state        = $(this).attr('data-aid').replace('ReceiptButton',''),
+           egg          = $(this).hasClass('egg');
+       var service_name = $(this).parents('.TaskEdit__descriptionContainer___3NOvIiZo').find("textarea[data-focus-id=NameEdit--"+cid+"]").val();
+       var service_desc = $(this).parents('.TaskEdit__descriptionContainer___3NOvIiZo').find("textarea[data-focus-id=ServiceEdit--"+cid+"]").val();
+       var service_items= $(this).parents('.TaskEdit__descriptionContainer___3NOvIiZo').find("a.new-item").attr('data-rows'),
+           show_service = true,
+           show_desc    = true;
+       if (typeof service_name == 'undefined')
+    	   show_service = false;
+       if (typeof service_desc == 'undefined')
+           show_desc    = false;
+       var this_element = $(this),
+   	       $this_panel  = $(this).parents('.TaskEdit___1Xmiy6lz'),
+           $container   = $(this).parents('.ServiceEffort__26XCaBQk').parent(),
+           $show_panel  = $(this).parents('.ServiceEffort__26XCaBQk').find('.TaskShow___2LNLUMGe'),
+           $add_panel   = $(this).parents('.ServiceEffort__26XCaBQk').find('.AddSubresourceButton___2PetQjcb'),
+           ajax         = new Ajax(),
+           new_cid      = "c"+Math.floor((Math.random()*999)+1),
+           property_element = 'properties_service_item';
+       var eggs = parseInt($('span.receipts-count[data-cid='+parent_cid+']').attr('eggs'), 10);
+       if (isNaN(eggs)){eggs = 0;}
+       console.log('cid: '+cid);
+       console.log('parent_cid: '+parent_cid);
+       console.log('service_name: '+service_name);
+       console.log('state: '+state);
+       if (show_service){
+    	   if (!show_desc){service_desc='Describe the service';}
+           $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+service_name+'</p>');
+           $show_panel.find('.TaskShow__description___qpuz67f').html('<p>'+service_desc+'</p>');
+           $show_panel.show();
+           $show_panel.find('button.IconButton___2y4Scyq6').show();
+           $this_panel.hide();
+           if (state=='add'){
+        	   $(this).attr('data-aid', 'saveReceiptButton');
+        	   $(this).html('Save');
+	           ajax.view('partials/jot_form_elements',{
+		    	   data: {
+		    		   element: 'new_receipt',
+		    		   cid: new_cid,
+		    		   parent_cid: parent_cid,
+		    		   qid: qid
+		    	   },
+		       }).done(function(output) {
+		    	   $container.append($(output));
+		       }).success(function(){
+		    	   if (egg){
+	                 	$('span.receipts-count[data-cid='+parent_cid+']').attr('eggs', ++eggs);
+	                 	$(this_element).removeClass('egg');
+	                 }
+		       });
+           }
+       }
+       else {
+           $add_panel.show();
+           $this_panel.hide();
+       }
+   });
+   $(document).on('click', '.ReceiptAdd__submit___lS0kknw9', function(e){
+       e.preventDefault();
+       var cid          = $(this).attr("data-cid"),
+       	   parent_cid   = $(this).parents('.add.details').attr('data-cid'),
+           qid          = $(this).attr("data-qid"),
+           state        = $(this).attr('data-aid').replace('ReceiptButton',''),
+           egg          = $(this).hasClass('egg');
+       var service_items= $(this).parents('.TaskEdit__descriptionContainer___3NOvIiZo').find("a.new-item").attr('data-rows'),
+           show_merchant= true,
+           show_receipt = true;
+       var this_element = $(this),
+   	       $this_panel  = $(this).parents('.TaskEdit___1Xmiy6lz'),
+   	       $boqx        = $(this).parents('.ServiceEffort__26XCaBQk');
+       var $pallet      = $boqx.parent(),
+           $show_panel  = $boqx.find('.TaskShow___2LNLUMGe'),
+           $add_panel   = $boqx.find('.AddSubresourceButton___2PetQjcb'),
+           ajax         = new Ajax(),
+           new_cid      = "c"+Math.floor((Math.random()*999)+1),
+           property_element = 'properties_service_item'
+           points       = 0;
+       var eggs         = parseInt($('span.receipts-count[data-cid='+parent_cid+']').attr('eggs'), 10);
+       var receipt_name = $this_panel.find("textarea[data-focus-id=NameEdit--"+cid+"]").val() || '[no receipt name]',
+//           merchant     = $this_panel.find('h3.elgg-listing-summary-title').text() || $this_panel.find('input.elgg-input-group-picker').val(),
+           merchant     = $this_panel.find('ul.elgg-group-picker-list').children('li').find('.elgg-body').text() || $this_panel.find('input.elgg-input-group-picker').val() || '[no merchant selected]',
+           receipt_total= $this_panel.find('#'+cid+'_total').text() || '$0.00';
+           receipt_total_raw= $this_panel.find('.'+cid+'_total_raw').text();
+         if (typeof receipt_name  != 'undefined' && receipt_name.length  > 0) points++;
+         if (typeof merchant      != 'undefined' && merchant.length      > 0) points++;
+         if (typeof receipt_total != 'undefined' && receipt_total.length > 0 && parseFloat(receipt_total_raw)>0) points++;
+/*       if (typeof receipt_name  != 'undefined' && receipt_name.length  > 0 &&
+    	   typeof merchant      != 'undefined' && merchant.length      > 0 &&
+    	   typeof receipt_total != 'undefined' && receipt_total.length > 0 && parseFloat(receipt_total_raw)>0 )
+    	   show_receipt = true;
+       if (typeof merchant == 'undefined')
+           show_merchant    = false;
+*/       if (isNaN(eggs)){eggs = 0;}
+       console.log('cid: '+cid);
+       console.log('parent_cid: '+parent_cid);
+       console.log('receipt_name: '+receipt_name);
+       console.log('state: '+state);
+       console.log('merchant: '+merchant);
+       console.log('receipt_total: '+receipt_total);
+       console.log('points: '+points);
+       if (show_receipt){
+    	   //if (!show_merchant){merchant='No merchant selected';}
+           $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+receipt_name+'</p>');
+           $show_panel.find('.TaskShow__description___qpuz67f').html('<p>'+merchant+'</p>');
+           $show_panel.find('.TaskShow__service_items___2wMiVig').html('<p>'+receipt_total+'</p>');
+           $show_panel.show();
+           $show_panel.find('button.IconButton___2y4Scyq6').show();
+           if (points > 0 && points < 3){
+        	   $boqx.attr('boqx-fill-level', 'partial');
+        	   $boqx.find('input[data-focus-id = "FillLevel--'+cid+'"]').val('partial');
+           }
+           if (points >= 3){
+        	   $boqx.attr('boqx-fill-level', 'full');
+        	   $boqx.find('input[data-focus-id="FillLevel--'+cid+'"]').val('full');
+           }
+           $this_panel.hide();
+           if (state=='add'){
+        	   $(this).attr('data-aid', 'saveReceiptButton');
+        	   $(this).html('Save');
+	           ajax.view('partials/jot_form_elements',{
+		    	   data: {
+		    		   element: 'new_receipt',
+		    		   cid: new_cid,
+		    		   parent_cid: parent_cid,
+		    		   qid: qid
+		    	   },
+		       }).done(function(output) {
+		    	   $pallet.append($(output));
+		       }).success(function(){
+		    	   if (egg){
+	                 	$('span.receipts-count[data-cid='+parent_cid+']').attr('eggs', ++eggs);
+	                 	$(this_element).removeClass('egg');
+	                 }
+		       });
+           }
+       }
+       else {
+           $add_panel.show();
+           $this_panel.hide();
+           $boqx.attr('boqx-fill-level', 'empty');
+       }
+   });
    // Remedies>Effort
    $(document).on('click', '.EffortEdit__submit___CfUzEM7s', function(e){
        e.preventDefault();
-       var cid          = $(this).attr("data-cid"),
-           qid          = $(this).attr("data-qid"),
-           state        = $(this).attr('data-aid').replace('EffortButton','')
+       var cid          = $(this).data('cid'),
+           qid          = $(this).data('qid'),
+           parent_cid   = $(this).data('parent-cid');
+           state        = $(this).attr('data-aid').replace('EffortButton',''), // 'data-aid changes. use attr() to retrieve.
            show_effort  = true,
            egg          = $(this).hasClass('egg');
        var this_element = $(this),
@@ -160,10 +316,10 @@ define(function(require) {
            $add_panel  = $(this).parents('.Effort__CPiu2C5N').children('.AddSubresourceButton___S1LFUcMd');
        var effort_name = $this_panel.find("textarea[data-focus-id=NameEdit--"+cid+"]").val();
        var ajax         = new Ajax(),
-           new_cid      = "c"+Math.floor((Math.random()*200)+1),
-           service_cid  = "c"+Math.floor((Math.random()*200)+1),
+           new_cid      = "c"+Math.floor((Math.random()*999)+1),
+           service_cid  = "c"+Math.floor((Math.random()*999)+1),
            property_element = 'properties_service_item';
-       var eggs = parseInt($('span.efforts-eggs[data-qid='+qid+']').attr('eggs'), 10);
+       var eggs = parseInt($('span.efforts-eggs[data-cid='+parent_cid+']').attr('eggs'), 10);
        if (isNaN(eggs)){eggs = 0;}
        console.log('cid: '+cid);
        console.log('service_cid'+service_cid);
@@ -192,6 +348,7 @@ define(function(require) {
 	           ajax.view('partials/jot_form_elements',{
 		    	   data: {
 		    		   element: 'new_remedy_item',
+		    		   parent_cid: parent_cid,
 		    		   cid: new_cid,
 		    		   service_cid: service_cid,
 		    		   qid: qid
@@ -199,9 +356,9 @@ define(function(require) {
 		       }).done(function(output) {
 		    	   $container.append($(output));
 		       }).success(function(){
-		    	   $('span.qbox-menu[data-qid='+qid+']').show();
+//		    	   $('span.qbox-menu[data-qid='+qid+']').show();
 	               if (egg){
-	                 	$('span.efforts-eggs[data-qid='+qid+']').attr('eggs', ++eggs);
+	                 	$('span.efforts-eggs[data-cid='+parent_cid+']').attr('eggs', ++eggs);
 	                 	$(this_element).removeClass('egg');
 	                 }
 		       });
@@ -211,6 +368,31 @@ define(function(require) {
            $add_panel.show();
            $this_panel.hide();
        }
+   });
+   $(document).on('click', '.ThingsBundle__submit___q0kFhFBf_xxx', function(e){
+	  e.preventDefault();
+	  var ajax         = new Ajax(),
+	      form         = $(this).parents('form');
+	  var formData     = $(form).serialize(),
+	      action       = $(form).attr('action'),
+		  method       = $(form).attr('method'),
+		  edit_boqx    = $(form).find('.EffortEdit_fZJyC62e'),
+		  add_boqx     = $(form).find('.AddSubresourceButton___S1LFUcMd');
+	  console.log('action: '+action);
+	  console.log('method: '+method);
+	  console.log('formData: ',formData);
+	  $(form).trigger('reset');
+	  $(edit_boqx).hide();
+	  $(add_boqx).show();
+	  $.ajax({
+		    type: 'POST',
+		    url: action,
+		    data: formData
+		}).done(function(response) {
+//			alert('done');
+		}).fail(function(data) {
+//			alert('failed');
+		});		
    });
    $(document).on('click', 'a.jot-q', function(e) {
        e.preventDefault();
@@ -224,8 +406,8 @@ define(function(require) {
            presentation= $(this).data("presentation"),
            action     = $(this).data("action");
        if (perspective == 'add' || action == 'add'){
-    	   qid        = "q"+Math.floor((Math.random()*200)+1);                 // allow multiple forms for new jots
-    	   cid        = "c"+Math.floor((Math.random()*200)+1);                 // allow multiple forms for new jots
+    	   qid        = "q"+Math.floor((Math.random()*999)+1);                 // allow multiple forms for new jots
+    	   cid        = "c"+Math.floor((Math.random()*999)+1);                 // allow multiple forms for new jots
        }
 	   var qbox_exists = $('div.qbox-content-expand#'+qid).length>0;
 	   if (!qbox_exists){
@@ -256,7 +438,7 @@ define(function(require) {
 	   }
    
 	   if(qbox_exists){
-        	if (!selected){
+    	if (!selected){
         	   $(this).parents('div.quebx-menu-q').children('div.qbox-content-expand').hide();
         	   $(this).parents('div.quebx-menu-q').children('div.qbox-container').hide();
         	   $('div.qbox-content-expand#'+qid).show();
@@ -332,7 +514,7 @@ define(function(require) {
        var guid       = $(this).attr('guid');
        var card_qid   = $(this).parents('ul').attr('qid');
            cid        = $(this).data('cid');
-           service_cid= "c"+Math.floor((Math.random()*200)+1);
+           service_cid= "c"+Math.floor((Math.random()*999)+1);
        var qbox       = $('div[data-cid='+cid+']'),
            qbox_exists;
        var section_remove = $(this).parent().children('.qbox-section-remove'),
@@ -345,7 +527,7 @@ define(function(require) {
 	   var section    = $(this).data('section');
 	   var this_element = $(this);
 	   if (typeof cid == 'undefined')
-		   cid        = "c"+Math.floor((Math.random()*200)+1);
+		   cid        = "c"+Math.floor((Math.random()*999)+1);
        qbox_exists= qbox.length>0;
        if (typeof qbox == 'undefined')
 	       qbox_exists = false;
@@ -436,31 +618,75 @@ define(function(require) {
     	   console.log('+jot_form_elements.a.qbox-q>success');
        });
    });
-   $(document).on('click', 'div.AddSubresourceButton___k1dvTuKc', function(e){
+   $(document).on('click', 'div.AddSomethingButton___k1dvTuKc', function(e){
 	   var ajax       = new Ajax(),
            element    = $(this).data('element'),
            this_element = $(this),
            guid       = $(this).data('guid'),
            qid        = $(this).data('qid'),
-           cid        = $(this).data('cid'),
+//           cid        = $(this).data('cid'),
+           cid        = "c"+Math.floor((Math.random()*999)+1);
+           parent_cid = $(this).parents('div[panel="Things"]').attr('parent-cid'),
            aspect     = $(this).data('aspect'),
            action     = $(this).data('action'),
-           section    = $(this).data('section');
+           perspective= $(this).data('perspective'),
+           presence   = $(this).data('presence'),
+           section    = $(this).data('section'),
+           position   = $(this).data('position'),
+           anchored   = $(this).data('anchored'),
+           message    = $(this).find('.AddSomethingButton__message___2vsNCBXi').html();
+	   var hoffset_container,
+	       voffset_container,
+	       hoffset,
+	       voffset
+	   if (anchored == 'anchored'){
+		   hoffset = 0;
+		   voffset = 0;
+	   }
+	   else {
+	       hoffset_container = $(this_element).parents('div.qboqx-dropdown').css('left') || false,
+           voffset_container = $(this_element).parents('div.qboqx-dropdown').css('top') || false;
+           hoffset    = hoffset_container || $(this_element).offset().left + parseInt($(this).attr('data-horizontal-offset') || 0, 10),
+           voffset    = voffset_container || $(this_element).offset().top + $(this_element).outerHeight() + parseInt($(this_element).attr('data-vertical-offset') || -100, 10);
+	   }
+       qbox_exists    = $('div.qboqx-dropdown#'+cid).length>0;
+
+       console.log('cid: ' + cid);
+       console.log('parent_cid: ' + parent_cid);
+	   console.log('perspective: ' + perspective);
+	   console.log('message: ' + message);
+
+	   if(qbox_exists){
+		   $('div.qboqx-dropdown#'+cid).show();
+		   $('div.qboqx-dropdown#'+cid).css('left',hoffset);
+		   $('div.qboqx-dropdown#'+cid).css('top',voffset);
+			return true;
+	   }
        ajax.view('partials/jot_form_elements',{
     	   data: {
-    		 element: element,
-    		 guid: guid,
-    		 qid: qid,
-    		 cid: cid,
-    		 aspect: aspect,
-    		 action: action,
-    		 section: section
+    		 element    : element,
+    		 guid       : guid,
+    		 qid        : qid,
+    		 cid        : cid,
+    		 aspect     : aspect,
+    		 action     : action,
+    		 perspective: perspective,
+    		 presence   : presence,
+    		 section    : section,
+    		 message    : message
     	   },
        }).done(function(output) {
-    	   $('div.qbox-'+guid+'.qbox-details').append($(output));
-    	   $(this_element).colorbox.resize();
-		   $('#cboxLoadedContent').css('overflow', 'visible');
-//		   $('ul.qbox-'+guid+'[aspect=attachments]').after($(output));
+//    	   $('.qboqx#'+qid).append($(output));
+    	   if (presence == 'popup'){
+	    	   $('.qboqx#'+qid).find('.jotboqx').append($(output));
+    	   }
+    	   if (presence == 'qbox_experience'){
+//    		   $('body').append($(output));
+    		   $('.inline-content-expand[data-qid='+qid+']').find('.inlineLoadedContent').append($(output));
+    	   }
+		   $('div.qboqx-dropdown#'+cid).show();
+		   $('div.qboqx-dropdown#'+cid).css('left',hoffset);
+		   $('div.qboqx-dropdown#'+cid).css('top',voffset);
 	   });   
 	});
    $(document).on('click', 'button.do[data-perspective=save]', function(e){
@@ -630,6 +856,7 @@ define(function(require) {
 	   console.log('qid_n: '+qid_n);
 	   console.log('perspective: '+perspective);
 	   console.log('presentation: '+presentation);
+	   console.log('presence: '+presence);
 	   console.log('space: '+space);
 	   console.log('aspect: '+aspect);
 	   console.log('element: '+element);
@@ -688,34 +915,82 @@ define(function(require) {
 	   //perspective == 'view'
 		   case 'view':
 			   switch (element){
-	   //perspective == 'view'; element == 'qbox';
-			   case 'qbox':
-	   //perspective == 'view'; element == 'market';
-			   case 'market':
-				   var qbox_exists = $('div#'+qid+'[data-perspective='+perspective+']').length>0;
-			       var qbox_visible = $('div.qbox-visible#'+qid).length>0; // Another qbox is visible.
-			       if (!qbox_visible){
-			    	   var qbox_visible = $('div.inline-visible#'+qid).length>0; // Another qbox is visible.
-			       }
-				   console.log('qbox_exists: '+qbox_exists);
-				   console.log('qbox_visible: '+qbox_visible);
-//				   if (context == 'market'){
-				   if(qbox_visible){
-					   console.log('visible perspective: '+$('div.qbox-visible#'+qid).data('perspective'));
-					   if($('div.qbox-visible#'+qid).data('perspective') == perspective ||
-						  $('div.inline-visible#'+qid).data('perspective') == perspective){
-						   return true;                                    // Do nothing.  This qbox is visible.
+		   //perspective == 'view'; element == 'qbox';
+				   case 'qbox':
+		   //perspective == 'view'; element == 'market';
+				   case 'market':
+					   var qbox_exists = $('div#'+qid+'[data-perspective='+perspective+']').length>0;
+				       var qbox_visible = $('div.qbox-visible#'+qid).length>0; // Another qbox is visible.
+				       if (!qbox_visible){
+				    	   var qbox_visible = $('div.inline-visible#'+qid).length>0; // Another qbox is visible.
+				       }
+					   console.log('qbox_exists: '+qbox_exists);
+					   console.log('qbox_visible: '+qbox_visible);
+	//				   if (context == 'market'){
+					   if(qbox_visible){
+						   console.log('visible perspective: '+$('div.qbox-visible#'+qid).data('perspective'));
+						   if($('div.qbox-visible#'+qid).data('perspective') == perspective ||
+							  $('div.inline-visible#'+qid).data('perspective') == perspective){
+							   return true;                                    // Do nothing.  This qbox is visible.
+						   }
+						   $('div.qbox-content-expand#'+qid).remove();
+						   $('div.inline-content-expand#'+qid).remove();
 					   }
-					   $('div.qbox-content-expand#'+qid).remove();
-					   $('div.inline-content-expand#'+qid).remove();
-				   }
-				   if(qbox_exists){
-						    $('div#'+qid+'[data-perspective='+perspective+']').parents('div.qbox-content-expand#'+qid).show();
-					   		$('div#'+qid+'[data-perspective='+perspective+']').show();
-					   		$('div#'+qid+'[data-perspective='+perspective+']').addClass('qbox-visible');
-					   		return true;
+					   if(qbox_exists){
+							    $('div#'+qid+'[data-perspective='+perspective+']').parents('div.qbox-content-expand#'+qid).show();
+						   		$('div#'+qid+'[data-perspective='+perspective+']').show();
+						   		$('div#'+qid+'[data-perspective='+perspective+']').addClass('qbox-visible');
+						   		return true;
+						   }
+	//				   }
+						   ajax.view('partials/jot_form_elements',{
+					    	   data: {
+					    		 element: element,
+					    		 guid: guid,
+					    		 qid: qid,
+					    		 qid_n: qid_n,
+					    		 space: space,
+					    		 aspect: aspect,
+					    		 action: perspective,
+					    		 perspective: perspective,
+					    		 presentation: presentation,
+					    		 context: context,
+					             compartment: compartment,
+					             view_type: view_type
+					    	   },
+					       }).done(function(output) {
+					    	   //$('table.ledger-'+guid).after($(output));
+					    	   switch (context){
+						    	   case "widgets":
+						    		   console.log('context: '+context);
+						    		   $('table.ledger-'+guid).after($(output));
+							    	   break;
+						    	   case "market":
+					    		      $(this_container).append($(output));
+						    		   break;
+						    	   case "inline":
+									   $(this_container).append($(output));
+									   break;
+								   case "maximized":
+						    		   $(maximized_container).prepend($(output));
+						    		   break;
+							   };
+					       });
+						   break;
+		   //perspective == 'view'; element == 'popup';
+				   case "popup":
+					   var hoffset_container = $(this_element).parents('div.jq-dropdown').css('left') || false,
+			               voffset_container = $(this_element).parents('div.jq-dropdown').css('top') || false;
+				       var hoffset = hoffset_container || $(this_element).offset().left + parseInt($(this).attr('data-horizontal-offset') || 0, 10),
+				           voffset = voffset_container || $(this_element).offset().top + $(this_element).outerHeight() + parseInt($(this_element).attr('data-vertical-offset') || 0, 10);
+				       qbox_exists = $('div.jq-dropdown#'+qid).length>0;
+					   
+				       $(this_element).parents('div.jq-dropdown').hide();
+						   
+					   if(qbox_exists){
+						   $('div.jq-dropdown#'+qid).show();
+							return true;
 					   }
-//				   }
 					   ajax.view('partials/jot_form_elements',{
 				    	   data: {
 				    		 element: element,
@@ -724,97 +999,51 @@ define(function(require) {
 				    		 qid_n: qid_n,
 				    		 space: space,
 				    		 aspect: aspect,
-				    		 action: perspective,
 				    		 perspective: perspective,
 				    		 presentation: presentation,
 				    		 context: context,
-				             compartment: compartment,
+	//			             compartment: compartment,
 				             view_type: view_type
 				    	   },
 				       }).done(function(output) {
-				    	   //$('table.ledger-'+guid).after($(output));
-				    	   switch (context){
-					    	   case "widgets":
-					    		   console.log('context: '+context);
-					    		   $('table.ledger-'+guid).after($(output));
-						    	   break;
-					    	   case "market":
-				    		      $(this_container).append($(output));
-					    		   break;
-					    	   case "inline":
-								   $(this_container).append($(output));
-								   break;
-							   case "maximized":
-					    		   $(maximized_container).prepend($(output));
-					    		   break;
-						   };
+						   $('body').append($(output));
+						   $('div.jq-dropdown#'+qid).show();
+						   $('div.jq-dropdown#'+qid).css('left',hoffset);
+						   $('div.jq-dropdown#'+qid).css('top',voffset);
 				       });
 					   break;
-	   //perspective == 'view'; element == 'popup';
-			   case "popup":
-				   var hoffset_container = $(this_element).parents('div.jq-dropdown').css('left') || false,
-		               voffset_container = $(this_element).parents('div.jq-dropdown').css('top') || false;
-			       var hoffset = hoffset_container || $(this_element).offset().left + parseInt($(this).attr('data-horizontal-offset') || 0, 10),
-			           voffset = voffset_container || $(this_element).offset().top + $(this_element).outerHeight() + parseInt($(this_element).attr('data-vertical-offset') || 0, 10);
-			       qbox_exists = $('div.jq-dropdown#'+qid).length>0;
-				   
-			       $(this_element).parents('div.jq-dropdown').hide();
-					   
-				   if(qbox_exists){
-					   $('div.jq-dropdown#'+qid).show();
-						return true;
-				   }
-				   ajax.view('partials/jot_form_elements',{
-			    	   data: {
-			    		 element: element,
-			    		 guid: guid,
-			    		 qid: qid,
-			    		 qid_n: qid_n,
-			    		 space: space,
-			    		 aspect: aspect,
-			    		 perspective: perspective,
-			    		 presentation: presentation,
-			    		 context: context,
-//			             compartment: compartment,
-			             view_type: view_type
-			    	   },
-			       }).done(function(output) {
-					   $('body').append($(output));
-					   $('div.jq-dropdown#'+qid).show();
-					   $('div.jq-dropdown#'+qid).css('left',hoffset);
-					   $('div.jq-dropdown#'+qid).css('top',voffset);
-			       });
-				   break;
-			//perspective == 'view'; element == 'compartment';
-			   case 'compartment':
-				   if(qbox_compartment_visible && context == 'inline'){
-					   if($('div.inline-compartment-visible#'+qid_n).data('perspective') == perspective){
-						   return true;                                    // Do nothing.
+				//perspective == 'view'; element == 'compartment';
+				   case 'compartment':
+					   if(qbox_compartment_visible && context == 'inline'){
+						   if($('div.inline-compartment-visible#'+qid_n).data('perspective') == perspective){
+							   return true;                                    // Do nothing.
+						   }
+						   $('div.inline-compartment-visible').removeClass('inline-compartment-visible');
 					   }
-					   $('div.inline-compartment-visible').removeClass('inline-compartment-visible');
-				   }
-				   if(qbox_compartment_exists && context == 'inline'){
-					    $('div.inline-content-expand#'+qid).show();
-				   		$('div#'+qid_n+'[data-perspective='+perspective+']').addClass('inline-compartment-visible');
-				   		$(this).parents('ul').find('li').removeClass('elgg-state-selected');
-				   		$(this).parent('li').addClass('elgg-state-selected');
-				   		return true;
+					   if(qbox_compartment_exists && context == 'inline'){
+						    $('div.inline-content-expand#'+qid).show();
+					   		$('div#'+qid_n+'[data-perspective='+perspective+']').addClass('inline-compartment-visible');
+					   		$(this).parents('ul').find('li').removeClass('elgg-state-selected');
+					   		$(this).parent('li').addClass('elgg-state-selected');
+					   		return true;
+					   }
+					   
+					   break;
 				   }
 				   
 				   break;
-			   }
-			   
-			   break;
-	   //perspective == 'edit';
+		   //perspective == 'edit';
 		   case 'edit':
 			   switch (element){
 				   case 'qbox':
+					   	var qbox = $('div#'+qid+'[data-perspective='+perspective+']');
 				//perspective == 'edit'; element == 'qbox';
 				   case 'market':
 				//perspective == 'edit'; element == 'market';
-					   var qbox_exists = $('div#'+qid+'[data-perspective='+perspective+']').length>0;
-				       var qbox_visible = $('div.qbox-visible#'+qid).length>0; // Another qbox is visible.
-				       
+					   if (typeof qbox != 'undefined'){
+						   var qbox_exists = qbox.length>0;
+						   var qbox_visible = $('div.qbox-visible#'+qid).length>0; // Another qbox is visible.
+					   }
 				       if (!qbox_visible){
 				    	   var qbox_visible = $('div.inline-visible#'+qid).length>0; // Another qbox is visible.
 				       }
@@ -830,10 +1059,10 @@ define(function(require) {
 						   $('div.inline-content-expand#'+qid).remove();
 					   }
 					   if(qbox_exists){
-						    $('div#'+qid+'[data-perspective='+perspective+']').parents('div.qbox-content-expand#'+qid).show();
-					   		$('div#'+qid+'[data-perspective='+perspective+']').show();
-					   		$('div#'+qid+'[data-perspective='+perspective+']').addClass('qbox-visible');
-					   		return true;
+						    qbox.parents('div.qbox-content-expand#'+qid).show();
+						    qbox.show();
+						    qbox.addClass('qbox-visible');
+					   		return true;                                      // Show and do nothing more.
 					   }
 					   ajax.view('partials/jot_form_elements',{
 				    	   data: {
@@ -906,12 +1135,12 @@ define(function(require) {
 				       qbox_exists = $('div.jq-dropdown#'+qid).length>0;
 					   
 					   //$(this_element).parents('div.jq-dropdown').hide();
-					   
-				       if(qbox_exists){
+					   console.log('perspective: '+perspective);
+/*				       if(qbox_exists){
 						   $('div.jq-dropdown#'+qid).show();
 							return true;
 					   }
-					   ajax.view('partials/jot_form_elements',{
+*/					   ajax.view('partials/jot_form_elements',{
 				    	   data: {
 				    		 element: element,
 				    		 guid: guid,
@@ -922,11 +1151,12 @@ define(function(require) {
 				    		 aspect: aspect,
 				    		 perspective: perspective,
 				    		 presentation: presentation,
+				    		 presence: presence,
 				    		 context: context,
 				             compartment: compartment
 				    	   },
 				       }).done(function(output) {
-				    	   if (presence = element){        //The element originated from a popup
+				    	   if (presence == element){        //The element originated from a popup
 				    		   $this.
 					    	   parents('.elgg-layout.elgg-layout-default').
 						    	  html($(output));
@@ -1098,7 +1328,6 @@ define(function(require) {
 		   $("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").attr('data-count', ++item_count);
 		   $("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").html(" ("+item_count+")");
    });
-
 });
 
 function filterList() {

@@ -1,6 +1,6 @@
 <!--View: market/views/default/forms/market/edit/individual.php  -->
 <?php
-$guid = $vars['guid'];
+$guid = elgg_extract('guid', $vars, false);
 $entity = get_entity($guid);
 
 if (empty($entity->frequency_units)){
@@ -23,18 +23,21 @@ else {
  *
  */
 $current_visibility_choices = $entity->visibility_choices;
+if (elgg_entity_exists($guid)) $visibility_value = $entity->visibility_choices;
+else                           $visibility_value = 'show';
 
 $visibility_choices = array(
 	'align'    => 'horizontal',
-	'value'    => $entity->visibility_choices,
-	'default'  => true,
+	'value'    => $visibility_value,
+	'default'  => 'show',
 	'disabled' => false,
-	'options'  => array('Hide from Catalog'=>'hide_in_catalog'),
+//    'label'   => 'Hide from catalog',
+	'options'  => ['Show in catalog'=>'show', 'Hide from Catalog'=>'hide'],
 	'name'     => 'item[visibility_choices]',
     'style'    => 'font-weight:normal',
 );
 
-$visibility = elgg_view('input/checkboxes', $visibility_choices);
+$visibility = elgg_view('input/radio', $visibility_choices);
 
 /*
 $individual_content .= "
@@ -198,7 +201,7 @@ $individual_content .= "<div class='rTable' style='width:100%'>
 			</div>
 			<div class='rTableRow'>
 				<div class='rTableCell' style='width:20%;padding:0px 5px'>Access</div>
-				<div class='rTableCell' style='width:80%;padding:0px 5px'>".elgg_view('input/access', array('name' => 'access_id','value' => $access_id))."</div>
+				<div class='rTableCell' style='width:80%;padding:0px 5px'>".elgg_view('input/access', array('name' => 'item[access_id]','value' => $access_id))."</div>
 			</div>
 			<div class='rTableRow'>
 				<div class='rTableCell' style='width:20%;padding:0px 5px'>Visibility</div>

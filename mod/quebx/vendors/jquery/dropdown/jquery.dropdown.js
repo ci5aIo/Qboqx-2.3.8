@@ -115,7 +115,7 @@ if (jQuery) (function ($) {
         var targetGroup = event ? $(event.target).parents().addBack() : null;
 
         // Are we clicking anywhere in a jq-dropdown?
-        if (targetGroup && targetGroup.is('.jq-dropdown')) {
+        if (targetGroup && (targetGroup.is('.jq-dropdown') || targetGroup.is('.qboqx-dropdown'))) {
             // Is it a jq-dropdown menu?
             if (targetGroup.is('.jq-dropdown-menu')) {
                 // Did we click on an option? If so close it.
@@ -128,7 +128,7 @@ if (jQuery) (function ($) {
 
         // Trigger the event early, so that it might be prevented on the visible popups
         var hideEvent = jQuery.Event("hide");
-
+        var $property_card =  $(document).find('.jq-dropdown:visible').parent();
         $(document).find('.jq-dropdown:visible').each(function () {
             var jqDropdown = $(this);
             jqDropdown

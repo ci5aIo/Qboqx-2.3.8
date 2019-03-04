@@ -7,26 +7,29 @@ $numchars = elgg_get_plugin_setting('market_numchars', 'market');
 if($numchars == ''){
 	$numchars = '250';
 }
-$presentation = elgg_extract('presentation', $vars, 'full');
+$presentation = elgg_extract('presentation', $vars, 'full');                         $display .= '10 $presentation: '.$presentation.'<br>';
 $perspective  = elgg_extract('perspective', $vars, 'edit');		
 $qid          = elgg_extract('qid', $vars);
-$cid          = elgg_extract('cid', $vars);
+$cid          = elgg_extract('cid', $vars);                                          $display .= '13 $cid: '.$cid.'<br>13 isset($cid): '.isset($cid).'<br>';
 $space        = elgg_extract('space',$vars);
 $context      = elgg_extract('context', $vars);
 
-$guid         = $vars['guid'];                                                        $display .= '10 $guid: '.$guid.'<br>';
+$guid         = $vars['guid'];                                                        $display .= '17 $guid: '.$guid.'<br>';
+$lineage_level= $vars['h'];
 $entity       = get_entity($guid);
 $category     = get_entity($entity->category);
 $entity_owner = get_entity($entity->owner_guid);
-$record_stage = $entity->record_stage;                                                $display  .= '14 $record_stage:'.$record_stage.'<br>';
+$record_stage = $entity->record_stage;                                                $display  .= '22 $record_stage:'.$record_stage.'<br>';
 
 //if (elgg_instanceof($entity, 'object','market')) {
   // must always supply $guid $h (current hierarchy) and current $level
-  $content .= elgg_view('input/hidden', array('name'=> 'guid', 'value' => $guid));
-  $content .= elgg_view('input/hidden', array('name'=> 'h', 'value' => $vars['h']));
-  $content .= elgg_view('input/hidden', array('name'=>'level', 'value' => 'family'));
-  $content .= elgg_view('input/hidden', array('name'=>'item[family]', 'value' => 'family'));
-  $content .= elgg_view('input/hidden', array('name'=>'item[record_stage]', 'value' => $record_stage));
+if ($guid)          $hidden['guid']               = $guid;
+if ($qid)           $hidden['qid']                = $qid;
+if ($lineage_level) $hidden['h']                  = $lineage_level;
+if ($record_stage)  $hidden['item[record_stage]'] = $record_stage;
+  $hidden['level']     = 'family';
+  $hidden['item[family]']     = 'family';
+  
   $this_level = '/car';
   $next_level = '/family'; //probably not the right way to reference the next level.
 //}
@@ -62,12 +65,17 @@ foreach(array_reverse($hierarchy) as $key=>$cat_guid){
     }
 }  
 
-$title = $entity['title'];
+$title = $entity['title'];                                                                                   $display .= '67 $title: '.$title.'<br>';
 $body = $entity['description'];
 $tags = $entity->tags;
 $access_id = $entity['access_id']; 
 	
 $selected_category = $category->title;
+
+if (!empty($hidden)){
+    foreach($hidden as $field=>$value){
+        $content .= elgg_view('input/hidden', array('name'=>$field, 'value'=>$value));}}
+        
 $content .= "<div id='Category_panel' class='elgg-head' style='margin:5px'>".elgg_view($category_content, $vars)."</div>";
 
 	$selected = 'family';
@@ -111,31 +119,83 @@ $content .= '</div>';
 
 switch ($presentation){
 	case 'full':
-		echo $content;
+		$form_body = $content;
 		break;
+	case 'qboqx':
+	    unset($tabs[2],    // Remove 'Receipt' tab
+	          $panels[2],  // Remove 'Receipt' panel
+	          $detail, $details,$nav,$navigation, $class, $content
+	         );
+	    
+	    $parent_cid   = elgg_extract('parent_cid', $vars);
+	    $cid          = elgg_extract('cid', $vars);
+	    $n            = elgg_extract('n', $vars);
+	    $data_prefix  = elgg_extract('data_prefix', $vars, "jot[transfer][$parent_cid][$cid][$n][");
+	    $nav['tabs']  = $tabs;
+	    $nav['class'] = 'quebx-tabs';
+        $nav['space'] = $space;
+        $nav['qid']   = $qid;
+        $navigation   = elgg_view('navigation/tabs_slide', $nav);
+        foreach($panels as $key=>$panel){
+        	$n = $key+1;
+        	$is_selected = $selected == $panel['aspect'];
+        	$class       = $panel['class'];
+    	    if ($is_selected) {
+    			$class .= ' qbox-state-selected';
+    		}
+        	$detail .= elgg_view('output/div',['content'=>$panel['content'], 'class'=>$class, 'options'=>['id'=>"q{$guid}_{$n}"]]);
+        }
+        $body_vars = $vars;
+        $header  = elgg_view($category_content, $body_vars);
+        $details = elgg_view('output/div',['content'=>$detail, 'class'=>"qbox-details qbox-$guid"]);
+        
+        $content = "<div id='Category_panel' class='elgg-head' style='margin:5px'>$header</div>";
+        $content .= $navigation.$details;
+        $content   = str_replace('jot[', $data_prefix, $content);
+        $form_body = str_replace('item[', $data_prefix, $content);		
+		break;
+	case 'popup':
+	   
 	case 'inline':
-		$save_icon = elgg_view_icon('save',['title'=>'Save', 'name'=>'apply']);
-		$close_icon= elgg_view_icon('window-close',['title'=>'Close']);
-/*		$save_button = "<button  class='do' type='submit' id='qboxSave' data-guid=$guid data-qid=$qid value='Save' data-perspective='save'
+/*		$save_icon  = elgg_view_icon('save',['title'=>'Save', 'name'=>'apply']);
+		$close_icon = elgg_view_icon('window-close',['title'=>'Close']);
+		if (isset($cid)){$data_cid = "data-cid='$cid'";}                                                           $display .= '128 $data_cid: '.$data_cid.'<br>';
+		$save_button = "<button  class='do' type='submit' id='qboxSave' data-guid=$guid data-qid=$qid value='Save' data-perspective='save'
                                  style='right:16px'> $save_icon
 						</button>";
-*/		if (isset($cid)){$data_cid = "data-cid='$cid'";}
-        $close_button = "<button type='button' id='inlineClose' data-qid='$qid' $data_cid data-perspective='$perspective'>
+		$close_button = "<button type='button' id='inlineClose' data-qid='$qid' $data_cid data-perspective='$perspective'>
 							$close_icon
 						</button>";
+        if ($presentation == 'popup') unset($close_button, $save_button);
 		$form_body = "<div id='$qid' class='inline inline-visible' $pos_style role='data entry' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context' 'data-aspect'='item'>
 								<div id='inlineLoadedContent'>
 										<div class='elgg-body inline-body'>
 											<div class='elgg-layout elgg-layout-default clearfix'>
 		                                        $content
 		                                    </div>
-		                                </div>
-									</div>
+    									</div>
 		                            $close_button
 									$save_button
 								</div>
 						</div>";
-		echo $form_body;		
+*///		$layout_vars = array_merge(
+	//	    $vars,
+        $layout_vars = 
+		    ['content'       => $content,
+	         'show_full'     => false,
+	         'show_save'     => false,
+	         'show_edit'     => false,
+	         'show_close'    => true,
+	         'show_title'    => false,
+	         'space'         => $space,
+	         'perspective'   => $perspective,
+	         'context'       => $context,
+//	         'qid'           => $qid,
+	         'cid'           => $cid,
+		    ];
+		
+		$form_body = elgg_view_layout('inline',$layout_vars);
+				
 		break;
 	case 'full_view':
 		$close_icon= elgg_view_icon('window-close',['title'=>'Close']);
@@ -153,9 +213,8 @@ switch ($presentation){
 		                            $close_button
 								</div>
 						</div>";
-		echo $form_body;		
 		break;
 }
 	
-
-//$content .= $display;
+echo $form_body;
+//register_error( $display);

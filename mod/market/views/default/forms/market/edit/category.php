@@ -6,28 +6,38 @@ $numchars = elgg_get_plugin_setting('market_numchars', 'market');
 if($numchars == ''){
 	$numchars = '250';
 }
-$guid = $vars['guid'];
-$entity = get_entity($guid);
-$category = $entity->marketcategory;
-if ($entity->category){$category_guid = $entity->category;}
-if (elgg_instanceof(get_entity($category_guid), 'object', HYPECATEGORIES_SUBTYPE)){
-	$category  = get_entity($category_guid);
-	$root_name = $category->title;
-	$hierarchy = hypeJunction\Categories\get_hierarchy($category_guid, false, true);
-	$node = array_shift($hierarchy);
-	$root_name = $node['title'];
-//	$root_name = implode(':', $hierarchy[]['title']); // doesn't work
-	foreach($hierarchy as $node){
-		$root_name .=' : '.$node['title'];
-	}
-		
+$guid = elgg_extract('guid', $vars, false);
+$qid  = elgg_extract('qid', $vars);
+$presentation = elgg_extract('presentation', $vars);
+if ($guid){
+    $entity             = get_entity($guid);
+    $category           = $entity->marketcategory;
+    $selected_category  = $category;
+    if ($entity->category){$category_guid = $entity->category;}
+    if (elgg_instanceof(get_entity($category_guid), 'object', HYPECATEGORIES_SUBTYPE)){
+    	$category       = get_entity($category_guid);
+    	$root_name      = $category->title;
+    	$hierarchy      = hypeJunction\Categories\get_hierarchy($category_guid, false, true);
+    	$node           = array_shift($hierarchy);
+    	$root_name      = $node['title'];
+    //	$root_name = implode(':', $hierarchy[]['title']); // doesn't work
+    	foreach($hierarchy as $node){
+    		$root_name .=' : '.$node['title'];
+    	}
+    }
+    $access_id          = $entity['access_id']; 
+    $entity_owner       = get_entity($entity->owner_guid);
+    $icon               = $entity->icon ?: $guid;
+    $item_image_guids   = $entity->images;
+    
 }
-$access_id = $entity['access_id']; 
-$entity_owner = get_entity($entity->owner_guid);
+else {
+    $entity_owner = elgg_get_logged_in_user_entity();
+}
+
 /*********/
 $subcategories = hypeJunction\Categories\get_subcategories($parent_category_guid);
 /**********/
-$selected_category = $category;
 $num_items = 16;  // 0 = Unlimited
 $options = array(
 	'types' => 'object',
@@ -78,25 +88,24 @@ $documents = elgg_get_entities_from_relationship(array(
 	));
 
 $groups = elgg_get_entities_from_relationship(array(
-	'type' => 'group',
-	'relationship' => 'shared',
-	'relationship_guid' => $entity->guid,
+	'type'                 => 'group',
+	'relationship'         => 'shared',
+	'relationship_guid'    => $entity->guid,
 	'inverse_relationship' => true,
-	'limit' => false,
-	'callback' => false // because we don't need the user entity, this makes the query a bit more efficient
+	'limit'                => false,
+	'callback'             => false // because we don't need the user entity, this makes the query a bit more efficient
 ));
 $edit_panel .= "<div class='rTable' style='width:100%'>
 		<div class='rTableBody'>";
-
-$item_image_guids = $entity->images;  
-if (!is_array($item_image_guids)){$item_image_guids = array($item_image_guids);}
-foreach ($item_image_guids as $key=>$image_guid){                               $display .= '83 ['.$key.'] => '.$image_guid.'<br>';
-	if ($image_guid == ''){                     
-		unset($item_image_guids[$key]);
-	}
+if ($item_image_guids){
+    if (!is_array($item_image_guids)){$item_image_guids = array($item_image_guids);}
+    foreach ($item_image_guids as $key=>$image_guid){                               $display .= '83 ['.$key.'] => '.$image_guid.'<br>';
+    	if ($image_guid == ''){                     
+    		unset($item_image_guids[$key]);
+    	}
+    }
 }
-
-if (empty($item_image_guids)){$item_image_guids[]=$entity->guid;              $display .= '89 empty $item_image_guids<br>';
+if (empty($item_image_guids) && $guid){$item_image_guids[]=$entity->guid;              $display .= '89 empty $item_image_guids<br>';
 	}
 
    $item_images = elgg_get_entities(array(
@@ -106,10 +115,11 @@ if (empty($item_image_guids)){$item_image_guids[]=$entity->guid;              $d
    		'limit'   => 0,
 	));
    //$thumbnails = "<div class='edit_gallery' style='margin:0 auto;'>";
-   $icon       = $entity->icon ?: $entity->guid;
+
    
-				
-	foreach ($item_image_guids as $key=>$image_guid){                      //$display .= 'Images<br>';
+//if (count($item_image_guids)>0){				
+if (count($item_image_guids)>0){
+   foreach ($item_image_guids as $key=>$image_guid){                      //$display .= 'Images<br>';
 //	foreach ($item_images as $image){                      //$display .= 'Images<br>';
 		
 		$thumbnail = elgg_view('market/thumbnail', array('marketguid' => $image_guid,
@@ -146,8 +156,9 @@ if (empty($item_image_guids)){$item_image_guids[]=$entity->guid;              $d
 		$thumbnails .= "<li>{$thumbnail}{$input_images}{$input_radio}{$input_checkbox}</li>";
 		
 	}
-//$thumbnails = $thumbnails."</div>";
-$thumbnails = "<ul class='edit_gallery'>$thumbnails</ul>";
+    //$thumbnails = $thumbnails."</div>";
+    $thumbnails = "<ul class='edit_gallery'>$thumbnails</ul>";
+}
 $edit_panel .=  "<div class='rTableRow'>
 				<div class='rTableCell' style='padding:0px 5px'>$thumbnails</div>
 			</div>";
@@ -172,10 +183,13 @@ HTML;
 													   'size'       => 'medium',
 													   'tu'         => $entity->time_updated,
 													));
-
-$category_panel .= "<div class='rTable' style='width:100%'>
-		<div class='rTableBody'>
-			<div class='rTableRow'>
+	
+if ($cid){$data_cid      = "data-cid='$cid'";}
+if ($qid){$data_qid      = "data-qid='$qid'";}
+if ($guid)      {$data_guid     = "data-guid='$guid'";
+    if (!($qid)) $data_qid = "data-qid = 'q{$guid}'";
+}
+$first_row = "<div class='rTableRow'>
 				<div class='rTableCell' style='width:20%;padding:0px 5px'>Title</div>
 				<div class='rTableCell' style='width:80%;padding:0px 5px'>
 					<div data-reactroot='' class='AutosizeTextarea___2iWScFt62' style='display: flex;margin-bottom: 0;'>
@@ -183,11 +197,15 @@ $category_panel .= "<div class='rTable' style='width:100%'>
 							$title
 						</div>
 						<div style='margin: 3px 3px 0 15px;float: right;order:2;'>
-							<button class='autosaves button std do' data-guid='$guid' data-qid='q{$guid}' type='submit' tabindex='-1' data-perspective='save'>Save</button>
+							<button class='autosaves button std do' $data_guid $data_qid $data_cid type='submit' tabindex='-1' data-perspective='save'>Save</button>
 						</div>
 					</div>
 				</div>
-			</div>
+			</div>";
+if ($presentation == 'qboqx') unset($first_row);
+$category_panel .= "<div class='rTable' style='width:100%'>
+		<div class='rTableBody'>
+			$first_row
 			<div class='rTableRow'>
 				<div class='rTableCell' style='width:20%;vertical-align:top;'>Description</div>
 				<div class='rTableCell' style='width:80%;'>$description</div>
@@ -210,68 +228,5 @@ $category_panel .= "<div class='rTable' style='width:100%'>
 	</div>";
 
 echo $category_panel;
-//echo '$entity->category '. $entity->category;
-//echo $display;
-
-/*scratch*/
-//$category_guid = 163;
-
-//$downstream_guids[] = (int) $category_guid;
-//$downstream = hypeJunction\Categories\get_subcategories();
-//echo 'Comics priority: '.get_entity(1661)->priority;
-/*
-$defaults = array(
-	'types' => 'object',
-	'subtypes' => HYPECATEGORIES_SUBTYPE,
-    'order_by_metadata' => array('name' => 'priority', 'direction' => 'ASC', 'as' => 'integer'),
-	'limit' => 9999
-);
-$downstream = elgg_get_entities_from_metadata($defaults);
-foreach ($downstream as $category){//                                      echo $category->priority.'-'.$category->guid.'-'.$category->title.'<br>';
-    $downstream_guids[] = (int) $category->guid;
-}*/
-/*
-$parent_guid = 197;
-$parent = get_entity($parent_guid);
-$this_cat    = 'Comics';
-if (strcmp(strtolower($parent->title), strtolower($this_cat)) == 0 ){
-    register_error('Child cannot have the same name as its parent');
-    goto eof;
-}
-$parent_priority = array_search($parent_guid, $downstream_guids);
-$offset = $parent_priority;
-$this_default = $defaults;
-$this_default['container_guid'] = $parent_guid;
-$children = elgg_get_entities($this_default);
-if ($children){
-    foreach($children as $child){
-        if (strcmp(strtolower($child->title), strtolower($this_cat)) < 0 ){
-            $offset = $offset + 1;
-        }
-        if (strcmp(strtolower($child->title), strtolower($this_cat)) == 0 ){
-            $offset = 0;
-        }
-//        echo $child->title.' : '. strcmp(strtolower($child->title), strtolower($this_cat)).'<br>';
-    }
-}
-array_splice($downstream_guids, $offset+1, 0, $this_cat);
-foreach ($downstream_guids as $key=>$d_guid){
-    $priority = get_entity($d_guid)->priority;
-    echo $priority.' - '.$key.'=>'.get_entity($d_guid)->title.'<br>';
-}
-*/
-/*
-foreach ($downstream_guids as $key=>$d_guid){
-    $this_entity = get_entity($d_guid);
-    if ($d_guid == $parent_guid){
-        $this_default = $defaults;
-        $this_default['container_guid'] = $d_guid;
-        $children = elgg_get_entities($this_default);
-        foreach($children as $child){
-            $priority = array_search($child->guid, $downstream_guids);
-            echo $priority.' - '.$child->guid.' - '.$child->title.'<br>';
-        }
-    }
-//    echo $key.'=>'. $d_guid.'<br>';
-}*/
+register_error($display);
 eof:

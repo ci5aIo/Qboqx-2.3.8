@@ -26,11 +26,6 @@ $perspective    = elgg_extract('perspective', $vars);
 $origin         = elgg_extract('origin', $vars);
 $action         = elgg_extract('action', $vars);
 $qid            = elgg_extract('qid', $vars, 'q'.$guid);
-$parent_cid     = elgg_extract('parent_cid'       , $vars, quebx_new_cid ());
-$cid            = elgg_extract('cid'              , $vars, quebx_new_cid ());
-$service_cid    = elgg_extract('service_cid'      , $vars, quebx_new_cid ());
-$qid            = elgg_extract('qid'              , $vars, $cid);
-$qid_n          = elgg_extract('qid_n'            , $vars, $qid.'_'.$n);
 $asset          = get_entity($asset_guid);
 $transfer_exists= true;   // Does a transfer receipt already exist?  Initialize to 'true'
 $item_exists    = false;  // Does the managed item exist in Quebx already?  Initialize to 'false' 
@@ -271,25 +266,23 @@ $merchant = "$link";
 	}
 }	
 elseif (elgg_instanceof(get_entity($merchant_guid), 'group')){                               $display .= '277 $merchant_guid: '.$merchant_guid.'<br>';
-    $merchant = elgg_view('output/span', ['content'=>elgg_view('input/grouppicker', [
-                        							'name' => 'jot[merchant]',
-                        //		                    'values' => $transfer->merchant,         // plural - selected from existing groups
-                            						'values'=> (array) $merchant_guid,
-                                                    'limit'=> 1,
-                                                    'autocomplete'=>'on',
-                        					]),
-                                            'options' => ['data-focus-id'=> "MerchantAdd--$cid"],
-                            		        'class'=>'receipt-input',]);					
+    $merchant = elgg_view('output/span', ['content'=>elgg_view('input/grouppicker', array(
+							'name' => 'jot[merchant]',
+//		                    'values' => $transfer->merchant,         // plural - selected from existing groups
+    						'values'=> (array) $merchant_guid,
+                            'limit'=> 1,
+                            'autocomplete'=>'on',
+					)),
+    		        'class'=>'receipt-input',]);					
 }
 else {                                                                                              $display .= '285 $merchant_guid: '.$merchant_guid.'<br>';
-    $merchant = elgg_view('output/span', ['content'=>elgg_view('input/grouppicker', [
-                        							'name' => 'jot[merchant]',
-                        		                    'value'  => $merchant_guid,                  // singular - not an existing group
-                                                    'limit'=> 1,
-                                                    'autocomplete'=>'on',
-                        				  ]),
-                                          'options' => ['data-focus-id'=> "MerchantAdd--$cid"],
-    		                              'class'=>'receipt-input',]);
+    $merchant = elgg_view('output/span', ['content'=>elgg_view('input/grouppicker', array(
+							'name' => 'jot[merchant]',
+		                    'value'  => $merchant_guid,                  // singular - not an existing group
+                            'limit'=> 1,
+                            'autocomplete'=>'on',
+					)),
+    		        'class'=>'receipt-input',]);
 }
 
 $set_properties_button = elgg_view('output/url', ['id'    => 'properties_set',
@@ -341,10 +334,10 @@ foreach($hidden_fields as $name => $value){
     $preorder_flag  .= elgg_view('input/switchbox',$preorder_options);
     $preorder_flag  .= elgg_view('input/hidden',['name'=>'jot[snapshot][preorder_flag]'       , 'value'=>$transfer->preorder_flag]);
     $delivery_date_label = 'Scheduled date';
-    $delivery_date  = elgg_view('input/date', ['name'=>'jot[delivery_date]'                   , 'value'=>$transfer->delivery_date,'class'=>'receipt-input', 'readonly'=>$receipt_read_only, 'style'=>'width:100px;']);
+    $delivery_date  = elgg_view('input/date', ['name'=>'jot[delivery_date]'                   , 'value'=>$transfer->delivery_date,'class'=>'receipt-input', 'readonly'=>$receipt_read_only]);
     $delivery_date  .= elgg_view('input/hidden', ['name'=>'jot[snapshot][delivery_date]'      , 'value'=>$transfer->delivery_date]);
     $purchase_order_no_label = 'PO #';
-    $purchase_order_no = elgg_view('input/text'   , array('name' => 'jot[purchase_order_no]'  , 'value' => $transfer->purchase_order_no,'class'=>'receipt-input', 'readonly'=>$receipt_read_only, 'style'=>'width:100px;'));
+    $purchase_order_no = elgg_view('input/text'   , array('name' => 'jot[purchase_order_no]'  , 'value' => $transfer->purchase_order_no,'class'=>'receipt-input', 'readonly'=>$receipt_read_only));
     $purchase_order_no .= elgg_view('input/hidden', array('name' => 'jot[snapshot][purchase_order_no]', 'value' => $transfer->purchase_order_no,));
     $invoice_no_label = 'Invoice #';
 	$invoice_no     = elgg_view('input/text'  , array('name' => 'jot[invoice_no]'             , 'value' => $transfer->invoice_no,'class'=>'receipt-input', 'readonly'=>$receipt_read_only));
@@ -871,7 +864,7 @@ Switch ($presentation){
 								<div class='rTableCell'></div>
 								<div class='rTableCell'></div>
 								<div class='rTableCell'>Subtotal</div>
-								<div class='rTableCell'><span id={$qid}_subtotal>$subtotal</span><span class='{$qid}_subtotal subtotal_raw'>$transfer->subtotal</span></div>
+								<div class='rTableCell'><span id={$qid}_subtotal>$subtotal</span><span class='{$qid}_subtotal line_total_raw'>$transfer->subtotal</span></div>
 							</div>
 							<div class='rTableRow pin'>
 								<div class='rTableCell'></div>
@@ -898,7 +891,7 @@ Switch ($presentation){
 								<div class='rTableCell'></div>
 								<div class='rTableCell'></div>
 								<div class='rTableCell'>Total</div>
-								<div class='rTableCell'><span id={$qid}_total>$total</span><span class='{$qid}_total total_raw'>$transfer->total</span></div>
+								<div class='rTableCell'><span id={$qid}_total>$total</span><span class='{$qid}_total line_total_raw'>$transfer->total</span></div>
 							</div>
 						</div>
 					</div>";
@@ -1532,7 +1525,7 @@ Switch ($presentation){
 						<div class='rTableCell'></div>
 						<div class='rTableCell'></div>
 						<div class='rTableCell'>Subtotal</div>
-						<div class='rTableCell'><span id={$qid}_subtotal>$subtotal</span><span class='{$qid}_subtotal subtotal_raw'>$transfer->subtotal</span></div>
+						<div class='rTableCell'><span id={$qid}_subtotal>$subtotal</span><span class='{$qid}_subtotal line_total_raw'>$transfer->subtotal</span></div>
 					</div>
 					<div class='rTableRow pin'>
 						<div class='rTableCell'></div>
@@ -1556,7 +1549,7 @@ Switch ($presentation){
 						<div class='rTableCell'></div>
 						<div class='rTableCell'></div>
 						<div class='rTableCell'>Total</div>
-						<div class='rTableCell'><span id={$qid}_total>$total</span><span class='{$qid}_total_raw'>$transfer->total</span></div>
+						<div class='rTableCell'><span id={$qid}_total>$total</span><span class='{$qid}_total line_total_raw'>$transfer->total</span></div>
 					</div>
 		        </div>
 			</div>

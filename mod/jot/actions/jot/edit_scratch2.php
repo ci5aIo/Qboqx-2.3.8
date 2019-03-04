@@ -1,18 +1,28 @@
 <?php
 // Get input data
-$guid         = (int) get_input('guid'); if ($guid == 0 ){unset($guid);}
-$parent_guid  = (int) get_input('parent_guid');
-$apply        =       get_input('apply');                           //$display .= '$apply: '.$apply.'<br>';goto eof;
-$title        =       get_input('title');
-$aspect       =       get_input('aspect');                          //$display .= '23 $aspect: '.$aspect.'<br>'; //goto eof;
-$action       =       get_input('action');
-$this_section =       get_input('this_section');
+$guid           = (int) get_input('guid'); if ($guid == 0 ) unset($guid);
+$parent_guid    = (int) get_input('parent_guid');
+$apply          =       get_input('apply');                           //$display .= '$apply: '.$apply.'<br>';goto eof;
+$title          =       get_input('title');
+$aspect         =       get_input('aspect');                          //$display .= '23 $aspect: '.$aspect.'<br>'; //goto eof;
+$action         =       get_input('action');
+$this_section   =       get_input('this_section');
 // Receive jot data
-$jot_input    =      get_input('jot');       //if(empty($jot_input)){unset($jot_input); $display .= 'empty $jot_input<br>';} $display .= '25 $jot_input[title]'.$jot_input['title'].'<br>';
-$jot_snapshot =      $jot_input['snapshot'];                       unset($jot_input['snapshot']); 
-$subtype      =      $jot_input['subtype'];
-$guid         =      $guid   ?: $jot_input['guid'];                        $display .= '14 $guid: '.$guid.'<br>';
-$aspect       =      $aspect ?: $jot_input['aspect'];
+$jot_input      =      get_input('jot');       //if(empty($jot_input)){unset($jot_input); $display .= 'empty $jot_input<br>';} $display .= '25 $jot_input[title]'.$jot_input['title'].'<br>';
+$jot_snapshot   =      $jot_input['snapshot'];                       unset($jot_input['snapshot']); 
+$subtype        =      $jot_input['subtype'];
+$guid           =      $guid   ?: $jot_input['guid'];                        $display .= '14 $guid: '.$guid.'<br>';
+$aspect         =      $aspect ?: $jot_input['aspect'];
+$now            =      new DateTime(null, new DateTimeZone('America/Chicago'));
+$title          =      $jot_input['title']          ?: $subtype.'_'.$now;
+$description    =      $jot_input['description'];
+$container_guid =      $jot_input['container_guid'] ?: elgg_get_logged_in_user_guid(); $display.='49 $container_guid = '.$container_guid.'<br>';
+$owner_guid     =      $jot_input['owner_guid']     ?: elgg_get_logged_in_user_guid(); $display.='50 $owner_guid = '.$owner_guid.'<br>';
+$access_id      =      get_default_access();
+$exists         =      elgg_entity_exists($guid);
+$moment         =      $jot_input['moment']         ?: $now;                           $display .= '54 $moment = '.$moment->format('Y-m-d').'<br>';
+$boqx_type      =      $jot_input['boqx'];
+
 if (empty($aspect)){
 	$aspect              = 'receipt';
 	$jot_input['aspect'] = $aspect;
@@ -44,42 +54,9 @@ foreach($jot_input as $key=>$value){                                         $di
 	if (empty($value)){continue;}
 	$this_n_that[$key]=$value;
 }
-foreach ($jot_input as $name => $value){
-    //if (empty($value)){unset($jot_input[$name]); continue;}                 //$display .= '55 $jot_input['.$name.']='.$value.'<br>';
-    if (is_array($value)){                                                    //$display .= '56 $jot_input['.$name.']: '.$value.'<br>';
-    // Process experience        
-        if ($subtype == 'experience'){
-            $relationship = 'experience';
-            if ($name == 'instruction'){
-                $instructions = $value;
-            }
-            if ($name == 'observation'){
-                $observation = $value;                                       //$display .= '64 $value: '.print_r($value, false).'<br>';
-            }
-            if ($name == 'event'){
-                $event       = $value;
-            }
-            if ($name == 'project'){
-                $project      = $value;
-            }
-        }
-    }
-}
-$title          = $jot_input['title'];
-$description    = $jot_input['description'];
-$container_guid = $jot_input['container_guid'] ?: elgg_get_logged_in_user_guid(); $display.='74 $container_guid = '.$container_guid.'<br>';
-$owner_guid     = $jot_input['owner_guid']     ?: elgg_get_logged_in_user_guid(); $display.='75 $owner_guid = '.$owner_guid.'<br>';
-$access_id      = get_default_access();
-$exists         = elgg_entity_exists($guid);
-$now            = new DateTime(null, new DateTimeZone('America/Chicago'));
-$moment         = $jot_input['moment'] ?: $now;                                 $display .= '76 $moment = '.$moment->format('Y-m-d').'<br>';
-$boqx_type      = $jot_input['boqx'];
-$assets         = $jot_input['assets'];
-$documents      = $jot_input['documents'];
-$images         = $jot_input['images'];
-                                                                                 //goto eof;
+
 if ($exists){// get the jot
-	$jot = get_entity($guid);                                                    $display .= '81 $jot->guid = '.$jot->guid.'<br>';
+	$jot = get_entity($guid);                                                    $display .= '61 $jot->guid = '.$jot->guid.'<br>';
 }
 else {       // create a new jot
     $jot                 = new ElggObject();
@@ -91,39 +68,20 @@ else {       // create a new jot
 	$jot->description    = $description;
     $jot->aspect         = $aspect;
     $jot->moment         = $moment;
-	$jot->save();
+//	$jot->save();
 	$guid                = $jot->guid;
 }
-if($assets){                                                                     //$display .= '95 attached assets: '.print_r($assets, true).'<br>';
-	foreach($assets as $key=>$attachment_guid){                                         $display .= '96 attached asset: '.get_entity($asset_guid)->title.'<br>';
-    	if(!check_entity_relationship($guid, $relationship, $attachment_guid)){     $display .= '97 relationship does not exists: '.$guid.' is not a '.$relationship.' to '.$asset_guid.'<br>';
-      	      add_entity_relationship($guid, $relationship, $attachment_guid);
-		}
-	}
-}
-if($documents){
-    foreach($documents as $key=>$attachment_guid){
-    if(!check_entity_relationship($guid, $relationship, $attachment_guid)){
-          add_entity_relationship($guid, $relationship, $attachment_guid);
-        }
-    }
-}
-if($images){
-    foreach($images as $key=>$attachment_guid){
-    if(!check_entity_relationship($guid, $relationship, $attachment_guid)){
-          add_entity_relationship($guid, $relationship, $attachment_guid);
-        }
-    }
-}
 
-//goto eof;            
 Switch ($aspect){
+    case 'transfer':
+goto eof;        
+        break;
 	case 'observation':
 	/****************************************
          * $aspect = 'observation'               *****************************************************************
      ****************************************/
             $jot->state                      = $observation['state'];
-            $jot->save();
+//            $jot->save();
             $new_observation                 = new ElggObject();
             $new_observation->subtype        = 'observation';
             $new_observation->aspect         = $observation['aspect'];
@@ -132,7 +90,7 @@ Switch ($aspect){
 			$new_observation->access_id      = $access_id;
 			$new_observation->title          = $title.' - '.$observation['aspect'];
 			$new_observation->description    = 'Container for the '.$observation['aspect'];
-			$new_observation->save();
+//			$new_observation->save();
             unset($existing_guids);
             $discoveries_existing = elgg_get_entities_from_metadata(['type'                      => 'object',
 		                                                             'subtype'                   => 'observation',
@@ -189,7 +147,7 @@ Switch ($aspect){
 						$new_effort->state          = $effort['state'];
 						$new_effort->moment         = $effort['moment'] ?: $moment;         $display .= '155 $new_effort['.$key.']->save(): '.$new_effort->title.'<br>';
 						$new_effort->sort_order     = $key;
-						$new_effort->save();
+//						$new_effort->save();
             			foreach($effort as $key1=>$task){                                  //$display .= '157 $effort['.$key.']['.$key1.'] = '.$tasks.'<br>';
             				if (is_array($task)){
 	            				if (empty($task['title'])){unset($effort[$key1]); continue;}
@@ -204,7 +162,7 @@ Switch ($aspect){
 								$new_task->description    = $task['description'];          $display .= '168 $new_task['.$key1.']->save(): '.$new_task->title.'<br>';
 								$new_task->sort_order     = $key1;
 	            				//save effort entity
-	            				$new_task->save();
+//	            				$new_task->save();
             					// reassign keys to be sequential.  Keys originally assigned by system, but might have been resorted by the user.
             					$task = array_values($task);
             					foreach($task as $key2=>$item){                           //$display .= '173 $tasks['.$key1.']['.$key2.'] = '.$item.'<br>';
@@ -229,7 +187,7 @@ Switch ($aspect){
 										$new_item->replaces       = $item['replaces'];
 										$new_item->sort_order     = $key2;
 										$new_item->guid           = $item['guid'];          $display .= '193 $new_item['.$key2.']->save(): '.$new_item->title.'<br>';
-	            						$new_item->save();
+//	            						$new_item->save();
             						}
             					}
             				}

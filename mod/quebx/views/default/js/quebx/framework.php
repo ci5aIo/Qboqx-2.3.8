@@ -360,7 +360,7 @@ $(document).ready(function(){
         e.preventDefault();
         var parent_cid = $(this).parents('ul').data('cid'),
             cid        = $(this).parent().data('cid');
-        var qbox       = $('div[data-cid='+cid+']'),
+        var qbox       = $('div.pallet-compartment[data-cid='+cid+']'),
             selected   = $(this).parent().hasClass('elgg-state-selected');
         console.log('cid: '+cid);
         console.log('parent_cid: '+parent_cid);
@@ -370,11 +370,11 @@ $(document).ready(function(){
 		   $(this).parent('li.pallet-compartment').addClass('elgg-state-selected');
     		$("div[data-parent-cid="+parent_cid+"]").hide();
     		qbox.show();
-	   }
+	   }/*// Don't toggle the compartment
 	   else {
 		   $(this).parent('li.pallet-compartment').removeClass('elgg-state-selected');
     		qbox.hide();
-	   }
+	   }*/
     });
     
     $(document).on("click", "a#properties_set", function(e) {
@@ -528,6 +528,37 @@ $(document).ready(function(){
         	$(this).removeClass('egg');
         }
     });
+    $(document).on('click', '.model section.edit nav.edit .cancel', function(e){
+       var cid        = $(this).data('cid');
+       var $boqx_contents = $(document).find(".boqx-contents-receipt[data-cid='"+cid+"']");
+       console.log('click:cancel');
+       console.log('cid = '+cid);
+       console.log('$boqx_contents', $boqx_contents);
+       $boqx_contents
+          .find("[data-parent-cid='"+cid+"'][boqx-fill-level='full']")
+          .each(function(){
+              $(this).remove();
+           });
+       $(this).parents('form').trigger("reset");
+       $(this).parents('.Effort__CPiu2C5N').children('.EffortEdit_fZJyC62e').hide();
+       $(this).parents('.Effort__CPiu2C5N').children('.AddSubresourceButton___S1LFUcMd').show();
+    });
+    $(document).on('click', 'a.maximize',function(e){
+       e.preventDefault();
+       var $boqx = $(this).parents('.EffortEdit_fZJyC62e');
+       $boqx.addClass('maximized');
+       $(this).removeClass('maxmize');
+       $(this).addClass('restore');
+       $(this).attr('title', 'Restore view');
+    });
+    $(document).on('click', 'a.restore',function(e){
+       e.preventDefault();
+       var $boqx = $(this).parents('.EffortEdit_fZJyC62e');
+       $boqx.removeClass('maximized');
+       $(this).addClass('maxmize');
+       $(this).removeClass('restore');
+       $(this).attr('title', 'Switch to a full view');
+    });
     $(document).on('click', 'span.qbox-section-remove', function(e){
         e.preventDefault();
         var qid = $(this).data('cid');
@@ -574,6 +605,7 @@ $(document).ready(function(){
             if (name.length == 0)
                 show = false;
         }
+        $this_panel.removeClass('maximized');
         if (state == 'add' || state == 'edit'){
 	        if (show){
 	            $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+name+'</p>');
@@ -634,6 +666,76 @@ $(document).ready(function(){
             $show_panel.show();
             $this_panel.hide();
         }
+    });
+/*    $(document).on("click", "a.collapser-receipt-item", function(e) {
+        e.preventDefault();
+        var cid = $(this).attr("data-cid"),
+            show_service = true;
+        var service_name = $(this).parent().find("textarea[data-focus-id=NameEdit--"+cid+"]").val();
+        var $merchant_add = $(this).parents('#'+cid).find("[data-focus-id=MerchantAdd--"+cid+"]");
+        var service_desc = $(this).parent().find("textarea[data-focus-id=ServiceEdit--"+cid+"]").val(),
+            state        = $(this).parents('.Effort__CPiu2C5N').attr('data-aid');
+        if (service_name.length==0)
+               show_service = false;
+        var $this_panel  = $(this).parent('.TaskEdit___1Xmiy6lz');
+        var $show_panel  = $(this).parent('.TaskEdit___1Xmiy6lz').parents('.ServiceEffort__26XCaBQk').find('.TaskShow___2LNLUMGe');
+        var $add_panel   = $(this).parent('.TaskEdit___1Xmiy6lz').parents('.ServiceEffort__26XCaBQk').find('.AddSubresourceButton___2PetQjcb'),
+            merchant     = $this_panel.find('h3.elgg-listing-summary-title').text() || $this_panel.find('input.elgg-input-group-picker').val(),
+            receipt_total = $("span#"+cid+"_total_raw").text();
+        var $merchant_name = $merchant_add.find('.elgg-autocomplete-item').attr('title'),
+            merchant_name;
+        if (typeof $merchant_name != 'undefined')
+                    merchant_name  = $merchant_name.text();
+        else       $merchant_name  = $merchant_add.find('input:text.ui-autocomplete-input');
+        if (typeof $merchant_name != 'undefined')
+                    merchant_name  = $merchant_name.val();
+        console.log('cid: '+cid);
+        console.log('$merchant_add = ',$merchant_add);
+        console.log('merchant_name: '+merchant_name);
+        console.log('receipt_total: '+receipt_total);
+        console.log('service_name: '+service_name);
+        console.log('service_name.length: '+service_name.length);
+        console.log('show_service: '+show_service);
+
+        if (state == 'add' || state == 'edit'){
+              if (show_service){
+                 $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+service_name+'</p>');
+                 $show_panel.find('.TaskShow__description___qpuz67f').html('<p>'+service_desc+'</p>');
+                 $show_panel.find('.TaskShow__service_items___2wMiVig').html('<p>'+receipt_total+'</p>');
+                 if (state == 'add'){                                       // hide delete button when state = add
+                     $show_panel.find('button.IconButton___2y4Scyq6').hide();
+                 }
+                 $show_panel.show();
+                 $this_panel.hide();
+             }
+             else {
+                 $add_panel.show();
+                 $this_panel.hide();
+             }
+        }
+        else{                                        // state == 'view'
+            $show_panel.show();
+            $this_panel.hide();
+        }
+    });
+*/
+    $(document).on("click", "a.collapser-receipt-item", function(e) {
+        e.preventDefault();
+        var cid = $(this).attr("data-cid");
+        var $boqx = $(document).find('#'+cid);
+        var fill_level = $boqx.attr('boqx-fill-level'),
+            $this_panel  = $boqx.children('.TaskEdit___1Xmiy6lz');
+        var $show_panel  = $boqx.children('.TaskShow___2LNLUMGe');
+        var $add_panel   = $boqx.children('.AddSubresourceButton___2PetQjcb');
+        if (fill_level == 'full'){
+           $show_panel.show();
+           $this_panel.hide();
+        }
+        else {
+           $add_panel.show();
+           $this_panel.hide();
+         }
+        
     });
     $(document).on("click", ".DescriptionShow___3-QsNMNj", function(e) {
         e.preventDefault();
@@ -707,10 +809,33 @@ $(document).ready(function(){
 	});  
     $(document).on( "click", "button#qboxClose", function(e) {
         e.preventDefault();
-        var qid         = $(this).data('qid');
-	  	$('div.qbox-content-expand#'+qid).remove();
-	    $('div.qbox-container#'+qid).remove();
-	    $('div.jq-dropdown#'+qid).remove();
+        var qid         = $(this).data('qid'),
+            cid         = $(this).data('cid'),
+            master_boqx = $(this).parents('.jq-dropdown.qboqx'),
+            qbox;
+        var master_id   = $(master_boqx).attr('id');
+        console.log('master_id: '+master_id);
+        if (typeof qid != 'undefined'){
+            qbox        = $('div.qbox-content-expand#'+qid);
+            if (typeof qbox != 'undefined') { 
+    	  		qbox.remove();
+    	  		return true;
+            }
+            else {qbox      = $('div.jq-dropdown#'+qid);}
+            if (typeof qbox != 'undefined'){
+            	qbox.remove();
+            	return true;
+            }
+        }
+        if (typeof cid != 'undefined') {
+            console.log('cid: '+cid);
+            qbox      = $('div.qboqx-dropdown#'+cid);
+        	if (typeof qbox != 'undefined'){
+            	    qbox.remove();
+        	}
+        }
+	    $('div.jq-dropdown#'+master_id).show();
+        console.log('done');
     });
     $(document).on('click', 'button#qboxMinimize', function(e){
         e.preventDefault();
@@ -736,12 +861,18 @@ $(document).ready(function(){
         var qid         = $(this).data('qid'),
             cid         = $(this).data('cid'),
             perspective = $(this).data('perspective');
+        console.log('qid: '+qid);
+        console.log('cid: '+cid);
+        console.log('perspective: '+perspective);
         if (typeof qid != 'undefined'){
-    	  	$('div.inline-content-expand#'+qid).remove();
+    	  	$("div.inline-content-expand[data-qid='"+qid+"']").remove();
     	    $('div.inline-container#'+qid).remove();
-    	    $('div.jq-dropdown#'+qid).remove();}
+    	    $('div.jq-dropdown#'+qid).remove();
+            return true;}
+        else {$(this).parents('.inline-content-expand').remove();
+             return true;}
 	    if (perspective == 'add' && typeof cid != 'undefined'){
-	    	$('div.inline-content-expand[data-cid'+cid+']').remove();
+	    	$('div.inline-content-expand[data-cid='+cid+']').remove();
 	    }	    
     });
     $(document).on('click', 'button.inlineMinimize', function(e){
@@ -1046,42 +1177,65 @@ $(document).ready(function(){
    /**Calculate values for receipts and service items**/
    $(document).on('change', "input[data-name='qty'], input[data-name='cost']",function(e){
 	    var qid_n      = $(this).data('qid');
-	    var qid        = $(this).parents('div.qbox').attr('id');
-	    var $qty       = $(this).parents('.rTableRow.receipt_item, .rTableRow.service_item').find("input[data-name='qty'][data-qid="+qid_n+"]");
-	    var $cost      = $(this).parents('.rTableRow.receipt_item, .rTableRow.service_item').find("input[data-name='cost'][data-qid="+qid_n+"]");
-	    var $line_total= $(this).parents('.rTableRow.receipt_item, .rTableRow.service_item').find("span#"+qid_n+"_line_total");
-	    var $line_total_raw = $(this).parents('.rTableRow.receipt_item, .rTableRow.service_item').find("span."+qid+"_line_total");
-	    var $sales_tax = $(this).parents('div.qbox#'+qid).find("input[name='jot[sales_tax]'][data-qid="+qid+"]");
-	    var $shipping  = $(this).parents('div.qbox#'+qid).find("input[name='jot[shipping_cost]'][data-qid="+qid+"]");
-	    var $subtotal  = $(this).parents('div.qbox#'+qid).find("span#"+qid+"_subtotal");
-	    var $subtotal_raw  = $(this).parents('div.qbox#'+qid).find("span."+qid+"_subtotal");
-	    var $total     = $(this).parents('div.qbox#'+qid).find("span#"+qid+"_total");
-	    var $total_raw = $(this).parents('div.qbox#'+qid).find("span."+qid+"_total");
+        var $qbox      = $(this).parents('div.qbox')
+         if (isNaN($qbox))
+            $qbox      = $(this).parents('div.TaskEdit___1Xmiy6lz');
+        var $line_item = $(this).parents('.rTableRow.receipt_item, .rTableRow.service_item');
+	    var qid        = $qbox.attr('id'),
+            cid        = $line_item.data('cid');
+         if (typeof qid == 'undefined')
+            qid        = $qbox.data('cid');
+        var $this_form = $(this).parents("#"+cid);
+        var $this_row  = $(this).parents('.rTableRow');
+	    var $qty       = $line_item.find("input[data-name='qty'][data-qid="+qid_n+"]");
+	    var $cost      = $line_item.find("input[data-name='cost'][data-qid="+qid_n+"]");
+	    var $line_total= $line_item.find("span#"+qid_n+"_line_total");
+	    var $line_total_raw = $line_item.find("span."+qid_n+"_line_total_raw.line_total_raw");
+        var $sales_tax = $qbox.find("input[name='jot[sales_tax]'][data-qid="+qid+"]");
+	    var $shipping  = $qbox.find("input[name='jot[shipping_cost]'][data-qid="+qid+"]");
+	    var $subtotal  = $qbox.find("span#"+qid+"_subtotal");                                                                                       
+	    var $subtotal_raw  = $qbox.find("span."+qid+"_subtotal");
+	    var $total     = $qbox.find("span#"+qid+"_total");
+	    var $total_raw = $qbox.find("span."+qid+"_total_raw");
 	    var qty        = parseFloat($qty.val());
 	    var cost       = parseFloat($cost.val());
 	    var shipping   = parseFloat($shipping.val());
 	    var sales_tax  = parseFloat($sales_tax.val());
 	    var subtotal;
-	    var total;                                                        	    console.log('qty = '+qty); console.log('cost = '+cost);
-	    if (qty>0 && !isNaN(cost) && cost!=0){
-	    	var subtotal = 0;
-			var line_total = parseFloat(qty*cost)
-	    	$line_total.text(addCommas(line_total.toFixed(2)));
-	    	$line_total_raw.text(line_total);
-	    	$("span."+qid+"_line_total").each(function(){
-				var value = $(this).text();                     				console.log('value: '+value);
-				if(!isNaN(value) && value.length>0)
-					{subtotal += parseFloat(value);}
-			   });
-		   $subtotal.text(moneyFormat(subtotal));
-		   $subtotal_raw.text(subtotal);
-		   if(isNaN(shipping)  || shipping.length  == 0){shipping  = 0;}
-		   if(isNaN(sales_tax) || sales_tax.length == 0){sales_tax = 0;}
-		   total = subtotal+shipping+sales_tax;
-		   $total.text(moneyFormat(total)); 
-		   $total_raw.text(total);                                            console.log('total = '+total);
-   		}
-	   else {$line_total.text('-');}
+	    var total;                                                       	    console.log('qty = '+qty); console.log('cost = '+cost); console.log('qid = '+qid); console.log('qid_n = '+qid_n);console.log('$qbox = ',$qbox);
+    	var subtotal = 0;
+		var line_total = parseFloat(qty*cost)
+    	$line_total.text(addCommas(line_total.toFixed(2)));
+    	$line_total_raw.text(line_total);
+    	$qbox.find("span.line_total_raw").each(function(){
+			var value = $(this).text();                     				console.log('value: '+value);
+			if(!isNaN(value) && value.length>0)
+				{subtotal += parseFloat(value);}
+		   });
+	   $subtotal.text(moneyFormat(subtotal));
+	   $subtotal_raw.text(subtotal);
+	   if(isNaN(shipping)  || shipping.length  == 0){shipping  = 0;}
+	   if(isNaN(sales_tax) || sales_tax.length == 0){sales_tax = 0;}
+	   total = subtotal+shipping+sales_tax;
+	   $total.text(moneyFormat(total)); 
+	   $total_raw.text(total);                                            console.log('total = '+total);
+          /*calculate tax rate when taxable checkbox is pre-checked on a row for which a user enters a cost value**/
+         if ($line_item.find("input[data-name='taxable']").prop("checked")){
+             var taxableSum = 0;
+             var taxableItems = 0;
+             var salesTax   = $this_form.find("input[data-name='sales_tax'][data-qid="+qid+"]").val();
+             $this_form.find("[data-name='taxable']:checked"). each(function(e){
+                   qid_n = $(this).data('qid');
+                   cost  = $(this).parents('.rTableRow').find("span."+qid_n+"_line_total_raw").html();
+                   taxableSum += parseFloat(cost);
+                   taxableItems ++;
+             });
+             if (parseFloat(salesTax) > 0 && taxableSum > 0){
+                   var taxRate = parseFloat(salesTax)/taxableSum
+                   var taxRateLabel = percentFormat(taxRate, 2);
+                   $this_form.find('span.'+cid+'_sales_tax_rate').text(' (' + taxRateLabel + ')');
+             }
+         }
 	});
    $(document).on('change', "input[name='jot[shipping_cost]'], input[name='jot[sales_tax]']",function(e){
 	    var qid        = $(this).data('qid');
@@ -1090,7 +1244,7 @@ $(document).ready(function(){
 	    var $subtotal  = $(this).parents('.rTableBody').find("span#"+qid+"_subtotal");
 	    var $subtotal_raw  = $(this).parents('.rTableBody').find("span."+qid+"_subtotal");
 	    var $total     = $(this).parents('.rTableBody').find("span#"+qid+"_total");
-	    var $total_raw = $(this).parents('.rTableBody').find("span."+qid+"_total");
+	    var $total_raw = $(this).parents('.rTableBody').find("span."+qid+"_total_raw");
 	    var sales_tax  = parseFloat($sales_tax.val());
 	    var shipping   = parseFloat($shipping.val());
 	    var subtotal   = parseFloat($subtotal_raw.text());
@@ -1100,30 +1254,50 @@ $(document).ready(function(){
 		$total.text(moneyFormat(subtotal+shipping+sales_tax)); 
 		$total_raw.text(subtotal+shipping+sales_tax);
    });
-	// Source: https://www.codeproject.com/Questions/1103675/How-to-set-thousand-saprator-in-javascript-or-jque
-   function addCommas(nStr) {
-	    nStr += '';
-	    x = nStr.split('.');
-	    x1 = x[0];
-	    x2 = x.length > 1 ? '.' + x[1] : '';
-	    var rgx = /(\d+)(\d{3})/;
-	    while (rgx.test(x1)) {
-	            x1 = x1.replace(rgx, '$1' + ',' + '$2');
-	    }
-	    return x1 + x2;
-	}
-
-   function moneyFormat(nStr) {
-	    nStr = parseFloat(nStr).toFixed(2).toString();
-	    x = nStr.split('.');
-	    x1 = x[0];
-	    x2 = x.length > 1 ? '.' + x[1] : '';
-	    var rgx = /(\d+)(\d{3})/;
-	    while (rgx.test(x1)) {
-	            x1 = x1.replace(rgx, '$1' + ',' + '$2');
-	    }
-	    return '$'+ x1 + x2;
-	}
+   $(document).on('change', "input[data-name='shipping_cost'], input[data-name='sales_tax']",function(e){
+         var qid        = $(this).data('qid');
+         var cid        = qid;
+         var $this_form = $(this).parents("#"+qid);
+         var $sales_tax = $this_form.find("input[data-name='sales_tax'][data-qid="+qid+"]");
+         var $shipping  = $this_form.find("input[data-name='shipping_cost'][data-qid="+qid+"]");
+         var $subtotal  = $this_form.find("span#"+qid+"_subtotal");
+         var $subtotal_raw  = $this_form.find("span."+qid+"_subtotal_raw");
+         var $total     = $this_form.find("span#"+qid+"_total");
+         var $total_raw = $this_form.find("span."+qid+"_total_raw");
+         var sales_tax  = parseFloat($sales_tax.val());
+         var shipping   = parseFloat($shipping.val());
+         var subtotal   = parseFloat($subtotal_raw.text());
+          if(isNaN(subtotal)  || subtotal.length  == 0){subtotal  = 0;}
+          if(isNaN(shipping)  || shipping.length  == 0){shipping  = 0;}
+          if(isNaN(sales_tax) || sales_tax.length == 0){sales_tax = 0;}
+          $total.text(moneyFormat(subtotal+shipping+sales_tax)); 
+          $total_raw.text(subtotal+shipping+sales_tax);
+   });
+   $(document).on('change', "input[data-name='taxable'], input[data-name='sales_tax']", function(e){
+// D R A F T - Calculate the sales tax percentage
+         var cid        = $(this).parents('.TaskEdit___1Xmiy6lz').data('cid');
+         var $this_form = $(this).parents("#"+cid);
+         var salesTax   = $this_form.find("input[data-name='sales_tax'][data-qid="+cid+"]").val();
+         var taxableSum = 0;
+         var taxableItems = 0;
+         $this_form.find("[data-name='taxable']:checked"). each(function(e){
+               var qid_n = $(this).data('qid');
+               var cost  = $(this).parents('.rTableRow').find("span."+qid_n+"_line_total_raw").html();
+               taxableSum += parseFloat(cost);
+               taxableItems ++;
+         });
+         if (parseFloat(salesTax) > 0 && taxableSum > 0){
+               var taxRate = parseFloat(salesTax)/taxableSum
+               var taxRateLabel = percentFormat(taxRate, 2);
+               $this_form.find('span.'+cid+'_sales_tax_rate').text(' (' + taxRateLabel + ')');
+         }
+         if (taxableItems == 0){
+               $this_form.find('span.'+cid+'_sales_tax_rate').text('');
+         }
+         console.log('cid: '+cid+' salesTax: '+salesTax +' taxRate: '+taxRate+' taxRateLabel: '+taxRateLabel+' taxableItems: '+taxableItems);
+         
+         
+   });
 	$(document).on('change', 'select.properties-item-type', function(e){
 		var item_type = $(this).find(':selected').val();
 		console.log('item_type: '+item_type);
@@ -1148,10 +1322,6 @@ $(document).ready(function(){
 		}
 		$this.parent('span').prev(".quebx-list-boqx-viewarea").slideToggle("slow");
     });
-	
-};
-    
-quebx.framework.dunno = function() {
 
 /*	$(document).on('keydown', 'input.last_characteristic', function(e) { 
 	    var keyCode = e.keyCode || e.which; 
@@ -1399,7 +1569,7 @@ quebx.framework.dunno = function() {
 		    var $subtotal  = $qbox.find("span#"+qid+"_subtotal");
 		    var $subtotal_raw  = $qbox.find("span."+qid+"_subtotal");
 		    var $total     = $qbox.find("span#"+qid+"_total");
-		    var $total_raw = $qbox.find("span."+qid+"_total");
+		    var $total_raw = $qbox.find("span."+qid+"_total_raw");
 		    var shipping   = parseFloat($shipping.val());
 		    var sales_tax  = parseFloat($sales_tax.val());
 		    var subtotal   = 0;
@@ -1438,6 +1608,65 @@ quebx.framework.dunno = function() {
 	    $('div.jq-dropdown#'+qid_n).remove();
 		
 	});
+    $(document).on('click', '.remove-receipt-item', function(e){
+          e.preventDefault();
+          // remove the node
+         var $qbox         = $(this).parents('div.TaskEdit___1Xmiy6lz'),
+             element_type  = $(this).data('element'),
+             qid_n         = $(this).data('qid'),
+         $receipt_item_add = $(this).parents('.rTable.receipt-line-items').find('a.new-item');
+         var $line_item    = $(this).parents('.rTableRow.receipt_item');
+         var qid           = $qbox.attr('id'),
+            cid            = $line_item.data('cid');
+         if (typeof qid == 'undefined')
+            qid            = $qbox.data('cid');
+         var item_rows     = $receipt_item_add.attr('data-rows');
+         var $qty          = $(this).parents('.rTableRow.receipt_item').find("input[data-name='qty'][data-qid="+qid_n+"]");
+         var $cost         = $(this).parents('.rTableRow.receipt_item').find("input[data-name='cost'][data-qid="+qid_n+"]");
+         var $line_total   = $(this).parents('.rTableRow.receipt_item').find("span#"+qid_n+"_line_total");
+         var $line_total_raw = $(this).parents('.rTableRow.receipt_item').find("span."+qid_n+"_line_total.line_total_raw");
+         var $sales_tax      = $qbox.find("input[name='jot[sales_tax]'][data-qid="+qid+"]");
+         var $shipping       = $qbox.find("input[name='jot[shipping_cost]'][data-qid="+qid+"]");
+         var $subtotal       = $qbox.find("span#"+qid+"_subtotal");                                                                                       
+         var $subtotal_raw   = $qbox.find("span."+qid+"_subtotal");
+         var $total          = $qbox.find("span#"+qid+"_total");
+         var $total_raw      = $qbox.find("span."+qid+"_total_raw");
+         var subtotal        = 0;
+         var line_total      = parseFloat(qty*cost);
+         
+         var qty        = parseFloat($qty.val());
+         var cost       = parseFloat($cost.val());
+         var shipping   = parseFloat($shipping.val());
+         var sales_tax  = parseFloat($sales_tax.val());
+         var subtotal;
+         var total;                                    
+         $receipt_item_add.attr('data-rows', item_rows-1);
+         $('.rTableRow.receipt_item[data-qid='+qid_n+']').remove();
+         $('div.jq-dropdown#'+qid_n).remove();
+         $line_total.text(addCommas(line_total.toFixed(2)));
+         $line_total_raw.text(line_total);
+         $qbox.find("span.line_total_raw").each(function(){
+                   var value = $(this).text();                                      console.log('value: '+value);
+                   if(!isNaN(value) && value.length>0)
+                        {subtotal += parseFloat(value);}
+                 });
+         $subtotal.text(moneyFormat(subtotal));
+         $subtotal_raw.text(subtotal);
+         if(isNaN(shipping)  || shipping.length  == 0){shipping  = 0;}
+         if(isNaN(sales_tax) || sales_tax.length == 0){sales_tax = 0;}
+         total = subtotal+shipping+sales_tax;
+         $total.text(moneyFormat(total)); 
+         $total_raw.text(total);   
+     });
+     
+	   function moneyFormat(nStr) {
+		    nStr = parseFloat(nStr).toFixed(2).toString();
+            return '$' + addCommas(nStr);
+		}
+        function percentFormat(nStr, precision){
+            nStr = parseFloat(nStr*100).toFixed(precision).toString();
+            return nStr+'%';
+        } 
 	// Source: https://www.codeproject.com/Questions/1103675/How-to-set-thousand-saprator-in-javascript-or-jque
 	   function addCommas(nStr) {
 		    nStr += '';
@@ -1451,17 +1680,6 @@ quebx.framework.dunno = function() {
 		    return x1 + x2;
 		}
 
-	   function moneyFormat(nStr) {
-		    nStr = parseFloat(nStr).toFixed(2).toString();
-		    x = nStr.split('.');
-		    x1 = x[0];
-		    x2 = x.length > 1 ? '.' + x[1] : '';
-		    var rgx = /(\d+)(\d{3})/;
-		    while (rgx.test(x1)) {
-		            x1 = x1.replace(rgx, '$1' + ',' + '$2');
-		    }
-		    return '$'+ x1 + x2;
-		}
 	$(document).on('click', '.remove-receipt-node', function(e){
 		e.preventDefault();
 		// remove the node
@@ -1815,5 +2033,4 @@ quebx.framework.ajax =
 //};
 */
 elgg.register_hook_handler('init', 'system', quebx.framework.init);
-elgg.register_hook_handler('init', 'system', quebx.framework.dunno);
 <?php if (FALSE) : ?></script><?php endif; ?>

@@ -80,9 +80,8 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
 			$class_str  = ($class)  ? " class=\"$class\""   : '';                             $display .= '79 $class_str = '.$class_str.'<br>';
 			$style_str  = ($style)  ? " style=\"$style\""   : '';
 			$id_str     = ($id)     ? " id=\"$id\""         : '';
-			$qid_str    = ($qid)    ? " data-qid=\"$qid\""     : '';
-			$parent_cid_str    = ($parent_cid)    ? " data-parent-cid=\"$parent_cid\""     : '';
-			$cid_str    = ($cid)    ? " data-cid=\"$cid\""     : '';
+			$qid_str    = ($qid)    ? " data-qid=\"$qid\""  : '';
+			$cid_str    = ($cid)    ? " data-cid=\"$cid\""  : '';
 			$guid_str   = ($guid)   ? " guid=\"$guid\""     : '';
 			$panel_str  = ($panel)  ? " panel=\"$panel\""   : '';
 			$aspect_str = ($aspect) ? " aspect=\"$aspect\"" : '';
@@ -101,21 +100,21 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
 				unset($options['url']);
 			}
 */			
-			if ($presentation == 'qbox' || $presentation == 'popup'){
+//			if ($presentation == 'qbox' || $presentation == 'popup'){
 				$options['data-section'] = elgg_strtolower($section);
 				$options['data-element'] = $element;
 //				$options['class']        = 'qbox-q';
-				if (isset($qid))           {$options['data-qid']="{$qid}_{$n}";}
-				else                       {$options['data-qid']="q{$guid}_01_{$n}";}
-				if (isset($parent_cid))    {$options['data-parent-cid']=$parent_cid;}
+// 				if (isset($qid))           {$options['data-qid']="{$qid}_{$n}";}
+//				else                       {$options['data-qid']="q{$guid}_01_{$n}";}
+				
 				if (isset($cid))           {$options['data-cid']=$cid;}
 //				if ($space == 'transfer')  {$options['class']='qbox-q2';}
 // 				if ($space == 'transfer' && !$selected){$options['class']='qbox-q2';}
 // 				if ($space == 'transfer' &&  $selected){$options['class']='elgg-state-selected';}
-			}
+//			}
 			
-			if ($count && $count>0) $count_label = "<span class='$aspect-".strtolower($section)."-count' data-qid='{$options['data-qid']}' data-count=$count> ($count)</span>";
-			else                    $count_label = "<span class='$aspect-".strtolower($section)."-count' data-qid='{$options['data-qid']}' data-count=0></span>";
+			if ($count && $count>0) $count_label = "<span class='$aspect-".strtolower($section)."-count' data-cid='{$options['data-cid']}' data-count=$count> ($count)</span>";
+			else                    $count_label = "<span class='$aspect-".strtolower($section)."-count' data-cid='{$options['data-cid']}' data-count=0></span>";
 			
             if (!isset($info['text']) && isset($info['title'])) {
                 $options['text'] = $options['title'].$count_label;
@@ -150,7 +149,6 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
 			          $action_str
 			          $guid_str
 			          $qid_str
-			          $parent_cid_str
 			          $cid_str
 			          $panel_str
 			          $style_str>$text</li>";

@@ -2,6 +2,7 @@
 <?php
 $guid      = elgg_extract('guid', $vars);
 $qid       = elgg_extract('qid', $vars);
+$cid       = elgg_extract('cid', $vars);
 $space     = elgg_extract('space',$vars);
 $aspect    = elgg_extract('aspect',$vars);
 $perspective=elgg_extract('perspective', $vars);
@@ -14,6 +15,7 @@ $show_full = elgg_extract('show_full_view', $vars, true);
 $disable_save = elgg_extract('disable_save', $vars, false);
 $position  = elgg_extract('position', $vars, false);
 $element   = elgg_extract('element', $vars, 'qbox');
+$message   = elgg_extract('message', $vars, false);
 $close_icon= elgg_view_icon('window-close',['title'=>'Close']);
 $minimize_icon = elgg_view_icon('window-minimize',['title'=>'Minimize']);
 $tabs      = elgg_extract('tabs', $vars, false);
@@ -27,7 +29,7 @@ if(elgg_extract('show_title', $vars, true)==true){
 	$qbox_title = "<div id='qboxTitle'>$title</div>";
 }
 if ($perspective == 'add' || $perspective == 'edit'){ //assume form
-	$content = elgg_view_form($action, $form_vars, $body_vars);
+//	$content = elgg_view_form($action, $form_vars, $body_vars);
 }
 if ($context == 'market'){$domain = $context;} // Used in the $full_view_link
 else                     {$domain = 'jot';}
@@ -49,14 +51,16 @@ else {
 							     $save_icon
 						     </a>":
                            null;*/
-$save_button = $show_save ? "<button  class='do inlineSave inline-controls-button' type='submit' id='qboxSave' data-qid='$qid' value='Save' $disabled data-perspective='save'>
+if (isset($cid)){$data_cid = "data-cid='$cid'";}
+if (isset($qid)){$data_qid = "data-qid='$qid'";}
+$save_button = $show_save ? "<button  class='do inlineSave inline-controls-button' type='submit' id='qboxSave' $data_qid $data_cid value='Save' $disabled data-perspective='save'>
 							     $save_icon
 						     </button>":
                            null;
-$close_button = "<button class='inlineClose inline-controls-button' type='button' data-qid='$qid' data-perspective='$perspective'>
+$close_button = "<button class='inlineClose inline-controls-button' type='button' $data_qid $data_cid data-perspective='$perspective'>
 					$close_icon
 				</button>";
-$minimize_button = "<button class='inlineMinimize inline-controls-button' type='button' data-qid='$qid' data-perspective='$perspective'>
+$minimize_button = "<button class='inlineMinimize inline-controls-button' type='button' $data_qid $data_cid data-perspective='$perspective'>
 					$minimize_icon
 				</button>";
 /*$full_view_link = elgg_view('output/url',['text'=>elgg_view_icon('external-link',['title'=>'full view']),
@@ -76,30 +80,34 @@ $minimize_button = "<button class='inlineMinimize inline-controls-button' type='
 if ($position){$pos_style = "style='position:$position'";}
 if ($let_edit){
 	$edit_button = elgg_view('output/div',['content'=>elgg_view('output/url',['text'=>elgg_view_icon('edit',['title'=>'Edit','class'=>'far']), 
-								                                  		      'class'=>'do',
-			                                                                  'data-element'=>$element,
-			                                                                  'data-space'=>$space,
-			                                                                  'data-aspect'=>$aspect,
-			                                                                  'data-context'=>$context,
-			                                                                  'data-guid'=>$guid,
-			                                                                  'data-qid'=>$qid,
-			                                                                  'data-perspective'=>'edit',
-			                                                                  'data-presentation'=>'inline']),
+								                                  		      'class'            => 'do',
+			                                                                  'data-element'     => $element,
+			                                                                  'data-space'       => $space,
+			                                                                  'data-aspect'      => $aspect,
+			                                                                  'data-context'     => $context,
+			                                                                  'data-guid'        => $guid,
+			                                                                  'data-qid'         => $qid,
+	                                                                          'data-cid'         => $cid,
+			                                                                  'data-perspective' => 'edit',
+			                                                                  'data-presentation'=> 'inline',
+	                                                                          'data-presence'    => 'inline',
+	]),
 	                                       'class'  => 'inlineEdit inline-controls-button',
 //			                               'options'=>['id'=>'inlineEdit']
 	]);
 }
 if ($let_view){
 	$edit_button = elgg_view('output/div',['content'=>elgg_view('output/url',['text'=>elgg_view_icon('file',['title'=>'View','class'=>'far']), 
-								                                  		      'class'=>'do',
-			                                                                  'data-element'=>$element,
-			                                                                  'data-space'=>$space,
-			                                                                  'data-aspect'=>$aspect,
-			                                                                  'data-context'=>$context,
-			                                                                  'data-guid'=>$guid,
-			                                                                  'data-qid'=>$qid,
-			                                                                  'data-perspective'=>'view',
-			                                                                  'data-presentation'=>'inline']),
+								                                  		      'class'            => 'do',
+			                                                                  'data-element'     => $element,
+			                                                                  'data-space'       => $space,
+			                                                                  'data-aspect'      => $aspect,
+			                                                                  'data-context'     => $context,
+			                                                                  'data-guid'        => $guid,
+                                                                        	  'data-qid'         => $qid,
+                                                                        	  'data-cid'         => $cid,
+			                                                                  'data-perspective' => 'view',
+			                                                                  'data-presentation'=> 'inline']),
                                     	    'class'=>'inlineView inline-controls-button',
 //                                    	    'options'=>['id'=>'inlineView']
 	]);
@@ -112,12 +120,16 @@ if ($show_full){
 	]);}
 	if ($title && $show_title) $title = "<div class='inline-controls-title'>$title</div>";
 if (!$show_title){unset($title);}
-
-$form_body = "<div class='inline-content-expand' id='$qid'>
+if ($message){
+    $msg = elgg_view('output/div', ['content'=>$message,
+        'class'  =>'message-stamp']);
+}
+$form_body = "<div class='inline-content-expand' $data_qid $data_cid>
 				<div class='inline inline-visible' $pos_style role='data entry' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context'>
 						<div class='inlineLoadedContent'>
                             <div class='inline-controls'>
-    							$title
+                                $title
+                                $msg
     							$full_button
     							$save_button
     	                        $edit_button

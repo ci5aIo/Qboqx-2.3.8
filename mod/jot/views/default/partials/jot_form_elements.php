@@ -73,13 +73,15 @@ $space        = elgg_extract('space', $vars);
 $aspect       = elgg_extract('aspect', $vars);
 $action       = elgg_extract('action', $vars);
 $perspective  = elgg_extract('perspective', $vars);
-$presentation = elgg_extract('presentation', $vars, 'qbox'); // Desired presentation of the form
-$presence     = elgg_extract('presence', $vars);             // Current presentation of the form
+$presence     = elgg_extract('presence', $vars);                // Current presentation of the form
+$presentation = elgg_extract('presentation', $vars, $presence); // Desired presentation of the form
 $context      = elgg_extract('context', $vars);
 $section      = elgg_extract('section', $vars, false);
 $compartment  = elgg_extract('compartment', $vars, 'Profile');
 $form_class   = elgg_extract('form_class', $vars, 'inline-container');
 $view_type    = elgg_extract('view_type', $vars, 'compact');
+$message      = elgg_extract('message', $vars);
+$data_prefix  = elgg_extract('data_prefix', $vars, "jot[transfer][$parent_cid][$cid][$n][");
 if (elgg_entity_exists($guid)){
 	$entity  = get_entity($guid);
 	$subtype = $entity->getSubtype();
@@ -99,23 +101,48 @@ Switch ($element){
 				                              'options'=> ['id'=>"{$qid_n}_$element"]]);
 		break;
 	case 'properties':
-			    $form_body .="<div id=$qid_n class='jq-dropdown jq-dropdown-tip jq-dropdown-relative'>
-	                           <div class='jq-dropdown-panel'>".
-                                   elgg_view('forms/market/properties', [
-	    	                                   'element_type'   =>'receipt_item',
-	    	                                   'container_type' => 'transfer',
-		                                       'qid'            => $qid,
-                                          	   'qid_n'          => $qid_n,
-		                                       'line_item_behavior_list_class'  => $qid_n."_line_item_behavior_list",
-                                               'line_item_behavior_list_data'   =>['qid'=>$qid_n],
-		                                       'line_item_behavior_radio_class' => 'receipt-line-item-behavior',
-	                        	   ])."
-	                           </div>
-                           </div>";
+	    $form_body .="<div id='{$cid}_{$n}' class='jq-dropdown jq-dropdown-tip jq-dropdown-relative'>
+                       <div class='jq-dropdown-panel'>".
+                           elgg_view('forms/market/properties', [
+	                                   'element_type'   =>'receipt_item',
+	                                   'container_type' => 'transfer',
+                                       'qid'            => $qid,
+                                  	   'qid_n'          => $qid_n,
+                                       'presence'       => $presence,
+                                       'line_item_behavior_list_class'  => $qid_n."_line_item_behavior_list",
+                                       'line_item_behavior_list_data'   =>['qid'=>$qid_n],
+                                       'line_item_behavior_radio_class' => 'receipt-line-item-behavior',
+                    	   ])."
+                       </div>
+                   </div>";
+		break;
+	case 'properties_receipt_item':
+/*	    $content = elgg_view('forms/market/properties', [
+	                                   'element_type'   =>'receipt_item',
+	                                   'container_type' => 'transfer',
+                                       'qid'            => $qid,
+                                  	   'qid_n'          => $qid_n,
+                                       'presence'       => $presence,
+                                       'line_item_behavior_list_class'  => $qid_n."_line_item_behavior_list",
+                                       'line_item_behavior_list_data'   =>['qid'=>$qid_n],
+                                       'line_item_behavior_radio_class' => 'receipt-line-item-behavior',
+                    	   ]);
+*/
+	    $content = elgg_view('forms/market/profile',['presentation'=>'qboqx',
+	                                                 'data_prefix' => $data_prefix,
+	                                                 'parent_cid'  => $parent_cid,
+	                                                 'cid'         => $cid,
+	                                                 'n'           => $n]);
+	    $form_body .="<div id='{$cid}_{$n}' class='jq-dropdown jq-dropdown-tip jq-dropdown-relative'>
+                       <div class='jq-dropdown-panel' style='max-width:400px'>
+                            $content
+                       </div>
+                   </div>";
 		break;
 	case 'properties_service_item':
+//			    $form_body .="<div id={$cid}_{$n} class='qboqx-dropdown qboqx-dropdown-tip qboqx-dropdown-relative_xxx'>
 			    $form_body .="<div id={$cid}_{$n} class='jq-dropdown jq-dropdown-tip jq-dropdown-relative'>
-	                           <div class='jq-dropdown-panel'>".
+	                           <div class='qboqx-dropdown-panel'>".
                                    elgg_view('forms/market/properties', [
 	    	                                   'element_type'   =>'service_item',
 	    	                                   'container_type' => 'experience',
@@ -127,7 +154,16 @@ Switch ($element){
                                </div>
                            </div>";
 		break;
+	case 'new_receipt':
+//		$form_body = elgg_view('forms/transfers/edit',['perspective'=>'add', 'section'=>'boqx_contents_receipt', 'snippet'=>'marker1', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$qid, 'n'=>$n]);
+	    $form_body = elgg_view('forms/transfers/edit',['perspective'=>'add', 'section'=>'boqx_contents_receipt', 'snippet'=>'marker1', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'n'=>$n]);
+//		$form_body = elgg_view('forms/transfers/elements/receipt', ['presentation'=>'box_experimental', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'n'=>$n]);
+		break;
 	case 'new_receipt_item':
+	    if ($presence == 'panel') {
+	        $form_body = elgg_view('forms/transfers/edit',['perspective'=>'add', 'section'=>'boqx_contents_receipt', 'snippet'=>'receipt_item', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$qid, 'qid_n'=>$qid_n, 'n'=>$n]);
+	        break;
+	    }
 		$delete = elgg_view('output/url', ['title'=>'remove receipt item',
 									       'class'=>'remove-node',
 										   'data-qid' => $qid_n,
@@ -138,7 +174,7 @@ Switch ($element){
 										                  'data-qid'            => $qid_n,
 										                  'data-horizontal-offset'=>"-15",
 								                          'text'                => elgg_view_icon('settings-alt'), 
-								                          'title'               => 'set properties',
+								                          'title'               => 'Detailed description',
 		]);
 		
 
@@ -172,7 +208,7 @@ Switch ($element){
 						<div class='rTableCell'><span id='{$qid_n}_line_total'></span><span class='{$qid}_line_total line_total_raw'></span></div>
                      </div>";
 		//$form_body .= $property_cards;
-    break; //($element_type == 'new_receipt_item')
+        break; //($element_type == 'new_receipt_item')
 	case 'new_discovery_item':
 		$delete = elgg_view('output/url', ['title'=>'remove receipt item',
 									       'class'=>'remove-node',
@@ -221,7 +257,7 @@ Switch ($element){
 		$form_body = elgg_view('forms/experiences/edit',['section'=>'issue_effort_service', 'action'=>'add', 'snippet'=>'marker1', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$qid, 'n'=>$n]);
 		break;
 	case 'new_remedy_item':                                                                       $display .= 'service_cid: '.$service_cid.'<br>$cid: '.$cid.'<br>$qid: '.$qid.'<br>';
-		$form_body = elgg_view('forms/experiences/edit',['section'=>'issue_effort', 'action'=>'add', 'snippet'=>'marker', 'cid'=>$cid, 'service_cid'=>$service_cid, 'qid'=>$qid, 'n'=>$n]);
+		$form_body = elgg_view('forms/experiences/edit',['section'=>'issue_effort', 'action'=>'add', 'snippet'=>'marker', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'service_cid'=>$service_cid, 'qid'=>$qid, 'n'=>$n]);
 		break;
 	case 'q':
 		switch($aspect){
@@ -279,7 +315,7 @@ Switch ($element){
                 if ($expansion) {
                 	$selected                   = $expansion->aspect;
                 }
-				$tab_vars  = ['menu'            => 'q_expand',
+/*				$tab_vars  = ['menu'            => 'q_expand',
                               'guid'            => $guid,
         		              'class'           => "qbox-$guid",
 						      'qid_parent'      => $qid,
@@ -287,7 +323,7 @@ Switch ($element){
 				$expand_tabs                    =  elgg_view('jot/menu', $tab_vars);
         		unset($tab_vars);
 		        $forms_action                   =  'forms/experiences/edit';
-/*				$body_vars = ['guid'            => $guid,
+				$body_vars = ['guid'            => $guid,
 						      'container_guid'  => $guid,
 						      'qid'             => $qid.'_1',
 		                      'section'         => 'things',
@@ -342,7 +378,7 @@ Switch ($element){
 					    $vars['content']        = $content;
 					    $vars['show_save']      = false;
 					    $vars['show_title']     = false;
-					    $form_body              = elgg_view_layout('inline', $vars);
+					    $form_body              = elgg_view_layout($presentation, $vars);
 					    break;
 					case 'lightbox':
 						$vars['action']         = $forms_action;
@@ -743,7 +779,8 @@ Switch ($element){
 		break;
 	case 'market':
 		switch ($perspective){
- 			case 'edit':
+		    case 'add':
+		    case 'edit':
 //				$forms_action    =  'forms/market/profile';
 //				$body_vars = ['guid'    => $guid];
  				if ($context == 'market'){
@@ -757,24 +794,53 @@ Switch ($element){
 				$body_vars = ['guid'        => $guid,
 						      'qid'         => $qid,
 						      'qid_n'       => $qid_n,
+				              'cid'         => $cid,
 						      'space'       => $space,
 						      'aspect'      => $aspect,
 						      'perspective' => $perspective,
 						      'context'     => $context,
-						      'presentation'=> $presentation];
+        				      'presentation'=> 'inline',//$presentation,
+        				      'view_type'   => 'inline',
+				];
+				if ($perspective == 'add') unset($body_vars['guid']);
 				$content = elgg_view_form($form_version, $form_vars, $body_vars);				  
-//				$content   = elgg_view($forms_action, $body_vars);
-		 		if ($context == 'widgets'){
-		        	$vars['content']        = $content;
-			 		$vars['show_save']      = false;                   //Upper Save icon lands outside of the form and won't work.
-			 		$vars['show_full_view'] = false;
-			        $vars['position']       = 'relative';
-		        	$form_body = elgg_view_layout('inline', $vars);}
-		        else {
-		        	$form_body = "<div class = 'qbox-container inline-content-expand' id=$qid>
-						           		$content
-						          </div>";
-		        }
+//				$content   = elgg_view('forms/'.$form_version, $body_vars);
+                switch ($context){
+                    case 'widgets':
+    		        	$vars['content']        = $content;
+    			 		$vars['show_save']      = false;                   //Upper Save icon lands outside of the form and won't work.
+    			 		$vars['show_full_view'] = false;
+    			        $vars['position']       = 'relative';
+    		        	$form_body = elgg_view_layout('inline', $vars);
+    		        	break;
+ 			        default:
+ 			            switch ($presentation){
+                 			case 'popup':
+                 			    $vars['content']        = $content;
+                 			    $vars['show_save']      = false;                   //Upper Save icon lands outside of the form and won't work.
+                 			    $vars['show_full_view'] = false;
+                 			    $vars['show_title']     = true;
+                 			    $vars['show_tip']       = false;
+                 			    $vars['position']       = 'relative';
+                 			    $vars['presentation']   = $presentation;
+                 			    $vars['anchored']       = true;
+                 			    $form_body = elgg_view_layout('qbox', $vars);
+//                 			    $form_body = elgg_view_layout('inline', $vars);
+//                  			    $form_body .="<div id=$cid class='qboqx-dropdown qboqx-dropdown-tip qboqx-dropdown-relative'>
+//                                  			    <div class='qboqx-dropdown-panel'>
+//                                                     $content
+//                                                </div>
+//                                              </div>";
+                 			    break;
+                 			default: 
+                 			    if (isset($cid)){$data_cid = "data-cid='$cid'";}
+                 			    if (isset($qid)){$data_qid = "data-qid='$qid'";}
+        		        	    $form_body = "<div class = 'qbox-container inline-content-expand' $data_qid $data_cid>
+            						           		$content
+            						          </div>";
+         			            }
+    				break;
+		          }
 				break;
  			case 'view':
  					unset($compartments);
@@ -788,7 +854,7 @@ Switch ($element){
 				    $compartments[] = 'Gallery';
 				    $compartments[] = 'Timeline';
 		 		$this_compartment   = $compartments[0]; 
- 				$body_vars            = ['entity'      =>$entity,
+ 				$body_vars            = [//'entity'      =>$entity,
 			 						     'guid'        =>$guid,
 			 						     'qid'         =>$qid,
  						                 'qid_n'       => $vars['qid_n'],
@@ -799,7 +865,9 @@ Switch ($element){
 										 'view_type'   => 'inline',
  						                 'element'     => $element,
 										 'perspective' => $perspective,
- 				                         'presentation'=>$presentation];
+ 				                         'presentation'=> $presentation,
+ 				                         'presence'    => $presentation,
+ 				];
 				$content              = elgg_view_entity($entity, $body_vars);
 		 		$vars['content']      = $content;
 		 		$vars['show_save']    = false;
@@ -864,7 +932,10 @@ Switch ($element){
 		    case 'edit':
 			    $max_width = '500px';
 			    $n            = 0;
-			    $forms_action = 'forms/experiences/edit';
+			    $forms_action = 'experiences/edit';
+			    $form_vars = ['name'    => 'jotForm',
+			        'enctype' => 'multipart/form-data',
+			        'action'  => 'action/jot/edit_scratch',];
 			    $container_guid = $entity->container_guid;
 			    $tab_vars     = ['menu'         => 'q_expand',
             			         'guid'         => $guid,
@@ -892,20 +963,30 @@ Switch ($element){
             			         'link_class'   => 'qbox-q qbox-menu',
             			         'attachments'  => ['things'=>1]];
 			    $tabs          =  elgg_view('quebx/menu', $tab_vars);
-				
-			    $form_body     = elgg_view('forms/experiences/edit',
-				               ['guid'          => $guid,
-            				    'container_guid'=> $container_guid,
-            				    'section'       => 'main',
-            				    'tabs'          => $tabs,
-            				    'expand_tabs'   => $expand_tabs,
-            				    'selected'      => true,
-				                'presence'      => $presentation,   //The form presents as originally presented
-            				    'presentation'  => $presentation,
-            				    'action'        => $action,
-//				                'preloaded_panels'=>$preloaded_panels,
-				                'preload_panels'=> $preload_panels,
-				               ]);
+			    $body_vars     = ['guid'          => $guid,
+                			    //            				    'container_guid'=> $container_guid,
+                			      'qid'           => $qid,
+                			      'qid_n'         => $qid_n,
+                			      'cid'           => $cid,
+                			      'space'         => $space,
+                			      'aspect'        => $aspect,
+                			      'section'       => 'main',
+                			        //            				    'tabs'          => $tabs,
+                			    //            				    'expand_tabs'   => $expand_tabs,
+                			      'selected'      => true,
+                			      'presence'      => $presence,
+                			      'presentation'  => $presentation,
+                			      'action'        => $action,
+                			      'perspective'   => $perspective,
+                			      'context'       => $context,
+                			      'view_type'     => $view_type,
+                			        //				                'preloaded_panels'=>$preloaded_panels,
+                			    //				                'preload_panels'=> $preload_panels,
+                			    ]; 
+			    $form_body     = elgg_view_form($forms_action, $form_vars, $body_vars);
+//			    $form_body     = elgg_view('forms/'.$forms_action, $body_vars);
+				                                                                           $display .= '916 $perspective: '.$perspective.'<br>916 $presence: '.$presence.'<br>';
+register_error($display);
 			    break;
 			case 'edit_xxx':
 			case 'view':
@@ -914,6 +995,7 @@ Switch ($element){
 				    case 'market':
 				    case 'experience':
 				            $qid_n = $qid."_01";
+				            $cid   = quebx_new_cid ();//'c'.mt_rand(1,999);
 				    case 'transfer':
     				        $close_icon= elgg_view_icon('window-close',['title'=>'Close']);
     				        $close_button = "<button class='inlineClose inline-controls-button' type='button' data-qid='$qid' data-perspective='$perspective'>
@@ -924,6 +1006,7 @@ Switch ($element){
 									      //'container_guid'=>$guid,
 									      'qid'           => $qid,
 									      'qid_n'         => $qid_n,
+		 					              'cid'           => $cid,
 									      'space'         => $space,
 					                      'aspect'        => $aspect,
 									      'asset'         => $entity->asset,
@@ -954,6 +1037,8 @@ Switch ($element){
 //     									                              'options'  => ['id'=>$qid]]);
 		 					    $form_body = elgg_view_layout('jq_dropdown', ['content'   => elgg_view_entity($entity, $body_vars),
 		 					                                                  'qid'       => $qid,
+		 					                                                  'class'     => 'qboqx',
+		 					                                                  'show_tip'  => false,
                                                                               'max_width' => $max_width]);
 //		 					}
 						break;

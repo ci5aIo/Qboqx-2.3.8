@@ -238,3 +238,6 @@ function quebx_display_child_nodes($options){
     }
     return $children;
 }
+function quebx_new_cid (){
+    return 'c'.mt_rand(1,999);
+}

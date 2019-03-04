@@ -102,7 +102,6 @@ $menu_sidebar = '
 </div>';
 
 $footer .= '<script>
-
 require(["elgg", "jquery"], function (elgg, $) {
 	$(document).ready(function(){
 	    $("#filter_queb").change(function() {
@@ -253,8 +252,24 @@ $module_add_receipt = elgg_view('output/div',['class'=>'elgg-head',
                                                'id'    =>'add_receipt_panel',
                                                'style' =>'display: none'],
                                    'content'=>elgg_view($view, $body_vars)]);
-
-$header .= $module_add_thing.$module_add_experience.$module_add_receipt;
+$module_add_effort = elgg_view('object/transfer',
+                                    ['perspective'      => 'add',
+                                     'space'           => 'transfer',
+                                    ]);
+/*$module_add_effort = elgg_view('forms/experiences/edit',
+                                    ['action'      => 'add',
+                                        'section'     => 'issue_effort',
+                                        'parent_cid'  => quebx_new_cid(),
+                                    ]);
+*//*$module_new_transfer = elgg_view('object/transfer',
+                                  ['view_type'    => 'panel',
+                                   'perspective'   => 'add',
+                                   'aspect'        => 'acquire',
+                                   'parent_cid'    => quebx_new_cid(),
+                                  ]
+    );
+*/
+$header .= $module_add_thing.$module_add_experience.$module_add_receipt.$module_add_effort;
 
 if (!empty($collection) || !empty($selected_owner) || !empty($selected_queb)){
     $filter   = 'Filters: ';

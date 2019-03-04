@@ -37,7 +37,7 @@ echo elgg_format_element('link', [
 
 ?>
 <div class="elgg-group-picker ui-front" data-limit="<?php echo $limit ?>" data-name="<?php echo $name ?>" data-handler="<?php echo $handler ?>">
-	<input type="text" class="elgg-input-group-picker" size="30"/>
+	<input type="text" class="elgg-input-group-picker" size="40" name=<?php echo $name?> >
 	<ul class="elgg-group-picker-list">
 		<?php
 		foreach ($guids as $guid) {

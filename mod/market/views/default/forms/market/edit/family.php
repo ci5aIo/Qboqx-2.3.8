@@ -1,6 +1,7 @@
 <!--View: market/views/default/forms/market/edit/family.php<br>  -->
 <?php
 $guid   = $vars['guid'];
+$presentation = elgg_extract('presentation', $vars);
 $entity = get_entity($guid);
 $entity_owner = get_entity($entity->owner_guid);
 $title  = $entity['title'];

@@ -28,6 +28,7 @@ $line_item_behavior_list_class  = elgg_extract('line_item_behavior_list_class', 
 $line_item_behavior_list_data   = elgg_extract('line_item_behavior_list_data',      $vars);
 $line_item_behavior_radio_class = elgg_extract('line_item_behavior_radio_class',     $vars);
 $action             = elgg_extract('action',          $vars, 'add');
+$presence           = elgg_extract('presence',        $vars);
 $submit_label       = elgg_echo('Set');
 $owner              = elgg_get_page_owner_entity();
 $owner_guid         = $owner->guid;
@@ -209,7 +210,7 @@ Switch ($element_type){
     									<div class='rTableCell' style='padding:5px 0px 5px 5px'>$sku</div>
     								</div>";
     	$content .= "			<div class='rTableRow'>
-    									<div class='rTableCell' style='padding:5px 0px 5px 25px'><label>Seller</label></div>
+    									<div class='rTableCell' style='padding:5px 0px 5px 25px'><label>Previous owner</label></div>
     									<div class='rTableCell' style='padding:5px 0px 5px 5px'>$seller</div>
     								</div>";
     	$content .= "		<div class='rTableRow'>
