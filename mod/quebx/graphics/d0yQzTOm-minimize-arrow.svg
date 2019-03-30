@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="12px"
+   height="12px"
+   viewBox="0 0 12 12"
+   version="1.1"
+   id="svg10"
+   sodipodi:docname="d0yQzTOm-minimize-arrow.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <metadata
+     id="metadata14">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="952"
+     inkscape:window-height="488"
+     id="namedview12"
+     showgrid="false"
+     inkscape:zoom="19.666667"
+     inkscape:cx="4.7061851"
+     inkscape:cy="7.1612121"
+     inkscape:window-x="333"
+     inkscape:window-y="398"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg10" />
+  <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+  <title
+     id="title2"></title>
+  <desc
+     id="desc4">Created with Sketch.</desc>
+  <defs
+     id="defs6" />
+  <path
+     style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1"
+     inkscape:connector-curvature="0"
+     id=""
+     d="m 6.4641155,6.7733051 c 0,0.067709 -0.591719,0.6042988 -0.643803,0.6563824 l -2.59375,2.5937505 1.125,1.125 C 4.4505213,11.247396 4.5,11.364583 4.5,11.5 4.5,11.635417 4.4505213,11.752604 4.3515625,11.851563 4.2526037,11.950521 4.1354173,12 4,12 H 0.5 C 0.36458266,12 0.24739633,11.950521 0.1484375,11.851563 0.04947867,11.752604 0,11.635417 0,11.5 V 8 C 0,7.8645827 0.04947867,7.7473963 0.1484375,7.6484375 0.24739633,7.5494787 0.36458266,7.5 0.5,7.5 c 0.13541734,0 0.25260367,0.049479 0.3515625,0.1484375 l 1.125,1.125 2.59375,-2.59375 c 0.052084,-0.052084 6.0720595,-6.17559019 6.1397675,-6.17559019 0.06771,0 0.10003,-0.02472735 0.152114,0.02735665 L 11.99073,1.0164824 c 0.05549,0.048436 -5.5266145,5.689114 -5.5266145,5.7568227 z"
+     sodipodi:nodetypes="scccscsscssssccsscss" />
+</svg>
