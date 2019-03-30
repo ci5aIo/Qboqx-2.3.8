@@ -1,8 +1,8 @@
-Save\ Mode=ON_SAVE
-SelectedHostGUID=e6321787-0335-4ddb-b444-4e004dcb9924
-UploadFolder=/
+Save\ Mode=MANUALLY
+SelectedHostGUID=cf742ce9-b27e-4df3-be83-8b961fb902c2
+UploadFolder=/qboqx_test_elgg_2_3_8
 eclipse.preferences.version=1
 isLocalProjectEnabled=false
 isRemoteProjectEnabled=true
-isUploadEnabled=true
+isUploadEnabled=false
 localUploadFolder=/
