@@ -130,7 +130,7 @@ switch ($presentation){
 	    $parent_cid   = elgg_extract('parent_cid', $vars);
 	    $cid          = elgg_extract('cid', $vars);
 	    $n            = elgg_extract('n', $vars);
-	    $data_prefix  = elgg_extract('data_prefix', $vars, "jot[transfer][$parent_cid][$cid][$n][");
+	    $data_prefix  = elgg_extract('data_prefix', $vars, "jot[$parent_cid][$cid][$n][");
 	    $nav['tabs']  = $tabs;
 	    $nav['class'] = 'quebx-tabs';
         $nav['space'] = $space;

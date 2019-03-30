@@ -1,59 +1,48 @@
 <?php
+/**
+ * Pseudocode:
+    * Receive 'jot' input
+    * Determine subtype and aspect of input
+    * Determine cid of input boqx
+    * Cycle through input to extract contents
+        * Identify loose things
+        * Identify receipts
+        * Extract loose things
+        * Extract receipts
+        * Create a new transfer object
+        * Cycle through loose things
+        * Create a new thing object for each loose thing
+ */
 // Get input data
 $guid           = (int) get_input('guid'); if ($guid == 0 ) unset($guid);
 $parent_guid    = (int) get_input('parent_guid');
 $apply          =       get_input('apply');                           //$display .= '$apply: '.$apply.'<br>';goto eof;
 $title          =       get_input('title');
-$aspect         =       get_input('aspect');                          //$display .= '23 $aspect: '.$aspect.'<br>'; //goto eof;
+$aspect         =       get_input('aspect');                          $display .= '21 $aspect: '.$aspect.'<br>'; //goto eof;
 $action         =       get_input('action');
 $this_section   =       get_input('this_section');
 // Receive jot data
 $jot_input      =      get_input('jot');       //if(empty($jot_input)){unset($jot_input); $display .= 'empty $jot_input<br>';} $display .= '25 $jot_input[title]'.$jot_input['title'].'<br>';
 $jot_snapshot   =      $jot_input['snapshot'];                       unset($jot_input['snapshot']); 
 $subtype        =      $jot_input['subtype'];
-$guid           =      $guid   ?: $jot_input['guid'];                        $display .= '14 $guid: '.$guid.'<br>';
-$aspect         =      $aspect ?: $jot_input['aspect'];
+$guid           =      $guid   ?: $jot_input['guid'];                        $display .= '28 $guid: '.$guid.'<br>';
+$aspect         =      $aspect ?: $jot_input['aspect'];                      $display .= '29 $aspect: '.$aspect.'<br>';
 $now            =      new DateTime(null, new DateTimeZone('America/Chicago'));
 $title          =      $jot_input['title']          ?: $subtype.'_'.$now;
 $description    =      $jot_input['description'];
-$container_guid =      $jot_input['container_guid'] ?: elgg_get_logged_in_user_guid(); $display.='49 $container_guid = '.$container_guid.'<br>';
-$owner_guid     =      $jot_input['owner_guid']     ?: elgg_get_logged_in_user_guid(); $display.='50 $owner_guid = '.$owner_guid.'<br>';
+$container_guid =      $jot_input['container_guid'] ?: elgg_get_logged_in_user_guid(); $display.='33 $container_guid = '.$container_guid.'<br>';
+$owner_guid     =      $jot_input['owner_guid']     ?: elgg_get_logged_in_user_guid(); $display.='34 $owner_guid = '.$owner_guid.'<br>';
 $access_id      =      get_default_access();
 $exists         =      elgg_entity_exists($guid);
-$moment         =      $jot_input['moment']         ?: $now;                           $display .= '54 $moment = '.$moment->format('Y-m-d').'<br>';
+$moment         =      $jot_input['moment']         ?: $now;                           $display .= '37 $moment = '.$moment->format('Y-m-d').'<br>';
 $boqx_type      =      $jot_input['boqx'];
 
 if (empty($aspect)){
-	$aspect              = 'receipt';
+	$aspect              = 'boqx';
 	$jot_input['aspect'] = $aspect;
 }
 if ($aspect == 'nothing'){
-    $aspect  = $subtype;}                                                    $display .= '20 $aspect: '.$aspect.'<br>';
-
-foreach($jot_input as $key=>$value){                                         $display .= '22 jot['.$key.'] = '.$value.'<br>';
-	if (is_array($value)){
-		foreach($value as $key1=>$value1){                                   $display .= '24 jot['.$key.']['.$key1.'] = '.$value1.'<br>';
-			if (is_array($value1)){
-				foreach($value1 as $key2=>$value2){                          $display .= '26 jot['.$key.']['.$key1.']['.$key2.'] = '.$value2.'<br>';
-					if(is_array($value2)){
-						foreach($value2 as $key3=>$value3){                  $display .= '28 jot['.$key.']['.$key1.']['.$key2.']['.$key3.'] = '.$value3.'<br>';
-							if (is_array($value3)){
-								foreach($value3 as $key4=>$value4){          $display .= '30 jot['.$key.']['.$key1.']['.$key2.']['.$key3.']['.$key4.'] = '.$value4.'<br>';
-									if (is_array($value4)){
-										foreach($value4 as $key5=>$value5){  $display .= '32 jot['.$key.']['.$key1.']['.$key2.']['.$key3.']['.$key4.']['.$key5.'] = '.$value5.'<br>';
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	if (empty($value)){continue;}
-	$this_n_that[$key]=$value;
-}
+    $aspect  = $subtype;}                                                    $display .= '45 $aspect: '.$aspect.'<br>';
 
 if ($exists){// get the jot
 	$jot = get_entity($guid);                                                    $display .= '61 $jot->guid = '.$jot->guid.'<br>';
@@ -68,12 +57,47 @@ else {       // create a new jot
 	$jot->description    = $description;
     $jot->aspect         = $aspect;
     $jot->moment         = $moment;
-//	$jot->save();
-	$guid                = $jot->guid;
+}
+foreach($jot_input as $key=>$value){                                         $display .= '47 jot['.$key.'] = '.$value.'<br>';
+	if (is_array($value)){
+		foreach($value as $key1=>$value1){                                   $display .= '49 jot['.$key.']['.$key1.'] = '.$value1.'<br>';
+			if (is_array($value1)){
+				foreach($value1 as $key2=>$value2){                          $display .= '51 jot['.$key.']['.$key1.']['.$key2.'] = '.$value2.'<br>';
+					if(is_array($value2)){
+						foreach($value2 as $key3=>$value3){                  $display .= '53 jot['.$key.']['.$key1.']['.$key2.']['.$key3.'] = '.$value3.'<br>';
+							if (is_array($value3)){
+								foreach($value3 as $key4=>$value4){          $display .= '55 jot['.$key.']['.$key1.']['.$key2.']['.$key3.']['.$key4.'] = '.$value4.'<br>';
+									if (is_array($value4)){
+										foreach($value4 as $key5=>$value5){  $display .= '57 jot['.$key.']['.$key1.']['.$key2.']['.$key3.']['.$key4.']['.$key5.'] = '.$value5.'<br>';
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if (empty($value)){continue;}
+        $jot[$key] = $value;
 }
 
-Switch ($aspect){
+//	$jot->save();
+	$guid                = $jot->guid;
+
+switch_subtype:
+Switch ($subtype){
     case 'transfer':
+        Switch ($aspect){
+    /****************************************
+     * $subtype = 'transfer'
+     * $aspect = 'boqx'                   *****************************************************************************
+     ****************************************/
+            case 'boqx':
+
+                break;
+        }
 goto eof;        
         break;
 	case 'observation':

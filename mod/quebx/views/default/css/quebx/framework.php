@@ -839,6 +839,15 @@ table.ledger .link-rollover{
 .qbox div.rTable#header_2   .rTableCell:nth-child(5){width:1px; white-space:nowrap;}
 .qbox div.rTable#header_2   .rTableCell:nth-child(6){width:20%; white-space:nowrap;overflow:hidden;}
 
+ 
+      div.rTable.loose-line-items                         {width:100%}
+      div.rTable.loose-line-items .rTableHead:nth-child(1),
+      div.rTable.loose-line-items .rTableCell:nth-child(1){width:1px;}
+      div.rTable.loose-line-items .rTableHead:nth-child(2),
+      div.rTable.loose-line-items .rTableCell:nth-child(2){width:5%;text-align:center;}
+      div.rTable.loose-line-items .rTableHead:nth-child(3),
+      div.rTable.loose-line-items .rTableCell:nth-child(3){width:95%; overflow:hidden;text-align:left}
+
 .qbox div.rTable.receipt-line-items .rTableCell:nth-child(1), 
       div.rTable.receipt-line-items .rTableHead:nth-child(1), 
       div.rTable.receipt-line-items .rTableCell:nth-child(1){width:1px;}
@@ -903,23 +912,27 @@ table.ledger .link-rollover{
 .TaskEdit__descriptionContainer___3NOvIiZo section.receipt-items .rTable.receipt-line-items .rTableHead:nth-child(2),
 .TaskEdit__descriptionContainer___3NOvIiZo section.receipt-items .rTable.receipt-line-items .rTableCell:nth-child(2),
 .TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableHead:nth-child(2),
-.TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableCell:nth-child(2){width:10%;text-align:center;}
+.TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableCell:nth-child(2){width:5%;text-align:center;}
 .TaskEdit__descriptionContainer___3NOvIiZo section.receipt-items .rTable.receipt-line-items .rTableHead:nth-child(3),
 .TaskEdit__descriptionContainer___3NOvIiZo section.receipt-items .rTable.receipt-line-items .rTableCell:nth-child(3),
 .TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableHead:nth-child(3),
-.TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableCell:nth-child(3){width:70%; overflow:hidden;text-align:left}
+.TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableCell:nth-child(3){width:5%;text-align:center}
 .TaskEdit__descriptionContainer___3NOvIiZo section.receipt-items .rTable.receipt-line-items .rTableHead:nth-child(4),
 .TaskEdit__descriptionContainer___3NOvIiZo section.receipt-items .rTable.receipt-line-items .rTableCell:nth-child(4),
 .TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableHead:nth-child(4),
-.TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableCell:nth-child(4){width:1px;text-align:center}
+.TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableCell:nth-child(4){width:70%;overflow:hidden;text-align:left}
 .TaskEdit__descriptionContainer___3NOvIiZo section.receipt-items .rTable.receipt-line-items .rTableHead:nth-child(5),
 .TaskEdit__descriptionContainer___3NOvIiZo section.receipt-items .rTable.receipt-line-items .rTableCell:nth-child(5),
 .TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableHead:nth-child(5),
-.TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableCell:nth-child(5){width:10%;white-space:nowrap;text-align:right}
+.TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableCell:nth-child(5){width:1px;text-align:center}
 .TaskEdit__descriptionContainer___3NOvIiZo section.receipt-items .rTable.receipt-line-items .rTableHead:nth-child(6),
 .TaskEdit__descriptionContainer___3NOvIiZo section.receipt-items .rTable.receipt-line-items .rTableCell:nth-child(6),
 .TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableHead:nth-child(6),
 .TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableCell:nth-child(6){width:10%;white-space:nowrap;text-align:right}
+.TaskEdit__descriptionContainer___3NOvIiZo section.receipt-items .rTable.receipt-line-items .rTableHead:nth-child(7),
+.TaskEdit__descriptionContainer___3NOvIiZo section.receipt-items .rTable.receipt-line-items .rTableCell:nth-child(7),
+.TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableHead:nth-child(7),
+.TaskEdit__descriptionContainer___3NOvIiZo section.service-items .rTable.service-line-items .rTableCell:nth-child(7){width:10%;white-space:nowrap;text-align:right}
 
 /*************Inline***************/
 .inline{
@@ -1160,7 +1173,6 @@ input:checked + .slider:before {
   transform: translateX(26px);
 	content: "+";
 }
-
 .receipt-input input:checked + .slider:before,
 .receive-output input:checked + .slider:before {
   -webkit-transform: translateX(36px);

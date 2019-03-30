@@ -1,9 +1,9 @@
 <?php
 /**
- * Elgg checkbox input
+ * Qboqx switchbox input
  * Displays a switchbox input tag.  Adapted from checkbox.
  * 
- * @package Elgg
+ * @package Qboqx
  * @subpackage Core
  *
  *

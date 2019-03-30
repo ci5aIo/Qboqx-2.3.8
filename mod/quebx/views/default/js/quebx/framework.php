@@ -528,21 +528,6 @@ $(document).ready(function(){
         	$(this).removeClass('egg');
         }
     });
-    $(document).on('click', '.model section.edit nav.edit .cancel', function(e){
-       var cid        = $(this).data('cid');
-       var $boqx_contents = $(document).find(".boqx-contents-receipt[data-cid='"+cid+"']");
-       console.log('click:cancel');
-       console.log('cid = '+cid);
-       console.log('$boqx_contents', $boqx_contents);
-       $boqx_contents
-          .find("[data-parent-cid='"+cid+"'][boqx-fill-level='full']")
-          .each(function(){
-              $(this).remove();
-           });
-       $(this).parents('form').trigger("reset");
-       $(this).parents('.Effort__CPiu2C5N').children('.EffortEdit_fZJyC62e').hide();
-       $(this).parents('.Effort__CPiu2C5N').children('.AddSubresourceButton___S1LFUcMd').show();
-    });
     $(document).on('click', 'a.maximize',function(e){
        e.preventDefault();
        var $boqx = $(this).parents('.EffortEdit_fZJyC62e');
@@ -626,6 +611,56 @@ $(document).ready(function(){
         else{                                        // state == 'view'
             $show_panel.show();
             $this_panel.hide();
+        }
+    });
+    $(document).on("click", '.elgg-input-checkbox.boqx-unpack', function(e){
+        var scope = $(this).data('name').replace('unpack-',''),
+            state = $(this).prop('checked'),
+            cid   = $(this).data('cid'),
+            rows,
+            rows_checked = 0,
+            items,
+            el,
+            item_is,
+            item_isnt;
+        items = $('input[type=checkbox][data-name=unpack-this][data-cid='+cid+']');
+        rows  = $('a.new-item[data-cid='+cid+']').attr('data-rows');
+        el    = $('input[type=checkbox][data-cid='+cid+'][data-name=unpack-all]');
+        items.each(function(){
+          if ($(this).prop('checked')) rows_checked++
+        });
+        if ($(this).hasClass('closed')){
+          item_is   = 'closed';
+          item_isnt = 'opened';
+        }
+        if ($(this).hasClass('opened')){
+          item_is   = 'opened';
+          item_isnt = 'closed';
+        }
+        console.log('state: '+state);
+        console.log('cid: '+cid);
+        console.log('item_is '+item_is);
+        console.log('rows_checked: '+rows_checked);
+        if (scope == 'all'){
+            items.each(function(){
+               $(this).prop('checked', -(state));
+               $(this).removeClass(item_is);
+               $(this).addClass(item_isnt);
+            });
+        }
+        if (scope == 'this') {
+            $(this).prop('checked', -(state));
+            $(this).removeClass(item_is);
+            $(this).addClass(item_isnt);
+            el.removeClass(item_is);
+            el.addClass(item_isnt);
+            if (rows>1 && rows>rows_checked){
+               el.prop('indeterminate', true);
+            }
+            if (rows==1 || rows==rows_checked || rows_checked==0){
+               el.prop('indeterminate', false);
+               el.prop('checked', -(state));
+            }
         }
     });
     $(document).on("click", "a.collapser-service-item", function(e) {
@@ -1608,6 +1643,25 @@ $(document).ready(function(){
 	    $('div.jq-dropdown#'+qid_n).remove();
 		
 	});
+    $(document).on('click', '.remove-loose-thing', function(e){
+          e.preventDefault();
+          // remove the node
+         var $qbox         = $(this).parents('div.TaskEdit___1Xmiy6lz'),
+             element_type  = $(this).data('element'),
+             qid_n         = $(this).data('qid'),
+             $loose_item_add = $(this).parents('.rTable.loose-line-items').find('a.new-item');
+         var $line_item    = $(this).parents('.rTableRow.loose_item');
+         var qid           = $qbox.attr('id'),
+             cid           = $line_item.data('cid');
+         if (typeof qid == 'undefined')
+            qid            = $qbox.data('cid');
+//         var item_rows     = $loose_item_add.attr('data-rows');
+//         console.log('$loose_item_add: ',$loose_item_add);
+//         $lose_item_add.attr('data-rows', item_rows-1);
+         $('.rTableRow.loose_item[data-qid='+qid_n+']').remove();
+         $('div.jq-dropdown#'+qid_n).remove();
+          
+    });
     $(document).on('click', '.remove-receipt-item', function(e){
           e.preventDefault();
           // remove the node

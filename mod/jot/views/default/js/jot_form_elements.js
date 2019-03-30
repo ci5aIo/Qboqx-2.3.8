@@ -51,6 +51,9 @@ define(function(require) {
 	    	   new_line_items   = cid+'_new_line_items'
 	    	   new_property_cards = cid+'_line_item_property_cards'
 	    	   break;
+	       case 'new_loose_thing':
+	    	   property_element = 'properties_loose_thing';
+	       break;
 	   }
        console.log('rows: '+rows);
        console.log('qid: '+qid);
@@ -91,6 +94,28 @@ define(function(require) {
        });
 	   
    });
+    $(document).on('click', '.model section.edit nav.edit .cancel', function(e){
+       var cid        = $(this).data('cid'),
+           parent_cid = $(this).data('parent-cid');
+       var $pallet      = $(".Effort__CPiu2C5N[data-cid='"+cid+"']"),
+           ajax       = new Ajax(),
+           new_cid    = "c"+Math.floor((Math.random()*999)+1);
+       console.log('click:cancel');
+       console.log('cid = '+cid);
+       $pallet.children(".EffortShow_haqOwGZY").remove();
+       $pallet.children(".EffortEdit_fZJyC62e").remove();
+       $pallet.children(".AddSubresourceButton___S1LFUcMd").show();
+       
+       ajax.view('partials/jot_form_elements',{
+    	   data: {
+    		   element: 'cancel_new_things',
+    		   cid: cid,
+    		   parent_cid: parent_cid
+    	   },
+       }).done(function(output) {
+    	   $pallet.append($(output));
+       });
+    });
    $(document).on('click', '.TaskEdit__submit___3m10BkLZ', function(e){
        e.preventDefault();
        var cid          = $(this).attr("data-cid"),

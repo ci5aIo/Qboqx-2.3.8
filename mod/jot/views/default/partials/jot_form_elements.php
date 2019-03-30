@@ -81,7 +81,7 @@ $compartment  = elgg_extract('compartment', $vars, 'Profile');
 $form_class   = elgg_extract('form_class', $vars, 'inline-container');
 $view_type    = elgg_extract('view_type', $vars, 'compact');
 $message      = elgg_extract('message', $vars);
-$data_prefix  = elgg_extract('data_prefix', $vars, "jot[transfer][$parent_cid][$cid][$n][");
+$data_prefix  = elgg_extract('data_prefix', $vars, "jot[$parent_cid][$cid][$n][");
 if (elgg_entity_exists($guid)){
 	$entity  = get_entity($guid);
 	$subtype = $entity->getSubtype();
@@ -117,6 +117,7 @@ Switch ($element){
                    </div>";
 		break;
 	case 'properties_receipt_item':
+	case 'properties_loose_thing':
 /*	    $content = elgg_view('forms/market/properties', [
 	                                   'element_type'   =>'receipt_item',
 	                                   'container_type' => 'transfer',
@@ -159,6 +160,12 @@ Switch ($element){
 	    $form_body = elgg_view('forms/transfers/edit',['perspective'=>'add', 'section'=>'boqx_contents_receipt', 'snippet'=>'marker1', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'n'=>$n]);
 //		$form_body = elgg_view('forms/transfers/elements/receipt', ['presentation'=>'box_experimental', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'n'=>$n]);
 		break;
+	case 'new_loose_thing':
+	    if ($presence == 'panel') {
+	       $form_body = elgg_view('forms/transfers/edit',['perspective'=>'add', 'section'=>'boqx_contents', 'snippet'=>'single_thing', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$qid, 'qid_n'=>$qid_n, 'n'=>$n]);
+	       break;
+	    }
+	    break;
 	case 'new_receipt_item':
 	    if ($presence == 'panel') {
 	        $form_body = elgg_view('forms/transfers/edit',['perspective'=>'add', 'section'=>'boqx_contents_receipt', 'snippet'=>'receipt_item', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$qid, 'qid_n'=>$qid_n, 'n'=>$n]);
@@ -259,6 +266,24 @@ Switch ($element){
 	case 'new_remedy_item':                                                                       $display .= 'service_cid: '.$service_cid.'<br>$cid: '.$cid.'<br>$qid: '.$qid.'<br>';
 		$form_body = elgg_view('forms/experiences/edit',['section'=>'issue_effort', 'action'=>'add', 'snippet'=>'marker', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'service_cid'=>$service_cid, 'qid'=>$qid, 'n'=>$n]);
 		break;
+	case 'cancel_new_things':
+         $boqx_contents_show = elgg_view('forms/transfers/edit',[
+            'perspective'       => 'add',
+            'section'           => 'things_boqx',
+            'snippet'           => 'contents_show',
+            'show_view_summary' => false,
+            'parent_cid'        => $parent_cid,
+            'cid'               => $cid]);
+         $boqx_contents_edit = elgg_view('forms/transfers/edit',[
+            'perspective'       => 'add',
+            'section'           => 'things_boqx',
+            'snippet'           => 'contents_edit',
+            'show_view_summary' => false,
+            'parent_cid'        => $parent_cid,
+            'cid'               => $cid]);
+	    $form_body  = $boqx_contents_show;
+	    $form_body .= $boqx_contents_edit;
+	    break;
 	case 'q':
 		switch($aspect){
 			case 'content':
