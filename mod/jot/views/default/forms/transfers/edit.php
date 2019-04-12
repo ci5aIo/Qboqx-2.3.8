@@ -99,11 +99,11 @@ Switch ($perspective){
                                 ]);*/
                 $hidden[] =['name'=>"jot[subtype]",
                             'value' => 'boqx'];
-                $hidden[] =['name'=>"jot[aspect]",
+/*                $hidden[] =['name'=>"jot[aspect]",
                             'value' => 'transfer'];
                 $hidden[] =['name'=>"jot[boqx]",
                             'value' => 'things'];
-                $hidden[] =['name'=>"jot[cid]",
+*/                $hidden[] =['name'=>"jot[cid]",
                             'value' => "$cid"];
                 if (!empty($hidden)){                
                     foreach($hidden as $key=>$field){
@@ -599,7 +599,7 @@ Switch ($perspective){
 						$form_body = str_replace('<<cid>>', $cid, $story_model);
 						break;
 */			        case 'loose_things':
-                        unset($hidden);
+                        unset($hidden, $hidden_fields);
                         $hidden[] =['name'=>"jot[$parent_cid][$cid][subtype]",
                                     'value' => 'boqx'];
                         $hidden[] =['name'=>"jot[$parent_cid][$cid][aspect]",
@@ -655,6 +655,13 @@ Switch ($perspective){
                         break;
                     case 'single_thing':
              			unset($hidden, $hidden_fields);
+             			$hidden[] =['name'=>"jot[$parent_cid][$cid][$n][subtype]",
+             			            'value' => 'boqx'];
+             			$hidden[] =['name'=>"jot[$parent_cid][$cid][$n][aspect]",
+                     			    'value' => 'thing'];
+             			if (!empty($hidden)){
+             			    foreach($hidden as $key=>$field){
+             			        $hidden_fields .= elgg_view('input/hidden', $field);}}
 		                $element = 'loose_item';
 						$delete = elgg_view('output/url', ['title'=>'remove this thing',
 						                                   'class'=>'remove-loose-thing',
@@ -674,9 +681,8 @@ Switch ($perspective){
 						]);
 						$form_body ="
 								<div class='rTableRow $element ui-sortable-handle' data-qid='$qid_n' data-cid='$cid' data-parent-cid='$parent_cid' data-row-id='$n'>
-									<div class='rTableCell'>$delete</div>
-									<div class='rTableCell'>".elgg_view('input/hidden',   ['name'=>"jot[$parent_cid][$cid][$n][aspect]", 'value' => 'thing','data-focus-id' => "Aspect--{$cid}"])
-									                         .elgg_view('input/number',   ['name'=>"jot[$parent_cid][$cid][$n][qty]",'data-qid'=>$qid_n, 'data-name'=>'qty', 'value'=>'1', 'max'=>'0'])."</div>
+                                    <div class='rTableCell'>$delete</div>
+									<div class='rTableCell'>$hidden_fields".elgg_view('input/number',   ['name'=>"jot[$parent_cid][$cid][$n][qty]",'data-qid'=>$qid_n, 'data-name'=>'qty', 'value'=>'1', 'max'=>'0'])."</div>
 									<div class='rTableCell'>$set_properties_button "
 									                         .elgg_view('input/text',     ['name'=>"jot[$parent_cid][$cid][$n][title]", 'style'=>'width:95%', 'data-name'=>'title',])."</div>
 				                </div>";

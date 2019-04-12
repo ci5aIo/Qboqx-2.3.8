@@ -37,189 +37,150 @@ $exists         =      elgg_entity_exists($guid);
 $moment         =      $jot_input['moment']         ?: $now;                           $display .= '37 $moment = '.$moment->format('Y-m-d').'<br>';
 $boqx_type      =      $jot_input['boqx'];
 
-if (empty($aspect)){
-	$aspect              = 'boqx';
-	$jot_input['aspect'] = $aspect;
+if (is_array($jot_input)){
+    $cid      = $jot_input['cid'];                                                    $display .= '62 $cid ='.$cid.'<br>';
+    if (is_array($jot_input[$cid])){
+        $jot_boqx = $jot_input[$cid];
+        $subtype  = $jot_boqx['subtype'];
+        $aspect   = $jot_boqx['aspect'];}
+    foreach($jot_input as $key=>$value){                                         $display .= '63 jot['.$key.'] = '.$value.'<br>';
+    	if (empty($value)) continue;
+            $jot[$key] = $value;
+    	if (is_array($value)){
+    		foreach($value as $key1=>$value1){                                   $display .= '49 jot['.$key.']['.$key1.'] = '.$value1.'<br>';
+    		
+    		    if (empty($value1))      continue;
+//    		    if ($value1 == 'aspect') 
+    			if (is_array($value1)){
+    				foreach($value1 as $key2=>$value2){                          $display .= '51 jot['.$key.']['.$key1.']['.$key2.'] = '.$value2.'<br>';
+    					if(is_array($value2)){
+    						foreach($value2 as $key3=>$value3){                  $display .= '53 jot['.$key.']['.$key1.']['.$key2.']['.$key3.'] = '.$value3.'<br>';
+    							if (is_array($value3)){
+    								foreach($value3 as $key4=>$value4){          $display .= '55 jot['.$key.']['.$key1.']['.$key2.']['.$key3.']['.$key4.'] = '.$value4.'<br>';
+    									if (is_array($value4)){
+    										foreach($value4 as $key5=>$value5){  $display .= '57 jot['.$key.']['.$key1.']['.$key2.']['.$key3.']['.$key4.']['.$key5.'] = '.$value5.'<br>';
+    										}
+    									}
+    								}
+    							}
+    						}
+    					}
+    				}
+    			}
+    		}
+    	}
+    }
 }
-if ($aspect == 'nothing'){
-    $aspect  = $subtype;}                                                    $display .= '45 $aspect: '.$aspect.'<br>';
-
-if ($exists){// get the jot
-	$jot = get_entity($guid);                                                    $display .= '61 $jot->guid = '.$jot->guid.'<br>';
-}
-else {       // create a new jot
-    $jot                 = new ElggObject();
-    $jot->subtype        = $subtype;
-    $jot->container_guid = $owner_guid;
-    $jot->owner_guid     = $owner_guid;
-	$jot->access_id      = $access_id;
-    $jot->title          = $title;
-	$jot->description    = $description;
-    $jot->aspect         = $aspect;
-    $jot->moment         = $moment;
-}
-foreach($jot_input as $key=>$value){                                         $display .= '47 jot['.$key.'] = '.$value.'<br>';
-	if (is_array($value)){
-		foreach($value as $key1=>$value1){                                   $display .= '49 jot['.$key.']['.$key1.'] = '.$value1.'<br>';
-			if (is_array($value1)){
-				foreach($value1 as $key2=>$value2){                          $display .= '51 jot['.$key.']['.$key1.']['.$key2.'] = '.$value2.'<br>';
-					if(is_array($value2)){
-						foreach($value2 as $key3=>$value3){                  $display .= '53 jot['.$key.']['.$key1.']['.$key2.']['.$key3.'] = '.$value3.'<br>';
-							if (is_array($value3)){
-								foreach($value3 as $key4=>$value4){          $display .= '55 jot['.$key.']['.$key1.']['.$key2.']['.$key3.']['.$key4.'] = '.$value4.'<br>';
-									if (is_array($value4)){
-										foreach($value4 as $key5=>$value5){  $display .= '57 jot['.$key.']['.$key1.']['.$key2.']['.$key3.']['.$key4.']['.$key5.'] = '.$value5.'<br>';
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	if (empty($value)){continue;}
-        $jot[$key] = $value;
-}
-
 //	$jot->save();
 	$guid                = $jot->guid;
-
+	
 switch_subtype:
 Switch ($subtype){
-    case 'transfer':
-        Switch ($aspect){
-    /****************************************
-     * $subtype = 'transfer'
-     * $aspect = 'boqx'                   *****************************************************************************
-     ****************************************/
-            case 'boqx':
-
-                break;
+    case 'boqx':
+        $jot                 = new ElggObject();
+        $jot->subtype        = 'boqx';
+        $jot->container_guid = $owner_guid;
+        $jot->owner_guid     = $owner_guid;
+        $jot->access_id      = $access_id;
+        $sections = array();
+        $aspects = array();
+        //Extract boqx sections
+        if (is_array($jot_boqx)){                             $display.='88 $jot_boqx: '.print_r($jot_boqx, true).'<br>';
+            foreach($jot_boqx as $key=>$value){
+                if (is_array($value) && !in_array($key,$sections)){
+                    $sections[] = $key;                     $display .= '91 $key = '.$key.'<br>';
+                    continue;
+                }
+                $jot->$key=$value;                           $display .= '94 $jot->'.$key.'='.$value.'<br>';   
+            }
+//            $jot->save();
+        }                                                                        
+        if (!empty($sections)){
+            foreach ($sections as $cid1){                     $display .= '99 $cid1='.$cid1.'<br>';
+                if (is_array($jot_boqx[$cid1]) && !in_array($jot_boqx[$cid1]['aspect'], $aspects))
+                    $aspects[] = $jot_boqx[$cid1]['aspect'];
+                if ($jot_boqx[$cid1]['aspect'] == 'loose things')
+                    if (is_array($jot_boqx[$cid1])){
+                        foreach ($jot_boqx[$cid1] as $key=>$value){
+                            if (is_array($value))
+                                $loose_things[]=$value;
+                        }
+                }
+                if ($jot_boqx[$cid1]['aspect'] == 'receipt')
+                    if (is_array($jot_boqx[$cid1])){
+                        foreach ($jot_boqx[$cid1] as $key=>$value){
+                            if (is_array($value))
+                                $receipts[]=$value;
+                        }
+                }
+            }
+        }                                                  $display.='107 $loose_things: '.print_r($loose_things, true).'<br>';//$display.='107 $receipts: '.print_r($receipts, true);
+        if (!empty($loose_things)){
+            unset($line_items);
+            foreach ($loose_things as $key=>$value){       $display .= '111 $loose_things['.$key.']=>'.$value.'<br>';
+                if(is_array($value)){
+                    $line_items[] = $value;                $display .= '112 $loose_things['.$key.']=>'.print_r($value, true).'<br>'; 
+                }                                          $display .= '113 $line_items:'.print_r($line_items, true).'<br>';
+            }
+            if (!empty($line_items)){
+                foreach($line_items as $key=>$item){       $display .= '116 $item:'.print_r($item, true).'<br>';
+                    $loose_thing                 = new ElggObject();
+                    $loose_thing->subtype        = 'boqx';
+                    $loose_thing->container_guid = $jot->guid;
+                    $loose_thing->owner_guid     = $owner_guid;
+                    $loose_thing->access_id      = $access_id;
+                    $loose_thing->sort_order     = $key+1;           $display .= '122 $loose_thing->sort_order = '.$loose_thing->sort_order.'<br>';
+                    $loose_thing->title          = $item['title'];   $display .= '123 $loose_thing->title = '.$loose_thing->title.'<br>';
+                    $loose_thing->qty            = $item['qty'];     $display .= '124 $loose_thing->qty = '.$loose_thing->qty.'<br>';
+//                    $loose_thing->save();
+                    $new_thing                 = new ElggObject();
+                    foreach($item as $key1=>$value){                             $display .=  '137 $item['.$key1.'] = '.$value.'<br>';
+                        //      Remove blank characteristics
+                        if ($key1 == 'characteristic_names'){
+                			foreach ($item[$key1] as $this_key=>$this_value){
+                				if ($this_value == ''){                      
+                					unset($item['characteristic_names'][$this_key]);
+                					unset($item['characteristic_values'][$this_key]);
+                					continue;
+                				}
+                			}
+                		}
+                        if ($key1 == 'this_characteristic_names'){
+                			foreach ($item[$key1] as $this_key=>$this_value){
+                				if ($this_value == ''){                      
+                					unset($item['this_characteristic_names'][$this_key]);
+                					unset($item['this_characteristic_values'][$this_key]);
+                					continue;
+                				}
+                			}
+                		}
+                		if ($key1 == 'features' || $key1 == 'this_features'){
+                			foreach ($item[$key1] as $this_key=>$this_value){
+                				if ($this_value == ''){                     
+                					unset($item[$key1][$this_key]);
+                					continue;
+                				}
+                			}												
+                		}
+                        //if (!is_array($value))
+                            $new_thing->$key1 = $value;                     $display .= '166 $new_thing->'.$key1.' = '.$new_thing->$key1.'<br>151 $value ='.print_r($value, true).'<br>';
+                    }
+                    $new_thing->subtype        = 'market';
+                    $new_thing->container_guid = $owner_guid;
+                    $new_thing->owner_guid     = $owner_guid;
+                    $new_thing->access_id      = $access_id;               $display .= '171 $new_thing: '.print_r($new_thing, true).'<br>';
+                    //                        $new_thing->save();
+                    // connect the new thing to the 
+                    $guid_one     = $loose_thing->guid;
+                    $relationship = $loose_thing->subtype;
+                    $guid_two     = $new_thing->guid;
+//                        add_entity_relationship($guid_one, $relationship, $guid_two);
+                }                                  // $display.='150 $loose_thing: '.print_r($loose_thing, true).'<br>150 $new_thing: '.print_r($new_thing, true);
+            }
         }
 goto eof;        
         break;
-	case 'observation':
-	/****************************************
-         * $aspect = 'observation'               *****************************************************************
-     ****************************************/
-            $jot->state                      = $observation['state'];
-//            $jot->save();
-            $new_observation                 = new ElggObject();
-            $new_observation->subtype        = 'observation';
-            $new_observation->aspect         = $observation['aspect'];
-            $new_observation->container_guid = $guid;
-            $new_observation->owner_guid     = $owner_guid;
-			$new_observation->access_id      = $access_id;
-			$new_observation->title          = $title.' - '.$observation['aspect'];
-			$new_observation->description    = 'Container for the '.$observation['aspect'];
-//			$new_observation->save();
-            unset($existing_guids);
-            $discoveries_existing = elgg_get_entities_from_metadata(['type'                      => 'object',
-		                                                             'subtype'                   => 'observation',
-		                                                             'metadata_name_value_pairs' => array('name'=>'aspect', 'value'=>'discovery'),
-		                                                             'container_guid'            => $guid,
-		                                                             'limit'                     => 0,
-		                                                            ]);//                   $display .= '102 '.print_r($discoveries_existing, false).'<br>';
-            $efforts_existing     = elgg_get_entities_from_metadata(['type'                      => 'object',
-		                                                             'subtype'                   => 'observation',
-		                                                             'metadata_name_value_pairs' => array('name'=>'aspect', 'value'=>'effort'),
-		                                                             'container_guid'            => $guid,
-		                                                             'limit'                     => 0,
-		                                                            ]);//                   $display .= '108 '.print_r($discoveries_existing, false).'<br>';
-            $discoveries = $observation['discovery'];
-            $efforts     = array_values($observation['effort']);// reassign cid keys to be sequential
-            $requests     = $observation['request'];
-            if (!empty($discoveries_existing)){
-                foreach($discoveries_existing as $existing){                // $display .= '113 $discoveries_existing->guid: '.$existing->guid.'<br>';
-                    $discoveries_existing_guids[] = $existing->guid;
-                }
-            }
-            if (!empty($efforts_existing)){
-                foreach($efforts_existing as $existing){                     //$display .= '118 $efforts_existing->guid: '.$existing->guid.'<br>';
-                    $efforts_existing_guids[] = $existing->guid;
-                }
-            }
-            if (!empty($discoveries)){
-            	foreach($discoveries as $key=>$value){
-            		//create discovery set entity
-            		if (is_array($value)){
-            			foreach($value as $key1=>$value1){
-            				//unset discovery entity
-            				//create discovery entity
-            				//connect discovery entity to discovery set entity
-            				//save discovery entity
-            			}
-            		}
-            	}
-            }
-            if (!empty($efforts)){
-            	foreach($efforts as $key=>$effort){                                         //$display .= '141 $effort['.$key.'] = '.$effort.'<br>';
-            		if (is_array($effort)){
-            			if (empty($effort['title'])){unset($efforts[$key]); continue;}
-	            		//create effort entity
-	            		$new_effort                 = new ElggObject();
-	            		$new_effort->subtype        = 'effort';
-					    $new_effort->container_guid = $new_observation->guid;
-					    $new_effort->owner_guid     = $owner_guid;
-						$new_effort->access_id      = $access_id;
-						$new_effort->title          = $effort['title'];
-						$new_effort->description    = $effort['description'];
-						$new_effort->aspect         = $effort['aspect'];
-						$new_effort->effort_type    = $effort['type'];
-						$new_effort->state          = $effort['state'];
-						$new_effort->moment         = $effort['moment'] ?: $moment;         $display .= '155 $new_effort['.$key.']->save(): '.$new_effort->title.'<br>';
-						$new_effort->sort_order     = $key;
-//						$new_effort->save();
-            			foreach($effort as $key1=>$task){                                  //$display .= '157 $effort['.$key.']['.$key1.'] = '.$tasks.'<br>';
-            				if (is_array($task)){
-	            				if (empty($task['title'])){unset($effort[$key1]); continue;}
-	            				//unset task entity variable
-	            				//create task entity
-	            				$new_task                 = new ElggObject();
-			            		$new_task->subtype        = 'task';
-							    $new_task->owner_guid     = $owner_guid;
-							    $new_task->container_guid = $new_effort->guid;
-								$new_task->access_id      = $access_id;
-								$new_task->title          = $task['title'];
-								$new_task->description    = $task['description'];          $display .= '168 $new_task['.$key1.']->save(): '.$new_task->title.'<br>';
-								$new_task->sort_order     = $key1;
-	            				//save effort entity
-//	            				$new_task->save();
-            					// reassign keys to be sequential.  Keys originally assigned by system, but might have been resorted by the user.
-            					$task = array_values($task);
-            					foreach($task as $key2=>$item){                           //$display .= '173 $tasks['.$key1.']['.$key2.'] = '.$item.'<br>';
-            						if (is_array($item)){
-            							if (empty($item['title']) || 
-            							    empty($item['qty'])   || 
-            								      $item['qty']== 0){unset($task[$key2]); continue;}
-	            						$new_item                 = new ElggObject();
-			            		        $new_item->subtype        = 'item';
-									    $new_item->owner_guid     = $owner_guid;
-										$new_item->container_guid = $new_task->guid;
-										$new_item->access_id      = $access_id;
-										$new_item->title          = $item['title'];
-										$new_item->description    = $item['description'];
-										$new_item->aspect         = $item['aspect'];
-										$new_item->qty            = $item['qty'];
-										$new_item->title          = $item['title'];
-										$new_item->aspect         = $item['aspect'];
-										$new_item->cost           = $item['cost'] ?: 0;
-										$new_item->sku            = $item['sku'];
-										$new_item->item_type      = $item['item_type'];
-										$new_item->replaces       = $item['replaces'];
-										$new_item->sort_order     = $key2;
-										$new_item->guid           = $item['guid'];          $display .= '193 $new_item['.$key2.']->save(): '.$new_item->title.'<br>';
-//	            						$new_item->save();
-            						}
-            					}
-            				}
-            			}
-            		}
-            	}
-            }
-		break;
+
 	default:
 		
 		break;
