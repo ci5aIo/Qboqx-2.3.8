@@ -285,7 +285,8 @@ function quebx_page_menu($hook, $type, $return, $params) {
 function q_menu($hook, $type, $return, $params) {
 	if (
 		(!elgg_instanceof($params['entity'], 'object', 'market') 
-      && !elgg_instanceof($params['entity'], 'object', 'item') 
+      && !elgg_instanceof($params['entity'], 'object', 'item')  
+      && !elgg_instanceof($params['entity'], 'object', 'boqx') 
       && !elgg_instanceof($params['entity'], 'object', 'transfer')
       && !elgg_instanceof($params['entity'], 'object', 'experience')
       && !elgg_instanceof($params['entity'], 'object', 'hjalbumimage')

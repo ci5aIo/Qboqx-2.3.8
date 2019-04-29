@@ -346,10 +346,14 @@ section.model_details .story .persistence.use_click_to_copy .close,section.model
 section.model_details .story .persistence.use_click_to_copy .close,section.model_details .story .persistence.use_click_to_copy .save{width:104px}
 
 /* Tweaked From Pivotal */
-.add section.model_details .persistence {border-radius: 4px;background-color: #dfdcd0;padding: 1px 0 1px 7px;margin: -1px 0;}
-.details.add .cancel {position: relative;color: #666;font-weight: 700;text-decoration: none;text-transform: lowercase;cursor: pointer;}
-.details.add .controls .cancel {height: 23px;line-height: 23px;width: 40px;float: left;text-align: center;margin-top: 0;margin-right: 6px;}
-.details.add .cancel:hover {text-decoration: underline;}
+.add section.model_details .persistence,
+.edit section.model_details .persistence {border-radius: 4px;background-color: #dfdcd0;padding: 1px 0 1px 7px;margin: -1px 0;}
+.details.add .cancel,
+.details.edit .cancel {position: relative;color: #666;font-weight: 700;text-decoration: none;text-transform: lowercase;cursor: pointer;}
+.details.add .controls .cancel,
+.details.edit .controls .cancel {height: 23px;line-height: 23px;width: 40px;float: left;text-align: center;margin-top: 0;margin-right: 6px;}
+.details.add .cancel:hover,
+.details.edit .cancel:hover {text-decoration: underline;}
 
 
 /* New */
@@ -959,6 +963,11 @@ table.ledger .link-rollover{
 .inline-content-expand{
 	background-color:white;
 	z-index:2;
+    position: relative;
+    margin: 5px 5px 15px 5px !important;
+    top: 10px;
+/*    left: -15px;*/
+/*    width: 100%;*/
 }
 .inline-content-expanded{
 	background-color:white;

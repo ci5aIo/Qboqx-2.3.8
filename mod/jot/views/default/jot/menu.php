@@ -107,7 +107,9 @@ Switch ($this_menu){
 //				         ['text'=>'View'       , 'aspect'=>'item'          , 'note'=>'View'  ,                       'href'=>"market/view/$guid", 'perspective'=>'view', 'qid'=>"q{$guid}"],
 						 ['text'=>'Edit'       , 'aspect'=>'item'          , 'note'=>'Edit'  ,                       'class'=>"do", 'perspective'=>'edit', 'qid'=>"q{$guid}", 'element'=>'market'],
 //				         ['text'=>'Edit'       , 'aspect'=>'item'          , 'note'=>'Edit'  ,                       'href'=>"market/edit/$guid", 'perspective'=>'edit', 'qid'=>"q{$guid}"],
-						 ['text'=>'Delete'     , 'aspect'=>'item'          , 'note'=>'Delete',                       'href'=>elgg_add_action_tokens_to_url("market/delete?guid=$guid"), 'perspective'=>'delete', 'qid'=>"q{$guid}"]];
+						 ['text'=>'Delete'     , 'aspect'=>'item'          , 'note'=>'Delete',                       'class'=>"do", 'perspective'=>'delete', 'guid'=>"$guid", 'element'=>'market', 'presentation'=>'inline'],
+//						 ['text'=>'Delete'     , 'aspect'=>'item'          , 'note'=>'Delete',                       'href'=>elgg_add_action_tokens_to_url("market/delete?guid=$guid"), 'perspective'=>'delete', 'qid'=>"q{$guid}"]
+				];
 //				$menu_header       = 'Q:';
 				$menu_header       = '<div title="Q actions" class="tn-DropdownButton___CFgliR88w"></div>';
 				$menu_title        = 'New';

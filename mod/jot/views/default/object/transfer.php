@@ -107,7 +107,7 @@ Switch ($perspective){
         $params = $vars;
         $params['section'] = 'things_boqx';
         $body  = elgg_view_form('transfers/edit',['action'=>$form_action, 'name'=>"{$perspective}_{$space}_global"], $params);
-register_error($display);
+//register_error($display);
         break;
     case 'edit':
         Switch ($view_type){

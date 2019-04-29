@@ -36,6 +36,7 @@ $access_id      =      get_default_access();
 $exists         =      elgg_entity_exists($guid);
 $moment         =      $jot_input['moment']         ?: $now;                           $display .= '37 $moment = '.$moment->format('Y-m-d').'<br>';
 $boqx_type      =      $jot_input['boqx'];
+$boqx_has_title    =      false;
 
 if (is_array($jot_input)){
     $cid      = $jot_input['cid'];                                                    $display .= '62 $cid ='.$cid.'<br>';
@@ -45,7 +46,7 @@ if (is_array($jot_input)){
         $aspect   = $jot_boqx['aspect'];}
     foreach($jot_input as $key=>$value){                                         $display .= '63 jot['.$key.'] = '.$value.'<br>';
     	if (empty($value)) continue;
-            $jot[$key] = $value;
+            $boqx[$key] = $value;
     	if (is_array($value)){
     		foreach($value as $key1=>$value1){                                   $display .= '49 jot['.$key.']['.$key1.'] = '.$value1.'<br>';
     		
@@ -71,17 +72,16 @@ if (is_array($jot_input)){
     	}
     }
 }
-//	$jot->save();
-	$guid                = $jot->guid;
+//	$boqx->save();
 	
 switch_subtype:
 Switch ($subtype){
     case 'boqx':
-        $jot                 = new ElggObject();
-        $jot->subtype        = 'boqx';
-        $jot->container_guid = $owner_guid;
-        $jot->owner_guid     = $owner_guid;
-        $jot->access_id      = $access_id;
+        $boqx                 = new ElggObject();
+        $boqx->subtype        = 'boqx';
+        $boqx->container_guid = $owner_guid;
+        $boqx->owner_guid     = $owner_guid;
+        $boqx->access_id      = $access_id;
         $sections = array();
         $aspects = array();
         //Extract boqx sections
@@ -91,10 +91,14 @@ Switch ($subtype){
                     $sections[] = $key;                     $display .= '91 $key = '.$key.'<br>';
                     continue;
                 }
-                $jot->$key=$value;                           $display .= '94 $jot->'.$key.'='.$value.'<br>';   
+                $boqx->$key=$value;                           $display .= '94 $boqx->'.$key.'='.$value.'<br>';   
             }
-//            $jot->save();
-        }                                                                        
+        }
+        if (!empty($boqx->title)) $boqx_has_title = true;
+        if ($boqx_has_title){
+            $boqx->save();
+        }
+	    $guid = $boqx->guid;                                                                    
         if (!empty($sections)){
             foreach ($sections as $cid1){                     $display .= '99 $cid1='.$cid1.'<br>';
                 if (is_array($jot_boqx[$cid1]) && !in_array($jot_boqx[$cid1]['aspect'], $aspects))
@@ -118,7 +122,7 @@ Switch ($subtype){
         if (!empty($loose_things)){
             unset($line_items);
             foreach ($loose_things as $key=>$value){       $display .= '111 $loose_things['.$key.']=>'.$value.'<br>';
-                if(is_array($value)){
+                if(is_array($value) && !empty($value['title'])){
                     $line_items[] = $value;                $display .= '112 $loose_things['.$key.']=>'.print_r($value, true).'<br>'; 
                 }                                          $display .= '113 $line_items:'.print_r($line_items, true).'<br>';
             }
@@ -126,55 +130,59 @@ Switch ($subtype){
                 foreach($line_items as $key=>$item){       $display .= '116 $item:'.print_r($item, true).'<br>';
                     $loose_thing                 = new ElggObject();
                     $loose_thing->subtype        = 'boqx';
-                    $loose_thing->container_guid = $jot->guid;
+                    $loose_thing->container_guid = $boqx->guid;
                     $loose_thing->owner_guid     = $owner_guid;
                     $loose_thing->access_id      = $access_id;
-                    $loose_thing->sort_order     = $key+1;           $display .= '122 $loose_thing->sort_order = '.$loose_thing->sort_order.'<br>';
                     $loose_thing->title          = $item['title'];   $display .= '123 $loose_thing->title = '.$loose_thing->title.'<br>';
+					$loose_thing->aspect         = 'loose things';
+                    $loose_thing->sort_order     = $key+1;           $display .= '122 $loose_thing->sort_order = '.$loose_thing->sort_order.'<br>';
                     $loose_thing->qty            = $item['qty'];     $display .= '124 $loose_thing->qty = '.$loose_thing->qty.'<br>';
-//                    $loose_thing->save();
-                    $new_thing                 = new ElggObject();
+                    if ($boqx_has_title){
+                        $loose_thing->save();
+                    }
                     foreach($item as $key1=>$value){                             $display .=  '137 $item['.$key1.'] = '.$value.'<br>';
                         //      Remove blank characteristics
                         if ($key1 == 'characteristic_names'){
-                			foreach ($item[$key1] as $this_key=>$this_value){
+                			foreach ($value as $this_key=>$this_value){
                 				if ($this_value == ''){                      
                 					unset($item['characteristic_names'][$this_key]);
                 					unset($item['characteristic_values'][$this_key]);
-                					continue;
                 				}
                 			}
                 		}
                         if ($key1 == 'this_characteristic_names'){
-                			foreach ($item[$key1] as $this_key=>$this_value){
+                			foreach ($value as $this_key=>$this_value){
                 				if ($this_value == ''){                      
                 					unset($item['this_characteristic_names'][$this_key]);
                 					unset($item['this_characteristic_values'][$this_key]);
-                					continue;
                 				}
                 			}
                 		}
                 		if ($key1 == 'features' || $key1 == 'this_features'){
-                			foreach ($item[$key1] as $this_key=>$this_value){
+                			foreach ($value as $this_key=>$this_value){
                 				if ($this_value == ''){                     
                 					unset($item[$key1][$this_key]);
-                					continue;
                 				}
                 			}												
                 		}
                         //if (!is_array($value))
-                            $new_thing->$key1 = $value;                     $display .= '166 $new_thing->'.$key1.' = '.$new_thing->$key1.'<br>151 $value ='.print_r($value, true).'<br>';
+                    }
+                    $new_thing                 = new ElggObject();
+                    foreach($item as $key1=>$value){
+                       $new_thing->$key1       = $value;                   $display .= '166 $new_thing->'.$key1.' = '.$new_thing->$key1.'<br>151 $value ='.print_r($value, true).'<br>';
                     }
                     $new_thing->subtype        = 'market';
                     $new_thing->container_guid = $owner_guid;
                     $new_thing->owner_guid     = $owner_guid;
                     $new_thing->access_id      = $access_id;               $display .= '171 $new_thing: '.print_r($new_thing, true).'<br>';
-                    //                        $new_thing->save();
-                    // connect the new thing to the 
-                    $guid_one     = $loose_thing->guid;
-                    $relationship = $loose_thing->subtype;
-                    $guid_two     = $new_thing->guid;
-//                        add_entity_relationship($guid_one, $relationship, $guid_two);
+                    $new_thing->save();
+                    // connect the new thing to the loose thing line item as long as the boqx exists
+                    if (elgg_entity_exists($boqx->guid)){
+                        $guid_one     = $loose_thing->guid;
+                        $relationship = $loose_thing->subtype;
+                        $guid_two     = $new_thing->guid;
+                        add_entity_relationship($guid_one, $relationship, $guid_two);
+                    }
                 }                                  // $display.='150 $loose_thing: '.print_r($loose_thing, true).'<br>150 $new_thing: '.print_r($new_thing, true);
             }
         }

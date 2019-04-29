@@ -53,6 +53,7 @@ else {
                            null;*/
 if (isset($cid)){$data_cid = "data-cid='$cid'";}
 if (isset($qid)){$data_qid = "data-qid='$qid'";}
+if (isset($qid)){$data_id  = "id='$qid'";}
 $save_button = $show_save ? "<button  class='do inlineSave inline-controls-button' type='submit' id='qboxSave' $data_qid $data_cid value='Save' $disabled data-perspective='save'>
 							     $save_icon
 						     </button>":
@@ -125,7 +126,7 @@ if ($message){
         'class'  =>'message-stamp']);
 }
 $form_body = "<div class='inline-content-expand' $data_qid $data_cid>
-				<div class='inline inline-visible' $pos_style role='data entry' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context'>
+				<div class='inline inline-visible' $data_id $pos_style role='data entry' tabindex='-1' data-space='$space' data-perspective='$perspective' data-context = '$context'>
 						<div class='inlineLoadedContent'>
                             <div class='inline-controls'>
                                 $title

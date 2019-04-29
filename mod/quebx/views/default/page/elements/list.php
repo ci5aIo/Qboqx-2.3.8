@@ -1,4 +1,4 @@
-<!--View: market/views/default/object/elements/list_xxx.php-->
+<!--View: quebx/views/default/page/elements/list.php-->
 <?php
 /**
  * Object list
@@ -9,6 +9,7 @@ $title_link    = elgg_extract('title'        , $vars, '');
 $metadata      = elgg_extract('metadata'     , $vars, false);
 $subtitle      = elgg_extract('subtitle'     , $vars, '');
 $content       = elgg_extract('content'      , $vars, false);
+$contents      = elgg_extract('contents'     , $vars, false);
 $tags          = elgg_extract('tags'         , $vars, false);
 $show_activity = elgg_extract('show_activity', $vars, false);
 $show_comments = elgg_extract('show_comments', $vars, false);
@@ -65,6 +66,8 @@ if ($comments && $show_comments){
 }
 if($show_contents){
 	$item_guid = $entity->getGUID();
+	if (!$contents)
+//if $contents not received from request ...
 	$contents = elgg_get_entities(array(
 	                'type' => 'object',
 					'subtypes' => array('market', 'item', 'contents'),

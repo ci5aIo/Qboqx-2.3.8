@@ -17,7 +17,8 @@ $selected_owner    = get_input('owner');
 $selected_queb     = get_input('label');
 $list_type         = get_input('list_type', 'list');
 $url               = elgg_get_site_url(). "queb?";
-$referrer          = current_page_url(); 
+$referrer          = current_page_url();
+$owner             = elgg_get_logged_in_user_entity();
 if (!empty($list_type)){
     $list_type_filter_1 = "?list_type=$list_type";
     $list_type_filter_2 = "&list_type=$list_type";
@@ -303,7 +304,7 @@ $header .= $filter;
 
 $dbprefix = elgg_get_config('dbprefix');
 
-$options = array(
+$options = [
 	'types'            => 'object',
 	'limit'            => 0,            // 0 = Unlimited
 //	'full_view'        => true,         // default = false
@@ -314,15 +315,14 @@ $options = array(
     'position'         => 'after',
 	'list_type_toggle' => true,         // default = false
 	'view_type'        => $list_type,   // custom option
-	'selected_state'   => 'closed',
-    'wheres'           => array("NOT EXISTS (SELECT *
+	'selected_state'   => 'closed'];
+$options['wheres'][]   = "NOT EXISTS (SELECT *
 	                                  FROM {$dbprefix}metadata md
             	                      JOIN {$dbprefix}metastrings ms1 ON ms1.id = md.name_id
             	                      JOIN {$dbprefix}metastrings ms2 ON ms2.id = md.value_id
             	                      WHERE ms1.string = 'visibility_choices'
             	                        AND ms2.string = 'hide_in_catalog'
-            	                        AND e.guid = md.entity_guid)"),
-);
+            	                        AND e.guid = md.entity_guid)";
 
 
 
@@ -337,12 +337,13 @@ if (!empty($selected_queb)){
     $options['joins'][]  =  "JOIN {$dbprefix}metastrings t3 on t1.name_id     = t3.id";
     $options['wheres'][] =  "t3.string in ('tags')";
     $options['wheres'][] =  "t2.string = '{$selected_queb}'";
-}
+}                                                                
 
 $sidebar .= elgg_view('object/shelf', ['perspective'=>'sidebar']);
 Switch($dimension){
     case 'market':
-	    $options['subtypes'] = 'market';
+	    $options['subtypes'] = ['market','boqx'];
+        $options['wheres'][] = "e.container_guid = ".$owner->guid;
 //        $options['wheres'][] =  "e.subtype in (11, 72)";
         if (!empty($collection)) {
         	elgg_push_breadcrumb(elgg_echo('market:title'), $url."x=$selected_queb&z=$selected_owner".$list_type_filter_2);
@@ -366,7 +367,7 @@ Switch($dimension){
         $sidebar .= elgg_view('page/components/labelcloud_block', array(
 				'subtypes' => array('market', 'item'),
 				'owner_guid' => $selected_owner ?: elgg_get_page_owner_guid(),
-			));
+			));                                                                      register_error(print_r($options['wheres'], true));
         break;
     case 'gallery':
 	    $options['subtypes'] = 'hjalbumimage';

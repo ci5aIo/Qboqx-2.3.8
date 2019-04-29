@@ -23,7 +23,8 @@ Switch ($perspective){
 	case 'sidebar':
 		if (!empty($item->icon)){$icon_guid = $item->icon;}              
 		else {$icon_guid = $item->guid;}
-		$icon = elgg_view('market/thumbnail', ['marketguid' => $icon_guid, 'size' => 'tiny', 'item_guid'=>$item->guid]);
+		$icon = elgg_view('market/thumbnail', ['marketguid' => $item->guid, 'size' => 'tiny', 'item_guid'=>$item->guid]);
+//		$icon = elgg_view('market/thumbnail', ['marketguid' => $icon_guid, 'size' => 'tiny', 'item_guid'=>$item->guid]);
 		$image_vars=['item_guid'=>$item->guid];
 		$this_item = elgg_view_image_block($icon, $item->title, $image_vars);//, $vars);
 		$content = "<li class='quebx-shelf-item' data-perspective=$perspective id='quebx-shelf-item-$item->guid' data-container-guid='$item->container_guid' >

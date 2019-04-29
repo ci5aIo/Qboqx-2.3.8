@@ -153,7 +153,8 @@ Switch ($view_type){
 		// list view
 		$market_img = elgg_view('output/url', array(
 				'href'    => "market/view/$guid",
-				'text'    => elgg_view('market/thumbnail', array('marketguid' => $icon_guid, 'size' => 'tiny', 'tu' => $tu)),
+				'text'    => elgg_view('market/thumbnail', array('marketguid' => $guid, 'size' => 'tiny', 'tu' => $tu)),
+//				'text'    => elgg_view('market/thumbnail', array('marketguid' => $icon_guid, 'size' => 'tiny', 'tu' => $tu)),
 				));
 		$contents = elgg_get_entities(array(
 		    'type' => 'object',
@@ -310,7 +311,7 @@ Switch ($view_type){
 		$vars['body_class']='quebx-menu-q';
 	
 		$params = array_merge($vars, $params);
-		$list_body = elgg_view('object/elements/list', $params);
+		$list_body = elgg_view('page/elements/list', $params);
 		
 	    if (elgg_get_plugin_setting('market_comments', 'market') == 'yes') {
 	        $params2 = array('inline'=>false, 'show_heading'=>false);

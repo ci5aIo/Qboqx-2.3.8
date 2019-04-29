@@ -925,21 +925,63 @@ define(function(require) {
 	   			break;
 	   //perspective == 'delete'
 	   		case 'delete':
-			   $(this).parents('table.ledger').parent('li').remove();
+	   			switch (element){
+	   				case 'market':
+	   					$('li#elgg-object-'+guid).remove();
+	   					break;
+	   				default:
+					   $(this).parents('table.ledger').parent('li').remove();
+	   			}
 			   ajax.view('partials/jot_form_elements',{
 		    	   data: {
 		    		 element: element,
+		    		 perspective: perspective,
 		    		 guid: guid,
 		    		 qid: qid,
 		    		 space: space,
-		    		 aspect: aspect,
-		    		 perspective: perspective
+		    		 aspect: aspect
 		    	   },
 		       })
 			   break;
 	   //perspective == 'view'
-		   case 'view':
+	   		case 'edit':
+	   		case 'view':
 			   switch (element){
+			   	   case 'boqx':
+			   		   ajax.view('partials/jot_form_elements',{
+					    	   data: {
+					    		 element: element,
+					    		 guid: guid,
+					    		 qid: qid,
+					    		 qid_n: qid_n,
+					    		 space: space,
+					    		 aspect: aspect,
+					    		 action: perspective,
+					    		 perspective: perspective,
+					    		 presentation: presentation,
+					    		 context: context,
+					             compartment: compartment,
+					             view_type: view_type
+					    	   },
+					       }).done(function(output) {
+					    	   //$('table.ledger-'+guid).after($(output));
+					    	   switch (context){
+						    	   case "widgets":
+						    		   console.log('context: '+context);
+						    		   $('table.ledger-'+guid).after($(output));
+							    	   break;
+						    	   case "market":
+					    		      $(this_container).append($(output));
+						    		   break;
+						    	   case "inline":
+									   $(this_container).append($(output));
+									   break;
+								   case "maximized":
+						    		   $(maximized_container).prepend($(output));
+						    		   break;
+							   };
+					       });
+			   		   break;
 		   //perspective == 'view'; element == 'qbox';
 				   case 'qbox':
 		   //perspective == 'view'; element == 'market';
@@ -1061,9 +1103,12 @@ define(function(require) {
 		   case 'edit':
 			   switch (element){
 				   case 'qbox':
-					   	var qbox = $('div#'+qid+'[data-perspective='+perspective+']');
 				//perspective == 'edit'; element == 'qbox';
+//					   break;
 				   case 'market':
+//					   	var qbox = $('div#'+qid);
+					   	var qbox = $('div#'+qid+'[data-perspective='+perspective+']'),
+					   	    this_boqx = $('div.inline-content-expand[data-qid='+qid+']');
 				//perspective == 'edit'; element == 'market';
 					   if (typeof qbox != 'undefined'){
 						   var qbox_exists = qbox.length>0;
@@ -1076,12 +1121,14 @@ define(function(require) {
 					   console.log('qbox_visible: '+qbox_visible);
 					   if(qbox_visible){
 						   console.log('visible perspective: '+$('div.qbox-visible#'+qid).data('perspective'));
+						   console.log('visible perspective: '+$('div.inline-visible#'+qid).data('perspective'));
 						   if($('div.qbox-visible#'+qid).data('perspective') == perspective ||
 							  $('div.inline-visible#'+qid).data('perspective') == perspective){
 							   return true;                                    // Do nothing.  This qbox is visible.
 						   }
 						   $('div.qbox-content-expand#'+qid).remove();
 						   $('div.inline-content-expand#'+qid).remove();
+						   this_boqx.remove();
 					   }
 					   if(qbox_exists){
 						    qbox.parents('div.qbox-content-expand#'+qid).show();
@@ -1089,6 +1136,7 @@ define(function(require) {
 						    qbox.addClass('qbox-visible');
 					   		return true;                                      // Show and do nothing more.
 					   }
+//					   qbox.remove();
 					   ajax.view('partials/jot_form_elements',{
 				    	   data: {
 				    		 element: element,

@@ -32,7 +32,12 @@
  *      qbox
         	$space
         		transfer
-        		markete
+        		market
+        		  $perspective
+        		      pack
+        		      edit
+        		      view
+        		      delete
         		default
  *      qbox_maximized
         	$perspective
@@ -47,6 +52,7 @@
         	$perspective
         		edit
         		view
+        		delete
  *      inline
         	$perspective
         		edit
@@ -131,6 +137,7 @@ Switch ($element){
 */
 	    $content = elgg_view('forms/market/profile',['presentation'=>'qboqx',
 	                                                 'data_prefix' => $data_prefix,
+	                                                 'guid'        => $guid,
 	                                                 'parent_cid'  => $parent_cid,
 	                                                 'cid'         => $cid,
 	                                                 'n'           => $n]);
@@ -684,6 +691,9 @@ Switch ($element){
 				 		$vars['show_save']    = false;
 				        if ($context == 'widgets'){$vars['position'] = 'relative';}
 						break;
+ 					case 'delete':
+ 					    $entity->delete();
+ 					    break;
  				}
 				$content = elgg_view_layout('qbox',$vars);
 		        $form_body = elgg_view('output/div', ['content' => $content,
@@ -915,6 +925,9 @@ Switch ($element){
  			            break;
  			    }
  			    break;
+ 			case 'delete':
+ 			    $entity->delete();
+ 			    break;
  		}
 		break;
 	case 'inline':
@@ -1071,6 +1084,21 @@ register_error($display);
 				break;
 		}
 		break;
+	case 'boqx':
+	    switch ($perspective){
+	        case 'add':
+	        case 'edit':
+	        case 'view':
+			    $view = 'forms/transfers/edit';
+			    $params = $vars;
+                $params['section'] = 'things_boqx';
+                $params['perspective']=$perspective;
+                $params['content']  = elgg_view($view, $params);
+                
+//				$form_body = elgg_view_layout('inline', $params);
+				$form_body = elgg_view($view, $params);
+	            break;
+	    }
 	default:
 	break;
 }
