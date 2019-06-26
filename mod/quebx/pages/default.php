@@ -77,8 +77,8 @@ $tabs         = elgg_view('quebx/menu'         , array('this_owner'        => $s
                                                        'this_collection'   => $collection,
                                                        'this_label'        => $selected_queb, 
                                                        'list_type'         => $list_type));
-
-$menu_sidebar = '
+$menu_sidebar .= elgg_view('quebx/sidebar_menu');
+$menu_sidebar_xxx .= '
 <div id="accordian">
 	<ul>
 		<li class="active">
@@ -270,7 +270,7 @@ $module_add_effort = elgg_view('object/transfer',
                                   ]
     );
 */
-$header .= $module_add_thing.$module_add_experience.$module_add_receipt.$module_add_effort;
+//$header .= $module_add_thing.$module_add_experience.$module_add_receipt.$module_add_effort;
 
 if (!empty($collection) || !empty($selected_owner) || !empty($selected_queb)){
     $filter   = 'Filters: ';
@@ -364,10 +364,10 @@ Switch($dimension){
         } else {
         	$items = elgg_get_entities($options);
         }
-        $sidebar .= elgg_view('page/components/labelcloud_block', array(
-				'subtypes' => array('market', 'item'),
-				'owner_guid' => $selected_owner ?: elgg_get_page_owner_guid(),
-			));                                                                      register_error(print_r($options['wheres'], true));
+        $sidebar .= elgg_view('page/components/labelcloud_block', [
+        				'subtypes' => array('market', 'item'),
+        				'owner_guid' => $selected_owner ?: elgg_get_page_owner_guid(),
+        			]);
         break;
     case 'gallery':
 	    $options['subtypes'] = 'hjalbumimage';

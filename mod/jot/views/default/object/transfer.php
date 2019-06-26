@@ -106,7 +106,9 @@ Switch ($perspective){
         $form_action = 'action/jot/edit_scratch2';
         $params = $vars;
         $params['section'] = 'things_boqx';
-        $body  = elgg_view_form('transfers/edit',['action'=>$form_action, 'name'=>"{$perspective}_{$space}_global"], $params);
+        $body  = elgg_view('output/div',['content' => elgg_view_form('transfers/edit',['action'=>$form_action, 'name'=>"{$perspective}_{$space}_global"], $params),
+                                         'class'   => 'top-boqx']
+                          );
 //register_error($display);
         break;
     case 'edit':

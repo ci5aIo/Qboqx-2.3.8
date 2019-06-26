@@ -19,22 +19,20 @@ if($numchars == ''){
 }
 $guid         = $vars['guid'];
 $entity       = $vars['entity'] ?: get_entity($guid);
-//$title        = $vars['markettitle'];
 $body         = $vars['marketbody'];
-$tags         = $vars['markettags'];
-//$category     = $vars['marketcategory'];
+$tags         = elgg_extract('markettags', $vars, $entity->gettags());
 $access_id    = $vars['access_id'];
 $model_no     = $entity->model_no;
 $serial_no    = $entity->serial_no;
-$entity_guid  = $entity->getGUID();
-$asset_guid   = $entity->getGUID();
+$entity_guid  = $guid;
+$asset_guid   = $guid;
 $entity_owner = get_entity($entity->owner_guid);
+/****/
+$perspective    = elgg_extract('perspective'      , $vars, 'edit');
+$section        = elgg_extract('section'          , $vars, 'main');
+$snippet        = elgg_extract('snippet'          , $vars);
 
 
-$display = '';/*
-foreach ($entity as $value=>$field){
-	$display .= $value.'=>'.$field.'<br>';
-}*/
 
 $family_values = item_prepare_form_vars(NULL,NULL,$entity);
 $entity_values = item_prepare_form_vars(NULL,NULL,$entity);
@@ -43,6 +41,22 @@ foreach($values as $value=>$field){
 	$display .= $value.'=>'.$field.'<br>';
 }
 //echo $display;
+
+/******************************************************************************************************
+ * 
+ * Perspectives
+ *
+*******************************************************************************************************/
+Switch ($perspective){
+/****************************************
+ * $perspective = 'add'                      *****************************************************************************
+ ****************************************/
+    case 'add':
+        switch ($section){
+            
+        }
+    }
+
 
 elgg_set_context('edit_item');
 //echo elgg_dump($entity);

@@ -6,4 +6,6 @@ gatekeeper();
 
 $vars['user'] = elgg_get_logged_in_user_entity();
 
-echo elgg_view_form('labels/add', array('class' => 'labels'), $vars);
+$body = elgg_view_form('labels/add', array('class' => 'labels'), $vars);
+
+echo elgg_view_module('info', elgg_echo('labels:form:header'), $body);

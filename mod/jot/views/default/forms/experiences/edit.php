@@ -22,33 +22,34 @@ $expand_tabs = elgg_extract('expand_tabs'      , $vars, false);
 $tabs_expand = elgg_extract('tabs_expand'      , $vars);
 $presence    = elgg_extract('presence'         , $vars);                      $display .= '23 $presence: '.$presence.'<br>';
 $presentation = elgg_extract('presentation'    , $vars, $presence ?: 'qbox_experience');           $display .= '24 $presentation: '.$presentation.'<br>';
-$qid         = elgg_extract('qid'              , $vars);
-$qid_n       = elgg_extract('qid_n'            , $vars);
-$n           = elgg_extract('n'                , $vars);
+$qid         = elgg_extract('qid'              , $vars, quebx_new_id ('q'));
+$n           = elgg_extract('n'                , $vars, '1');
+$qid_n       = elgg_extract('qid_n'            , $vars, $qid.'_'.$n);
 $parent_cid  = elgg_extract('parent_cid'       , $vars);
-$cid         = elgg_extract('cid'              , $vars, quebx_new_cid ());
+$cid         = elgg_extract('cid'              , $vars, quebx_new_id ('c'));
 $service_cid = elgg_extract('service_cid'      , $vars);
 $entity      = get_entity($guid);                                             
 $now         = new DateTime();
 $now->setTimezone(new DateTimeZone('America/Chicago'));
 if (elgg_entity_exists($guid)){
+    $jot     = $entity;
     $subtype = $entity->getSubtype();
+    $aspect  = $jot->aspect ?: 'experience';                                    $display .= '38 $action: '.$action.'<br>30 $aspect: '.$aspect.'<br>30 $section: '.$section.'<br>';
 }
 $container = get_entity($container_guid);
+echo "<!--action=$action, section=$section, snippet=$snippet-->";
 
 if ($selected){
       $style = 'display: block';} 
 else{ $style = 'display: none';}  
 
 // Define variables
-$jot         = get_entity($guid);
-$aspect      = $jot->aspect ?: 'experience';                                    $display .= '38 $action: '.$action.'<br>30 $aspect: '.$aspect.'<br>30 $section: '.$section.'<br>';
 //$form_body   .= '<br>guid:'.$guid.'<br>section: '.$section.'<br>selected:'.$selected;
 																				$display .= '40 $cid: '.$cid.'<br>40 $service_cid: '.$service_cid.'<br>40 $snippet: '.$snippet.'<br>';
 elgg_load_library('elgg:quebx');
-$pick_date = elgg_view_field(['#type' => 'date',]);
-$album = quebx_get_object_by_title(get_subtype_id('object', 'hjalbum'), 'Default');
-$drop_media   = elgg_view('input/dropzone', array(
+$pick_date  = elgg_view_field(['#type' => 'date',]);
+$album      = quebx_get_object_by_title(get_subtype_id('object', 'hjalbum'), 'Default');
+$drop_media = elgg_view('input/dropzone', [
 		'name' => 'jot[files]',
 		'default-message'=> '<strong>Drop images videos or documents here</strong><br /><span>or click to select from your computer</span>',
 		'max' => 25,
@@ -56,15 +57,29 @@ $drop_media   = elgg_view('input/dropzone', array(
 		'multiple' => true,
 		'style' => 'padding:0;',
 		'container_guid' => $owner_guid,
-));
+        ]);
 Switch ($action){
     case 'add':
         Switch ($section){
-            case 'main':
-               
+            /****************************************
+*add********** $section = 'main_xxx'                 *****************************************************************
+             ****************************************/
+            case 'main_xxx':
                 unset($form_body, $hidden, $buttons, $preloaded_panels);
                 $title              = elgg_extract('title', $vars, 'Experiences');
-                $title_field        = elgg_view("input/text"    , ["name" => "jot[title]"         , 'placeholder' => 'Give your experience a name', 'style' => 'width:100%', 'id'=>'title', 'data-parsley-required'=>'true']);
+                $title_field        = elgg_view("input/text"    , ["name" => "jot[$cid][title]"         , 'placeholder' => 'Give your experience a name', 'id'=>'title', 'data-parsley-required'=>'true']);
+                $description_field  = elgg_view("input/longtext", ["name" => "jot[$cid][description]"   , 'placeholder' => 'Describe the experience ...', 'style' => 'word-wrap: break-word; width:510px; height: 52px; margin-left: 0px; margin-right: 0px;', 'id' => $qid.'_description']);
+                $moment_field       = elgg_view('input/date'    , ['name' => 'jot[$cid][moment]'        , 'placeholder' => $now->format('Y-m-d')        , 'style' => 'width:150px']);
+            	$expansion          = ['section' => 'issue', 'visibility' => 'display:none', 'subtypes'=>['observation'], 'title'=>'Issue'];
+            	
+                break;
+            /****************************************
+*add********** $section = 'main'                 *****************************************************************
+             ****************************************/
+            case 'main':
+                unset($form_body, $hidden, $buttons, $preloaded_panels);
+                $title              = elgg_extract('title', $vars, 'Experiences');
+                $title_field        = elgg_view("input/text"    , ["name" => "jot[title]"         , 'placeholder' => 'Give your experience a name', 'id'=>'title', 'data-parsley-required'=>'true']);
                 $description_field  = elgg_view("input/longtext", ["name" => "jot[description]"   , 'placeholder' => 'Describe the experience ...', 'style' => 'word-wrap: break-word; width:520px; height: 52px; margin-left: 0px; margin-right: 0px;', 'id' => $qid.'_description']);
                 $moment_field       = elgg_view('input/date'    , ['name' => 'jot[moment]'        , 'placeholder' => $now->format('Y-m-d')        , 'style' => 'width:150px']);
 //            	$buttons            = elgg_view('input/submit',	 array('value' => elgg_echo('save'), "class" => 'elgg-button-submit-element'));
@@ -1280,18 +1295,18 @@ Switch ($action){
 						$form_body .="
 								<div class='rTableRow $element ui-sortable-handle TaskEdit___1Xmiy6lz' data-qid=$qid_n data-guid=$guid>
 									<div class='rTableCell'>$delete</div>
-									<div class='rTableCell'>".elgg_view('input/hidden', ['name' => "jot[observation][effort][$qid_n][new_line]"]).
-									                          elgg_view('input/number', ['name' => "jot[observation][effort][$qid_n][qty]",'data-qid'=>$qid_n, 'data-name'=>'qty', 'value'=>'1'])."
+									<div class='rTableCell'>".elgg_view('input/hidden', ['name' => "jot[observation][effort][$qid][$n][new_line]"]).
+									                          elgg_view('input/number', ['name' => "jot[observation][effort][$qid][$n][qty]",'data-qid'=>$qid_n, 'data-name'=>'qty', 'value'=>'1'])."
                                     </div>
 									<div class='rTableCell'>$set_properties_button ".elgg_view('input/text', [
-																'name'      => "jot[observation][effort][$qid_n][title]",
+																'name'      => "jot[observation][effort][$qid][$n][title]",
 											                    'class'     => 'rTableform90',
 									                            'id'        => 'line_item_input',
 											                    'data-name' => 'title',
 															])."
 						            </div>
 									<div class='rTableCell'>".elgg_view('input/checkbox', [
-																'name'      => "jot[observation][effort][$qid_n][taxable]",
+																'name'      => "jot[observation][effort][$qid][$n][taxable]",
 																'value'     => 1,
 											                    'data-qid'  => $qid_n,
 											                    'data-name' => 'taxable',
@@ -1299,7 +1314,7 @@ Switch ($action){
 															])."
                                     </div>
 									<div class='rTableCell'>".elgg_view('input/text', [
-																'name'      => "jot[observation][effort][$qid_n][cost]",
+																'name'      => "jot[observation][effort][$qid][$n][cost]",
 										 						'class'     => 'last_line_item',
 											                    'data-qid'  => $qid_n,
 											                    'data-name' => 'cost',
@@ -1354,6 +1369,7 @@ Switch ($action){
              	switch ($snippet){
              		case 'marker1':
              			unset($hidden, $hidden_fields);
+             			$n = 1;
 		                $hidden["jot[observation][effort][$parent_cid][$cid][aspect]"] = 'service task';
 		                if (!empty($hidden)){                
 		                    foreach($hidden as $field=>$value){
@@ -1376,6 +1392,16 @@ Switch ($action){
 					    $service_item_header_tax   = 'tax';
 					    $service_item_header_cost  = 'Cost';
 					    $service_item_header_total = 'Total';
+					    $service_item_footer_shipping = elgg_view('input/text', [
+																'name'      => "jot[observation][effort][$cid][shipping]",
+											                    'data-qid'  => $cid,
+											                    'data-name' => 'shipping_cost'
+															]);
+					    $service_item_footer_sales_tax = elgg_view('input/text', [
+																'name'      => "jot[observation][effort][$cid][sales_tax]",
+											                    'data-qid'  => $cid,
+											                    'data-name' => 'sales_tax'
+															]);
 					    $delete_button = elgg_view('output/url', array(
 		                            	        'title'=>'remove progress marker',
 		                            	        'text' => elgg_view_icon('delete-alt'),
@@ -1383,7 +1409,52 @@ Switch ($action){
 		            	$delete = elgg_view("output/span", ["content"=>$delete_button]);
 		            	$service_marker_title       = "<textarea data-aid='name' tabindex='0' data-focus-id='NameEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy2 NameEdit___Mak{$cid}_{$n}' style='padding-top: 0px;margin: 8px;' name='jot[observation][effort][$parent_cid][$cid][title]' placeholder='Service name'></textarea>";
 		            	$service_marker_description = "<textarea name='jot[observation][effort][$parent_cid][$cid][description]' aria-labelledby='description$cid' data-aid='textarea' data-focus-id='ServiceEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy editor___1qKjhI5c tracker_markup' style='margin: 0px 0px 3px;display: block;' placeholder='Describe the service'></textarea>";
-		                $line_items_header= "          
+		                $line_items_footer = "<div class='rTableRow pin'><div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div>
+                				<div class='rTableCell'>Subtotal</div>
+                				<div class='rTableCell'><span id={$cid}_subtotal></span><span class='{$cid}_subtotal subtotal_raw'></span></div>
+                			</div>
+                			<div class='rTableRow pin'>
+                				<div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div>
+                				<div class='rTableCell'>Shipping</div>
+                				<div class='rTableCell'>$service_item_footer_shipping</div>
+                			</div>
+                			<div class='rTableRow pin'>
+                				<div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div>
+                				<div class='rTableCell'>Sales Tax <span class='{$cid}_sales_tax_rate'></span></div>
+                				<div class='rTableCell'>$service_item_footer_sales_tax</div>
+                			</div>
+                			<div class='rTableRow pin'>
+                				<div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div>
+                				<div class='rTableCell'>Total</div>
+                				<div class='rTableCell'>
+                                      
+                                        <span id={$cid}_total></span><span class='{$cid}_total total_raw'></span></div>
+                			</div>";
+		                /*blank line*/
+                		$line_items = elgg_view('forms/experiences/edit',[ 
+														  'action'    => $action,
+														  'section'   =>'issue_effort_service', 
+														  'snippet'   =>'service_item',
+														  'parent_cid'=> $parent_cid, 
+														  'n'         => $n, 
+														  'cid'       => $cid, 
+														  'qid'       => $qid,
+			                                          	  'qid_n'     => $qid_n,]);
+		            	$line_items_properties .= "
+		            				<div id={$cid}_{$n} class='jq-dropdown jq-dropdown-tip qboqx-dropdown-relative_xxx'>
+					                      <div class='qboqx-dropdown-panel'>".
+			                              elgg_view('forms/market/properties', [
+				    	                                   'element_type'   => 'service_item',
+                			                               'container_type' => 'experience',
+                			                               'action'         => $action,
+			                              		           'qid'            => $qid,
+			                                          	   'qid_n'          => $qid_n,
+			                                          	   'cid'            => $cid,
+			                                          	   'parent_cid'     => $parent_cid,
+			                                          	   'n'              => $n,])."
+			                              </div>
+			                        </div>";
+		                $line_items_pallet = "          
 						    <div class='rTable line_items service-line-items'>
 								<div class='rTableBody'>
 									<div id='sortable'>
@@ -1395,16 +1466,20 @@ Switch ($action){
 							    			<div class='rTableHead'>$service_item_header_cost</div>
 							    			<div class='rTableHead'>$service_item_header_total</div>
 							    		</div>
+                                        $line_items
 							    		<div id={$cid}_new_line_items class='new_line_items'></div>
+                                        $line_items_footer
 							    	</div>
 						    	</div>
 						    </div>
-				    		<div id={$cid}_line_item_property_cards></div>";
-		                $issue_effort_service_add = "<div tabindex='0' class='AddSubresourceButton___2PetQjcb' data-aid='TaskAdd' data-focus-id='TaskAdd' data-cid='$cid' data-guid='$guid'>
+                    		<div id={$cid}_line_item_property_cards>
+                                $line_items_properties 
+                            </div>";
+		                $issue_effort_service_add = "<div tabindex='0' class='AddSubresourceButton___2PetQjcb' data-aid='TaskAdd' data-focus-id='TaskAdd' data-cid='$cid' data-qid='$qid' data-guid='$guid'>
 								 <span class='AddSubresourceButton__icon___h1-Z9ENT'></span>
 								 <span class='AddSubresourceButton__message___2vsNCBXi'>Add a task</span>
 							</div>";
-		                $issue_effort_service_show = "<div class='TaskShow___2LNLUMGe' data-aid='TaskShow' data-cid='$cid' style='display:none' draggable='true'>
+		                $issue_effort_service_show = "<div class='TaskShow___2LNLUMGe' data-aid='TaskShow' data-cid='$cid' data-qid='$qid' style='display:none' draggable='true'>
 								<input type='checkbox' title='mark task complete' data-aid='toggle-complete' data-focus-id='TaskShow__checkbox--$cid' class='TaskShow__checkbox___2BQ9bNAA'>
 								<div class='TaskShow__description___3R_4oT7G tracker_markup' data-aid='TaskDescription' tabindex='0'>
 									<span class='TaskShow__title___O4DM7q tracker_markup section-add-issue_effort_service-marker1'></span>
@@ -1418,7 +1493,7 @@ Switch ($action){
 								</nav>
 							</div>";
 		                $issue_effort_service_edit = "
-	                        <div class='TaskEdit___1Xmiy6lz' style='display:none' data-aid='TaskEdit' data-cid='$cid'>
+	                        <div class='TaskEdit___1Xmiy6lz' id='$cid' style='display:none' data-aid='TaskEdit' data-cid='$cid' data-qid='$qid'>
 					    		<a class='autosaves collapser-service-item' id='story_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
 									<section class='TaskEdit__descriptionContainer___3NOvIiZo'>
 			                            <fieldset class='name'>
@@ -1458,7 +1533,7 @@ Switch ($action){
 			                             <section class='service-items'>
 			                             	<div>
 			                             		<h5 style='padding:10px 0 0 10px;'>Service Items</h5>
-			                             		$line_items_header
+			                             		$line_items_pallet
 			                             	</div>
 			                             </section>
 									</section>
@@ -2864,7 +2939,51 @@ Switch ($action){
 			                        </div>";
 		            		}
 		            	}
-		                $line_items_header= "          
+		            	else {
+		            	    $line_items .= elgg_view('forms/experiences/edit',[ 
+														  'action'    => $action,
+														  'section'   =>'issue_effort_service', 
+														  'snippet'   =>'service_item',
+														  'parent_cid'=> $parent_cid, 
+														  'n'         => $n, 
+														  'cid'       => $cid, 
+														  'qid'       => $qid,]);
+		            			$line_items_properties .= "
+		            				<div id={$cid}_{$n} class='jq-dropdown jq-dropdown-tip qboqx-dropdown-relative_xxx'>
+					                      <div class='qboqx-dropdown-panel'>".
+			                              elgg_view('forms/market/properties', [
+				    	                                   'element_type'   => 'service_item',
+                			                               'container_type' => 'experience',
+                			                               'action'         => $action,
+			                              		           'qid'            => $qid,
+			                                          	   'qid_n'          => $qid_n,
+			                                          	   'cid'            => $cid,
+			                                          	   'parent_cid'     => $parent_cid,
+			                                          	   'n'              => $n,])."
+			                              </div>
+			                        </div>";
+		            	}
+		                $line_items_footer = "<div class='rTableRow pin'>
+                				<div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div>
+                				<div class='rTableCell'>Subtotal</div>
+                				<div class='rTableCell'><span id={$cid}_subtotal>$subtotal</span><span class='{$cid}_subtotal_raw subtotal_raw'>$transfer->subtotal</span></div>
+                			</div>
+                			<div class='rTableRow pin'>
+                				<div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div>
+                				<div class='rTableCell'>Shipping</div>
+                				<div class='rTableCell'>$shipping_cost</div>
+                			</div>
+                			<div class='rTableRow pin'>
+                				<div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div>
+                				<div class='rTableCell'>Sales Tax <span class='{$cid}_sales_tax_rate'></span></div>
+                				<div class='rTableCell'>$sales_tax</div>
+                			</div>
+                			<div class='rTableRow pin'>
+                				<div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div><div class='rTableCell'></div>
+                				<div class='rTableCell'>Total</div>
+                				<div class='rTableCell'><span id={$cid}_total>$total</span><span class='{$cid}_total_raw total_raw'></span></div>
+                			</div>";
+		                $line_items= "          
 						    <div class='rTable line_items service-line-items'>
 								<div class='rTableBody'>
 									<div id='sortable'>
@@ -2879,11 +2998,13 @@ Switch ($action){
 										$line_items
 							    		<div id={$cid}_new_line_items class='new_line_items'></div>
 							    	</div>
+                                    $line_items_footer
 						    	</div>
 						    </div>
 				    		<div id={$cid}_line_item_property_cards></div>
                              $line_items_properties";
-		                $issue_effort_service_add = "<div tabindex='0' class='AddSubresourceButton___2PetQjcb' style='display:none' data-aid='TaskAdd' data-focus-id='TaskAdd' data-cid='$cid' data-guid='$guid'>
+										
+                        $issue_effort_service_add = "<div tabindex='0' class='AddSubresourceButton___2PetQjcb' style='display:none' data-aid='TaskAdd' data-focus-id='TaskAdd' data-cid='$cid' data-guid='$guid'>
 								 <span class='AddSubresourceButton__icon___h1-Z9ENT'></span>
 								 <span class='AddSubresourceButton__message___2vsNCBXi'>Add a task</span>
 							</div>";
@@ -2941,7 +3062,7 @@ Switch ($action){
 			                             <section class='service-items'>
 			                             	<div>
 			                             		<h5 style='padding:10px 0 0 10px;'>Service Items</h5>
-			                             		$line_items_header
+			                             		$line_items
 			                             	</div>
 			                             </section>
 									</section>
@@ -2982,6 +3103,7 @@ Switch ($action){
 											                    'class'     => 'rTableform90',
 									                            'id'        => 'line_item_input',
 											                    'data-name' => 'title',
+									                            'data-qboqx-dropdown' => '#'.$cid.'_'.$n,
 															])."
 						            </div>
 									<div class='rTableCell'>".elgg_view('input/checkbox', array(
@@ -3674,6 +3796,158 @@ Switch ($action){
 generalize:
 
 Switch ($section){
+            case 'main_xxx':
+                unset($content, $view_sections);                                                                                    $display .= '3679 $section = '.$section.'<br>';
+//                $form_body = $css.$buttons;
+                Switch($presentation){
+                    case 'full':    $style = 'width:100%';  break;
+                    case 'compact': $style = 'width:550px'; break;
+                    case 'qbox':                            break;
+                    case 'inline':  $style = 'width:97%';   break;
+                    default:        $style = 'width:550px'; break;
+                }
+                $url = elgg_get_site_url().'jot';
+//                $expansion_objects  = elgg_get_entities(['type'=>'object', 'container_guid'=>$guid]);
+            	$forms_action       = 'forms/experiences/edit';
+            	$view_sections[]    = ['section' => 'things'   , 'visibility' => 'display:block', 'subtypes'=>['market']                  , 'title'=>'Things'];
+            	$view_sections[]    = ['section' => 'documents', 'visibility' => 'display:none' , 'subtypes'=>['file']                    , 'title'=>'Documents'];
+            	$view_sections[]    = ['section' => 'gallery'  , 'visibility' => 'display:none' , 'subtypes'=>['image', 'hjalbumimage']   , 'title'=>'Gallery'];
+            	$selected           = $view_sections[0]['section'];
+            	foreach ($view_sections as $i=>$attachment){
+            	    unset($attachments, $attachment_count);
+            	    $attachments = elgg_get_entities_from_relationship(
+            	       ['type'                 => 'object',
+            	        'subtypes'             => $attachment['subtypes'],
+            	        'relationship'         => 'experience',
+            	        'relationship_guid'    => $guid,
+            	        'inverse_relationship' => false,
+            	        'limit'                => 0,]);
+            	    $attachment_count = count($attachments);
+            	    if ($attachment_count == 0 && $action == 'view') unset($view_sections[$i]);
+            	    else             	       $view_sections[$i]['count'] = $attachment_count;
+            	}
+            	if (is_object($expansion_objects[0])) {
+            	    foreach ($view_sections as $i=>$attachment){
+            	        $view_sections[$i]['visibility'] = 'display:none';
+            	    }
+            	   $expansion       = $expansion_objects[0]; // There must be only one expansion of an experience
+            	   $view_sections[] = ['section' => $expansion->aspect, 'visibility' => 'display:block', 'subtypes'=>[$expansion->subtype], 'title'=>$expansion->aspect];
+            	   $selected        = $expansion->aspect;     //replaces $selected from above
+            	}
+            	else {//Retain $expansion as defined in the action section above
+            	    $view_sections[] = $expansion; 
+            	}                                                                                 $display .= '3725 $selected: '.$selected.'<br>3725 count($view_sections): '.count($view_sections).'<br>';
+            	$class      = "qbox-$guid";
+            	$li_class   = 'qbox-q';
+            	$link_class = 'qbox-q qbox-menu';
+            	$ul_style   = 'border-bottom: 0px solid #cccccc';
+            	$ul_aspect  = 'attachments';
+            	foreach ($view_sections as $i=>$view_section) {
+                    unset($qid_n, $child_cid);
+                    $qid_n      = $qid.'_'.$i; 
+                    $child_cid  = quebx_new_id ('c');
+                    $cid_array[$i] = $child_cid;
+                    $view_sections[$i]['cid'] = $child_cid;
+                    $body_vars = ['container_guid'=> $guid,
+                                  'cid'           => $child_cid,
+                                  'parent_cid'    => $cid,
+                                  'qid'           => $qid,
+                                  'section'       => $view_section['section'],
+                                  'visibility'    => $view_section['visibility'],
+//                                  'presentation'  => $presentation,
+                                  'presence'      => $presence,
+                                  'expansion'     => $expansion,
+                                  'action'        => $action,
+                                  'perspective'   => $perspective,
+                    ];
+                    $preloaded_panels            .= elgg_view($forms_action, $body_vars);
+                    
+                    $this_tab = ['title'         => $view_section['title'],
+                                'selected'       => $view_section['section'] == $selected,
+                                'guid'           => $this_guid,
+                                'id'             => $id,
+                                'qid'            => $qid,
+                                'cid'            => $child_cid,
+                                'style'          => $li_style,
+                                'class'          => $li_class,
+                                'link_class'     => $link_class,
+                                'count'          => $view_section['count'],
+                                'panel'          => $panel,
+                                'aspect'         => $subtype,
+                                'action'         => $action,
+                                'section'        => $view_section['section'],
+                                'expand_tabs'    => $expand_tabs,];
+                    $attachment_tabs[] = $this_tab;
+            	}
+            	$nav_vars['tabs']   = $attachment_tabs;
+            	$nav_vars['style']  = $ul_style;
+            	$nav_vars['aspect'] = $ul_aspect;
+            	$nav_vars['class']  = $class;
+            	$nav_vars['cid']    = $cid;
+                $tabs               = elgg_view('navigation/tabs_slide', $nav_vars);
+                unset ($expansion);
+               	$preload_panels   = elgg_extract('preload_panels', $vars);
+                	if ($preload_panels){
+				    	$forms_action =  'forms/experiences/edit';
+                		foreach($preload_panels as $key=>$panel){                                         $display .= '3782 $preloading panel '.$panel['panel'].'<br>';
+                		    $cid_array[] = $panel->cid;
+                			$body_vars = ['container_guid'=> $guid,
+	                				      'expansion'     => $expansion,
+									      'qid'           => $panel->qid,
+                			              'cid'           => $panel->cid,
+					                      'section'       => $panel->panel,
+									      'selected'      => true,
+									      'style'         => 'display:none',
+									      'presentation'  => $presentation,
+                			              'presence'      => $presence,
+									      'action'        => $action,
+                			              'perspective'   => $perspective,
+                			]; 
+                			if ($action == 'edit' || $action == 'view'){$body_vars['container_guid']=$guid;}
+                			if ($action == 'add')                      {$body_vars['cid'] = $cid;}
+	                		$preloaded_panels             .= elgg_view($forms_action, $body_vars);
+                		}
+                	}
+                	
+                	$tab_vars  =   ['subtype'        => 'experience',
+                            	    'this_section'   => 'issue',
+                            	    'state'          => 'selected',
+                            	    'action'         => $action,
+                            	    'guid'           => $guid,
+                            	    'qid'            => $qid_n,
+                	                'cid_array'      => $cid_array,
+                            	    'presentation'   => 'qbox',
+                            	    'class'          => "qbox-$guid",
+                            	    'ul_style'       => 'border-bottom: 0px solid #cccccc',
+                            	    'ul_aspect'      => 'attachments',
+                            	    'link_class'     => 'qbox-q qbox-menu',
+                            	    'attachments'    => ['things'=>1]];
+                	if (!$tabs){  // tabs have not been created in the specific section above
+                	   $tabs      =  elgg_view('quebx/menu', $tab_vars);
+                	}
+            	if ($disabled      == 'disabled'){$disabled_label      = ' (disabled)';}
+            	if ($disabled_view == 'disabled'){$disabled_view_label = ' (disabled)';}
+                	$qbox_content = "<div class='qbox-details' data-qid='$qid' data-cid='$cid'>$preloaded_panels</div>";
+                $content = "
+				<div class='model_xxx'>
+                	<section class='edit' style='position:relative;' data-aid='StoryDetailsEdit' tabindex='-1' action = '$action'>
+						<div class='rTable'>
+		        			<div class='rTableBody'>
+		            			<div class='rTableRow'>
+		        					<div class='rTableCell AutosizeTextarea__container___31scfkZp'>$description_field</div>
+		        				</div>
+		        				<div class='rTableRow'>
+		            				<div class='rTableCell'>{$tabs}{$expand_tabs}{$qbox_content}</div>
+		            			</div>
+		            		</div>
+		        		</div>
+		        	</section>
+		        </div>";
+                if (!empty($hidden)){                
+                    foreach($hidden as $field=>$value){
+                        $content .= elgg_view('input/hidden', array('name'=>$field, 'value'=>$value));}}
+                $form_body = $content;
+                break;
 /****************************************
  $section = 'main'                     *****************************************************************
 ****************************************/

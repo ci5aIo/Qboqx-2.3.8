@@ -579,9 +579,9 @@ $(document).ready(function(){
             show = true;
         var name = $(this).parent().find("textarea[data-focus-id=NameEdit--"+cid+"]").val(),
             state       = $(this).parents('.Effort__CPiu2C5N').attr('data-aid');
-        var $this_panel = $(this).parents('.Effort__CPiu2C5N').children('.EffortEdit_fZJyC62e');
-        var $show_panel = $(this).parents('.Effort__CPiu2C5N').children('.EffortShow_haqOwGZY');
-        var $add_panel  = $(this).parents('.Effort__CPiu2C5N').children('.AddSubresourceButton___S1LFUcMd');
+        var $this_panel = $('.EffortEdit_fZJyC62e[data-cid='+cid+']');
+        var $show_panel = $('.EffortShow_haqOwGZY[data-cid='+cid+']');
+        var $add_panel  = $('.TaskAdd_uZhkkYv8[data-cid='+cid+']');
         console.log('cid: '+cid);
         if(typeof name == 'undefined'){
             show = false;
@@ -612,6 +612,72 @@ $(document).ready(function(){
             $show_panel.show();
             $this_panel.hide();
         }
+    });
+    $(".dropdown_menu .dropdown_item").on({
+       mouseenter: function(){
+          $(this).addClass('hover');
+       },
+       mouseleave: function(){
+          $(this).removeClass('hover');
+       }
+    });
+    $(document).on("click", ".dropdown .arrow", function(e){
+      e.preventDefault();
+      var closed_state = $(this).next('section').hasClass('closed');
+      $('.dropdown section').addClass('closed');
+      /*$(this).next(".dropdown section").removeClass('closed');*/
+      if (closed_state)                                              //allows menu toggling
+          $(this).next(".dropdown section").removeClass('closed');
+    });
+    $(document).on("click", "li.dropdown_item", function(e) {
+       var value = $(this).data("value"),
+           label = $(this).find(".dropdown_label").text(),
+           cid   = $(this).parents('.dropdown').data('cid'),
+           contents = $(this).data('contents'),
+           aspect   = $(this).data('aspect');
+       var $contents_selector = $(".dropdown.contents[data-contents='"+contents+"-"+cid+"']");
+       var $contents_section  = $('section.contents .boqx-contents.'+aspect+'[data-cid='+cid+']');
+       var has_contents = $contents_selector.length > 0;
+       var has_aspect   = typeof(aspect) != 'undefined' ;
+       var is_contents  = $(this).parents('.dropdown.contents').length > 0;
+       var is_aspect    = $(this).parents('.dropdown.aspect').length > 0;
+       $(this).parents(".dropdown").children("input").attr("value", value);
+       $(this).parents(".dropdown").children("a.selection").children("span").text(label);
+       $(".dropdown section").addClass('closed');
+       console.log('contents: '+contents);
+       console.log('aspect: '+aspect);
+       console.log('cid: '+cid);
+       if (has_contents){
+          $contents_selector.removeClass('closed');
+          $contents_selector.find('section').removeClass('closed');
+       }
+       else
+          if (is_aspect)  {
+              label = 'Select ...';
+              $('.dropdown.contents').addClass('closed');
+              $('.dropdown.contents').children("a.selection").children("span").text(label);
+          }
+       if (is_contents){
+          cid   = $(this).parents('.dropdown.contents').data('cid'),
+          $contents_selector.find('section').addClass('close');
+          $('.boqx-contents').addClass('closed');
+          $('.boqx-contents.'+contents+'[data-cid='+cid+']').removeClass('closed');
+       }
+       if (has_aspect){
+          $('section.contents .boqx-contents[data-cid='+cid+']').addClass('closed');
+          $contents_section.removeClass('closed');
+       }
+       
+    });
+    $(document).on("click", "a.collapser-boqx", function(e) {
+        e.preventDefault();
+        var cid              = $(this).attr("data-cid");
+        var $this_panel      = $('.EffortEdit_fZJyC62e[data-cid='+cid+']');
+        var $show_panel      = $('.BoqxShow__lsk3jlWE[data-cid='+cid+']');
+        console.log('cid: '+cid);
+        $this_panel.removeClass('maximized');
+        $show_panel.show();
+        $this_panel.hide();
     });
     $(document).on("click", '.elgg-input-checkbox.boqx-unpack', function(e){
         var scope = $(this).data('name').replace('unpack-',''),
@@ -809,10 +875,14 @@ $(document).ready(function(){
         autosize($(textarea));
         $(textarea).focus();
     });
-    $(document).on('click', '.AddSubresourceButton___2PetQjcb, .AddSubresourceButton___S1LFUcMd', function(){
+    $(document).on('click', '.AddSubresourceButton___2PetQjcb', function(){
         var $cid = $(this).data('cid');
         $(this).hide();
         $('.TaskEdit___1Xmiy6lz[data-cid = '+$cid+']').show();
+    });
+    $(document).on('click', '.AddSubresourceButton___S1LFUcMd', function(){
+        var $cid = $(this).parents('.TaskAdd_uZhkkYv8').data('cid');
+        $(this).parents('.TaskAdd_uZhkkYv8').hide();
         $('.EffortEdit_fZJyC62e[data-cid = '+$cid+']').show();
     });
     $(document).on("click", "button[data-aid=cancel]", function (e) {
@@ -841,7 +911,11 @@ $(document).ready(function(){
 		$(this).addClass("hierarchy-expand-button");
 		$(this).text('+');
 		$(this).attr('title','expand');
-	});  
+	});
+    $(document).on('click', '.labelBoqxClose', function(e){
+        var cid = $(this).data('cid');
+        $('#BoqxLabelsCard__'+cid).hide();
+    });
     $(document).on( "click", "button#qboxClose", function(e) {
         e.preventDefault();
         var qid         = $(this).data('qid'),
@@ -861,6 +935,11 @@ $(document).ready(function(){
             	qbox.remove();
             	return true;
             }
+            else {qbox      = $('div.qbox-dropdown#'+qid);}
+            if (typeof qbox != 'undefined'){
+               qbox.remove();
+               return true;
+            } 
         }
         if (typeof cid != 'undefined') {
             console.log('cid: '+cid);
@@ -971,6 +1050,41 @@ $(document).ready(function(){
         console.log('button.IconButton___4wjSqnXU.cid: '+cid);
  		$('span.tasks-count[data-cid='+parent_cid+']').attr('eggs', eggs-1);
         $('div.Effort__CPiu2C5N[data-cid='+cid+']').remove();
+    }); 
+    $(document).on('click', 'button.IconButton___Mix9C5NO', function(e){
+        e.preventDefault();
+        var cid         = $(this).data('cid'),
+            perspective = $(this).data('aid');
+        var $edit_form  = $('.EffortEdit_fZJyC62e[data-cid='+cid+']'),
+            label       = perspective,
+            contents    = perspective;
+        console.log('button.IconButton___Mix9C5NO.cid: '+cid);
+        console.log('$edit_form: ',$edit_form);
+        $('.TaskAdd_uZhkkYv8[data-cid='+cid+']').hide();
+        /* Set form perspective */
+        var $contents_selector = $('div.dropdown[data-selector="boqx_aspect"][data-cid="'+cid+'"]');
+        $contents_selector.children('input').attr('value', perspective);
+        $('a.selection#story_estimate_dropdown_'+cid).children('span').text(label);
+        $('.boqx-contents[data-cid='+cid+']').addClass('closed');
+        $('.boqx-contents.'+contents+'[data-cid='+cid+']').removeClass('closed');
+        
+        switch (perspective){
+        case 'receipts':
+        break;
+        case 'collection':
+        
+        break;
+        case 'project':
+        
+        break;
+        case 'experience':
+        
+        break;
+        case 'issue':
+        
+        break;
+        }
+        $edit_form.show();
     });
     $(document).on('click', '.IconButton___23o4ips', function(e) {
         e.preventDefault();
@@ -1212,7 +1326,7 @@ $(document).ready(function(){
    /**Calculate values for receipts and service items**/
    $(document).on('change', "input[data-name='qty'], input[data-name='cost']",function(e){
 	    var qid_n      = $(this).data('qid');
-        var $qbox      = $(this).parents('div.qbox')
+        var $qbox      = $(this).parents('div.qbox');
          if (isNaN($qbox))
             $qbox      = $(this).parents('div.TaskEdit___1Xmiy6lz');
         var $line_item = $(this).parents('.rTableRow.receipt_item, .rTableRow.service_item');
@@ -1222,24 +1336,26 @@ $(document).ready(function(){
             qid        = $qbox.data('cid');
         var $this_form = $(this).parents("#"+cid);
         var $this_row  = $(this).parents('.rTableRow');
-	    var $qty       = $line_item.find("input[data-name='qty'][data-qid="+qid_n+"]");
-	    var $cost      = $line_item.find("input[data-name='cost'][data-qid="+qid_n+"]");
-	    var $line_total= $line_item.find("span#"+qid_n+"_line_total");
-	    var $line_total_raw = $line_item.find("span."+qid_n+"_line_total_raw.line_total_raw");
-        var $sales_tax = $qbox.find("input[name='jot[sales_tax]'][data-qid="+qid+"]");
-	    var $shipping  = $qbox.find("input[name='jot[shipping_cost]'][data-qid="+qid+"]");
-	    var $subtotal  = $qbox.find("span#"+qid+"_subtotal");                                                                                       
-	    var $subtotal_raw  = $qbox.find("span."+qid+"_subtotal");
-	    var $total     = $qbox.find("span#"+qid+"_total");
-	    var $total_raw = $qbox.find("span."+qid+"_total_raw");
-	    var qty        = parseFloat($qty.val());
-	    var cost       = parseFloat($cost.val());
-	    var shipping   = parseFloat($shipping.val());
-	    var sales_tax  = parseFloat($sales_tax.val());
-	    var subtotal;
-	    var total;                                                       	    console.log('qty = '+qty); console.log('cost = '+cost); console.log('qid = '+qid); console.log('qid_n = '+qid_n);console.log('$qbox = ',$qbox);
-    	var subtotal = 0;
+	    var $qty       = $line_item.find("input[data-name='qty'][data-qid="+qid_n+"]")
+            $cost      = $line_item.find("input[data-name='cost'][data-qid="+qid_n+"]"),
+            $line_total= $line_item.find("span#"+qid_n+"_line_total"),
+            $line_total_raw = $line_item.find("span."+qid_n+"_line_total.line_total_raw"),
+            $sales_tax = $qbox.find("input[name='jot[sales_tax]'][data-qid="+qid+"]"),
+            $shipping  = $qbox.find("input[name='jot[shipping_cost]'][data-qid="+qid+"]");
+            if (isNaN($sales_tax)) $sales_tax = $qbox.find("input[data-name='sales_tax'][data-qid="+qid+"]");
+            if (isNaN($shipping))  $shipping  = $qbox.find("input[data-name='shipping_cost'][data-qid="+qid+"]");
+            $subtotal  = $qbox.find("span#"+qid+"_subtotal"),
+            $subtotal_raw  = $qbox.find("span."+qid+"_subtotal"),
+            $total     = $qbox.find("span#"+qid+"_total"),
+            $total_raw = $qbox.find("span."+qid+"_total");
+	    var qty        = parseFloat($qty.val()),
+            cost       = parseFloat($cost.val()),
+            shipping   = parseFloat($shipping.val()),
+            sales_tax  = parseFloat($sales_tax.val()),
+            total,
+            subtotal   = 0;
 		var line_total = parseFloat(qty*cost)
+        console.log('qty = '+qty); console.log('cost = '+cost); console.log('qid = '+qid); console.log('qid_n = '+qid_n);console.log('$qbox = ',$qbox);console.log('shipping = '+shipping);console.log('sales tax = '+sales_tax);
     	$line_total.text(addCommas(line_total.toFixed(2)));
     	$line_total_raw.text(line_total);
     	$qbox.find("span.line_total_raw").each(function(){
@@ -1261,7 +1377,7 @@ $(document).ready(function(){
              var salesTax   = $this_form.find("input[data-name='sales_tax'][data-qid="+qid+"]").val();
              $this_form.find("[data-name='taxable']:checked"). each(function(e){
                    qid_n = $(this).data('qid');
-                   cost  = $(this).parents('.rTableRow').find("span."+qid_n+"_line_total_raw").html();
+                   cost  = $(this).parents('.rTableRow').find("span."+qid_n+"_line_total").html();
                    taxableSum += parseFloat(cost);
                    taxableItems ++;
              });
@@ -1270,6 +1386,7 @@ $(document).ready(function(){
                    var taxRateLabel = percentFormat(taxRate, 2);
                    $this_form.find('span.'+cid+'_sales_tax_rate').text(' (' + taxRateLabel + ')');
              }
+             else $this_form.find('span.'+cid+'_sales_tax_rate').text('');
          }
 	});
    $(document).on('change', "input[name='jot[shipping_cost]'], input[name='jot[sales_tax]']",function(e){
@@ -1290,23 +1407,36 @@ $(document).ready(function(){
 		$total_raw.text(subtotal+shipping+sales_tax);
    });
    $(document).on('change', "input[data-name='shipping_cost'], input[data-name='sales_tax']",function(e){
-         var qid        = $(this).data('qid');
+         //var qid        = $(this).data('qid');
+         var $qbox      = $(this).parents('div.qbox');
+         if (isNaN($qbox))
+            $qbox      = $(this).parents('div.TaskEdit___1Xmiy6lz');
+         var qid        = $qbox.attr('id');
          var cid        = qid;
+         console.log('qid = '+qid);
+         console.log('cid = '+cid);
          var $this_form = $(this).parents("#"+qid);
-         var $sales_tax = $this_form.find("input[data-name='sales_tax'][data-qid="+qid+"]");
-         var $shipping  = $this_form.find("input[data-name='shipping_cost'][data-qid="+qid+"]");
-         var $subtotal  = $this_form.find("span#"+qid+"_subtotal");
-         var $subtotal_raw  = $this_form.find("span."+qid+"_subtotal_raw");
-         var $total     = $this_form.find("span#"+qid+"_total");
-         var $total_raw = $this_form.find("span."+qid+"_total_raw");
-         var sales_tax  = parseFloat($sales_tax.val());
-         var shipping   = parseFloat($shipping.val());
-         var subtotal   = parseFloat($subtotal_raw.text());
+/*         var $sales_tax = $this_form.find("input[data-name='sales_tax'][data-qid="+qid+"]"),
+             $shipping  = $this_form.find("input[data-name='shipping_cost'][data-qid="+qid+"]"),
+             $subtotal  = $this_form.find("span#"+qid+"_subtotal"),
+             $subtotal_raw  = $this_form.find("span."+qid+"_subtotal_raw"),
+             $total     = $this_form.find("span#"+qid+"_total"),
+             $total_raw = $this_form.find("span."+qid+"_total_raw");*/
+         var $sales_tax = $qbox.find("input[data-name='sales_tax'][data-qid="+qid+"]"),
+             $shipping  = $qbox.find("input[data-name='shipping_cost'][data-qid="+qid+"]"),
+             $subtotal  = $qbox.find("span#"+qid+"_subtotal"),
+             $subtotal_raw  = $qbox.find("span."+qid+"_subtotal"),
+             $total     = $qbox.find("span#"+qid+"_total"),
+             $total_raw = $qbox.find("span."+qid+"_total");
+         var sales_tax  = parseFloat($sales_tax.val()),
+             shipping   = parseFloat($shipping.val()),
+             subtotal   = parseFloat($subtotal_raw.text());
           if(isNaN(subtotal)  || subtotal.length  == 0){subtotal  = 0;}
           if(isNaN(shipping)  || shipping.length  == 0){shipping  = 0;}
           if(isNaN(sales_tax) || sales_tax.length == 0){sales_tax = 0;}
           $total.text(moneyFormat(subtotal+shipping+sales_tax)); 
           $total_raw.text(subtotal+shipping+sales_tax);
+          
    });
    $(document).on('change', "input[data-name='taxable'], input[data-name='sales_tax']", function(e){
 // D R A F T - Calculate the sales tax percentage
@@ -1321,6 +1451,25 @@ $(document).ready(function(){
                taxableSum += parseFloat(cost);
                taxableItems ++;
          });
+          if ($line_item.find("input[data-name='taxable']").prop("checked")){
+             var taxableSum = 0;
+             var taxableItems = 0;
+             var salesTax   = $this_form.find("input[data-name='sales_tax'][data-qid="+qid+"]").val();
+             $this_form.find("[data-name='taxable']:checked"). each(function(e){
+                   qid_n = $(this).data('qid');
+                   cost  = $(this).parents('.rTableRow').find("span."+qid_n+"_line_total").html();
+                   taxableSum += parseFloat(cost);
+                   taxableItems ++;
+             });
+             if (parseFloat(salesTax) > 0 && taxableSum > 0){
+                   var taxRate = parseFloat(salesTax)/taxableSum
+                   var taxRateLabel = percentFormat(taxRate, 2);
+                   $this_form.find('span.'+cid+'_sales_tax_rate').text(' (' + taxRateLabel + ')');
+             }
+             if (taxableItems == 0){
+                   $this_form.find('span.'+cid+'_sales_tax_rate').text('');
+             }
+         }
          if (parseFloat(salesTax) > 0 && taxableSum > 0){
                var taxRate = parseFloat(salesTax)/taxableSum
                var taxRateLabel = percentFormat(taxRate, 2);
@@ -1633,17 +1782,48 @@ $(document).ready(function(){
 	$(document).on('click', '.remove-service-item', function(e){
 		e.preventDefault();
 		// remove the node
-		var element_type  = $(this).data('element'),
-		    qid_n         = $(this).data('qid');
-	    $service_item_add = $(this).parents('.rTable.service-line-items').find('a.new-item');
-	     item_rows = $service_item_add.attr('data-rows');
+        var qid_n             = $(this).data('qid'),
+            $service_item_add = $(this).parents('.rTable.service-line-items').find('a.new-item');
+	    var item_rows         = $service_item_add.attr('data-rows');
+        var $qbox             = $(this).parents('div.TaskEdit___1Xmiy6lz'),
+            qid               = $(this).parents('div.TaskEdit___1Xmiy6lz').data('cid'),
+            element_type      = $(this).data('element');
 	    $service_item_add.attr('data-rows', item_rows-1);
 		$('.rTableRow.service_item[data-qid='+qid_n+']').remove();
 	    $('.ServiceEffort__26XCaBQk[data-qid='+qid_n+']').remove();
 	    $('div.jq-dropdown#'+qid_n).remove();
-		
+        // Recalculate the totals
+        var $sales_tax = $("input[name='jot[sales_tax]'][data-qid="+qid+"]")    || $("input[data-name='sales_tax'][data-qid="+qid+"]"),
+            $shipping  = $("input[name='jot[shipping_cost]'][data-qid="+qid+"]" || $("input[data-name='shipping_cost'][data-qid="+qid+"]")),
+            $subtotal  = $("span#"+qid+"_subtotal"),
+            $subtotal_raw  = $("span."+qid+"_subtotal"),
+            $total     = $("span#"+qid+"_total"),
+            $total_raw = $("span."+qid+"_total");
+            if (isNaN($sales_tax)) $sales_tax = $("input[data-name='sales_tax'][data-qid="+qid+"]");
+            if (isNaN($shipping))  $shipping  = $("input[data-name='shipping_cost'][data-qid="+qid+"]");
+        var shipping   = parseFloat($shipping.val()),
+            sales_tax  = parseFloat($sales_tax.val()),
+            subtotal,
+            total;                                                          console.log('qid = '+qid); console.log('qid_n = '+qid_n);console.log('$qbox = ',$qbox);
+        var subtotal = 0;
+          
+        $('div.TaskEdit___1Xmiy6lz#'+qid).
+           find("span.line_total_raw").
+             each(function(){
+               var value = $(this).text();                                      console.log('value: '+value);
+               if(!isNaN(value) && value.length>0)
+                    {subtotal += parseFloat(value);}
+             });
+		$subtotal.text(moneyFormat(subtotal));
+        $subtotal_raw.text(subtotal);
+        if(isNaN(shipping)  || shipping.length  == 0){shipping  = 0;}
+        if(isNaN(sales_tax) || sales_tax.length == 0){sales_tax = 0;}
+        total = subtotal+shipping+sales_tax;
+        $total.text(moneyFormat(total)); 
+        $total_raw.text(total);                                            console.log('total = '+total);
+       
 	});
-    $(document).on('click', '.remove-loose-thing', function(e){
+    $(document).on('click', '.remove-loose-thing, .remove-book', function(e){
           e.preventDefault();
           // remove the node
          var $qbox         = $(this).parents('div.TaskEdit___1Xmiy6lz'),
@@ -1658,7 +1838,7 @@ $(document).ready(function(){
 //         var item_rows     = $loose_item_add.attr('data-rows');
 //         console.log('$loose_item_add: ',$loose_item_add);
 //         $lose_item_add.attr('data-rows', item_rows-1);
-         $('.rTableRow.loose_item[data-qid='+qid_n+']').remove();
+         $('.rTableRow[data-qid='+qid_n+']').remove();
          $('div.jq-dropdown#'+qid_n).remove();
           
     });
@@ -1767,6 +1947,44 @@ $(document).ready(function(){
 			$(container).remove();		  	
 			$('span.efforts-eggs[data-qid='+qid+']').attr('eggs', eggs-1);
 		});
+    $(document).on('click', '.Label__RemoveButton___2fQtutmR', function(e){
+          e.preventDefault();
+          var label           = $(this).siblings('.Label__Name___mTDXx408').html(),
+              label_container = $(this).parents('.StoryLabelsMaker__container___2B23m_z1');
+          var label_boqx      = label_container.siblings('.BoqxLabelsPicker__Vof1oGNB');
+          var label_item      = label_boqx.find('.LabelDropdownItem___3IFJX-oo[data-aid="LabelDropdownItem--'+label+'"]');
+          console.log('label: '+label);
+          label_item.show();
+          $(this).parents('.Label___mHNHD3zD').remove();
+    });    
+   $(document).on('click', '.LabelDropdownItem___3IFJX-oo', function(e){
+         e.preventDefault();
+         var label = $(this).children('label').html(),
+             card = $(this).parents('.BoqxLabelsPicker__Vof1oGNB');
+         var cid         = card.data('cid');
+         var label_container = card.siblings('.StoryLabelsMaker__container___2B23m_z1').children('.StoryLabelsMaker__contentContainer___3CvJ07iU'),
+             label_badge = "<div class='Label___mHNHD3zD' tabindex='-1'><div class='Label__Name___mTDXx408' name='jot["+cid+"][labels][]'>"+label+"</div><div class='Label__RemoveButton___2fQtutmR'></div></div>";
+         console.log('cid: '+cid);
+         console.log('label: '+label);
+         console.log('label_badge: '+label_badge);
+         console.log('label_container: ',label_container);
+         $(this).hide();
+         $(label_container).prepend(label_badge); 
+   });
+   //Add a new label when the user presses the 'comma' key
+     $(document).on('keydown', 'input.LabelsSearch__input___3BARDmFr', function(e) { 
+         var keyCode = e.keyCode || e.which; 
+
+         if (keyCode == 188) { 
+           e.preventDefault(); 
+           var label = $(this).val(),
+               cid   = $(this).data('cid');
+           var label_container = $(this).parents('.StoryLabelsMaker__contentContainer___3CvJ07iU'),
+               label_badge = "<div class='Label___mHNHD3zD' tabindex='-1'><div class='Label__Name___mTDXx408' name='jot["+cid+"][labels][]'>"+label+"</div><div class='Label__RemoveButton___2fQtutmR'></div></div>";
+           $(this).val('');
+           $(label_container).prepend(label_badge);  
+         } 
+     });
     $( "#sortable" ).sortable({
 	    revert: true,
 	    items: "> div:not(.pin)"

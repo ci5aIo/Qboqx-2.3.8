@@ -12,6 +12,7 @@
 $wwwroot = elgg_get_config('wwwroot');
 //the page owner
 $owner = get_user($vars['entity']->owner_guid);
+$class = elgg_extract('class', $vars);
 
 //the number of files to display
 $num = (int) $vars['entity']->num_display;

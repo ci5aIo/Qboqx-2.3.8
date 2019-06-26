@@ -9,12 +9,17 @@ if($numchars == ''){
 }
 $presentation = elgg_extract('presentation', $vars, 'full');                         $display .= '10 $presentation: '.$presentation.'<br>';
 $perspective  = elgg_extract('perspective', $vars, 'edit');		
+$parent_cid   = elgg_extract('parent_cid', $vars);
 $qid          = elgg_extract('qid', $vars);
 $cid          = elgg_extract('cid', $vars);                                          $display .= '13 $cid: '.$cid.'<br>13 isset($cid): '.isset($cid).'<br>';
 $space        = elgg_extract('space',$vars);
 $context      = elgg_extract('context', $vars);
-
-$guid         = $vars['guid'];                                                        $display .= '17 $guid: '.$guid.'<br>';
+$aspect       = elgg_extract('aspect', $vars);
+$selected     = elgg_extract('selected', $vars, 'family');
+$n            = elgg_extract('n', $vars);
+$data_prefix  = elgg_extract('data_prefix', $vars, "jot[$parent_cid][$cid][$n][");
+        	    	
+$guid         = elgg_extract('guid', $vars);                                                        $display .= '17 $guid: '.$guid.'<br>';
 $lineage_level= $vars['h'];
 $entity       = get_entity($guid);
 $category     = get_entity($entity->category);
@@ -27,8 +32,8 @@ if ($guid)          $hidden['guid']               = $guid;
 if ($qid)           $hidden['qid']                = $qid;
 if ($lineage_level) $hidden['h']                  = $lineage_level;
 if ($record_stage)  $hidden['item[record_stage]'] = $record_stage;
-  $hidden['level']     = 'family';
-  $hidden['item[family]']     = 'family';
+                    $hidden['level']              = 'family';
+                    $hidden['item[family]']       = 'family';
   
   $this_level = '/car';
   $next_level = '/family'; //probably not the right way to reference the next level.
@@ -78,7 +83,6 @@ if (!empty($hidden)){
         
 $content .= "<div id='Category_panel' class='elgg-head' style='margin:5px'>".elgg_view($category_content, $vars)."</div>";
 
-	$selected = 'family';
 	$tabs[]=['title'=>'Family'     , 'aspect'=>'family'       , 'section'=>'us' , 'note'=>'Common characteristics'               , 'class'=>'qbox-q3', 'guid'=>$guid,'data-qid'=>"q{$guid}_1", 'selected'=>$selected == 'family'];
     $tabs[]=['title'=>'Individual' , 'aspect'=>'individual'   , 'section'=>'this' , 'note'=>'Characteristics unique to this item', 'class'=>'qbox-q3', 'guid'=>$guid,'data-qid'=>"q{$guid}_2", 'selected'=>$selected == 'individual'];
     $tabs[]=['title'=>'Receipt'    , 'aspect'=>'receipt'      , 'section'=>'get' , 'note'=>'Acquisition'                         , 'class'=>'qbox-q3', 'guid'=>$guid,'data-qid'=>"q{$guid}_3", 'selected'=>$selected == 'receipt'];
@@ -122,37 +126,45 @@ switch ($presentation){
 		$form_body = $content;
 		break;
 	case 'qboqx':
-	    unset($tabs[2],    // Remove 'Receipt' tab
-	          $panels[2],  // Remove 'Receipt' panel
-	          $detail, $details,$nav,$navigation, $class, $content
-	         );
-	    
-	    $parent_cid   = elgg_extract('parent_cid', $vars);
-	    $cid          = elgg_extract('cid', $vars);
-	    $n            = elgg_extract('n', $vars);
-	    $data_prefix  = elgg_extract('data_prefix', $vars, "jot[$parent_cid][$cid][$n][");
-	    $nav['tabs']  = $tabs;
-	    $nav['class'] = 'quebx-tabs';
-        $nav['space'] = $space;
-        $nav['qid']   = $qid;
-        $navigation   = elgg_view('navigation/tabs_slide', $nav);
-        foreach($panels as $key=>$panel){
-        	$n = $key+1;
-        	$is_selected = $selected == $panel['aspect'];
-        	$class       = $panel['class'];
-    	    if ($is_selected) {
-    			$class .= ' qbox-state-selected';
-    		}
-        	$detail .= elgg_view('output/div',['content'=>$panel['content'], 'class'=>$class, 'options'=>['id'=>"q{$guid}_{$n}"]]);
-        }
-        $body_vars = $vars;
-        $header  = elgg_view($category_content, $body_vars);
-        $details = elgg_view('output/div',['content'=>$detail, 'class'=>"qbox-details qbox-$guid"]);
-        
-        $content = "<div id='Category_panel' class='elgg-head' style='margin:5px'>$header</div>";
-        $content .= $navigation.$details;
-        $content   = str_replace('jot[', $data_prefix, $content);
-        $form_body = str_replace('item[', $data_prefix, $content);		
+	   Switch ($aspect){
+	       case 'book':
+	           unset($tabs, $panels);
+	           $tabs[]=['title'=>'Title'    , 'aspect'=>'title'       , 'section'=>'us' , 'note'=>'Book details' , 'class'=>'qbox-q3', 'guid'=>$guid,'data-qid'=>"q{$guid}_1", 'selected'=>$selected == 'title'];
+               $tabs[]=['title'=>'Author'   , 'aspect'=>'author'   , 'section'=>'this' , 'note'=>'Author details', 'class'=>'qbox-q3', 'guid'=>$guid,'data-qid'=>"q{$guid}_2", 'selected'=>$selected == 'author'];
+               $panels[]=['aspect'=>'title' , 'class'=>'option-panel family-option-panel'    , 'content'=> elgg_view($family_content, $vars)];
+               $panels[]=['aspect'=>'author', 'class'=>'option-panel individual-option-panel', 'content'=> elgg_view($individual_content, $vars)];
+    
+//	           break;
+    	   default:
+        	    unset($tabs[2],    // Remove 'Receipt' tab
+        	          $panels[2],  // Remove 'Receipt' panel
+        	          $detail, $details,$nav,$navigation, $class, $content
+        	         );
+        	    
+        	    $nav['tabs']  = $tabs;
+        	    $nav['class'] = 'quebx-tabs';
+                $nav['space'] = $space;
+                $nav['qid']   = $qid;
+                $navigation   = elgg_view('navigation/tabs_slide', $nav);
+                foreach($panels as $key=>$panel){
+                	$n = $key+1;
+                	$is_selected = $selected == $panel['aspect'];
+                	$class       = $panel['class'];
+            	    if ($is_selected) {
+            			$class .= ' qbox-state-selected';
+            		}
+                	$detail .= elgg_view('output/div',['content'=>$panel['content'], 'class'=>$class, 'options'=>['id'=>"q{$guid}_{$n}"]]);
+                }
+                $body_vars = $vars;
+                $header  = elgg_view($category_content, $body_vars);
+                $details = elgg_view('output/div',['content'=>$detail, 'class'=>"qbox-details qbox-$guid"]);
+                
+                $content = "<div id='Category_panel' class='elgg-head' style='margin:5px'>$header</div>";
+                $content .= $navigation.$details;
+                $content   = str_replace('jot[', $data_prefix, $content);
+                $form_body = str_replace('item[', $data_prefix, $content);
+                break;
+    	   }
 		break;
 	case 'popup':
 	   

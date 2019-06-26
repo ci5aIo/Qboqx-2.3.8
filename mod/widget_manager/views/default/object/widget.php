@@ -10,6 +10,9 @@ $widget = $vars['entity'];
 if (!elgg_instanceof($widget, 'object', 'widget')) {
 	return true;
 }
+//@EDIT 2019-06-22 - SAJ
+$class = elgg_extract('class', $vars);
+$module_type = elgg_extract('module_type', $vars);
 
 $show_access = elgg_extract('show_access', $vars, true);
 elgg_set_config("widget_show_access", $show_access);
@@ -68,6 +71,8 @@ if ($widget->widget_manager_hide_header == "yes") {
 if ($widget->widget_manager_disable_widget_content_style == "yes") {
 	$widget_class .= " widget_manager_disable_widget_content_style";
 }
+if ($class)
+    $widget_class .= " $class";
 
 if (($widget->widget_manager_hide_header != "yes") || $can_edit) {
 	$widget_header = <<<HEADER
@@ -104,9 +109,19 @@ if ($fixed_height) {
 $widget_body .= " id='elgg-widget-content-" . $widget->guid . "'>";
 $widget_body .= $content;
 $widget_body .= "</div>";
+$module_vars = ['class'  => $widget_class,
+        		'id'     => $widget_id,
+        		'header' => $widget_header,];
 
-echo elgg_view_module('widget', '', $widget_body, array(
-		'class' => $widget_class,
-		'id' => $widget_id,
-		'header' => $widget_header,
-));
+Switch ($module_type){
+    case 'warehouse':
+        $module_vars['title'] = '';
+        $module_vars['body']  = $widget_body;
+        $module_vars['module_type'] = $module_type;
+        $module = elgg_view('page/components/module_warehouse', $module_vars);
+        break;
+    default:
+        $module = elgg_view_module('widget', '', $widget_body, $module_vars);
+}
+
+echo $module;

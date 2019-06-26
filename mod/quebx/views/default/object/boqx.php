@@ -51,6 +51,19 @@ $content  .= elgg_view_image_block($market_img, $list_body, $vars);
 		
 //if ($container->guid == elgg_get_logged_in_user_guid()) 
 //    echo elgg_view_entity($entity, ['item_view'=>'object/default']);
+
+/*Experimental*/
+$view = 'forms/transfers/edit';
+$action = 'jot/edit_scratch2';
+$params = $vars;
+$params['section']      = 'things_boqx';
+$params['perspective']  = 'view';
+$params['presentation'] = 'list_boqx';
+$params['content']  = elgg_view($view, $params);
+
+$form_body = elgg_view($view, $params);
+$content = $form_body;
+
 echo $content;
 
 

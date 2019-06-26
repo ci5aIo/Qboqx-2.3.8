@@ -65,6 +65,14 @@
         				market
         				experience
         				transfer
+        boqx
+            $perspective
+                add
+                edit
+                view
+                    $presentation
+                        list_boqx
+                        default
  * 
  ******************************************/
 $element      = elgg_extract('element', $vars);
@@ -124,6 +132,7 @@ Switch ($element){
 		break;
 	case 'properties_receipt_item':
 	case 'properties_loose_thing':
+//	case 'properties_book':
 /*	    $content = elgg_view('forms/market/properties', [
 	                                   'element_type'   =>'receipt_item',
 	                                   'container_type' => 'transfer',
@@ -136,6 +145,7 @@ Switch ($element){
                     	   ]);
 */
 	    $content = elgg_view('forms/market/profile',['presentation'=>'qboqx',
+	                                                 'aspect'      => $aspect,
 	                                                 'data_prefix' => $data_prefix,
 	                                                 'guid'        => $guid,
 	                                                 'parent_cid'  => $parent_cid,
@@ -147,6 +157,13 @@ Switch ($element){
                        </div>
                    </div>";
 		break;
+	case 'properties_book':
+	    $view      = 'forms/transfers/edit';
+//	    $content   = elgg_view($view,['perspective'=>$perspective, 'section'=>'boqx_contents_receipt', 'snippet'=>'receipt_item_properties', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$cid, 'qid_n'=>$cid.'_'.$n, 'n'=>$n]);
+	    $content = elgg_view($view,['perspective'=>'add', 'section'=>'boqx_contents_books', 'snippet'=>'book_properties', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$cid, 'qid_n'=>$cid.'_'.$n, 'n'=>$n]);
+        				
+	    $form_body = $content;
+	    break;
 	case 'properties_service_item':
 //			    $form_body .="<div id={$cid}_{$n} class='qboqx-dropdown qboqx-dropdown-tip qboqx-dropdown-relative_xxx'>
 			    $form_body .="<div id={$cid}_{$n} class='jq-dropdown jq-dropdown-tip jq-dropdown-relative'>
@@ -170,6 +187,12 @@ Switch ($element){
 	case 'new_loose_thing':
 	    if ($presence == 'panel') {
 	       $form_body = elgg_view('forms/transfers/edit',['perspective'=>'add', 'section'=>'boqx_contents', 'snippet'=>'single_thing', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$qid, 'qid_n'=>$qid_n, 'n'=>$n]);
+	       break;
+	    }
+	    break;
+	case 'new_book':
+	    if ($presence == 'panel') {
+	       $form_body = elgg_view('forms/transfers/edit',['perspective'=>'add', 'section'=>'boqx_contents', 'snippet'=>'single_book', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$qid, 'qid_n'=>$qid_n, 'n'=>$n]);
 	       break;
 	    }
 	    break;
@@ -835,8 +858,7 @@ Switch ($element){
 						      'perspective' => $perspective,
 						      'context'     => $context,
         				      'presentation'=> 'inline',//$presentation,
-        				      'view_type'   => 'inline',
-				];
+        				      'view_type'   => 'inline',];
 				if ($perspective == 'add') unset($body_vars['guid']);
 				$content = elgg_view_form($form_version, $form_vars, $body_vars);				  
 //				$content   = elgg_view('forms/'.$form_version, $body_vars);
@@ -1091,12 +1113,41 @@ register_error($display);
 	        case 'view':
 			    $view = 'forms/transfers/edit';
 			    $params = $vars;
-                $params['section'] = 'things_boqx';
-                $params['perspective']=$perspective;
-                $params['content']  = elgg_view($view, $params);
-                
-//				$form_body = elgg_view_layout('inline', $params);
-				$form_body = elgg_view($view, $params);
+	            Switch($presentation){
+	                case 'list_boqx_edit':
+			            $view = 'transfers/edit';
+                        $form_vars = ['name'    => 'jotForm', 
+                                      'enctype' => 'multipart/form-data',
+                                      'action'  => 'jot/edit_scratch2'];
+                        $body_vars = [
+                            'perspective'       => $perspective,
+                            'display'           => 'block',
+                            'section'           => $section,
+                            'snippet'           =>'contents_edit',
+                            'show_view_summary' => false,
+							'guid'              => $guid,
+                            'parent_cid'        => $parent_cid,
+                            'cid'               => $cid];
+                        $form_body = elgg_view_form($view, $form_vars, $body_vars);
+                        
+/*                         $form_body = elgg_view($view,[
+                            'perspective'       => $perspective,
+                            'display'           => 'block',
+                            'section'           => $section,
+                            'snippet'           =>'contents_edit',
+                            'show_view_summary' => false,
+							'guid'              => $guid,
+                            'parent_cid'        => $parent_cid,
+                            'cid'               => $cid]);*/
+	                    break;
+	                default:
+                        $params['section'] = 'things_boqx';
+                        $params['perspective']=$perspective;
+                        $params['content']  = elgg_view($view, $params);
+                        
+        //				$form_body = elgg_view_layout('inline', $params);
+        				$form_body = elgg_view($view, $params);
+	            }
 	            break;
 	    }
 	default:

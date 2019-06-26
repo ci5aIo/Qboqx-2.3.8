@@ -34,14 +34,3 @@ elgg_load_js('hoverintent');
     }
     ?>
 </div>
-<!-- 2017-12-20 - SAJ - Moved to js/pearl.php
-<script type="text/javascript">
-    $(document).ready(function(){
-        $(".user_menu_tag").toggle(function(){
-            $(".user_menu_holder").slideDown('slow');
-        },function(){
-            $(".user_menu_holder").slideUp('slow');
-        });
-    });
-</script>
- -->

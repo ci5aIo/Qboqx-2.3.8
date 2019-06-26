@@ -445,7 +445,9 @@ function get_user_label_collections($owner_guid, $site_guid = 0) {
 
 	$query = "SELECT *
 	        FROM {$CONFIG->dbprefix}metastrings msv
-			where exists (Select *
+			where msv.string is not null
+              and msv.string <> ''
+              and exists (Select *
 			              from {$CONFIG->dbprefix}entities e
 			              join {$CONFIG->dbprefix}metadata md 
 			              on md.entity_guid = e.guid
@@ -455,7 +457,7 @@ function get_user_label_collections($owner_guid, $site_guid = 0) {
 						    AND e.site_guid = {$site_guid}
 							and msv.id = md.value_id
 							and msn.string IN ('tags'))
-			 order by string";
+			 order by msv.string";
 
 	$collections = get_data($query);
 

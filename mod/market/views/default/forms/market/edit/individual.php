@@ -192,7 +192,15 @@ if ($groups){
 if (count($individuals)>$value) {
    $value = count($individuals);
 };
-
+	$url = elgg_get_site_url() . "labels/$guid";
+//	$url = elgg_add_action_tokens_to_url($url);
+$label_input =  elgg_view('output/url', array(
+                  "href" => $url,
+                   "text" => "add label",
+                   "class" => "elgg-lightbox"
+        ));
+if (elgg_entity_exists($guid))
+    $labels = $entity->gettags();
 $individual_content .= "<div class='rTable' style='width:100%'>
 		<div class='rTableBody'>
 			<div class='rTableRow'>
@@ -214,8 +222,10 @@ $individual_content .= "<div class='rTable' style='width:100%'>
 					    <span style='width:500px;'>Label items to place them into quebs (little collections).  Separate labels with commas.</span>
 				    </span>
 				</div>
-				<div class='rTableCell' style='width:80%;padding:0px 5px'>".elgg_view("input/tags", array("name" => "item[tags]","value" => $entity->tags,'placeholder'=>'Queb Labels',))
-				                                                           .elgg_view("input/hidden", array("name" => "jot[tags]","value" => $entity->tags))."</div>
+				<div class='rTableCell' style='width:80%;padding:0px 5px'>".elgg_view("input/tags", array("name" => "item[tags]","value" => $labels,'placeholder'=>'Queb Labels',))
+				                                                           .elgg_view("input/hidden", array("name" => "jot[tags]","value" => $labels))."
+                                                                            $label_input
+                </div>
 			</div>
 			<div class='rTableRow'>
 				<div class='rTableCell' style='width:20%;padding:0px 5px'>Warranty</div>

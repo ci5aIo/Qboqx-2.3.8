@@ -66,6 +66,7 @@ function quebx_init() {
      $qboqx_dropdown_js     = 'mod/quebx/views/default/js/quebx/qboqx.dropdown.js';
      $jquery_inputmask       = 'https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js';
      $infinite_scroll        = 'https://unpkg.com/infinite-scroll@3/dist/infinite-scroll.pkgd.js';
+//     $pivotal_js_framework   = 'https://assets.pivotaltracker.com/next/assets/next/75f82ab85fa556a21bf3-next.js';
      //css
      $parsley_validation_css = 'mod/quebx/vendors/parsley/src/parsley.css';
      $quebx_css_framework    = elgg_get_simplecache_url('css', 'quebx/framework');
@@ -82,6 +83,7 @@ function quebx_init() {
      elgg_register_js('dropdown.js'         , $jquery_dropdown_js);
      elgg_register_js('qboqx_dropdown.js'   , $qboqx_dropdown_js);
      elgg_register_js('inputmask.js'        , $jquery_inputmask);
+//     elgg_register_js('pivotal.js'          , $pivotal_js_framework);
 //     elgg_register_js('infinite_scroll.js'  , $infinite_scroll, 'head', 500);
      //css 
      elgg_register_css('quebx.framework.css'    , $quebx_css_framework, 8);
@@ -100,6 +102,7 @@ function quebx_init() {
      elgg_load_js('dropdown.js');
      elgg_load_js('qboqx_dropdown.js');
      elgg_load_js('inputmask.js');
+//     elgg_load_js('pivotal.js');
      //css
      elgg_load_css('quebx.framework.css');
      elgg_load_css('quebx.slide_menu.css');
@@ -122,6 +125,7 @@ function quebx_init() {
 	// Register a page handler, so we can have nice URLs
 	elgg_register_page_handler('quebx','quebx_page_handler');
 	elgg_register_page_handler('queb' ,'queb_page_handler');
+	elgg_register_page_handler('q'    ,'q_page_handler');
 	
 	// extend page handlers
 	elgg_register_plugin_hook_handler("route", "livesearch", "quebx_route_livesearch_handler");
@@ -214,12 +218,26 @@ function queb_page_handler($page) {
 	        include_once("$base_dir/queb.php");
 	        return true;	        
 	        break;
+	    case 'boqx':
+	        market_register_toggle();
+	        include_once("$base_dir/boqx.php");
+	        return true;	        
+	        break;
 	    default:
 	        market_register_toggle();
 	        include_once("$base_dir/default.php");
 	        return true;	        
 	        break;
 	}	
+}
+function q_page_handler($page) {
+	$base_dir  = elgg_get_plugins_path() . 'quebx/pages';
+	
+    market_register_toggle();
+    include_once("$base_dir/boqx.php");
+    return true;	        
+    break;
+	
 }
 
 // Populates the ->getURL() method for quebx objects

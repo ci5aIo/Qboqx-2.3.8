@@ -46,14 +46,13 @@ define(function(require) {
 	       break;
 	       case 'new_service_item':
 	    	   property_element = 'properties_service_item';
-	    	   cid              = cid;
-	    	   parent_cid       = parent_cid;
-	    	   new_line_items   = cid+'_new_line_items'
-	    	   new_property_cards = cid+'_line_item_property_cards'
 	    	   break;
 	       case 'new_loose_thing':
 	    	   property_element = 'properties_loose_thing';
 	       break;
+	       case 'new_book':
+	    	   property_element = 'properties_book';
+	    	   break;
 	   }
        console.log('rows: '+rows);
        console.log('qid: '+qid);
@@ -95,26 +94,35 @@ define(function(require) {
 	   
    });
     $(document).on('click', '.model section.edit nav.edit .cancel', function(e){
-       var cid        = $(this).data('cid'),
-           parent_cid = $(this).data('parent-cid');
-       var $pallet      = $(".Effort__CPiu2C5N[data-cid='"+cid+"']"),
-           ajax       = new Ajax(),
-           new_cid    = "c"+Math.floor((Math.random()*999)+1);
+       var cid         = $(this).data('cid'),
+           parent_cid  = $(this).data('parent-cid');
+       var $pallet     = $(".Effort__CPiu2C5N[data-cid='"+cid+"']"),
+           ajax        = new Ajax(),
+           new_cid     = "c"+Math.floor((Math.random()*999)+1);
+       var guid        = $pallet.attr('data-guid');
+       var $this_panel = $pallet.children('.EffortEdit_fZJyC62e');
+       var $show_panel = $pallet.children('.BoqxShow__lsk3jlWE');
+       var boqx_exists = guid > 0;
        console.log('click:cancel');
        console.log('cid = '+cid);
-       $pallet.children(".EffortShow_haqOwGZY").remove();
-       $pallet.children(".EffortEdit_fZJyC62e").remove();
-       $pallet.children(".AddSubresourceButton___S1LFUcMd").show();
-       
-       ajax.view('partials/jot_form_elements',{
-    	   data: {
-    		   element: 'cancel_new_things',
-    		   cid: cid,
-    		   parent_cid: parent_cid
-    	   },
-       }).done(function(output) {
-    	   $pallet.append($(output));
-       });
+       if (boqx_exists){
+    	   $show_panel.show();
+    	   $this_panel.parents('form').remove();
+       }
+       else {
+           $this_panel.remove();
+           $pallet.children(".AddSubresourceButton___S1LFUcMd").show();
+           $pallet.children(".EffortShow_haqOwGZY").remove();
+	       ajax.view('partials/jot_form_elements',{
+	    	   data: {
+	    		   element: 'cancel_new_things',
+	    		   cid: cid,
+	    		   parent_cid: parent_cid
+	    	   },
+	       }).done(function(output) {
+	    	   $pallet.append($(output));
+	       });
+       }
     });
    $(document).on('click', '.TaskEdit__submit___3m10BkLZ', function(e){
        e.preventDefault();
@@ -325,6 +333,49 @@ define(function(require) {
            $boqx.attr('boqx-fill-level', 'empty');
        }
    });
+   $(document).on('click', '.BoqxShow__lsk3jlWE', function(e){
+	   e.preventDefault();
+	   var $this        = $(this),
+	       cid          = $(this).data('cid'),
+           $container   = $(this).parents('.Effort__CPiu2C5N'),
+           ajax         = new Ajax();
+	   var guid         = $container.data('guid'),
+           parent_cid   = $container.data('parent-cid'),
+           perspective  = $container.data('aid');
+	   var $list_boqx_edit = $('.EffortEdit_fZJyC62e[data-cid='+cid+']'),
+	   	   list_boqx_edit_exists = true;
+	   if ($list_boqx_edit.length == 0)
+		   list_boqx_edit_exists = false;
+	   console.log('cid: '+cid);
+	   console.log('guid: '+guid);
+	   console.log('$container: ',$container);
+	   console.log('$list_boqx_edit: ',$list_boqx_edit);
+	   console.log('typeof $list_boqx_edit: ',typeof $list_boqx_edit);
+	   console.log('list_boqx_edit_exists: '+list_boqx_edit_exists);
+	   console.log('perspective: '+perspective);
+	   if (list_boqx_edit_exists){
+		   $this.hide();
+		   $list_boqx_edit.show();
+	   }
+	   else {
+		   ajax.view('partials/jot_form_elements',{
+	    	   data: {
+	    		   element     : 'boqx',
+	    		   perspective : perspective,
+	    		   presentation: 'list_boqx_edit',
+	    		   section     : 'things_boqx',
+	    		   snippet     : 'contents_edit',
+	    		   parent_cid  : parent_cid,
+	    		   cid         : cid,
+	    		   guid        : guid
+	    	   	},			   
+			   }).done(function(output) {
+			    	   $container.append($(output));
+			   }).success(function(){
+					   $this.hide();
+			   });
+	   }
+   });
    // Remedies>Effort
    $(document).on('click', '.EffortEdit__submit___CfUzEM7s', function(e){
        e.preventDefault();
@@ -394,28 +445,38 @@ define(function(require) {
            $this_panel.hide();
        }
    });
-   $(document).on('click', '.ThingsBundle__submit___q0kFhFBf_xxx', function(e){
+   $(document).on('click', '.ThingsBundle__submit___q0kFhFBf', function(e){
 	  e.preventDefault();
 	  var ajax         = new Ajax(),
-	      form         = $(this).parents('form');
+	      form         = $(this).parents('form'),
+	      cid          = $(this).data('cid'),
+	      guid         = $(this).data('guid');
 	  var formData     = $(form).serialize(),
 	      action       = $(form).attr('action'),
 		  method       = $(form).attr('method'),
-		  edit_boqx    = $(form).find('.EffortEdit_fZJyC62e'),
-		  add_boqx     = $(form).find('.AddSubresourceButton___S1LFUcMd');
+	      title        = $(form).find('textarea[data-focus-id="NameEdit--'+cid+'"]').val(),
+		  edit_boqx    = $('.EffortEdit_fZJyC62e[data-cid='+cid+']'),
+		  add_boqx     = $('.AddSubresourceButton___S1LFUcMd[data-cid='+cid+']'),
+		  show_boqx    = $('.BoqxShow__lsk3jlWE[data-cid='+cid+']'),
+		  boqx_exists  = guid > 0;
 	  console.log('action: '+action);
 	  console.log('method: '+method);
 	  console.log('formData: ',formData);
 	  $(form).trigger('reset');
-	  $(edit_boqx).hide();
-	  $(add_boqx).show();
 	  $.ajax({
 		    type: 'POST',
 		    url: action,
 		    data: formData
 		}).done(function(response) {
 //			alert('done');
-		}).fail(function(data) {
+		}).success(function() {
+	      $(edit_boqx).remove();
+		  if (boqx_exists){
+			$(show_boqx).find('span.TaskShow__title___O4DM7q').text(title);
+			$(show_boqx).show();}
+		  else
+			$(add_boqx).show();
+		}).fail(function() {
 //			alert('failed');
 		});		
    });
