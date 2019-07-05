@@ -51,10 +51,11 @@ if (elgg_is_logged_in()) {
 		</div>
 	</div>
 __BODY;
-    $sidebar_area = "
+    $sidebar_area = "<div id='sidebar_area'>
     <aside class='sidebar expanded Sidebar__expanded___1DIqeICS'>
         $sidebar
-    </aside>";
+    </aside>
+</div>";
 }
 $body .= <<<__BODY
         <header class="page_header_container">

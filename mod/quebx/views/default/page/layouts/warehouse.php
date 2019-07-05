@@ -44,7 +44,7 @@ $widget_types = elgg_get_widget_types([
 	'container' => $owner,
 ]);
 
-elgg_push_context('widgets');
+elgg_push_context('warehouse');
 
 $widgets = elgg_get_widgets($owner->guid, $context);
 

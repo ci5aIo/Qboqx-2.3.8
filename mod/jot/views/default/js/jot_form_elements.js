@@ -1380,6 +1380,25 @@ define(function(require) {
 			   break;
 	   }
    });
+   $(document).on('click', '.story.item button.expander', function(e){
+	  //alert('works');
+	  var ajax        = new Ajax();
+	  var view_boqx   = $(this).parents('.story.item');
+	  var guid        = $(this).data('guid'),
+	      cid         = $(this).data('cid');
+	  ajax.view('partials/jot_form_elements',{
+		  data: {
+			  element: 'just_testing',
+			  guid: guid,
+			  cid:cid
+		  },
+	  }).done(function(output){
+		  $(view_boqx).append($(output));
+	  }).success(function(){
+		 $(".item[data-cid="+cid+"]").children("header.preview").addClass("collapsed");
+         $(".item[data-cid="+cid+"]").children("header.preview").removeClass("expanded");
+	  });
+   });
 
    $(document).on('change', 'input.receipt-line-item-behavior', function(e){
 	   var ajax       = new Ajax();

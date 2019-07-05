@@ -12,6 +12,7 @@ if (!elgg_instanceof($widget, 'object', 'widget')) {
 }
 //@EDIT 2019-06-22 - SAJ
 $class = elgg_extract('class', $vars);
+$body_class = elgg_extract('body_class', $vars, 'story model item draggable');
 $module_type = elgg_extract('module_type', $vars);
 
 $show_access = elgg_extract('show_access', $vars, true);
@@ -84,7 +85,7 @@ HEADER;
 
 $fixed_height = sanitize_int($widget->widget_manager_fixed_height, false);
 
-$widget_body_class = "elgg-widget-content";
+$widget_body_class = "elgg-widget-content $body_class";
 
 if ($widget->widget_manager_collapse_disable !== "yes") {
 	$widget_is_collapsed = false;
@@ -115,6 +116,7 @@ $module_vars = ['class'  => $widget_class,
 
 Switch ($module_type){
     case 'warehouse':
+        $widget_body = elgg_format_element('div', ['class'=>'tn-panel__loom'], $widget_body);
         $module_vars['title'] = '';
         $module_vars['body']  = $widget_body;
         $module_vars['module_type'] = $module_type;

@@ -41,13 +41,14 @@ pearl.loggedin = function(){
         $(".logout").on('click', function() {
             window.location = logout;
         });
-        $(".pearl_button").hoverIntent({
+//@Error - 2019-07-02 - SAJ 'hoverIntent is not a function'
+/*        $(".pearl_button").hoverIntent({
             over: tooltip_show,
             timeout: 500,
             out: tooltip_hide,
             interval: 500
         });
-        function tooltip_show() {
+*/        function tooltip_show() {
             $(this).find('.user_menu_tooltip').fadeIn('slow');
             var width = $(this).find('.user_menu_tooltip').width();
             $(this).find('.user_menu_tooltip').css({left: -((width / 2) - 12)});

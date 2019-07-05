@@ -244,3 +244,10 @@ function quebx_new_cid (){
 function quebx_new_id ($prefix){
     return $prefix.mt_rand(1,99999);
 }
+function quebx_initials ($string){
+    $words = explode(' ', $string);
+    foreach($words as $word){
+        $initials .= $word[0];
+    }
+    return $initials;
+}

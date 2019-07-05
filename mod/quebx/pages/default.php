@@ -77,8 +77,8 @@ $tabs         = elgg_view('quebx/menu'         , array('this_owner'        => $s
                                                        'this_collection'   => $collection,
                                                        'this_label'        => $selected_queb, 
                                                        'list_type'         => $list_type));
-$menu_sidebar .= elgg_view('quebx/sidebar_menu');
-$menu_sidebar_xxx .= '
+//$menu_sidebar .= elgg_view('quebx/sidebar_menu');
+$menu_sidebar .= '
 <div id="accordian">
 	<ul>
 		<li class="active">
@@ -271,6 +271,7 @@ $module_add_effort = elgg_view('object/transfer',
     );
 */
 //$header .= $module_add_thing.$module_add_experience.$module_add_receipt.$module_add_effort;
+$header .= $module_add_effort;
 
 if (!empty($collection) || !empty($selected_owner) || !empty($selected_queb)){
     $filter   = 'Filters: ';

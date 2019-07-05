@@ -1,3 +1,4 @@
+<!-- Path: mod/quebx/views/default/page/components/image_block.php -->
 <?php
 /**
  * Elgg image block pattern
@@ -19,6 +20,8 @@
  * @uses $vars['id']          Optional id for the media element
  */
 
+$context = elgg_get_context();
+
 $body = elgg_extract('body', $vars, '');
 unset($vars['body']);
 //@EDIT 2018-02-22 - SAJ
@@ -30,27 +33,52 @@ unset($vars['image']);
 $alt_image = elgg_extract('image_alt', $vars, '');
 unset($vars['image_alt']);
 
-$class = elgg_extract_class($vars, ['elgg-image-block', 'clearfix']);
-unset($vars['class']);
-
-$body = elgg_format_element('div', [
-	'class' => "elgg-body $body_class",
-], $body);
-
-$attributes = ['class' => 'elgg-image'];
-if ($vars['item_guid']){
-	$attributes['data-item-guid']=elgg_extract('item_guid', $vars);
+echo '<!-- context: '.elgg_get_context().'-->';
+Switch ($context){
+    case 'warehouse':
+        $class = elgg_extract_class($vars, ['elgg-image-block', 'clearfix']);
+        unset($vars['class']);
+        
+        $body = elgg_format_element('div', [
+        	'class' => "elgg-body $body_class",
+        ], $body);
+        
+        $attributes = ['class' => 'elgg-image'];
+        if ($vars['item_guid']){
+        	$attributes['data-item-guid']=elgg_extract('item_guid', $vars);
+        }
+        if ($image) {
+        	$image = elgg_format_element('div', $attributes, $image);
+        }
+        
+        if ($alt_image) {
+        	$alt_image = elgg_format_element('div', [
+        		'class' => 'elgg-image-alt',
+        	], $alt_image);
+        }
+        break;
+    default:
+        $class = elgg_extract_class($vars, ['elgg-image-block', 'clearfix']);
+        unset($vars['class']);
+        
+        $body = elgg_format_element('div', [
+        	'class' => "elgg-body $body_class",
+        ], $body);
+        
+        $attributes = ['class' => 'elgg-image'];
+        if ($vars['item_guid']){
+        	$attributes['data-item-guid']=elgg_extract('item_guid', $vars);
+        }
+        if ($image) {
+        	$image = elgg_format_element('div', $attributes, $image);
+        }
+        
+        if ($alt_image) {
+        	$alt_image = elgg_format_element('div', [
+        		'class' => 'elgg-image-alt',
+        	], $alt_image);
+        }
 }
-if ($image) {
-	$image = elgg_format_element('div', $attributes, $image);
-}
-
-if ($alt_image) {
-	$alt_image = elgg_format_element('div', [
-		'class' => 'elgg-image-alt',
-	], $alt_image);
-}
-
 $params = $vars;
 $params['class'] = $class;
 //@EDIT 2018-12-12 - SAJ - Remove $params used as options to filter the list in market/pages/market/category.php.  Probably not the best way to prevent these options from becoming attributes of the containing <div> element.

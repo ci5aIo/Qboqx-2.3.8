@@ -560,6 +560,18 @@ $(document).ready(function(){
         document.execCommand("copy");                         //Executes the command 'copy'
         $temp.remove();                                       //Removes the temporary text field.
      });
+    $(document).on("click", "div.collapser", function(e) {
+          e.preventDefault();
+          var cid = $(this).data("cid");
+          var str = $("textarea[data-focus-id=NameEdit--"+cid+"]").val(),
+              header = $(".item[data-cid="+cid+"]").children("header.preview"),
+              model  = $(".item[data-cid="+cid+"]").children(".model");
+          console.log('cid: '+cid);
+          $(header).removeClass("collapsed");
+          $(header).addClass("expanded");
+          $(header).find("span.story_name").html(str);
+          $(model).hide();
+      });
     $(document).on("click", "a.collapser", function(e) {
           e.preventDefault();
           var cid = $(this).attr("data-cid");

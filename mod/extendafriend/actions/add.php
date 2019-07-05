@@ -19,6 +19,13 @@ if (!($friend instanceof \ElggUser)) {
 }
 
 
+if (!elgg_is_active_plugin('friend_request')) {
+	// we can just do our thing
+	extendafriend_add_friend($friend);
+
+	extendafriend_collections_update($user, $friend, $rtags_list, $existing_rtags);
+
+	extendafriend_notifications_update($user, $friend, $subscriptions);
 
 	system_message(elgg_echo('extendafriend:updated'));
 

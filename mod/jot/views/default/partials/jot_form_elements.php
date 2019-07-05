@@ -1150,6 +1150,15 @@ register_error($display);
 	            }
 	            break;
 	    }
+	case 'just_testing':
+	    $params = $vars;
+	    $params['entity']=$entity;
+	    $params['perspective']='edit';
+//        $experimental = elgg_view_layout('panel_boqx',$params);
+        $experimental = elgg_view('forms/market/edit',$params);
+        $form_body = $experimental;
+        	    
+	    break;
 	default:
 	break;
 }
