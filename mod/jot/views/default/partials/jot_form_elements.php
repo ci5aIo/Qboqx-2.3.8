@@ -1150,7 +1150,7 @@ register_error($display);
 	            }
 	            break;
 	    }
-	case 'just_testing':
+	case 'show_model':
 	    $params = $vars;
 	    $params['entity']=$entity;
 	    $params['perspective']='edit';

@@ -10,7 +10,7 @@
  */
 
 $item = $vars['item'];
-$context = elgg_get_context();
+$context = elgg_get_context();                                                       $display .= 'context: '.$context.'<br>';
 
 Switch ($context){
     case 'dashboard':
@@ -64,3 +64,4 @@ Switch ($context){
         $menu_item .= '</li>';
 }
 echo $menu_item;
+//register_error($display);

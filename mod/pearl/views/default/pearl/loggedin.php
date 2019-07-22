@@ -65,8 +65,7 @@ echo "<div class='user_menu_icons'>
 	        <span class='user_menu_tooltip'>Logout</span>
 	    </span>
 	</div>";
-?>
-<!-- 
+/*<!-- 
 <div class="user_menu_icons">
     <span class="your_dashboard pearl_button">
         <span class="user_menu_tooltip">My&nbsp;Dashboard</span>
@@ -157,4 +156,5 @@ echo "<div class='user_menu_icons'>
         }
     });
 </script>
--->
+-->*/
+?>

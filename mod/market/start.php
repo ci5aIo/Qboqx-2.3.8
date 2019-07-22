@@ -712,6 +712,6 @@ elgg_register_event_handler('login', 'user', 'login_init');
 
 function login_init() {
 //    $url = elgg_get_site_url()."activity/";
-    $url = elgg_get_site_url()."dashboard/";
+    $url = elgg_get_site_url()."q/";
     forward($url);
 }

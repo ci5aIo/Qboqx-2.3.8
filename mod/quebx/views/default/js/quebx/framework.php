@@ -1,11 +1,38 @@
 <?php if (FALSE) : ?>
     <script type="text/javascript">
-<?php endif; ?>
+    
+<?php endif; 
+// Forked from vendor/elgg/elgg/views/default/elgg.js.php
+// We use a named AMD module and inline it here instead of using an async call.
+// This allows us to bootstrap quebx.ui.widgets library at runtime, without having
+// to wait for the module to load. This is necessary to ensure BC for plugins that
+// rely on quebx.ui.widgets methods to be available at system init.
+// @todo: remove in 3.x and use async calls
+echo elgg_view('quebx/widgets.js');
+?>
 elgg.provide('quebx.framework');
 
 quebx.framework.init = function(){
 $(document).ready(function(){
-
+     /*user menu*/
+        $(document).on("click", ".SMkCk__Button._3jN8d__Button--header, .SMkCk__Button._6VXKa__Button--header", function(e){
+          var user_menu_container = $(this).parents('.Dropdown');
+          var user_menu_open = user_menu_container.hasClass('Dropdown--open');
+          console.log('user_menu_open: '+user_menu_open);
+          console.log('user_menu_container: ',user_menu_container);
+          if (user_menu_open){ $(user_menu_container).children(".Dropdown__content").slideToggle('slow');
+                               user_menu_container.removeClass('Dropdown--open');
+                               $(this).removeClass('_6VXKa__Button--header');
+                               $(this).addClass('_3jN8d__Button--header');
+          }
+          else               { $(user_menu_container).children(".Dropdown__content").slideToggle('slow');
+                               $(this).addClass('_6VXKa__Button--header');
+                               $(this).removeClass('_3jN8d__Button--header');
+                               user_menu_container.addClass('Dropdown--open');
+          }
+          
+          
+        });
 	/* Throws "Uncaught TypeError: $(...).infiniteScroll is not a function"
 		$(".elgg-list").infiniteScroll({
 		   path: ".elgg-after",
@@ -900,13 +927,29 @@ $(document).ready(function(){
     $(document).on("click", "button[data-aid=cancel]", function (e) {
         e.preventDefault();
     });
-    $(".edit_experience").hide();
-
+    /*Things area in warehouse*/
+    $(document).on('click', '.model section.edit nav.edit .cancel', function(e){
+       e.preventDefault();
+       var cid         = $(this).data('cid'),
+           parent_cid  = $(this).data('parent-cid');
+       var $pallet     = $(this).parents(".story.item."+cid+"");
+       var $this_panel = $pallet.children('.model'),
+           $header     = $pallet.children('header.preview');
+       console.log('click:cancel');
+       console.log('cid = '+cid);
+       $this_panel.remove();
+       $header.removeClass('collapsed');
+    });
     $(document).on("click", "a.done", function(e){
         e.preventDefault();
         // Do nothing else.
     });
-
+/*    $(document).on('click', '.tc_projects_dropdown_link', function(e){
+       e.preventDefault();
+       var space_panel_id = $(this).data('qboqx-dropdown');
+       $(space_panel_id).toggle();
+    });
+*/
 	$(document).on("click", "a.hierarchy-expand-button", function(e){
 		e.preventDefault();
 		$(this).parent().children("ul.hierarchy").attr("data-state", "expanded");
@@ -2316,5 +2359,7 @@ quebx.framework.ajax =
 	});
 //};
 */
+
 elgg.register_hook_handler('init', 'system', quebx.framework.init);
+
 <?php if (FALSE) : ?></script><?php endif; ?>

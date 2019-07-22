@@ -62,6 +62,7 @@ function quebx_init() {
      $parsley_validation     = elgg_get_simplecache_url('js' , 'parsley.js');
      $moment_src             = elgg_get_simplecache_url('js' , 'moment.js');
      elgg_define_js('moment_js', ['src' => $moment_src,'exports' => 'moment',]);
+     $quebx_widgets_js       = elgg_get_simplecache_url('js' , 'quebx/space.q_widgets.js');
      $jquery_dropdown_js     = 'mod/quebx/vendors/jquery/dropdown/jquery.dropdown.js';
      $qboqx_dropdown_js     = 'mod/quebx/views/default/js/quebx/qboqx.dropdown.js';
      $jquery_inputmask       = 'https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js';
@@ -113,6 +114,7 @@ function quebx_init() {
 //require
      elgg_require_js($infinite_scroll);
      elgg_require_js($quebx_js_framework);
+     elgg_require_js($quebx_widgets_js);
 //     elgg_require_js('moment_js');
     
     // Added to set page header position to 'fixed';
@@ -144,6 +146,10 @@ function quebx_init() {
 	elgg_register_action("quebx/add/item/", "{$action_url}add/item.php");
 	elgg_register_action("quebx/edit/", "{$action_url}edit.php");
 	elgg_register_action("quebx/delete/", "{$action_url}delete.php");
+	elgg_register_action('q_widgets/save', "{$action_url}q_widgets/save.php");
+	elgg_register_action('q_widgets/add', "{$action_url}q_widgets/add.php");
+	elgg_register_action('q_widgets/move', "{$action_url}q_widgets/move.php");
+	elgg_register_action('q_widgets/delete', "{$action_url}q_widgets/delete.php");
 	
 	elgg_load_library('elgg:quebx');
     elgg_load_library('elgg:quebx:navigation');
@@ -234,7 +240,7 @@ function q_page_handler($page) {
 	$base_dir  = elgg_get_plugins_path() . 'quebx/pages';
 	
     market_register_toggle();
-    include_once("$base_dir/boqx.php");
+    include_once("$base_dir/qboqx.php");
     return true;	        
     break;
 	
@@ -336,7 +342,7 @@ function quebx_indexhandler($hook, $type, $return, $params){
 	}
   
 	if (elgg_is_logged_in()){
-	    $url = elgg_get_site_url()."dashboard/";
+	    $url = elgg_get_site_url()."q/";
 	    forward($url);
 	}
 	// if we made it this far we are in control of the index

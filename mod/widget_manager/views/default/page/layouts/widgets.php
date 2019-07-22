@@ -17,6 +17,7 @@ $show_access = elgg_extract('show_access', $vars, true);
 $owner = elgg_get_page_owner_entity();
 
 $context = elgg_get_context();
+echo "<!--context: $context -->";
 
 $available_widgets_context = elgg_trigger_plugin_hook('available_widgets_context', 'widget_manager', [], $context);
 

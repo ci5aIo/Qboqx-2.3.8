@@ -22,12 +22,12 @@ if (elgg_get_context() == 'admin') {
 	elgg_unregister_css('elgg');
 	echo elgg_view('page/admin', $vars);
 	return true;
-}
-
+}   
 // render content before head so that JavaScript and CSS can be loaded. See #4032
 
+$aspect        = 'agile';
+$vars['aspect']= $aspect;
 $messages = elgg_view('page/elements/messages', array('object' => $vars['sysmessages']));
-
 $header  = elgg_view('page/elements/qboqx_header', $vars);
 $content = elgg_view('page/elements/body', $vars);
 $footer  = elgg_view('page/elements/footer', $vars);
@@ -42,7 +42,6 @@ __BODY;
 
 if (elgg_is_logged_in()) {
 	$topbar = elgg_view('page/elements/topbar', $vars);
-	$sidebar = elgg_view('page/elements/sidebar_area', $vars);
 
 	$body .= <<<__BODY
 	<div class="elgg-page-topbar">
@@ -51,11 +50,6 @@ if (elgg_is_logged_in()) {
 		</div>
 	</div>
 __BODY;
-    $sidebar_area = "<div id='sidebar_area'>
-    <aside class='sidebar expanded Sidebar__expanded___1DIqeICS'>
-        $sidebar
-    </aside>
-</div>";
 }
 $body .= <<<__BODY
         <header class="page_header_container">
@@ -65,8 +59,7 @@ $body .= <<<__BODY
         		</div>
         	</div>
         </header>
-        <section class="main project">
-            $sidebar_area
+        <section class="main space project">
             $content
         </section>
     	<div class="elgg-page-footer" style="display:none;">

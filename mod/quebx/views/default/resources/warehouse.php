@@ -15,7 +15,7 @@ $params = [
 //	'content' => $intro_message,
 	'num_columns' => 5,
 	'show_access' => false,
-    'show_add_pallets' => false,
+    'show_add_pallets' => false
 ];
 $warehouse = elgg_view_layout('warehouse', $params);
 /*
@@ -25,4 +25,5 @@ $body = elgg_view_layout('one_column', array(
 ));*/
 $body = $warehouse;
 $page_shell = 'boqx';
+$vars['panel_items']=$panel_items;
 echo elgg_view_page($title, $body, $page_shell, $vars);

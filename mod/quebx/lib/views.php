@@ -106,3 +106,24 @@ function quebx_view_icon($name, $class = '') {
 
 	return elgg_view("output/quebx_icon", array("class" => $icon_class));
 }
+
+/**
+ * Wrapper function for the pallet boqx display pattern.
+ *
+ * Fixed width media on the side (image, icon, flash, etc.).
+ * Descriptive content filling the rest of the column.
+ *
+ * This is a shortcut for {@elgg_view page/components/pallet_boqx}.
+ *
+ * @param string $image The icon and other information
+ * @param string $body  Description content
+ * @param array  $vars  Additional parameters for the view
+ *
+ * @return string
+ * @since 1.8.0
+ */
+function quebx_view_pallet_boqx($image, $body, $vars = array()) {
+	$vars['image'] = $image;
+	$vars['body'] = $body;
+	return elgg_view('page/components/pallet_boqx', $vars);
+}

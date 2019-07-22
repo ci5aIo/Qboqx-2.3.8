@@ -88,7 +88,7 @@
 	Widgets
 *************************************** */
 .elgg-widgets {
-	float: right;
+	float: left;
 	min-height: 30px;
 }
 .elgg-widget-add-control {

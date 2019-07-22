@@ -41,6 +41,7 @@ $can_edit = $widget->canEdit();
 $controls = elgg_view('object/widget/elements/controls', array(
 	'widget' => $widget,
 	'show_edit' => $can_edit,
+    'module_type'=>$module_type,
 ));
 
 $content = elgg_view('object/widget/elements/content', $vars);
@@ -74,15 +75,22 @@ if ($widget->widget_manager_disable_widget_content_style == "yes") {
 }
 if ($class)
     $widget_class .= " $class";
-
+/*
 if (($widget->widget_manager_hide_header != "yes") || $can_edit) {
 	$widget_header = <<<HEADER
 		<div class="elgg-widget-handle clearfix"><h3 class="elgg-widget-title">$title</h3>
 		$controls
 		</div>
 HEADER;
+}*/
+if (($widget->widget_manager_hide_header != "yes") || $can_edit) {
+	$widget_header = elgg_format_element('div',['class'=>'elgg-widget-handle clearfix tn-PanelHeader__inner___3Nt0t86w tn-PanelHeader__inner--single___3Nq8VXGB'],
+	                                           elgg_format_element('h3',['class'=>'elgg-widget-title tn-PanelHeader__name___2UfJ8ho9'],
+	                                                                    $title).
+	                                           $controls);
 }
-
+    
+    
 $fixed_height = sanitize_int($widget->widget_manager_fixed_height, false);
 
 $widget_body_class = "elgg-widget-content $body_class";

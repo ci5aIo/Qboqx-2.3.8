@@ -68,8 +68,10 @@ Switch ($perspective){
 	    $owner_initials = quebx_initials($owner_name);
 	    $requester_name = $owner_name;
 	    $requester_initials = $owner_initials;
-                
-        $form = "<div class='model'>
+        $parent_cid = elgg_extract('cid', $vars);
+        $url = elgg_get_site_url().'market';
+        $id_value = $guid;
+        $form = "<div class='model $cid'>
                 	<div>
                 		<div id='view8059' data-scrollable='true' class='edit details'>
                 			<section class='edit' data-aid='StoryDetailsEdit' aria-expanded='true' tabindex='-1'>
@@ -92,37 +94,26 @@ Switch ($perspective){
                 				  </section>
                 				  <aside>
                 					<div class='wrapper'>
-                					  <nav class='edit'><section class='controls'>
+                					  <nav class='edit'>
+                                        <section class='controls'>
                 						  <div class='persistence use_click_to_copy'>
                 							<button class='autosaves cancel clear' type='reset' id='epic_submit_cancel_$cid' data-cid='$cid' tabindex='-1'>Cancel</button>
                 							<button class='autosaves button std close' type='submit' id='story_close_$cid' tabindex='-1'>Close</button>
                 						  </div>
-                						  <div class='actions'>
-                							
-                							  <div class='bubble'></div>
-                
-                							  <button type='button' title='Copy this item's link to your clipboard' id='story_copy_link_$cid' data-clipboard-text='https://www.pivotaltracker.com/story/show/147996385' class='autosaves clipboard_button hoverable link left_endcap' tabindex='-1'></button>
-                							
-                
-                							<div class='button_with_field'>
-                							  <button type='button' title='Copy this item's ID to your clipboard' id='story_copy_id_$cid' data-clipboard-text='#147996385' class='autosaves clipboard_button hoverable id use_click_to_copy' tabindex='-1'></button>
-                							  <input type='text' readonly='' class='autosaves id text_value' id='story_copy_id_value_$cid' value='#147996385' aria-label='story id'>
-                							</div>
-                
-                							
-                						<button type='button' title='Clone this story' class='autosaves clone_story hoverable left_endcap' id='story_clone_button_$cid' tabindex='-1'></button>
-                						<button type='button' title='View the history of this story' class='autosaves history hoverable capped' id='story_history_button_$cid' tabindex='-1'></button>
-                						<button type='button' title='Delete this story' class='autosaves delete hoverable right_endcap' id='story_delete_button_$cid' tabindex='-1'></button>
-                
-                
-                
-                							
-                						  </div>
-                						</section>
-                
-                						</nav>
-                
-                
+                                          <div class='actions'>
+                                              <div class='bubble'></div>
+                                              <button type='button' id='story_copy_link_$cid' title='Copy this link to the clipboard' data-clipboard-text='$url/view/$id_value' class='autosaves clipboard_button hoverable link left_endcap' tabindex='-1' $disabled></button>
+                                              <div class='button_with_field'>
+                                                  <button type='button' id ='story_copy_id_$cid' title='Copy this ID to the clipboard' data-clipboard-text='$id_value' class='autosaves clipboard_button hoverable id use_click_to_copy' tabindex='-1' $disabled></button>
+                                                  <input type='text' id='story_copy_id_value_$cid' readonly='' class='autosaves id text_value' value='$id_value' tabindex='-1'>
+                                            </div>
+                                            <button type='button' id='receipt_import_button_$cid' title='Import receipt (disabled)' class='autosaves import_receipt hoverable left_endcap' tabindex='-1' disabled></button>
+                                            <button type='button' id='story_clone_button_$cid' title='Clone this thing".$disabled_view_label."' class='autosaves clone_story hoverable left_endcap' tabindex='-1' $disabled></button>
+                                            <button type='button' id='story_history_button_$cid' title='View the history of this thing".$disabled_view_label."' class='autosaves history hoverable capped' tabindex='-1' $disabled></button>
+                                            <button type='button' id='story_delete_button_$cid' title='Delete this thing".$disabled_view_label."' class='autosaves delete hoverable right_endcap remove-card' data-qid=$qid tabindex='-1'$disabled></button>
+                                          </div>
+						               </section>
+                				    </nav>
                 					  <div class='info_box_wrapper'>
                 						<div class='story state_box'>
                 						  <div class='state row'><div class='StoryState___2vkCAl9L' data-aid='StoryState'><em>State</em><div class='Dropdown StoryState__dropdown___3GU-2fu0 StoryState__dropdown--disabled___179oZpFv'><div class='Dropdown__content' data-aid='StoryState__dropdown'><button class='SMkCk__Button _3INnV__Button--default Dropdown__button StoryState__dropdownButton___LdR9Y07L undefined _3Xvsn__Button--disabled' disabled='' tabindex='0' type='button'><span class='StoryState__dropdown--label___3qsLBfq3' data-aid='StoryState__dropdown--label'>Unscheduled <img src='//assets.pivotaltracker.com/next/assets/next/aa0730f7-arrow-light.svg' alt=''></span></button></div></div><span class='state'><label data-aid='StateButton' data-destination-state='start' class='state button start' tabindex='-1'>Start</label></span></div></div>
@@ -137,7 +128,7 @@ Switch ($perspective){
                 				<input aria-hidden='true' type='hidden' name='story[story_type]' value='feature'>
                 			  
                 			  <input aria-hidden='true' type='text' id='story_type_dropdown_".$cid."_honeypot' tabindex='0' class='honeypot'>
-
+        
                 			  <a id='story_type_dropdown_$cid' class='selection item_feature' tabindex='-1'><span>feature</span></a>
                 
                 			  
@@ -316,6 +307,7 @@ Switch ($perspective){
                 	</div>
                 </div>
                 ";
+                
         
         break;
     default:

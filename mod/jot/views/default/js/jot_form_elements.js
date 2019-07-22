@@ -2,6 +2,10 @@
  * 
  */
 
+define(['elgg', 'jquery', 'quebx/widgets'], function(elgg, $, q_widgets) {
+
+	$(document).on('click', '.space #sidebar_area li.available', quebx.space.q_widgets.add);
+});
 define(function(require) {
 
    var $      = require('jquery');
@@ -94,6 +98,7 @@ define(function(require) {
 	   
    });
     $(document).on('click', '.model section.edit nav.edit .cancel', function(e){
+    	e.preventDefault();
        var cid         = $(this).data('cid'),
            parent_cid  = $(this).data('parent-cid');
        var $pallet     = $(".Effort__CPiu2C5N[data-cid='"+cid+"']"),
@@ -102,14 +107,15 @@ define(function(require) {
        var guid        = $pallet.attr('data-guid');
        var $this_panel = $pallet.children('.EffortEdit_fZJyC62e');
        var $show_panel = $pallet.children('.BoqxShow__lsk3jlWE');
-       var boqx_exists = guid > 0;
+       var boqx_exists = guid > 0,
+           pallet_exists = $pallet.length > 0;
        console.log('click:cancel');
        console.log('cid = '+cid);
        if (boqx_exists){
     	   $show_panel.show();
     	   $this_panel.parents('form').remove();
        }
-       else {
+       else if (pallet_exists) {
            $this_panel.remove();
            $pallet.children(".AddSubresourceButton___S1LFUcMd").show();
            $pallet.children(".EffortShow_haqOwGZY").remove();
@@ -1388,7 +1394,7 @@ define(function(require) {
 	      cid         = $(this).data('cid');
 	  ajax.view('partials/jot_form_elements',{
 		  data: {
-			  element: 'just_testing',
+			  element: 'show_model',
 			  guid: guid,
 			  cid:cid
 		  },
@@ -1399,7 +1405,9 @@ define(function(require) {
          $(".item[data-cid="+cid+"]").children("header.preview").removeClass("expanded");
 	  });
    });
-
+   $(document).on('click', 'button.estimate__item', function(e){
+	  e.preventDefault(); 
+   });
    $(document).on('change', 'input.receipt-line-item-behavior', function(e){
 	   var ajax       = new Ajax();
        var element
@@ -1481,6 +1489,20 @@ define(function(require) {
 		   $("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").attr('data-count', ++item_count);
 		   $("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").html(" ("+item_count+")");
    });
+     $(document).on('click', '.panels .items .pallet_toggle', function(e){
+          e.preventDefault();
+          var cid     = $(this).data('cid')
+              visible = $(this).parent().hasClass('visible');
+          var pallet = $('.pallet[cid='+cid+']');
+          if (visible){ 
+              pallet.removeClass('visible');
+              $(this).parent().removeClass('visible');
+          }
+          else {
+              pallet.addClass('visible');
+              $(this).parent().addClass('visible');
+          }
+     });
 });
 
 function filterList() {

@@ -30,8 +30,8 @@ if ($entity = elgg_extract('entity', $vars)) {
 	$dashboard_type = 'widgets';
 	
 	$num_columns = 3;
-	
-	$iframe_url = 'http://';
+//@EDIT 2019-07-11 - SAJ - empty url caused form submission failure	
+	$iframe_url = elgg_get_site_url();// 'http://';
 	$iframe_height = 450;
 	
 	$submit_text = elgg_echo('save');
