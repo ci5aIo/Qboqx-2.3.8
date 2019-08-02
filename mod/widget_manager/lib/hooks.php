@@ -17,7 +17,7 @@
 function widget_manager_write_access_hook($hook_name, $entity_type, $return_value, $params) {
 	
 	if (!elgg_in_context('widget_access')) {
-		return $return_value;
+		return;
 	}
 	
 	$widget = elgg_extract('entity', $params['input_params']);
@@ -84,49 +84,22 @@ function widget_manager_write_access_hook($hook_name, $entity_type, $return_valu
  * @return array
  */
 function widget_manager_read_access_hook($hook_name, $entity_type, $return_value, $params) {
-	$result = $return_value;
-
-	if (!elgg_is_logged_in() || elgg_is_admin_logged_in()) {
-		
-		if (!empty($result) && !is_array($result)) {
-			$result = [$result];
-		} elseif (empty($result)) {
-			$result = [];
-		}
-			
-		if (is_array($result)) {
-			$result[] = ACCESS_LOGGED_OUT;
-		}
-	}
-
-	return $result;
-}
-
-
-/**
- * Adds special data to widgets that are added on multidashboards
- *
- * @param string $hook_name    name of the hook
- * @param string $entity_type  type of the hook
- * @param string $return_value current return value
- * @param array  $params       hook parameters
- *
- * @return void
- */
-function widget_manager_widgets_add_action_handler($hook_name, $entity_type, $return_value, $params) {
-	$widget_context = get_input('context'); // dashboard_<guid>;
-	if (empty($widget_context)) {
+	
+	if (elgg_is_logged_in() && !elgg_is_admin_logged_in()) {
 		return;
 	}
 	
-	if (stristr($widget_context, 'dashboard_') === false) {
-		return;
+	if (empty($return_value)) {
+		$return_value = [];
+	} else {
+		if (!is_array($return_value)) {
+			$return_value = [$return_value];
+		}
 	}
 	
-	list($context, $guid) = explode('_', $widget_context);
+	$return_value[] = ACCESS_LOGGED_OUT;
 	
-	set_input('context', $context);
-	set_input('multi_dashboard_guid', $guid);
+	return $return_value;
 }
 
 /**
@@ -143,7 +116,7 @@ function widget_manager_widget_layout_permissions_check($hook_name, $entity_type
 	$page_owner = elgg_extract('page_owner', $params);
 	$user = elgg_extract('user', $params);
 	$context = elgg_extract('context', $params);
-			
+	
 	if (!$return_value && ($user instanceof ElggUser)) {
 		if (($page_owner instanceof ElggGroup) && $page_owner->canEdit($user->getGUID())) {
 			// group widget layout
@@ -164,6 +137,12 @@ function widget_manager_widget_layout_permissions_check($hook_name, $entity_type
 					}
 				}
 			}
+		} elseif ($context === 'index') {
+			$index_managers = explode(',', elgg_get_plugin_setting('index_managers', 'widget_manager', ''));
+			if (in_array($user->guid, $index_managers)) {
+				$return_value = true;
+			}
+			
 		}
 	}
 	
@@ -215,23 +194,6 @@ function widget_manager_widgets_url($hook_name, $entity_type, $return_value, $pa
 }
 
 /**
- * Sets default dashboard entity URL
- * 
- * @param string $hook   "entity:url"
- * @param string $type   "object"
- * @param string $return URL
- * @param array  $params Hook params
- * @return string
- */
-function widget_manager_dashboard_url($hook, $type, $return, $params) {
-	$entity = elgg_extract('entity', $params);
-	if (!$entity instanceof MultiDashboard) {
-		return;
-	}
-	return elgg_normalize_url("dashboard/$entity->guid");
-}
-
-/**
  * Updates the pluginsettings for the contexts
  *
  * @param string $hook_name    name of the hook
@@ -271,6 +233,28 @@ function widget_manager_plugins_settings_save_hook_handler($hook_name, $entity_t
 				
 	elgg_set_plugin_setting('extra_contexts', $extra_contexts, 'widget_manager');
 	elgg_set_plugin_setting('extra_contexts_config', $extra_contexts_config, 'widget_manager');
+}
+
+/**
+ * Flattens the settings value for index managers
+ *
+ * @param string $hook_name    name of the hook
+ * @param string $entity_type  type of the hook
+ * @param string $return_value current return value
+ * @param array  $params       hook parameters
+ *
+ * @return void
+ */
+function widget_manager_index_manager_setting_plugin_hook_handler($hook_name, $entity_type, $return_value, $params) {
+	if (elgg_extract('plugin_id', $params) !== 'widget_manager') {
+		return;
+	}
+	
+	if (elgg_extract('name', $params) !== 'index_managers') {
+		return;
+	}
+	
+	return implode(',', $return_value);
 }
 	
 /**
@@ -321,17 +305,13 @@ function widget_manager_widgets_action_hook_handler($hook_name, $entity_type, $r
  */
 function widget_manager_permissions_check_site_hook_handler($hook_name, $entity_type, $return_value, $params) {
 	$user = elgg_extract('user', $params);
-	
-	if ($return_value || !$user) {
-		return $return_value;
-	}
-	
 	$context = get_input('context');
-	if ($context) {
-		$return_value = elgg_can_edit_widget_layout($context, $user->getGUID());
+	
+	if ($return_value || !$user || empty($context)) {
+		return;
 	}
 	
-	return $return_value;
+	return elgg_can_edit_widget_layout($context, $user->getGUID());
 }
 
 /**
@@ -348,58 +328,18 @@ function widget_manager_permissions_check_object_hook_handler($hook_name, $entit
 	$user = elgg_extract('user', $params);
 	$entity = elgg_extract('entity', $params);
 	
-	if ($return_value || !$user) {
-		return $return_value;
-	}
-	
-	if (!($entity instanceof ElggWidget)) {
-		return $return_value;
+	if ($return_value || !($user instanceof \ElggUser)|| !($entity instanceof \ElggWidget)) {
+		return;
 	}
 	
 	$site = $entity->getOwnerEntity();
 	if (!($site instanceof ElggSite)) {
 		// special permission is only for widget owned by site
-		return $return_value;
+		return;
 	}
 	
 	$context = $entity->context;
 	if ($context) {
-		$return_value = elgg_can_edit_widget_layout($context, $user->getGUID());
+		return elgg_can_edit_widget_layout($context, $user->getGUID());
 	}
-			
-	return $return_value;
-}
-
-
-/**
- * Listen to the widget settings save of the RSS server widget
- *
- * @param string $hook_name    name of the hook
- * @param string $entity_type  type of the hook
- * @param bool   $return_value current return value
- * @param array  $params       hook parameters
- *
- * @return bool
- */
-function widget_manager_rss_server_widget_settings_hook_handler($hook_name, $entity_type, $return_value, $params) {
-
-	if (empty($params) || !is_array($params)) {
-		return $return_value;
-	}
-
-	$widget = elgg_extract('widget', $params);
-	if (empty($widget) || !elgg_instanceof($widget, 'object', 'widget')) {
-		return $return_value;
-	}
-
-	if ($widget->handler != 'rss_server') {
-		return $return_value;
-	}
-
-	$cache_file = elgg_get_config('dataroot') . 'widgets/rss/' . $widget->getGUID() . '.json';
-	if (file_exists($cache_file)) {
-		unlink($cache_file);
-	}
-
-	return $return_value;
 }

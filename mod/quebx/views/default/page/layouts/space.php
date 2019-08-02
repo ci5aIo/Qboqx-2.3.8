@@ -35,11 +35,13 @@ $things_count = count(elgg_get_entities($things_options));
 $panel_list_items[]=['title'=>'My things'  , 'class'=>'my_things'              , 'name'=>'my things'  , 'handler'=>'market'      , 'count'=>$things_count, 'id'=>'market'.'_'.$space_id       , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'Transfers'  , 'class'=>'backlog transfers'      , 'name'=>'transfers'  , 'handler'=>'transfer'                            , 'id'=>'transfer'.'_'.$space_id     , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'Activity'   , 'class'=>'icebox activity'        , 'name'=>'activity'   , 'handler'=>'river_widget'                        , 'id'=>'river_widget'.'_'.$space_id , 'cid'=>quebx_new_id('c')];
+$panel_list_items[]=['title'=>'experiences', 'class'=>'experiences'            , 'name'=>'experiences', 'handler'=>'experience'                          , 'id'=>'experience'.'_'.$space_id   , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'Done'       , 'class'=>'done'                   , 'name'=>'done'       , 'handler'=>'done'                                , 'id'=>'done'.'_'.$space_id         , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'Issues'     , 'class'=>'blockers issues'        , 'name'=>'issues'     , 'handler'=>'issue'       , 'count'=>1            , 'id'=>'issue'.'_'.$space_id        , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'Collections', 'class'=>'epics collections'      , 'name'=>'collections', 'handler'=>'collection'                          , 'id'=>'collection'.'_'.$space_id   , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'Labels'     , 'class'=>'labels'                 , 'name'=>'labels'     , 'handler'=>'labelcloud'                          , 'id'=>'label'.'_'.$space_id        , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'history'    , 'class'=>'project_history history', 'name'=>'history'    , 'handler'=>'history'                             , 'id'=>'history'.'_'.$space_id      , 'cid'=>quebx_new_id('c')];
+$panel_list_items[]=['title'=>'files'      , 'class'=>'filerepo'               , 'name'=>'files'      , 'handler'=>'filerepo'                            , 'id'=>'files'.'_'.$space_id        , 'cid'=>quebx_new_id('c')];
 
 $page_owner = elgg_get_page_owner_entity();
 if ($owner_guid) {
@@ -57,7 +59,7 @@ if (!$owner) {
 if ($owner->guid != $page_owner->guid) {
 	elgg_set_page_owner_guid($owner->guid);
 }
-
+//elgg_set_context('warehouse');
 $context = elgg_get_context();
 echo "<!--context: $context -->";
 
@@ -89,7 +91,7 @@ if (isset($vars['content'])) {
 	$content .=  $vars['content'];
 }
 for ($column_index = 1; $column_index <= $num_pallets; $column_index++) {
-    unset($container_content, $cid,$panel_id);
+    unset($container_content, $cid, $panel_contents);
     $cid = quebx_new_id('c');
     $panel_visibility = 'open';
 	if (isset($widgets[$column_index])) {
@@ -103,8 +105,8 @@ for ($column_index = 1; $column_index <= $num_pallets; $column_index++) {
 	    $panel_visibility = 'visible';
 		unset($panel_id);
 		foreach ($column_widgets as $widget) {
-			    unset($panel_id,  $cid, $panel_toggle);
-			    $panel_id = 'pallet_'.$widget->handler.'_'.$space_id;
+			    unset($panel_contents,  $cid, $panel_toggle);
+			    $panel_contents = $widget->handler;
 			    foreach($panel_list_items as $key=>$panel_item){                                                      
 			        if ($panel_item['handler'] == $widget->handler) {
 			            $panel_toggle = $panel_item;
@@ -114,17 +116,18 @@ for ($column_index = 1; $column_index <= $num_pallets; $column_index++) {
 			    $cid = $panel_toggle['cid'];
 //			if (array_key_exists($widget->handler, $widget_types)) {
 			    $container_content .= elgg_view_entity($widget, ['show_access' => $show_access, 
-				                                                 'class'       =>'boqx container droppable tn-panelWrapper___fTILOVmk', 
+				                                                 'class'       =>['boqx', 'container', 'droppable', 'tn-panelWrapper___fTILOVmk'], 
 				                                                 'module_type' =>'warehouse',
-			                                                     'widget_id'   => $panel_id,
+			                                                     'widget_id'   => $panel_contents,
 				                                                 'cid'         => $cid]);
 //			}
 		}
 	}
-	$panel_content .= elgg_format_element('div', ['class'=>"elgg-widgets pallet items_draggable $panel_visibility",
-        	                                      'id'   => $panel_id ?: 'open_slot',
-        	                                      'cid'  => $cid,
-        	                                      'style'=>'width:375px;']
+	$panel_content .= elgg_format_element('div', ['class'         =>"elgg-widgets pallet items_draggable $panel_visibility",
+        	                                      'id'            => 'slot_'.$column_index,
+	                                              'data-contents' => $panel_contents ?: 'open',
+        	                                      'data-cid'      => $cid,
+        	                                      'style'         =>'width:375px;']
         	                                    , $container_content);
 }
 
@@ -138,11 +141,11 @@ foreach($panel_list_items as $panel_item){
         else $attributes[$aspect]=$value;}
     $attributes['class'] = 'item '.$panel_item['class'].$panel_visibility;
     $text = elgg_format_element('button', 
-                               ['class'             =>'pallet_toggle',
-                                'aria-label'        =>'hide pallet',
+                               ['class'              =>'pallet_toggle',
+                                'aria-label'         =>'hide pallet',
                                 'data-pallet-visible'=> $panel_item['visible'],
-                                'data-pallet-id'     => $panel_item['id'],
-                                'data-cid'          => $cid
+                                'data-boqx'          => $panel_item['handler'],      
+                                'data-cid'           => $cid
                                ],
                                elgg_format_element('span', ['class'=>'pallet_name'],$panel_item['name']));
     $panel_items[]=['attributes'=>$attributes,'text'=>$text];

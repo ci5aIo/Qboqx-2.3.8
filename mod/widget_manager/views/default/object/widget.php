@@ -1,3 +1,4 @@
+<!-- views/default/object/widget.php  -->
 <?php
 /**
  * Widget object
@@ -6,7 +7,7 @@
  * @uses $vars['show_access'] Show the access control in edit area? (true)
  */
 
-$widget = $vars['entity'];
+$widget = elgg_extract('entity', $vars);
 if (!elgg_instanceof($widget, 'object', 'widget')) {
 	return true;
 }
@@ -14,17 +15,21 @@ if (!elgg_instanceof($widget, 'object', 'widget')) {
 $class = elgg_extract('class', $vars);
 $body_class = elgg_extract('body_class', $vars, 'story model item draggable');
 $module_type = elgg_extract('module_type', $vars);
+//$class = explode(' ', $class);
+if (!($widget instanceof WidgetManagerWidget)) {
+	// need this for newly created widgets (elgg_create_widget returns ElggWidget)
+	$widget = new \WidgetManagerWidget($widget->toObject());
+	
+	// need this to prevent memcache issue where object is stored in cache and is not a WidgetManagerWidget
+	_elgg_invalidate_cache_for_entity($widget->guid);
+	_elgg_invalidate_memcache_for_entity($widget->guid);
+}
 
 $show_access = elgg_extract('show_access', $vars, true);
-elgg_set_config("widget_show_access", $show_access);
-
-// @todo catch for disabled plugins
-$widget_types = elgg_get_widget_types('all');
+elgg_set_config('widget_show_access', $show_access);
 
 $handler = $widget->handler;
-$widget_context = $widget->context;
-
-if (widget_manager_get_widget_setting($handler, "hide", $widget_context)) {
+if (widget_manager_get_widget_setting($handler, 'hide', $widget->context)) {
 	return true;
 }
 
@@ -33,105 +38,69 @@ $title = $widget->getTitle();
 $widget_title_link = $widget->getURL();
 if ($widget_title_link !== elgg_get_site_url()) {
 	// only set usable widget titles
-	$title = elgg_view("output/url", array("href" => $widget_title_link, "text" => $title, 'is_trusted' => true, "class" => "widget-manager-widget-title-link"));
+	$title = elgg_view('output/url', [
+		'href' => $widget_title_link,
+		'text' => $title,
+		'is_trusted' => true,
+		'class' => 'widget-manager-widget-title-link',
+	]);
 }
 
 $can_edit = $widget->canEdit();
 
-$controls = elgg_view('object/widget/elements/controls', array(
-	'widget' => $widget,
-	'show_edit' => $can_edit,
-    'module_type'=>$module_type,
-));
-
-$content = elgg_view('object/widget/elements/content', $vars);
-
-$widget_id = "elgg-widget-$widget->guid";
-$widget_instance = "elgg-widget-instance-$handler";
-$widget_class = "elgg-module elgg-module-widget";
-$widget_header = "";
-
-if ($can_edit) {
-	$widget_class .= " elgg-state-draggable $widget_instance";
-} else {
-	$widget_class .= " elgg-state-fixed $widget_instance";
-}
-
-if ($widget->widget_manager_custom_class) {
-	// optional custom class for this widget
-	$widget_class .= " " . $widget->widget_manager_custom_class;
-}
-
-if ($widget->widget_manager_hide_header == "yes") {
-	if ($can_edit) {
-		$widget_class .= " widget_manager_hide_header_admin";
-	} else {
-		$widget_class .= " widget_manager_hide_header";
-	}
-}
-
-if ($widget->widget_manager_disable_widget_content_style == "yes") {
-	$widget_class .= " widget_manager_disable_widget_content_style";
-}
-if ($class)
-    $widget_class .= " $class";
-/*
-if (($widget->widget_manager_hide_header != "yes") || $can_edit) {
-	$widget_header = <<<HEADER
-		<div class="elgg-widget-handle clearfix"><h3 class="elgg-widget-title">$title</h3>
-		$controls
-		</div>
-HEADER;
-}*/
-if (($widget->widget_manager_hide_header != "yes") || $can_edit) {
+$widget_header = '';
+if (($widget->widget_manager_hide_header !== 'yes') || $can_edit) {
+	$controls = elgg_view('object/pallet/elements/controls', [
+		'pallet' => $widget,
+		'show_edit' => $can_edit,
+//@EDIT 2019-06-22 - SAJ
+	    'module_type'=>$module_type,
+	]);
+		
+//@EDIT 2019-06-22 - SAJ
+	//$widget_header = "<div class='elgg-widget-handle clearfix'><h3 class='elgg-widget-title'>$title</h3>$controls</div>";
 	$widget_header = elgg_format_element('div',['class'=>'elgg-widget-handle clearfix tn-PanelHeader__inner___3Nt0t86w tn-PanelHeader__inner--single___3Nq8VXGB'],
 	                                           elgg_format_element('h3',['class'=>'elgg-widget-title tn-PanelHeader__name___2UfJ8ho9'],
 	                                                                    $title).
 	                                           $controls);
 }
-    
-    
+$widget_body_vars = [
+	'id' => "elgg-widget-content-{$widget->guid}",
+	'class' => ['elgg-widget-content', $body_class]
+];
+
 $fixed_height = sanitize_int($widget->widget_manager_fixed_height, false);
-
-$widget_body_class = "elgg-widget-content $body_class";
-
-if ($widget->widget_manager_collapse_disable !== "yes") {
-	$widget_is_collapsed = false;
-	$widget_is_open = true;
-	
-	if (elgg_is_logged_in()) {
-		$widget_is_collapsed = widget_manager_check_collapsed_state($widget->guid, "widget_state_collapsed");
-		$widget_is_open = widget_manager_check_collapsed_state($widget->guid, "widget_state_open");
-	}
-	if (($widget->widget_manager_collapse_state === "closed" || $widget_is_collapsed) && !$widget_is_open) {
-	
-		$widget_body_class .= " hidden";
-	}
-
-}
-
-$widget_body = "<div class='" . $widget_body_class . "'";
 if ($fixed_height) {
-	$widget_body .= " style='height: " . $fixed_height . "px; overflow-y: auto;'";
+	$widget_body_vars['style'] = "height: {$fixed_height}px; overflow-y: auto;";
 }
 
-$widget_body .= " id='elgg-widget-content-" . $widget->guid . "'>";
-$widget_body .= $content;
-$widget_body .= "</div>";
-$module_vars = ['class'  => $widget_class,
-        		'id'     => $widget_id,
-        		'header' => $widget_header,];
+if ($widget->showCollapsed()) {
+	$widget_body_vars['class'][] = 'hidden';
+}
 
+$widget_body        = elgg_format_element('div', $widget_body_vars, elgg_view('object/widget/elements/content', $vars));
+$widget_class       = array_merge($widget->getClasses(), $class);                         //$display .= '$widget_class:'.print_r($widget_class,true);
+$widget_module_vars = [
+	'class' => $widget_class,
+	'id' => "elgg-widget-{$widget->guid}",
+	'header' => $widget_header];
+$empty_boqx = elgg_view('partials/jot_form_elements',['element'=>'pallet','handler'=>$handler,'perspective'=>'add']);
+		       
+echo "<!-- module_type: $module_type -->";
+//echo elgg_view_module('widget', '', $widget_body, $widget_module_vars);
 Switch ($module_type){
     case 'warehouse':
-        $widget_body = elgg_format_element('div', ['class'=>'tn-panel__loom'], $widget_body);
-        $module_vars['title'] = '';
-        $module_vars['body']  = $widget_body;
-        $module_vars['module_type'] = $module_type;
-        $module = elgg_view('page/components/module_warehouse', $module_vars);
+// @EDIT - 2019-07-28 - SAJ - Make the pallet un-draggable
+        $rem_key = array_search('elgg-module-widget', $widget_module_vars['class']);
+        unset($widget_module_vars['class'][$rem_key]);
+        $widget_body = elgg_format_element('div', ['class'=>'tn-pallet__stack'], $empty_boqx.$widget_body);
+        $widget_module_vars['title'] = '';
+        $widget_module_vars['body']  = $widget_body;
+        $widget_module_vars['module_type'] = $module_type;
+        $module = elgg_view('page/components/module_warehouse', $widget_module_vars);
         break;
     default:
-        $module = elgg_view_module('widget', '', $widget_body, $module_vars);
+        $module = elgg_view_module('widget', '', $widget_body, $widget_module_vars);
 }
 
-echo $module;
+echo $module;                                                                                  //register_error($display);

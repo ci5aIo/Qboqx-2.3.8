@@ -21,6 +21,9 @@ elgg_register_event_handler('init', 'system', __NAMESPACE__ . '\\init');
 
 
 function init() {
+    
+    $labels_ajax_js  = elgg_get_simplecache_url('js' , 'labels/add_label.js');
+    elgg_require_js($labels_ajax_js);
 
 	// Extend system CSS with our own styles
 	elgg_extend_view('css', 'labels/css');

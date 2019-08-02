@@ -1,14 +1,23 @@
+<!-- views/default/page/layouts/widgets/add_panel.php  -->
 <?php
+/**
+ * Widget add panel
+ *
+ * @uses $vars['context']     The context for this widget layout
+ * @uses $vars['exact_match'] Only use widgets that match the context
+ * @uses $vars['container']   Container to optional limit widgets for. Defaults to page_owner_entity
+ */
+
 if (!elgg_is_xhr()) {
 	return;
 }
 
 $context = elgg_extract('context', $vars);
+$widget_context = elgg_extract('widget_context', $vars, $context);
 $show_access = (int) elgg_extract('show_access', $vars);
-$md_guid = (int) elgg_extract('multi_dashboard_guid', $vars);
-$exact_match = elgg_extract('exact_match', $vars);
+$exact = elgg_extract('exact_match', $vars, false);                         $display .= '$widget_context: '.$widget_context.'<br>';
+
 $owner_guid = (int) elgg_extract('owner_guid', $vars);
-$multi_dashboard_guid = (int) elgg_extract('multi_dashboard_guid', $vars);
 $context_stack = elgg_extract('context_stack', $vars);
 
 if (!empty($context_stack)) {
@@ -17,12 +26,11 @@ if (!empty($context_stack)) {
 
 elgg_set_page_owner_guid($owner_guid);
 $owner = elgg_get_page_owner_entity();
-
-$md_object = get_entity($multi_dashboard_guid);
+$container = elgg_extract('container', $vars, elgg_get_page_owner_entity());
 
 echo elgg_view('input/hidden', [
 	'name' => 'widget_context',
-	'value' => (empty($md_guid) ? $context : $context . '_' . $md_guid)
+	'value' => $widget_context,
 ]);
 echo elgg_view('input/hidden', [
 	'name' => 'show_access',
@@ -33,18 +41,17 @@ $widget_context = str_replace('default_', '', $context);
 
 $available_widgets_context = elgg_trigger_plugin_hook('available_widgets_context', 'widget_manager', [], $widget_context);
 
-$widgets = elgg_get_widget_types($available_widgets_context, $exact_match);
+$widgets = elgg_get_widget_types($available_widgets_context, $exact);
+$widgets = elgg_get_widget_types([
+	'context' => $available_widgets_context,
+	'exact' => $exact,
+	'container' => $container,
+]);
 widget_manager_sort_widgets($widgets);
 
-if (!empty($md_object)) {
-	$user_widgets = $md_object->getWidgets();
-} else {
-	if (($context == 'dashboard') && !elgg_in_context('admin')) {
-		// can't use elgg function because it gives all and we only need the widgets not related to a multidashboard entity
-		$user_widgets = widget_manager_get_widgets($owner->guid, $context);
-	} else {
-		$user_widgets = elgg_get_widgets($owner->guid, $context);
-	}
+$user_widgets = elgg_extract('user_widgets', $vars);
+if (!isset($vars['user_widgets'])) {
+	$user_widgets = elgg_get_widgets($owner->guid, $context);
 }
 
 $current_handlers = [];
@@ -124,3 +131,4 @@ foreach ($widgets as $handler => $widget) {
 }
 
 echo elgg_view_module($module_type, $title, $body, ['id' => 'widget_manager_widgets_select']);
+register_error($display);

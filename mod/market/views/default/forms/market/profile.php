@@ -21,11 +21,12 @@ $data_prefix  = elgg_extract('data_prefix', $vars, "jot[$parent_cid][$cid][$n]["
         	    	
 $guid         = elgg_extract('guid', $vars);                                                        $display .= '17 $guid: '.$guid.'<br>';
 $lineage_level= $vars['h'];
-$entity       = get_entity($guid);
-$category     = get_entity($entity->category);
-$entity_owner = get_entity($entity->owner_guid);
-$record_stage = $entity->record_stage;                                                $display  .= '22 $record_stage:'.$record_stage.'<br>';
-
+if ($guid){
+    $entity       = get_entity($guid);
+    $category     = get_entity($entity->category);
+    $entity_owner = get_entity($entity->owner_guid);
+    $record_stage = $entity->record_stage;                                                $display  .= '22 $record_stage:'.$record_stage.'<br>';
+}
 //if (elgg_instanceof($entity, 'object','market')) {
   // must always supply $guid $h (current hierarchy) and current $level
 if ($guid)          $hidden['guid']               = $guid;
@@ -226,6 +227,36 @@ switch ($presentation){
 								</div>
 						</div>";
 		break;
+	case 'pallet':
+	    unset($tabs[2],    // Remove 'Receipt' tab
+	          $panels[2],  // Remove 'Receipt' panel
+	          $detail, $details,$nav,$navigation, $class, $content
+	         );
+	    
+	    $nav['tabs']  = $tabs;
+	    $nav['class'] = 'quebx-tabs';
+        $nav['space'] = $space;
+        $nav['qid']   = $qid;
+        $navigation   = elgg_view('navigation/tabs_slide', $nav);
+        foreach($panels as $key=>$panel){
+        	$n = $key+1;
+        	$is_selected = $selected == $panel['aspect'];
+        	$class       = $panel['class'];
+    	    if ($is_selected) {
+    			$class .= ' qbox-state-selected';
+    		}
+        	$detail .= elgg_view('output/div',['content'=>$panel['content'], 'class'=>$class, 'options'=>['id'=>"q{$guid}_{$n}"]]);
+        }
+        $body_vars = $vars;
+        $header  = elgg_view($category_content, $body_vars);
+        $details = elgg_view('output/div',['content'=>$detail, 'class'=>"qbox-details qbox-$guid"]);
+        
+        $content = "<div id='Category_panel' class='elgg-head' style='margin:5px'>$header</div>";
+        $content .= $navigation.$details;
+        $content   = str_replace('jot[', $data_prefix, $content);
+        $form_body = str_replace('item[', $data_prefix, $content);
+    
+	    break;
 }
 	
 echo $form_body;

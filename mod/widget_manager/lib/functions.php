@@ -11,76 +11,51 @@
  * @param string $setting        name of the setting
  * @param string $context        context of the widget (default current context)
  *
- * @return boolean
+ * @return boolean|array|void
  */
 function widget_manager_get_widget_setting($widget_handler, $setting, $context = null) {
-	$result = false;
+	if (empty($widget_handler) || empty($setting)) {
+		return false;
+	}
 	
 	if (is_null($context)) {
 		$context = elgg_get_context();
 	}
 	
-	static $widget_settings;
+	static $widgets_config;
 			
-	if (!isset($widget_settings)) {
-		$widget_settings = elgg_load_system_cache('widget_manager_widget_settings');
-		if ($widget_settings === null) {
-			$widget_settings = [];
+	if (!isset($widgets_config)) {
+		$widgets_config = elgg_get_plugin_setting('widgets_config', 'widget_manager');
+		if ($widgets_config === null) {
+			$widgets_config = [];
 		} else {
-			$widget_settings = unserialize($widget_settings);
+			$widgets_config = json_decode($widgets_config, true);
 		}
 	}
-	if (!isset($widget_settings[$context])) {
-		$widget_settings[$context] = [];
+	if (!isset($widgets_config[$widget_handler])) {
+		$widgets_config[$widget_handler] = ['contexts' => []];
 	}
-	if (!isset($widget_settings[$context][$widget_handler])) {
-		$widget_settings[$context][$widget_handler] = [];
-	}
-	
-	if (isset($widget_settings[$context][$widget_handler][$setting])) {
-		return $widget_settings[$context][$widget_handler][$setting];
+	if (!isset($widgets_config[$widget_handler]['contexts'][$context])) {
+		$widgets_config[$widget_handler]['contexts'][$context] = [];
 	}
 	
-	if (!empty($widget_handler) && !empty($setting)) {
-		$plugin_setting = elgg_get_plugin_setting("{$context}_{$widget_handler}_{$setting}", 'widget_manager', null);
-		if ($plugin_setting !== null) {
-			if ($plugin_setting == 'yes') {
-				$result = true;
-			}
-		} elseif ($setting == 'can_add') {
-			$result = true;
-		}
-		
-		$widget_settings[$context][$widget_handler][$setting] = $result;
+	if ($setting == 'all') {
+		return $widgets_config[$widget_handler];
 	}
 	
-	elgg_save_system_cache('widget_manager_widget_settings', serialize($widget_settings));
-	
-	return $result;
-}
-	
-/**
- * Saves a widget setting
- *
- * @param string $widget_handler handler of the widget
- * @param string $setting        name of the setting
- * @param string $context        context of the widget (default current context)
- * @param string $value          value of the setting
- *
- * @return boolean
- */
-function widget_manager_set_widget_setting($widget_handler, $setting, $context, $value) {
-	$result = false;
-	
-	if (!empty($widget_handler) && !empty($setting)) {
-		$widget_setting = "{$context}_{$widget_handler}_{$setting}";
-		
-		if (elgg_set_plugin_setting($widget_setting, $value, 'widget_manager')) {
-			$result = true;
-		}
+	if (isset($widgets_config[$widget_handler]['contexts'][$context][$setting])) {
+		return (bool) $widgets_config[$widget_handler]['contexts'][$context][$setting];
 	}
 	
-	return $result;
+	if (!in_array($setting, ['can_add', 'hide'])) {
+		return null;
+	}
+	
+	if ($setting === 'can_add') {
+		return true;
+	}
+	
+	return false;
 }
 
 /**
@@ -264,73 +239,6 @@ function widget_manager_update_fixed_widgets($context, $user_guid) {
 }
 
 /**
- * Returns true if multidashboard functionality is enabled
- *
- * @return boolean
- */
-function widget_manager_multi_dashboard_enabled() {
-	static $result;
-	
-	if (isset($result)) {
-		return $result;
-	}
-	
-	$result = false;
-	
-	if (elgg_is_active_plugin('dashboard') && (elgg_get_plugin_setting('multi_dashboard_enabled', 'widget_manager') == 'yes')) {
-		$result = true;
-	}
-	
-	return $result;
-}
-
-/**
- * This function replaces default Elgg function elgg_widgets
- * Default dashboard tab widgets have no relationship with a custom dashboard
- *
- * @param int    $user_guid guid of the widget owner
- * @param string $context   context of the widgets
- *
- * @return array
- */
-function widget_manager_get_widgets($user_guid, $context) {
-	
-	$options = [
-		'type' => 'object',
-		'subtype' => 'widget',
-		'owner_guid' => $user_guid,
-		'private_setting_name' => 'context',
-		'private_setting_value' => $context,
-		'wheres' => [
-			"NOT EXISTS (
-				SELECT 1 FROM " . elgg_get_config("dbprefix") . "entity_relationships r
-				WHERE r.guid_one = e.guid
-					AND r.relationship = '" . MultiDashboard::WIDGET_RELATIONSHIP . "')",
-		],
-		'limit' => 0,
-	];
-	
-	$widgets = elgg_get_entities_from_private_settings($options);
-	if (!$widgets) {
-		return [];
-	}
-
-	$sorted_widgets = [];
-	foreach ($widgets as $widget) {
-		if (!isset($sorted_widgets[(int)$widget->column])) {
-			$sorted_widgets[(int)$widget->column] = array();
-		}
-		$sorted_widgets[(int)$widget->column][$widget->order] = $widget;
-	}
-
-	foreach ($sorted_widgets as $col => $widgets) {
-		ksort($sorted_widgets[$col]);
-	}
-
-	return $sorted_widgets;
-}
-
-/**
  * Check if a given handler is part of the configured extra contexts
  *
  * @param string $handler name of the context handler to check
@@ -338,19 +246,18 @@ function widget_manager_get_widgets($user_guid, $context) {
  * @return boolean
  */
 function widget_manager_is_extra_context($handler) {
-	$result = false;
 
 	$extra_contexts = elgg_get_plugin_setting('extra_contexts', 'widget_manager');
 	if ($extra_contexts) {
 		$contexts = string_to_tag_array($extra_contexts);
 		if ($contexts) {
 			if (in_array($handler, $contexts)) {
-				$result = true;
+				return true;
 			}
 		}
 	}
 
-	return $result;
+	return false;
 }
 
 /**

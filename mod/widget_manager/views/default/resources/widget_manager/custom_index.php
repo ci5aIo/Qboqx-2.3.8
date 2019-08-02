@@ -50,7 +50,7 @@ if (!empty($index_top_row) && ($index_top_row != "none")) {
 	$widget_types = elgg_get_widget_types("index", false);
 	
 	elgg_push_context('widgets');
-	$widgets = elgg_get_widgets(elgg_get_page_owner_entity()->getGUID(), "index");
+	$widgets = elgg_get_widgets(elgg_get_page_owner_guid(), "index");
 	$widget_content = "";
 	
 	if (isset($widgets[4])) {
@@ -88,6 +88,6 @@ $params = [
 ];
 $content = elgg_view_layout('widgets', $params);
 
-$body = elgg_view_layout('one_column', ['content' => $style . $content]);
+$body = elgg_view_layout('one_column', ['content' => $style . $content, 'title' => false]);
 
 echo elgg_view_page('', $body);

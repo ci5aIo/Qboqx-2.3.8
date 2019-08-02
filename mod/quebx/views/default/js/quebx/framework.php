@@ -8,7 +8,8 @@
 // to wait for the module to load. This is necessary to ensure BC for plugins that
 // rely on quebx.ui.widgets methods to be available at system init.
 // @todo: remove in 3.x and use async calls
-echo elgg_view('quebx/widgets.js');
+// @EDIT - 2019-07-22 - SAJ - Draft - Disabled
+// echo elgg_view('quebx/widgets.js');
 ?>
 elgg.provide('quebx.framework');
 
@@ -859,7 +860,7 @@ $(document).ready(function(){
         }
     });
 */
-    $(document).on("click", "a.collapser-receipt-item", function(e) {
+    $(document).on("click", "a.collapser-receipt", function(e) {
         e.preventDefault();
         var cid = $(this).attr("data-cid");
         var $boqx = $(document).find('#'+cid);
@@ -926,6 +927,10 @@ $(document).ready(function(){
     });
     $(document).on("click", "button[data-aid=cancel]", function (e) {
         e.preventDefault();
+    });
+    $(document).on('click', 'button.cancel-pallet', function(e){
+       var $this_panel = $(this).parents('.empty-boqx');
+       $this_panel.remove();
     });
     /*Things area in warehouse*/
     $(document).on('click', '.model section.edit nav.edit .cancel', function(e){
@@ -2008,39 +2013,24 @@ $(document).ready(function(){
               label_container = $(this).parents('.StoryLabelsMaker__container___2B23m_z1');
           var label_boqx      = label_container.siblings('.BoqxLabelsPicker__Vof1oGNB');
           var label_item      = label_boqx.find('.LabelDropdownItem___3IFJX-oo[data-aid="LabelDropdownItem--'+label+'"]');
-          console.log('label: '+label);
-          label_item.show();
+          var label_selector  = label_item.parent();
+          label_selector.removeClass('label-selected');
           $(this).parents('.Label___mHNHD3zD').remove();
     });    
    $(document).on('click', '.LabelDropdownItem___3IFJX-oo', function(e){
          e.preventDefault();
          var label = $(this).children('label').html(),
-             card = $(this).parents('.BoqxLabelsPicker__Vof1oGNB');
+             card = $(this).parents('.BoqxLabelsPicker__Vof1oGNB'),
+             label_selector = $(this).parent();
          var cid         = card.data('cid');
+         var search_box  = $('input[data-cid='+cid+']'); 
          var label_container = card.siblings('.StoryLabelsMaker__container___2B23m_z1').children('.StoryLabelsMaker__contentContainer___3CvJ07iU'),
              label_badge = "<div class='Label___mHNHD3zD' tabindex='-1'><div class='Label__Name___mTDXx408' name='jot["+cid+"][labels][]'>"+label+"</div><div class='Label__RemoveButton___2fQtutmR'></div></div>";
-         console.log('cid: '+cid);
-         console.log('label: '+label);
-         console.log('label_badge: '+label_badge);
-         console.log('label_container: ',label_container);
-         $(this).hide();
-         $(label_container).prepend(label_badge); 
+         $(label_selector).addClass('label-selected');
+         $(label_container).prepend(label_badge);
+         //search_box.val('');
    });
-   //Add a new label when the user presses the 'comma' key
-     $(document).on('keydown', 'input.LabelsSearch__input___3BARDmFr', function(e) { 
-         var keyCode = e.keyCode || e.which; 
-
-         if (keyCode == 188) { 
-           e.preventDefault(); 
-           var label = $(this).val(),
-               cid   = $(this).data('cid');
-           var label_container = $(this).parents('.StoryLabelsMaker__contentContainer___3CvJ07iU'),
-               label_badge = "<div class='Label___mHNHD3zD' tabindex='-1'><div class='Label__Name___mTDXx408' name='jot["+cid+"][labels][]'>"+label+"</div><div class='Label__RemoveButton___2fQtutmR'></div></div>";
-           $(this).val('');
-           $(label_container).prepend(label_badge);  
-         } 
-     });
-    $( "#sortable" ).sortable({
+       $( "#sortable" ).sortable({
 	    revert: true,
 	    items: "> div:not(.pin)"
 	});	

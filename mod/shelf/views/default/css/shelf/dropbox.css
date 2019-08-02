@@ -16,11 +16,11 @@
 .dropbox .dropbox-panel,
 .dropboqx .dropboq-menu,
 .dropboqx .dropboqx-panel {
-  min-width: 160px;
-  /*max-width: 360px;*/
+  /*min-width: 160px;
+  max-width: 360px;*/
   list-style: none;
   background: white;
-  border: solid 1px #ddd;
+  border: dashed 1px #aaa;
   border-radius: 4px;
 /*  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);*/
   overflow: visible;
@@ -274,14 +274,6 @@ span.qbox-pallet-label{
 .dropboqx .dropboqx-menu,
 .dropboqx .dropboqx-panel {
   list-style: none;
-  border: solid 1px #ddd;
-  border-radius: 4px;
-/*background: white;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);*/
-  overflow: visible;
-  padding: 4px 0;
-  margin: 0;
-/*  text-align: left;*/
 }
 .dropboqx .dropboqx-panel {
   padding: 20px;

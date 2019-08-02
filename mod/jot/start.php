@@ -233,6 +233,7 @@ function jot_init() {
 	// Add a new widget
 	elgg_register_widget_type('jot',elgg_echo('jot:widget'),elgg_echo('jot:widget:description'));
 	elgg_register_widget_type('transfer','Transfers','Documents such as receipts, offers and bills of sale');
+	elgg_register_widget_type('experience','Experiences','Good and bad intereactions with things.  Includes issues, problems, reviews and tutorials linked to items.');
 	
 	// Register a page handler, so we can have nice URLs
 	elgg_register_page_handler('jot', 'jot_page_handler');

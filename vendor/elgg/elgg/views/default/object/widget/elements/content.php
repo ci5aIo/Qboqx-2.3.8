@@ -1,3 +1,4 @@
+<!-- vendor/elgg/elgg/views/default/object/widget/elements/content.php -->
 <?php
 
 // don't show content for default widgets

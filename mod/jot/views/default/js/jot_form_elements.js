@@ -1,11 +1,11 @@
 /**
  * 
  */
-
+/*
 define(['elgg', 'jquery', 'quebx/widgets'], function(elgg, $, q_widgets) {
 
 	$(document).on('click', '.space #sidebar_area li.available', quebx.space.q_widgets.add);
-});
+});*/
 define(function(require) {
 
    var $      = require('jquery');
@@ -17,7 +17,8 @@ define(function(require) {
 
        var ajax = new Ajax();
        var $this = $(this),
-           presence = $(this).data('presence');
+           presence = $(this).data('presence'),
+           presentation = $(this).data('presentation');
        var $receipt_card = $('div.qbox#'+qid);
        var element = $(this).attr("data-element");
        var guid     = $(this).attr("guid") || $(this).attr("data-guid");
@@ -72,7 +73,8 @@ define(function(require) {
     		 cid: cid,
     		 parent_cid: parent_cid,
     		 n: x,
-    		 presence: presence
+    		 presence: presence,
+    		 presentation: presentation
     	   },
        }).done(function(output) {
     	   $('div#'+new_line_items).before($(output));
@@ -87,7 +89,8 @@ define(function(require) {
     		 cid: cid,
     		 parent_cid: parent_cid,
     		 n: x,
-    		 presence: presence
+    		 presence: presence,
+    		 presentation: presentation
     	   },
        }).done(function(property_card) {
     	   $('div#'+new_property_cards).append($(property_card));
@@ -1493,7 +1496,7 @@ define(function(require) {
           e.preventDefault();
           var cid     = $(this).data('cid')
               visible = $(this).parent().hasClass('visible');
-          var pallet = $('.pallet[cid='+cid+']');
+          var pallet = $('.pallet[data-cid='+cid+']');
           if (visible){ 
               pallet.removeClass('visible');
               $(this).parent().removeClass('visible');
@@ -1503,6 +1506,66 @@ define(function(require) {
               $(this).parent().addClass('visible');
           }
      });
+     $(document).on('click', '.tn-AddButton___hGq7Vqlr', function(e){
+    	e.preventDefault();
+    	var pallet = $(this).parents('.pallet'),
+    	    ajax   = new Ajax();
+    	var handler = pallet.data('contents'),
+    	    cid     = pallet.data('cid'),
+    	    stack   = pallet.find('.tn-pallet__stack');
+    	var empty_boqx = stack.find('.empty-boqx');
+    	var boqx_exists = empty_boqx.length > 0;
+    	//console.log('items_container: ',items_container);
+    	if (boqx_exists)
+    		empty_boqx.find('.EffortEdit_fZJyC62e').show();
+    	else
+	    	ajax.view('partials/jot_form_elements',{
+	    	   data: {
+	    		 element       : 'pallet',
+	    		 handler       : handler,
+	    		 perspective   : 'add',
+	    	   },
+		       }).done(function(output) {
+		    	   stack.prepend($(output)).find('.EffortEdit_fZJyC62e').show();
+		       });
+     });
+	   //Add a new label when one presses the 'comma' key
+	     $(document).on('keydown', 'input.LabelsSearch__input___3BARDmFr', function(e) { 
+	         var keyCode = e.keyCode || e.which; 
+	
+	         if (keyCode == 188) { 
+	           e.preventDefault(); 
+	           var label = $(this).val(),
+	               cid   = $(this).data('cid');
+	           var label_container = $(this).parents('.StoryLabelsMaker__contentContainer___3CvJ07iU'),
+	               label_badge = "<div class='Label___mHNHD3zD' tabindex='-1'><div class='Label__Name___mTDXx408' name='jot["+cid+"][labels][]'>"+label+"</div><div class='Label__RemoveButton___2fQtutmR'></div></div>",
+				   $selector = $('.BoqxLabelsPicker__Vof1oGNB[data-cid='+cid+']');
+			   var $items = $selector.find('.SmartListSelector__child___zbvaMzth');
+	           $(this).val('');
+	           $(label_container).prepend(label_badge);
+               $items.each(function () {
+					if ($(this).text().toUpperCase() == label.toUpperCase()){
+						$(this).addClass('label-selected');
+					}
+				});
+	         } 
+	     });
+	     // Filter the list as one types
+     	$(document).on('keyup', 'input.LabelsSearch__input___3BARDmFr', function(e) {
+		e.preventDefault(); 
+	    var cid        = $(this).data('cid');
+		var $selector = $('.BoqxLabelsPicker__Vof1oGNB[data-cid='+cid+']');
+		var $items = $selector.find('.SmartListSelector__child___zbvaMzth');
+		var q = $(this).val();
+		if (q === "") {
+			$items.removeClass('label-hidden');
+		} else {
+			$items.addClass('label-hidden');
+			$items.filter(function () {
+				return $(this).text().toUpperCase().indexOf(q.toUpperCase()) >= 0;
+			}).removeClass('label-hidden');
+		}
+	});
 });
 
 function filterList() {

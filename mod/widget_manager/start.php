@@ -1,18 +1,13 @@
 <?php
 
 define('ACCESS_LOGGED_OUT', -5);
-define('MULTI_DASHBOARD_MAX_TABS', 7);
-
-@include_once(dirname(__FILE__) . '/vendor/autoload.php');
 
 require_once(dirname(__FILE__) . '/lib/functions.php');
 require_once(dirname(__FILE__) . '/lib/hooks.php');
-require_once(dirname(__FILE__) . '/lib/widgets.php');
 
 // register default Elgg events
 elgg_register_event_handler('init', 'system', 'widget_manager_init');
 elgg_register_event_handler('init', 'system', 'widget_manager_init_group');
-elgg_register_event_handler('init', 'system', 'widget_manager_init_multi_dashboard');
 
 /**
  * Used to perform initialization of the widget manager features.
@@ -28,15 +23,11 @@ function widget_manager_init() {
 		update_subtype('object', 'widget', 'WidgetManagerWidget');
 	}
 	
-	// loads the widgets
-	widget_manager_widgets_init();
-	
 	elgg_register_plugin_hook_handler('widget_settings', 'all', '\ColdTrick\WidgetManager\Cache::clearWidgetCacheOnSettingsSave');
 	
 	// register plugin hooks
 	elgg_register_plugin_hook_handler('access:collections:write', 'all', 'widget_manager_write_access_hook', 999);
 	elgg_register_plugin_hook_handler('access:collections:read', 'user', 'widget_manager_read_access_hook');
-	elgg_register_plugin_hook_handler('action', 'widgets/save', '\ColdTrick\WidgetManager\Widgets::disableFreeHTMLInputFilter');
 	
 	elgg_register_plugin_hook_handler('register', 'menu:widget', '\ColdTrick\WidgetManager\Menus::addFixDefaultWidgetMenuItem');
 	elgg_register_plugin_hook_handler('prepare', 'menu:widget', '\ColdTrick\WidgetManager\Menus::prepareWidgetEditDeleteMenuItems');
@@ -45,6 +36,10 @@ function widget_manager_init() {
 	elgg_register_plugin_hook_handler('available_widgets_context', 'widget_manager', '\ColdTrick\WidgetManager\Context::addExtraContextsAsAvailableWidgetsContext');
 	
 	elgg_register_plugin_hook_handler('permissions_check', 'widget_layout', 'widget_manager_widget_layout_permissions_check');
+	
+	elgg_register_plugin_hook_handler('handlers', 'widgets', '\ColdTrick\WidgetManager\Widgets::addExtraContextsWidgets', 9980);
+	elgg_register_plugin_hook_handler('handlers', 'widgets', '\ColdTrick\WidgetManager\Widgets::fixAllContext', 9990);
+	elgg_register_plugin_hook_handler('handlers', 'widgets', '\ColdTrick\WidgetManager\Widgets::applyWidgetsConfig', 9999);
 	
 	// extend CSS
 	elgg_extend_view('css/elgg', 'css/widget_manager/site.css');
@@ -55,19 +50,10 @@ function widget_manager_init() {
 	
 	elgg_extend_view('js/elgg', 'js/widget_manager/site.js');
 	
-	elgg_register_plugin_hook_handler('format', 'friendly:time', '\ColdTrick\WidgetManager\Output::rssFriendlyTime');
-	
 	// register a widget title url handler
 	// core widgets
 	elgg_register_plugin_hook_handler('entity:url', 'object', 'widget_manager_widgets_url');
-	// widget manager widgets
-	elgg_register_plugin_hook_handler('entity:url', 'object', 'widget_manager_widgets_url_hook_handler');
-	// dashboard
-	elgg_register_plugin_hook_handler('entity:url', 'object', 'widget_manager_dashboard_url');
 
-	// cacheable widget handlers
-	elgg_register_plugin_hook_handler('cacheable_handlers', 'widget_manager', '\ColdTrick\WidgetManager\Widgets::getCacheableWidgets');
-	
 	// index page
 	elgg_register_plugin_hook_handler('route', 'all', '\ColdTrick\WidgetManager\Router::routeIndex');
 			
@@ -88,13 +74,14 @@ function widget_manager_init() {
 	
 	elgg_register_plugin_hook_handler('permissions_check', 'object', 'widget_manager_permissions_check_object_hook_handler');
 
+	elgg_register_plugin_hook_handler('setting', 'plugin', 'widget_manager_index_manager_setting_plugin_hook_handler');
+	
 	elgg_register_plugin_hook_handler('view_vars', 'admin/appearance/default_widgets', '\ColdTrick\WidgetManager\DefaultWidgets::defaultWidgetsViewVars');
 	elgg_register_plugin_hook_handler('view_vars', 'page/layouts/widgets', '\ColdTrick\WidgetManager\Layouts::checkFixedWidgets');
 
 	elgg_register_plugin_hook_handler('register', 'menu:page', '\ColdTrick\WidgetManager\Menus::registerAdminPageMenu');
 	
 	elgg_register_event_handler('create', 'object', '\ColdTrick\WidgetManager\Widgets::fixPrivateAccess');
-	elgg_register_event_handler('create', 'object', '\ColdTrick\WidgetManager\Widgets::linkWidgetToMultiDashboard');
 
 	elgg_register_event_handler('cache:flush', 'system', '\ColdTrick\WidgetManager\Cache::resetWidgetsCache');
 	
@@ -155,33 +142,9 @@ function widget_manager_init_group() {
 	// register event to make sure all groups have the group option enabled if forces
 	// and configure tool enabled widgets
 	elgg_register_event_handler('update', 'group', '\ColdTrick\WidgetManager\Groups::updateGroupWidgets');
+	elgg_register_event_handler('create', 'object', '\ColdTrick\WidgetManager\Groups::addGroupWidget');
+	elgg_register_event_handler('delete', 'object', '\ColdTrick\WidgetManager\Groups::deleteGroupWidget');
 		
 	// make default widget management available
 	elgg_register_plugin_hook_handler('get_list', 'default_widgets', '\ColdTrick\WidgetManager\DefaultWidgets::addGroupsContextToDefaultWidgets');
-}
-
-/**
- * Used to perform initialization of the multi_dashboard features.
- *
- * @return void
- */
-function widget_manager_init_multi_dashboard() {
-	// multi dashboard support
-	add_subtype('object', MultiDashboard::SUBTYPE, 'MultiDashboard');
-	
-	if (!elgg_is_logged_in() || !widget_manager_multi_dashboard_enabled()) {
-		return;
-	}
-	
-	$base_dir = dirname(__FILE__);
-	
-	elgg_register_ajax_view('widget_manager/forms/multi_dashboard');
-
-	elgg_register_plugin_hook_handler('route', 'dashboard', '\ColdTrick\WidgetManager\Router::routeDashboard');
-	elgg_register_plugin_hook_handler('action', 'widgets/add', 'widget_manager_widgets_add_action_handler');
-
-	elgg_register_action('multi_dashboard/edit', $base_dir . '/actions/multi_dashboard/edit.php');
-	elgg_register_action('multi_dashboard/delete', $base_dir . '/actions/multi_dashboard/delete.php');
-	elgg_register_action('multi_dashboard/drop', $base_dir . '/actions/multi_dashboard/drop.php');
-	elgg_register_action('multi_dashboard/reorder', $base_dir . '/actions/multi_dashboard/reorder.php');
 }

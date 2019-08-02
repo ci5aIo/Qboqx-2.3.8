@@ -62,7 +62,8 @@ function quebx_init() {
      $parsley_validation     = elgg_get_simplecache_url('js' , 'parsley.js');
      $moment_src             = elgg_get_simplecache_url('js' , 'moment.js');
      elgg_define_js('moment_js', ['src' => $moment_src,'exports' => 'moment',]);
-     $quebx_widgets_js       = elgg_get_simplecache_url('js' , 'quebx/space.q_widgets.js');
+// @EDIT - 2019-07-22 - SAJ - Draft - Disabled
+//      $quebx_widgets_js       = elgg_get_simplecache_url('js' , 'quebx/space.q_widgets.js');
      $jquery_dropdown_js     = 'mod/quebx/vendors/jquery/dropdown/jquery.dropdown.js';
      $qboqx_dropdown_js     = 'mod/quebx/views/default/js/quebx/qboqx.dropdown.js';
      $jquery_inputmask       = 'https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js';
@@ -114,7 +115,8 @@ function quebx_init() {
 //require
      elgg_require_js($infinite_scroll);
      elgg_require_js($quebx_js_framework);
-     elgg_require_js($quebx_widgets_js);
+// @EDIT - 2019-07-22 - SAJ - Draft - Disabled
+//      elgg_require_js($quebx_widgets_js);
 //     elgg_require_js('moment_js');
     
     // Added to set page header position to 'fixed';

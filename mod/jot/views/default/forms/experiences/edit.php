@@ -37,7 +37,7 @@ if (elgg_entity_exists($guid)){
     $aspect  = $jot->aspect ?: 'experience';                                    $display .= '38 $action: '.$action.'<br>30 $aspect: '.$aspect.'<br>30 $section: '.$section.'<br>';
 }
 $container = get_entity($container_guid);
-echo "<!--action=$action, section=$section, snippet=$snippet-->";
+echo "<!--action=$action, presence=$presence, presentation=$presentation, section=$section, snippet=$snippet-->";
 
 if ($selected){
       $style = 'display: block';} 
@@ -66,9 +66,13 @@ Switch ($action){
              ****************************************/
             case 'main_xxx':
                 unset($form_body, $hidden, $buttons, $preloaded_panels);
+                Switch ($presentation){
+                    case 'pallet': $width_class = ''; break;
+                    default:       $width_class = 'width:510px;'; break;
+                }
                 $title              = elgg_extract('title', $vars, 'Experiences');
                 $title_field        = elgg_view("input/text"    , ["name" => "jot[$cid][title]"         , 'placeholder' => 'Give your experience a name', 'id'=>'title', 'data-parsley-required'=>'true']);
-                $description_field  = elgg_view("input/longtext", ["name" => "jot[$cid][description]"   , 'placeholder' => 'Describe the experience ...', 'style' => 'word-wrap: break-word; width:510px; height: 52px; margin-left: 0px; margin-right: 0px;', 'id' => $qid.'_description']);
+                $description_field  = elgg_view("input/longtext", ["name" => "jot[$cid][description]"   , 'placeholder' => 'Describe the experience ...', 'style' => "word-wrap: break-word; $width_class height: 52px; margin-left: 0px; margin-right: 0px;", 'id' => $qid.'_description']);
                 $moment_field       = elgg_view('input/date'    , ['name' => 'jot[$cid][moment]'        , 'placeholder' => $now->format('Y-m-d')        , 'style' => 'width:150px']);
             	$expansion          = ['section' => 'issue', 'visibility' => 'display:none', 'subtypes'=>['observation'], 'title'=>'Issue'];
             	
@@ -190,7 +194,7 @@ Switch ($action){
                                             data-anchored    = $anchor
                                             >
                                             <span class='AddSomethingButton__icon___h1-Z9ENT'></span>
-                                            <span class='AddSomethingButton__message___2vsNCBXi'>Add something new ...</span>
+                                            <span class='AddSomethingButton__message___2vsNCBXi'>Add something new</span>
                                         </div>";
                         break;
                     case 'things_used_view':
@@ -3854,7 +3858,7 @@ Switch ($section){
                                   'qid'           => $qid,
                                   'section'       => $view_section['section'],
                                   'visibility'    => $view_section['visibility'],
-//                                  'presentation'  => $presentation,
+                                  'presentation'  => $presentation,
                                   'presence'      => $presence,
                                   'expansion'     => $expansion,
                                   'action'        => $action,

@@ -24,9 +24,9 @@ $shelf          = elgg_extract('shelf'            , $vars);
 $n              = elgg_extract('n'                , $vars, 1);
 $boqx_cid       = elgg_extract('boqx_cid'         , $vars, false);
 //@TASK: Replace [transfer] with [$boqx_cid] 
-$parent_cid     = elgg_extract('parent_cid'       , $vars, quebx_new_cid ());
-$cid            = elgg_extract('cid'              , $vars, quebx_new_cid ());
-$qid            = elgg_extract('qid'              , $vars, $cid);
+$parent_cid     = elgg_extract('parent_cid'       , $vars, quebx_new_id ('c'));
+$cid            = elgg_extract('cid'              , $vars, quebx_new_id ('c'));
+$qid            = elgg_extract('qid'              , $vars, quebx_new_id ('q'));
 $qid_n          = elgg_extract('qid_n'            , $vars, $qid.'_'.$n);
 $presentation   = elgg_extract('presentation'     , $vars, 'full');                    $display       .= '$presentation='.$presentation.'<br>';
 $perspective    = elgg_extract('perspective'      , $vars, 'edit');                    $display       .= '$perspective='.$perspective.'<br>';
@@ -50,7 +50,7 @@ $transfer_vars['presentation'] = $presentation;
 $transfer_vars['transfer_guid']= $guid;
 $transfer_vars['exists']       = $exists;
 $transfer_vars['entity']       = $jot;
-echo "<!--perspective=$perspective, section=$section, snippet=$snippet-->";
+echo "<!--perspective=$perspective, presentation=$presentation, section=$section, snippet=$snippet-->";
 
 /******************************************************************************************************
  * 
@@ -187,10 +187,38 @@ Switch ($perspective){
                             'boqx_cid'          => $boqx_cid]);
                          break;
                     case 'contents_add':
+                        $experience_label = 'E';
+                        $issue_label      = 'I';
+                        $things_label     = 'T';
+                        $receipts_label   = 'R';
+                        $collection_label = 'C';
+                        $project_label    = 'P';
                         $form_body = "
-                             <div tabindex='0' class='AddSubresourceButton___S1LFUcMd' data-aid='TaskAdd' data-focus-id='TaskAdd' data-cid='$cid' data-guid='$guid'>
-                                 <span class='AddSubresourceButton__icon___h1-Z9ENT'></span>
-                                 <span class='AddSubresourceButton__message___2vsNCBXi'>Q New Things</span>
+                             <div tabindex='0' class='TaskAdd_uZhkkYv8' data-aid='TaskAdd' data-focus-id='TaskAdd' data-cid='$cid' data-guid='$guid'>
+                                 <div class='AddSubresourceButton___S1LFUcMd TaskAdd__labels_aytUtMoP'>
+                                     <span class='AddSubresourceButton__icon___h1-Z9ENT'></span>
+                                     <span class='AddSubresourceButton__message___2vsNCBXi'>New Q</span>
+                                 </div>
+                                 <nav class='TaskAdd__actions___q0FD6Iu9 undefined TaskAdd__actions--unfocused___mndgy2gB'>
+                                     <button class='IconButton___Mix9C5NO IconButton--small___xfAQtIvt' data-aid='things' aria-label='Things' data-cid='$cid' title='New Things'>
+                                        $things_label
+                                     </button>
+                                     <button class='IconButton___Mix9C5NO IconButton--small___xfAQtIvt' data-aid='receipts' aria-label='Receipts' data-cid='$cid' title='New Receipts'>
+                                        $receipts_label
+                                     </button>
+                                     <button class='IconButton___Mix9C5NO IconButton--small___xfAQtIvt' data-aid='collection' aria-label='Collection' data-cid='$cid' title='New Collection'>
+                                        $collection_label
+                                     </button>
+                                     <button class='IconButton___Mix9C5NO IconButton--small___xfAQtIvt' data-aid='experience' aria-label='Experience' data-cid='$cid' title='New Experience'>
+                                        $experience_label
+                                     </button>
+                                     <button class='IconButton___Mix9C5NO IconButton--small___xfAQtIvt' data-aid='project' aria-label='Project' data-cid='$cid' title='New Project'>
+                                        $project_label
+                                     </button>
+                                     <button class='IconButton___Mix9C5NO IconButton--small___xfAQtIvt' data-aid='issue' aria-label='Issue' data-cid='$cid' title='New Issue'>
+                                        $issue_label
+                                     </button>
+                                 </nav>
                              </div>";
                         break;
                     case 'contents_show':
@@ -198,7 +226,7 @@ Switch ($perspective){
                              <div class='EffortShow_haqOwGZY TaskShow___2LNLUMGe' data-aid='TaskShow' data-cid=$cid style='display:none' draggable='true'>
                                  <span class='TaskShow__title___O4DM7q tracker_markup section-add-boqx_contents-marker'></span>
                                  <nav class='TaskShow__actions___3dCdQMej undefined TaskShow__actions--unfocused___3SQSv294'>
-                                     <button class='IconButton___4wjSqnXU IconButton--small___3D375vVd' data-aid='delete' aria-label='Delete' data-cid='$cid'>
+                                     <button class='IconButton___4wjSqnXU IconButton--small___3D375vVd' data-aid='delete' aria-label='Delete' data-cid='$cid' title='Delete'>
                                      $delete
                                      </button>
                                  </nav>
@@ -209,6 +237,7 @@ Switch ($perspective){
                     case 'contents_edit':
                         $boqx_contents = elgg_view('forms/transfers/edit',[
                             'perspective'       => $perspective,
+                            'presentation'      => $presentation,
                             'section'           => $section,
                             'snippet'           =>'new_receipt',
                             'show_view_summary' => false,
@@ -312,7 +341,7 @@ Switch ($perspective){
                             $edit_details = elgg_view('output/div',['class'=>'story model item draggable feature unscheduled point_scale_linear estimate_-1 is_estimatable',
                                 'options'=> ['data-parent-cid'=>$parent_cid,'data-cid'=>$cid, 'data-qid'=>$qid],
                                 'content'=>$view_summary
-                                . elgg_view($form,['section'=>'things_bundle', 'perspective'=>'add', 'snippet'=>'marker', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'service_cid'=>$service_cid, 'qid'=>$qid, 'guid'=>$guid])]);
+                                . elgg_view($form,['section'=>'things_bundle', 'perspective'=>$perspective, 'presentation'=>$presentation, 'snippet'=>'marker', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'service_cid'=>$service_cid, 'qid'=>$qid, 'guid'=>$guid])]);
                             $story_model .= elgg_view('output/div',  ['class' =>'story model item pin',
                                                                       'options'=> ['parent_cid'=>$parent_cid,'data-cid'=>$cid, 'data-qid'=>$qid],
                                                                       'content'=>$hidden_fields.$edit_details]);
@@ -345,6 +374,7 @@ Switch ($perspective){
            case 'things_bundle':                                                             $display .= '320 things_bundle>$cid: '.$cid.'<br>588 things_bundle>$service_cid: '.$service_cid.'<br>';
                unset($form_body, $disabled, $hidden);
                $disabled = 'disabled';
+               
                $loose_things_panel  = elgg_view('forms/transfers/edit', array(
                            'perspective'    => $action,
                            'section'        => 'boqx_contents_loose_things',
@@ -355,10 +385,21 @@ Switch ($perspective){
                $receipts_panel  = elgg_view('forms/transfers/edit', array(
                            'perspective'    => $action,
                            'section'        => 'boqx_contents_receipt',
+//@todo: Move content to this section to facilitate the easier selection by other forms 
+//                           'section'        => 'boqx_contents',
+//                           'snippet'        => 'receipt',
 //                    	   'qid'            => $qid,
                		       'parent_cid'     => $cid,
                		       'n'              => $n,
                     	   'service_cid'    => $service_cid));
+               
+               $experience_panel  = elgg_view('forms/transfers/edit', array(
+                           'perspective'    => $action,
+                           'section'        => 'boqx_contents_experience',
+                    	   'guid'           => $guid,
+               		       'parent_cid'     => $cid,
+               		       'n'              => $n,));
+               
                 $books_panel  = elgg_view('forms/transfers/edit', array(
                            'perspective'    => $action,
                            'section'        => 'boqx_contents_books',
@@ -366,7 +407,12 @@ Switch ($perspective){
                		       'parent_cid'     => $cid,
                		       'n'              => $n,
                     	   'service_cid'    => $service_cid));
-                    
+                $contents_panel = "<section class='contents full'>
+		                              $loose_things_panel
+		                              $receipts_panel
+		                              $books_panel
+		                              $experience_panel
+		                           </section>";
             	$delete_button = "<label class=remove-card>". 
                             	    elgg_view('output/url', array(
                             	        'title'    =>'remove effort card',
@@ -394,53 +440,53 @@ Switch ($perspective){
             			                                  'options_values' =>['ordered'=>'Ordered','delivered'=>'Delivered','rejected'=>'Rejected','accepted'=>'Accepted']
             			                                 ]);
 */            	$marker_boqx_selector = "<div class='dropdown aspect' data-selector='boqx_aspect' data-cid='$cid'>  
-                    <input aria-hidden='true' type='hidden' name='jot[$cid][aspect]' value='0' data-type='number'>
-                  <a id='story_estimate_dropdown_$cid' class='selection item_0' tabindex='-1'><span>Normal</span></a>
+                    <input aria-hidden='true' type='hidden' name='jot[$cid][aspect]' value='things'>
+                  <a id='story_estimate_dropdown_$cid' class='selection item_0' tabindex='-1'><span>Things</span></a>
                   <a id='story_estimate_dropdown_{$cid}_arrow' class='arrow target' tabindex='-1'></a>
                   <section class='closed'>
                   <div class='dropdown_menu'>
                       <ul>
-                        <li data-value='0' data-index='1' class='dropdown_item' data-aspect='things'>
+                        <li data-value='things' data-index='1' class='dropdown_item' data-aspect='things'>
                             <a class='item_0' id='0_boqx_aspect_dropdown_$cid' href='#'>
                                 <span class='dropdown_label'>Things</span></a></li>
-                        <li data-value='1' data-index='2' class='dropdown_item' data-aspect='receipts'>
+                        <li data-value='receipts' data-index='2' class='dropdown_item' data-aspect='receipts'>
                             <a class='item_1' id='1_boqx_aspect_dropdown_$cid' href='#'>
                                 <span class='dropdown_label'>Receipts</span></a></li>
-                        <li data-value='2' data-index='3' class='dropdown_item' data-contents='collections'>
+                        <li data-value='collections' data-index='3' class='dropdown_item' data-contents='collections'>
                             <a class='item_2' id='2_boqx_aspect_dropdown_$cid' href='#'>
                                 <span class='dropdown_label'>Collection</span></a></li>
-                        <li data-value='3' data-index='4' class='dropdown_item' data-aspect='experience'>
+                        <li data-value='experience' data-index='4' class='dropdown_item' data-aspect='experience'>
                             <a class='item_3' id='3_boqx_aspect_dropdown_$cid' href='#'>
                                 <span class='dropdown_label'>Experience</span></a></li>
-                        <li data-value='4' data-index='5' class='dropdown_item' data-aspect='project'>
+                        <li data-value='project' data-index='5' class='dropdown_item' data-aspect='project'>
                             <a class='item_4' id='4_boqx_aspect_dropdown_$cid' href='#'>
                                 <span class='dropdown_label'>Project</span></a></li>
-                        <li data-value='5' data-index='6' class='dropdown_item' data-aspect='issue'>
+                        <li data-value='issue' data-index='6' class='dropdown_item' data-aspect='issue'>
                             <a class='item_5' id='5_boqx_aspect_dropdown_$cid' href='#'>
                                 <span class='dropdown_label'>Issue</span></a></li></ul>
                     </div>
                   </section>
                 </div>";
                 $marker_aspect_selector = "<div class='dropdown contents closed' data-contents='collections-$cid' data-cid='$cid'>  
-                    <input aria-hidden='true' type='hidden' name='jot[$cid][aspect2]' value='0' data-type='number'>
+                    <input aria-hidden='true' type='hidden' name='jot[$cid][aspect2]' value='0'>
                   <a id='story_estimate_dropdown_$cid' class='selection item_0' tabindex='-1'><span>Select ...</span></a>
                   <a id='story_estimate_dropdown_{$cid}_arrow' class='arrow target' tabindex='-1'></a>
                   <section>
                   <div class='dropdown_menu'>
                       <ul>
-                        <li data-value='10' data-index='11' class='dropdown_item' data-aspect='music_collection'>
+                        <li data-value='music' data-index='11' class='dropdown_item' data-aspect='music_collection'>
                             <a class='item_10' id='10_boqx_aspect2_dropdown_$cid' href='#'>
                                 <span class='dropdown_label'>Music Collection</span></a></li>
-                        <li data-value='11' data-index='12' class='dropdown_item' data-aspect='book_collection'>
+                        <li data-value='book' data-index='12' class='dropdown_item' data-aspect='book_collection'>
                             <a class='item_11' id='11_boqx_aspect2_dropdown_$cid' href='#'>
                                 <span class='dropdown_label'>Book Collection</span></a></li>
-                        <li data-value='12' data-index='13' class='dropdown_item' data-aspect='comic_book_collection'>
+                        <li data-value='comic_book' data-index='13' class='dropdown_item' data-aspect='comic_book_collection'>
                             <a class='item_12' id='12_boqx_aspect2_dropdown_$cid' href='#'>
                                 <span class='dropdown_label'>Comic Book Collection</span></a></li>
-                        <li data-value='13' data-index='14' class='dropdown_item' data-aspect='coin_collection'>
+                        <li data-value='coin' data-index='14' class='dropdown_item' data-aspect='coin_collection'>
                             <a class='item_13' id='13_boqx_aspect2_dropdown_$cid' href='#'>
                                 <span class='dropdown_label'>Coin Collection</span></a></li>
-                        <li data-value='14' data-index='15' class='dropdown_item' data-aspect='stamp_collection'>
+                        <li data-value='stamp' data-index='15' class='dropdown_item' data-aspect='stamp_collection'>
                             <a class='item_14' id='14_boqx_aspect2_dropdown_$cid' href='#'>
                                 <span class='dropdown_label'>Stamp Collection</span></a></li></ul>
                     </div>
@@ -470,7 +516,7 @@ Switch ($perspective){
 *add********** $section = 'boqx_contents'                *****************************************************************
                ****************************************/
              case 'boqx_contents':
-				$expander = elgg_view("output/url", [
+/*				$expander = elgg_view("output/url", [
                             'text'    => '',
                             'class'   => 'expander undraggable',							
                             'id'      => 'toggle_marker',
@@ -511,7 +557,7 @@ Switch ($perspective){
 	                    					'class'    => 'trigger-element add_marker',
 	                                        'tabindex' => '-1' 
 	                    					));
-				Switch ($snippet){
+*/				Switch ($snippet){
                /****************************************
 *add********** $section = 'boqx_contents' $snippet='items' *****************************************************************
                ****************************************/
@@ -656,6 +702,43 @@ Switch ($perspective){
 				                </div>";
              		    break;
                /****************************************
+*add********** $section = 'boqx_contents' $snippet='receipt' *****************************************************************
+               ****************************************/
+                        case 'receipt':
+                            $expander = elgg_view("output/url", [
+                                        'text'    => '',
+                                        'class'   => 'expander undraggable',							
+                                        'id'      => 'toggle_marker',
+            							'data-cid'=> $service_cid,
+                                        'tabindex'=> '-1',]);
+                        	$url = elgg_get_site_url().'jot';                                                        $display .= '4512 $effort->guid: '.$effort->guid.'<br>';
+                        	$marker_title = "<textarea data-aid='name' tabindex='0' data-focus-id='NameEdit--$service_cid' class='AutosizeTextarea__textarea___1LL2IPEy2 NameEdit___2W_xAa_R' name='jot[$parent_cid][$service_cid][title]' placeholder='Give this effort a name'></textarea>";
+                        	$marker_date_picker = elgg_view('input/date', ['name'  => "jot[$parent_cid][$service_cid][moment]", 'style'=>'width:75px; height: 20px;']);
+                        	$marker_type_selector = elgg_view_field(['#type'    =>'select',
+                        	                                         'name'    =>"jot[$parent_cid][$service_cid][type]",  
+                        			                                 'options_values' =>['investigation'=>'Investigation', 'repair'=>'Repair', 'test'=>'Test']
+                        	                                         ]);
+                        	$owner                 = get_entity($owner_guid ?: elgg_get_logged_in_user_guid());
+                        	$marker_work_order_no  = elgg_view_field(['#type'   => 'text',
+                        			                                  'name'    => "jot[$parent_cid][$service_cid][wo_no]"]);
+                        	$marker_participant_link     = elgg_view('output/div',['class'=>'dropdown', 
+                        			                                         'content' =>elgg_view('output/url',['class'=>'selection',
+            						            			                                 'href' => "profile/{$owner->username}",
+            						            			                                 'text' => elgg_view('output/span',['content'=>elgg_view('output/div',['class'=>'name', 'options'=>['style'=>'float:right'], 'content'=>$owner->name,]).
+            						            			                                 		                                       elgg_view('output/div',['class'=>'initials', 'options'=>['style'=>'float:right'], 'content'=>'SJ'])])])]);
+                        	$add_story_button = elgg_view('output/url', array(
+            	                                        'title'    => 'Add service effort',
+            	                		                'data-element' => 'new_service_effort',
+                        								'data-qid'     => $qid,
+                        								'data-cid'     => $service_cid,
+            	                    				    //'text'     => '+',
+            	                    					//'href'     => '#',
+            	                    					//'class'    => 'add-progress-marker addButton___3-z3g3BH',
+            	                    					'class'    => 'trigger-element add_marker',
+            	                                        'tabindex' => '-1' 
+            	                    					));
+                            break;
+               /****************************************
 *add********** $section = 'boqx_contents' $snippet='books' *****************************************************************
                ****************************************/
              		    case 'books':
@@ -676,7 +759,6 @@ Switch ($perspective){
 									  'parent_cid'  => $parent_cid, 
 									  'cid'         => $cid, 
 									  'n'           => $n,]);
-//        				$first_line_properties = elgg_view($view,['perspective'=>$perspective, 'section'=>'boqx_contents_receipt', 'snippet'=>'receipt_item_properties', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$cid, 'qid_n'=>$cid.'_'.$n, 'n'=>$n]);
         				$first_line_properties = elgg_view($view,['perspective'=>$perspective, 'section'=>'boqx_contents_books', 'snippet'=>'book_properties', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$cid, 'qid_n'=>$cid.'_'.$n, 'n'=>$n]);
         				$books_header_selector = elgg_view('output/span', [
                 		                                          'content'=> elgg_view('output/url', [
@@ -755,7 +837,8 @@ Switch ($perspective){
 *add********** $section = 'boqx_contents' $snippet= default *****************************************************************
                ****************************************/
              		    default:
-						$boqx_contents = elgg_view('forms/transfers/edit',[
+             		        
+/*						$boqx_contents = elgg_view('forms/transfers/edit',[
 	                                        'section'     => 'boqx_contents', 
                                             'action'      => $action, 
                                             'snippet'     => 'marker', 
@@ -765,7 +848,7 @@ Switch ($perspective){
                                             'service_cid' => $service_cid, 
                                             'qid'         => $qid, 
                                             'guid'        => $guid]);
-	                break;
+*/	                break;
 				}
 				break;
 				/****************************************
@@ -794,7 +877,7 @@ Switch ($perspective){
 *add********** $section = 'boqx_contents_receipt'         *****************************************************************
 				 ****************************************/
              case 'boqx_contents_receipt':
-				$expander = elgg_view("output/url", [
+/*				$expander = elgg_view("output/url", [
                             'text'    => '',
                             'class'   => 'expander undraggable',							
                             'id'      => 'toggle_marker',
@@ -826,6 +909,7 @@ Switch ($perspective){
 	                    					'class'    => 'trigger-element add_marker',
 	                                        'tabindex' => '-1' 
 	                    					));
+*/
              	switch ($snippet){
 				/****************************************
 *add********** $section = 'boqx_contents_receipt' $snippet='marker1' *****************************************************************
@@ -1144,26 +1228,26 @@ Switch ($perspective){
              	break;
              	
 				/****************************************
+*add********** $section = 'boqx_contents_experience'    *****************************************************************
+                ****************************************/
+            case 'boqx_contents_experience':
+			    $view = 'forms/experiences/edit';
+			    $body_vars = ['title'           => 'New Experience',
+            				  'qid'             => $qid,
+            				  'cid'             => $parent_cid,
+		                      'section'         => 'main_xxx',
+						      'selected'        => true,
+						      'presentation'    => $presentation,
+				              'perspective'     => $perspective,
+						      'action'          => $perspective,
+				];
+				$add_experience = elgg_view($view,$body_vars);
+				break;
+				/****************************************
 *add********** $section = 'boqx_contents_books'    *****************************************************************
                 ****************************************/
             case 'boqx_contents_books':
 				unset($edit_things, $view_things);
-            	$add_book_button = elgg_view('output/url', [
-	                                        'title'        => 'Add a book',
-	                		                'data-element' => 'new_item',
-            								'data-qid'     => $qid,
-            								'data-cid'     => $service_cid,
-	                    					'class'        => 'trigger-element add_marker',
-	                                        'tabindex'     => '-1' 
-	                    					]);
-			    $view = 'forms/transfers/edit';
-				$add_books = elgg_view($view,[ 
-										  'perspective' => $perspective,
-										  'section'     =>'boqx_contents', 
-										  'snippet'     =>'books',
-										  'effort'      => $effort,      
-										  'parent_cid'  => $parent_cid, 
-										  'n'           => $n,]);
 				switch($snippet){
 				/****************************************
 *add********** $section = 'boqx_contents_books' $snippet='marker1'***********
@@ -1175,32 +1259,36 @@ Switch ($perspective){
 *add********** $section = 'boqx_contents_books' $snippet='book_properties'***********
 				 ****************************************/
              	    case 'book_properties':
-					    $form_action = 'partials/jot_form_elements';
-					    $body_vars   = ['element'        => 'properties_receipt_item',
-	                                    'presentation'   => 'qboqx',
-					                    'aspect'         => $aspect,
-					                    'parent_cid'     => $parent_cid,
+				        $form_action = 'forms/market/profile';
+					    $body_vars   = ['presentation'   => 'qboqx',
+					                    'aspect'         => 'book',
+					                    'selected'       => 'title',
+	                                    'parent_cid'     => $parent_cid,
                                   	    'cid'            => $cid,
                                   	    'n'              => $n,
 					                    'data_prefix'    => "jot[$parent_cid][$cid][$n][",
 					                   ];
 					    $content = elgg_view($form_action,$body_vars);
-
-/*				        $form_action = 'forms/market/profile';
-					    $body_vars   = ['element'        => 'properties_book',
-	                                    'presentation'   => 'qboqx',
-					                    'parent_cid'     => $parent_cid,
-                                  	    'cid'            => $cid,
-                                  	    'n'              => $n,
-					                    'data_prefix'    => "jot[$parent_cid][$cid][$n][",
-					                   ];
-					    $content = elgg_view($form_action,$body_vars);
-*/             		    break;
+             		    break;
 				/****************************************
 *add********** $section = 'boqx_contents_books' $snippet = default ***********
 				 ****************************************/
              		    default:
 					    $view = 'forms/transfers/edit';
+					    $add_book_button = elgg_view('output/url', [
+    	                                          'title'       => 'Add a book',
+    	                		                  'data-element'=> 'new_item',
+                								  'data-qid'    => $qid,
+                							 	  'data-cid'    => $service_cid,
+    	                    					  'class'       => 'trigger-element add_marker',
+    	                                          'tabindex'    => '-1']);
+        				$add_books = elgg_view($view,[ 
+        										  'perspective' => $perspective,
+        										  'section'     =>'boqx_contents', 
+        										  'snippet'     =>'books',
+        										  'effort'      => $effort,      
+        										  'parent_cid'  => $parent_cid, 
+        										  'n'           => $n,]);        
 						$add_book = elgg_view($view,[ 
 												  'perspective' => $perspective,
 												  'section'     =>'boqx_contents_book', 
@@ -1446,7 +1534,12 @@ Switch ($perspective){
                		       'parent_cid'     => $cid,
                		       'n'              => $n,
                     	   'service_cid'    => $service_cid));
-                    
+                
+                $contents_panel = "<section class='contents full'>
+		                              $loose_things_panel
+		                              $receipts_panel
+		                              $books_panel
+		                           </section>";
             	$delete_button = "<label class=remove-card>". 
                             	    elgg_view('output/url', array(
                             	        'title'    =>'remove effort card',
@@ -2252,7 +2345,12 @@ Switch ($perspective){
                		       'parent_cid'     => $cid,
                		       'n'              => $n,
                     	   'service_cid'    => $service_cid));
-                    
+                
+                $contents_panel = "<section class='contents full'>
+		                              $loose_things_panel
+		                              $receipts_panel
+		                              $books_panel
+		                           </section>";    
             	$delete_button = "<label class=remove-card>". 
                             	    elgg_view('output/url', array(
                             	        'title'    =>'remove effort card',
@@ -2293,7 +2391,7 @@ Switch ($perspective){
 *view********** $section = 'boqx_contents'                *****************************************************************
                ****************************************/
              case 'boqx_contents':
-				$expander = elgg_view("output/url", [
+/*				$expander = elgg_view("output/url", [
                             'text'    => '',
                             'class'   => 'expander undraggable',							
                             'id'      => 'toggle_marker',
@@ -2334,7 +2432,7 @@ Switch ($perspective){
 	                    					'class'    => 'trigger-element add_marker',
 	                                        'tabindex' => '-1' 
 	                    					));
-				Switch ($snippet){
+*/				Switch ($snippet){
 				    case 'items':
 						$service_item_header_selector = elgg_view('output/span', ['content'=>
 					    								elgg_view('output/url', [
@@ -2874,6 +2972,22 @@ $section = 'things_boqx'              ******************************************
             case 'view_effort':
                 $form_body .= str_replace('__cid__', $cid, $story_model);
                 break;
+            case 'pallet':
+                $things_boqx = elgg_view('forms/transfers/edit',
+                   ['section'     => 'things_boqx',
+                    'perspective' => $perspective,
+                    'presentation'=> 'pallet',
+                    'snippet'     => 'contents_edit',
+                    'n'           => $n,
+                    'cid'         => $cid,
+                    'boqx_cid'    => $cid,
+                    'qid'         => $qid]);
+                $form_body .= "<div data-aid='Efforts' class='things-boqx-default' action ='$perspective'>
+                                    $hidden_fields
+                                    <span class='efforts-eggs' data-aid='effortCounts' $data_guid data-cid='$cid' data-qid='$qid'></span>
+                                    $things_boqx
+                               </div>";                                                                          $display .= '1076 $things_boqx-default ... <br>1076 $cid: '.$cid.'<br>1076 $service_cid: '.$service_cid;
+                break;
             default:
                 if (!$things_boqx)
                     break;
@@ -2893,6 +3007,15 @@ $section = 'things_bundle'              ****************************************
 			    switch($snippet){
             		case 'marker':
             			if ($disabled == 'disabled') $disabled_label = ' (disabled)';
+/*            			$label_card = elgg_view_layout('qbox',['content'=>elgg_view_module('info', null, elgg_view('forms/labels/add',['cid'=>$cid])),
+            			                                       'show_save'=>false,
+            			                                       'show_full_view'=>false,
+            			                                       'qid'=>"BoqxLabelsCard__{$cid}",]);
+*/            			$label_card = elgg_view_module('info', null, elgg_view('forms/labels/add',['cid'=>$cid]));
+                        $close_icon= elgg_view_icon('window-close',['title'=>'Close']);
+                        $close_button = "<a id='qboxClose' class='labelBoqxClose' data-cid='$cid' data-perspective='$perspective'>
+                                            $close_icon
+                                        </a>";
             			$form_body .= "	   	<div class='$perspective details things_bundle-marker expanded' data-cid='$cid' data-guid='$guid' data-qid='$qid' action='$action'>
 		    					                   <section class='edit' data-aid='StoryDetailsEdit' tabindex='-1'>
 		                                              <section class='model_details'>
@@ -2942,14 +3065,14 @@ $section = 'things_bundle'              ****************************************
 			                                                            $marker_date_picker
 			                                                         </div>
 			                                                       </div>
-    		                                                       <div class='requester row'>
+    		                                                       <div class='requester row closed'>
     		                                                         <em>Receiving Group</em>
     		                                                         <div class='dropdown story_org_id'>
     		                                                            <input aria-hidden='true' type='text' id='story_scribe_id_dropdown_$cid_honeypot' tabindex='0' class='honeypot'>
     		                                                            <a id='effort_org_id_dropdown_$cid' class='selection item_2936271' tabindex='-1'><span><div class='name'>??</div></span></a>
     		                                                         </div>
     		                                                       </div>
-    		                                                       <div class='participant row'>
+    		                                                       <div class='participant row closed'>
     		                                                         <em>Receiver</em>
     		                                                         <div class='story_participants'>
         		                                                          <input aria-hidden='true' type='text' id='story_participant_ids_$cid_honeypot' tabindex='0' class='honeypot'>
@@ -2958,26 +3081,58 @@ $section = 'things_bundle'              ****************************************
     		                                                         </div>
 			                                                       </div>
     		                                                       <div class='aspect row'>
-    		                                                          <em>Boqx Type</em>
+    		                                                          <em>Contents</em>
         		                                                      <div class='dropdown'>
-                                                                          <div class='boqx-selectors'>
+                                                                          <div class='contents-selectors'>
         		                                                            $marker_boqx_selector
         		                                                            $marker_aspect_selector
         		                                                          </div>
                                                                       </div>
+    		                                                       </div>
+    		                                                       <div class='aspect row'>
+    		                                                          <section class='labels_container full'>
+                                                                        <div id='story_labels_$cid' class='labels'>
+                                                                            <div class='StoryLabelsMaker___Lw8q4VmA'>
+                                                                                <h4>Labels</h4>
+                                                                                <div class='StoryLabelsMaker__container___2B23m_z1'>
+                                                                                    <div data-aid='StoryLabelsMaker__contentContainer' class='StoryLabelsMaker__contentContainer___3CvJ07iU'>
+                                                                                        <div class='LabelsSearch___2V7bl828' data-aid='LabelsSearch'>
+                                                                                            <div class='tn-text-input___1CFr3eiU LabelsSearch__container___kJAdoNya'>
+                                                                                                <div>
+                                                                                                    <input autocomplete='off' class='tn-text-input__field___3gLo07Il tn-text-input__field--medium___v3Ex3B7Z LabelsSearch__input___3BARDmFr' type='text' placeholder='new label' data-aid='LabelsSearch__input' data-focus-id='LabelsSearch--$cid' aria-label='Search for an existing label or type a new label' value=''></div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <a class='StoryLabelsMaker__arrow___OjD5Om2A' data-aid='StoryLabelsMaker__arrow' data-jq-dropdown='#BoqxLabelsCard__{$cid}' data-horizontal-offset='-260' data-vertical-offset='50'></a>
+                                                                                    </div>
+                                                                                    <div class='BoqxLabelsPicker__Vof1oGNB' data-cid='$cid'>
+                                                                                        <div id = 'BoqxLabelsCard__{$cid}' class='qbox-dropdown qbox-dropdown-tip_xxx qbox-dropdown-relative'>
+						                                                                    <div id='qboxContent'>
+                                                                                                <div class='qbox-dropdown-panel' style='width:450px;max-width:450px;display:flex;justify-content:flex-end;flex-flow:column nowrap;'>
+                                                                                                    <div style='text-align:right;'>
+                                                                                                        $close_button
+                                                                                                    </div>
+                                                                                                    <div style='border:1px solid lightgrey;'>
+                                                                                                        $label_card
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                      </section>
     		                                                       </div>
 		                                                        </div>
                                                               </div>
                                                             </div>
 		                                                </aside>
 		                                        	</section>
-		                                        	<section class='contents full'>
-		                                        	        $loose_things_panel
-		                                        	        $receipts_panel
-		                                        	        $books_panel
-		                                        	</section>
+                                                    $contents_panel
 		    					                 </section>
 		    					               </div>";
+/*                                                                                        
+*/        		                                                            
             			break;
             		case 'new_receipt':
             			$content   = elgg_view('forms/transfers/edit',[ 'action'            => $action,
@@ -3060,6 +3215,17 @@ $section = 'boqx_contents'                **************************************
 					    $form_body = $books_line_items;
 					    
 					    break;
+					case 'receipt':
+					    $form_body .= "<div class='boqx-contents receipts closed' data-aid='Receipts' data-cid='$parent_cid'>
+                                         <div data-aid='Tasks'>
+                                               $hidden_fields
+                							   <span class='receipts-count' data-aid='taskCounts' data-cid='$parent_cid'><h4>Receipts</h4></span>
+                						       $add_receipt
+    										   $edit_receipt
+    										   $view_receipt
+            						     </div>
+                                      </div>";   
+					    break;
 					default:
 						$form_body .= "<div data-aid='Efforts' class='boqx_contents-default' action ='$action'>
                 							$hidden_fields
@@ -3121,7 +3287,7 @@ $section = 'boqx_contents_receipt' $snippet = 'service_item_properties' 'receipt
 */                        $form_body = $content;
 						break;
 					default:
-						$form_body .= "<div class='boqx-contents receipts' data-aid='Receipts' data-cid='$parent_cid'>
+						$form_body .= "<div class='boqx-contents receipts closed' data-aid='Receipts' data-cid='$parent_cid'>
                                          <div data-aid='Tasks'>
                                                $hidden_fields
                 							   <span class='receipts-count' data-aid='taskCounts' data-cid='$parent_cid'><h4>Receipts</h4></span>
@@ -3135,21 +3301,30 @@ $section = 'boqx_contents_receipt' $snippet = 'service_item_properties' 'receipt
 	                                            	                                                          
 				break;
 /****************************************
-$section = 'boqx_contents_book'         *****************************************************************
+$section = 'boqx_contents_experience'    *****************************************************************
+****************************************/
+            case 'boqx_contents_experience':
+				$form_body .= "<div class='boqx-contents experience closed' data-aid='Experience' data-cid='$parent_cid'>
+                                  <div>
+                                       $hidden_fields
+        							   <span class='things-count' data-aid='thingCounts' data-cid='$parent_cid'><h4>Experience</h4></span>
+        						       $add_experience
+    								   $edit_experience
+    								   $view_experience
+    						      </div>
+                             </div>";
+				break;
+/****************************************
+$section = 'boqx_contents_books'         *****************************************************************
 ****************************************/
 			case 'boqx_contents_books':
 			    switch($snippet){
 			    case 'book_properties':
-/*					    $form_action = 'partials/jot_form_elements';
-					    $body_vars   = ['element'        => 'properties_receipt_item',
-	                                    'presentation'   => 'qboqx',
-					                    'parent_cid'     => $parent_cid,
-                                  	    'cid'            => $cid,
-                                  	    'n'              => $n,
-					                    'data_prefix'    => $data_prefix,
-					                   ];
-					    $content = elgg_view($form_action,$body_vars);
-*/                        $form_body = $content;
+                 $form_body .="<div id='{$cid}_{$n}' class='jq-dropdown jq-dropdown-tip jq-dropdown-relative'>
+                                    <div class='jq-dropdown-panel' style='max-width:400px'>
+                                       $content
+                                    </div>
+                               </div>";
 			        break;
 			    default:
 				$form_body .= "<div class='boqx-contents book_collection closed' data-aid='Book Collection' data-cid='$parent_cid'>
@@ -3166,7 +3341,7 @@ $section = 'boqx_contents_book'         ****************************************
 /****************************************
 $section = 'boqx_contents_comic_books'         *****************************************************************
 ****************************************/
-			case 'boqx_contents_comic_book':
+			case 'boqx_contents_comic_books':
 			    switch($snippet){
 			    case 'book_properties':
 			        $form_body = $content;

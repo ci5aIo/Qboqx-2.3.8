@@ -2,6 +2,7 @@
 
 namespace ColdTrick\WidgetManager;
 
+use Elgg\WidgetDefinition;
 class Widgets {
 	
 	/**
@@ -20,7 +21,7 @@ class Widgets {
 		}
 
 		if ((int) $object->access_id !== ACCESS_PRIVATE) {
-			return;	
+			return;
 		}
 
 		$owner = $object->getOwnerEntity();
@@ -35,35 +36,6 @@ class Widgets {
 			$object->save();
 		}
 		elgg_set_ignore_access($old_ia);
-	}
-
-	/**
-	 * Links a widget to a multidashboard
-	 *
-	 * @param string $event       name of the system event
-	 * @param string $object_type type of the event
-	 * @param mixed  $object      object related to the event
-	 *
-	 * @return void
-	 */
-	public static function linkWidgetToMultiDashboard($event, $object_type, $object) {
-	
-		if (!elgg_instanceof($object, 'object', 'widget', 'ElggWidget')) {
-			return;
-		}
-
-		$dashboard_guid = get_input('multi_dashboard_guid');
-		if (empty($dashboard_guid) || !widget_manager_multi_dashboard_enabled()) {
-			return;
-		}
-	
-		$dashboard = get_entity($dashboard_guid);
-		if (!elgg_instanceof($dashboard, 'object', \MultiDashboard::SUBTYPE, 'MultiDashboard')) {
-			return;
-		}
-	
-		// Adds a relation between a widget and a multidashboard object
-		add_entity_relationship($object->getGUID(), \MultiDashboard::WIDGET_RELATIONSHIP, $dashboard->getGUID());
 	}
 	
 	/**
@@ -102,63 +74,120 @@ class Widgets {
 	}
 	
 	/**
-	 * Function that unregisters html validation for admins to be able to save freehtml widgets with special html
-	 *
-	 * @param string $hook_name    name of the hook
-	 * @param string $entity_type  type of the hook
-	 * @param string $return_value current return value
-	 * @param array  $params       hook parameters
-	 *
-	 * @return void
-	 */
-	public static function disableFreeHTMLInputFilter($hook_name, $entity_type, $return_value, $params) {
-		if (!elgg_is_admin_logged_in()) {
-			return;
-		}
-		
-		if (elgg_get_plugin_setting('disable_free_html_filter', 'widget_manager') !== 'yes') {
-			return;
-		}
-		
-		$guid = get_input('guid');
-		$widget = get_entity($guid);
-
-		if (!($widget instanceof \ElggWidget)) {
-			return;
-		}
-
-		if ($widget->handler !== 'free_html') {
-			return;
-		}
-			
-		$advanced_context = elgg_trigger_plugin_hook('advanced_context', 'widget_manager', ['entity' => $widget], ['index']);
-			
-		if (is_array($advanced_context) && in_array($widget->context, $advanced_context)) {
-			elgg_unregister_plugin_hook_handler('validate', 'input', 'htmlawed_filter_tags');
-		}
-	}
-	
-	/**
-	 * Returns an array of cacheable widget handlers
+	 * Adds index widget handlers as allowed handlers to the extra context handlers
 	 *
 	 * @param string $hook_name    name of the hook
 	 * @param string $entity_type  type of the hook
 	 * @param bool   $return_value current return value
 	 * @param array  $params       hook parameters
 	 *
-	 * @return bool
+	 * @return void
 	 */
-	public static function getCacheableWidgets($hook_name, $entity_type, $return_value, $params) {
-	
-		if (!is_array($return_value)) {
-			return $return_value;
+	public static function addExtraContextsWidgets($hook_name, $entity_type, $return_value, $params) {
+		$context = elgg_extract('context', $params);
+		if (!widget_manager_is_extra_context($context)) {
+			return;
 		}
+		
+		foreach ($return_value as $id => $widget_definition) {
+			if (!in_array('index', $widget_definition->context)) {
+				continue;
+			}
+			
+			if (!in_array($context, $widget_definition->context)) {
+				$widget_definition->context[] = $context;
+			}
+			
+			$return_value[$id] = $widget_definition;
+		}
+		
+		return $return_value;
+	}
 	
-		$return_value[] = 'iframe';
-		$return_value[] = 'free_html';
-		$return_value[] = 'image_slider';
-		$return_value[] = 'twitter_search';
+	/**
+	 * Changes widgets registered for the all context to be explictly registered for 'profile' and 'dashboard'
+	 *
+	 * @param string $hook_name    name of the hook
+	 * @param string $entity_type  type of the hook
+	 * @param bool   $return_value current return value
+	 * @param array  $params       hook parameters
+	 *
+	 * @return void
+	 */
+	public static function fixAllContext($hook_name, $entity_type, $return_value, $params) {
+		foreach ($return_value as $id => $widget_definition) {
+			if (!in_array('all', $widget_definition->context)) {
+				continue;
+			}
+			
+			if (!in_array('profile', $widget_definition->context)) {
+				$widget_definition->context[] = 'profile';
+			}
+			
+			if (!in_array('dashboard', $widget_definition->context)) {
+				$widget_definition->context[] = 'dashboard';
+			}
+			
+			$return_value[$id] = $widget_definition;
+		}
+		
+		return $return_value;
+	}
 	
+	/**
+	 * Applies the saved widgets config
+	 *
+	 * @param string $hook_name    name of the hook
+	 * @param string $entity_type  type of the hook
+	 * @param bool   $return_value current return value
+	 * @param array  $params       hook parameters
+	 *
+	 * @return void
+	 */
+	public static function applyWidgetsConfig($hook_name, $entity_type, $return_value, $params) {
+		foreach ($return_value as $id => $widget_definition) {
+			$widget_config = widget_manager_get_widget_setting($widget_definition->id, 'all');
+			if (empty($widget_config)) {
+				continue;
+			}
+			
+			if (!isset($widget_definition->originals)) {
+				$widget_definition->originals = [
+					'multiple' => $widget_definition->multiple,
+					'context' => $widget_definition->context,
+				];
+			}
+			
+			// fix multiple
+			if (isset($widget_config['multiple'])) {
+				$widget_definition->multiple = (bool) elgg_extract('multiple', $widget_config);
+			}
+			
+			// fix contexts
+			$contexts = elgg_extract('contexts', $widget_config);
+			if (!empty($contexts)) {
+				foreach ($contexts as $context => $context_config) {
+					if (!isset($context_config['enabled'])) {
+						continue;
+					}
+					
+					$enabled = elgg_extract('enabled', $context_config);
+					$existing_key = array_search($context, $widget_definition->context);
+					if ($existing_key !== false) {
+						// already existing in default contexts
+						if (!$enabled) {
+							// remove if disabled in config
+							unset($widget_definition->context[$existing_key]);
+						}
+					} elseif ($enabled) {
+						// add if not existing
+						$widget_definition->context[] = $context;
+					}
+				}
+				$return_value[$id] = $widget_definition;
+			}
+		}
+		
 		return $return_value;
 	}
 }

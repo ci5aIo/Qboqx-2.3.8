@@ -1,6 +1,57 @@
 Version history
 ===============
 
+8.3.2 (2018-10-04):
+
+- changed: fallback logic for widget setting
+
+8.3.1 (2018-06-28):
+
+- changed: group tool widgets are less persistent
+
+8.3 (2018-06-15):
+
+- added: plugin setting to allow normal users to manage index widgets
+
+8.2.2 (2018-03-28):
+
+- fix: memcache could contain the incorrect entity class for new widgets
+
+8.2.1.1 (2018-03-22):
+
+- several small chores/fixes
+
+8.2.1 (2018-03-22):
+
+- changed: override getContext to be able to use cache
+
+8.2 (2017-11-15):
+
+- added: widget collapse capability is now hookable
+
+8.1 (2017-10-19):
+
+- changed: allow to set a custom more link on every widget on all contexts
+- changed: use elgg_view_field function for widget form fields
+
+8.0 (2017-02-27):
+
+- changed: updated min requirements to Elgg 2.3
+
+7.0.1 (2016-10-27):
+
+- fixed: it was not possible to add widgets to extra widgets pages
+- fixed: widget default collapsed state correctly set for logged out user
+
+7.0 (2016-10-06):
+
+- added: new way of widget management with ability to change contexts
+- changed: refactored widget object view
+- fixed: replace usage of deprecated elgg.ui.widgets.add
+- fixed: require correct Elgg version for elgg/widgets AMD module
+- removed: moved multi_dashboard features to own plugin
+- removed: moved widgets to a separate widget_pack plugin
+
 6.2.1 (2016-08-26):
 
 - fixed: php notice when page already routed

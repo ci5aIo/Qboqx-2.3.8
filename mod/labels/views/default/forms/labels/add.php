@@ -52,6 +52,7 @@ $body = "<div class='row clearfix $class_show'>";
     			        .elgg_view('input/checkbox', $current_labels)
     			        ."<label for=\"rtag{$collection->id}\">" . $collection->string . "</label>
                     </div>";
+			
 		}
 	}
 $body .= '</div>';
@@ -68,7 +69,6 @@ $body .= elgg_view('input/text', array(
 */
 
 if ($collections) {
-	$body .= "<div class='row clearfix $class_pick'>";
 	foreach ($collections as $collection) {
 	    unset($checkbox_options, $id);
 	    $id=quebx_new_id();
@@ -86,16 +86,28 @@ if ($collections) {
 //			$checkbox_options['checked'] = 'checked';
 //		}
 		
-		$body .= "<div class=\"elgg-col elgg-col-1of3\">
+/*		$body .= "<div class=\"elgg-col elgg-col-1of3\">
                     <div class='SmartListSelector__child___zbvaMzth'>
                         <div class='LabelDropdownItem___3IFJX-oo' data-scroll-id = 'LabelDropdownItem--c{$id}' data-cid='c{$id}' data-aid ='LabelDropdownItem--{$collection->string}'>"
 //    			        .elgg_view('input/checkbox', $checkbox_options)
     			        ."<label for=\"rtag{$id}\">" . $collection->string . "</label>
                         </div>
                     </div>
-                  </div>";
+                  </div>";*/
+    			        
+    	$label_options .= elgg_format_element('div',['class'=>'SmartListSelector__child___zbvaMzth'],
+    	                elgg_format_element('div', ['class'=>'LabelDropdownItem___3IFJX-oo',
+    	                                            'data-scroll-id' => "LabelDropdownItem--c{$id}",
+    	                                            'data-cid'=>"c{$id}",
+    	                                            'data-aid' =>"LabelDropdownItem--{$collection->string}"],
+    	                   elgg_format_element('label',['for'=>"rtag{$id}"],
+    	                                               $collection->string
+    	         )));
+	   }
 	}
-	}
-	$body .= '</div><br>';
+	$body = elgg_format_element('div', ['id'             =>'label_manager_labels_select',
+	                                    'class'          =>"clearfix BoqxLabelsPick__ThUG84u6",
+                                        'data-scrollable'=>"true"] 
+	                                 , $label_options);
 }
 echo $body;

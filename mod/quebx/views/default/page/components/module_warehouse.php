@@ -12,9 +12,9 @@
  * @uses $vars['id']           Optional id for module
  * @uses $vars['show_inner']   Optional flag to leave out inner div (default: false)
  */
-$type = elgg_extract('type', $vars, false);
+$type = elgg_extract('type', $vars, false);                                                        $display .= 'quebx/views/default/page/components/module_warehouse.php<br>';
 $title = elgg_extract('title', $vars, '');
-$body = elgg_extract('body', $vars, '');
+$body = elgg_extract('body', $vars, '');                                                           $display.='$body is '.strlen($body).' characters long<br>';
 $footer = elgg_extract('footer', $vars, '');
 $show_inner = elgg_extract('show_inner', $vars, false);
 
@@ -53,3 +53,4 @@ if ($show_inner) {
 }
 
 echo elgg_format_element('div', $attrs, $contents);
+//register_error($display);

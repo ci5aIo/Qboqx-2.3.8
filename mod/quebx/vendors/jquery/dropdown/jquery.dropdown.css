@@ -110,6 +110,19 @@ table.ledger .jq-dropdown {
     color: inherit;
     cursor: none;
 }
+.qboqx-pallet.jq-dropdown.jq-dropdown-tip:before {
+  left: 90px;
+}
+.qboqx-pallet.jq-dropdown.jq-dropdown-tip:after {
+  left: 91px;
+}
+.qboqx-pallet-receipt.jq-dropdown.jq-dropdown-tip:before {
+  left: 138px;
+}
+.qboqx-pallet-receipt.jq-dropdown.jq-dropdown-tip:after {
+  left: 139px;
+}
+
 .qbox-dropdown {
   position: absolute;
   z-index: 1039;

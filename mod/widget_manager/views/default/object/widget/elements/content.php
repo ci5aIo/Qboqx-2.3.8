@@ -1,5 +1,6 @@
+<!-- object/widget/elements/content.php  -->
 <?php
-
+                                                                                                $display.='path: object/widget/elements/content.php<br>';
 // don't show content for default widgets
 if (elgg_in_context('default_widgets')) {
 	return;
@@ -10,7 +11,7 @@ if (!elgg_instanceof($widget, 'object', 'widget')) {
 	return;
 }
 
-$handler = $widget->handler;
+$handler = $widget->handler;                                                                    $display .= '$handler: '.$handler.'<br>';
 $cacheable = widget_manager_is_cacheable_widget($widget);
 
 if ($cacheable) {
@@ -21,7 +22,7 @@ if ($cacheable) {
 	}
 }
 
-if (elgg_view_exists("widgets/$handler/content")) {
+if (elgg_view_exists("widgets/$handler/content")) {                                            $display .= "widgets/$handler/content exists<br>";
 	$content = elgg_view("widgets/$handler/content", $vars);
 } else {
 	$content = elgg_view_deprecated("widgets/$handler/view", $vars, "Widgets use content as the display view", '1.8');
@@ -38,7 +39,7 @@ if ($custom_more_title && $custom_more_url) {
 	$content .= elgg_format_element('span', ['class' => 'elgg-widget-more'], $custom_more_link);
 }
 
-echo $content;
+echo $content;                                                                                 //register_error($display);
 
 if ($cacheable) {
 	// store for future use
