@@ -1,19 +1,13 @@
 <?php
 /**
- * Elgg Market Plugin
- * @package market
- * @license http://www.gnu.org/licenses/old-licenses/gpl-2.0.html GNU Public License version 2
- * @author slyhne
- * @copyright slyhne 2010-2011
- * @link www.zurf.dk/elgg
- * @version 1.8
+ * 
  */
 setlocale(LC_MONETARY, 'en_US');
 $wwwroot = elgg_get_config('wwwroot');
 //the page owner
 $owner = get_user($vars['entity']->owner_guid);
 
-//the number of transfers to display
+//the number of experiences to display
 $num = (int) $vars['entity']->num_display;
 if (!$num) {
 	$num = 0;
@@ -22,7 +16,7 @@ elgg_load_library('elgg:market');
 $dbprefix = elgg_get_config('dbprefix');
 $jot_options = [
 	'type' => 'object',
-    'subtype'=>'transfer', 
+    'subtype'=>'experience', 
 	'owner_guid' => $owner->guid, 
 	'order_by_metadata' => ['name'=>'moment',
 			                'direction'=>DESC,

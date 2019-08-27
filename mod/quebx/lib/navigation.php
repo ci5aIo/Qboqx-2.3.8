@@ -456,3 +456,24 @@ function quebx_get_filed_items ($category_guid, $params = array()) {
 
 	return elgg_get_entities_from_relationship($params);
 }
+function quebx_boqx_aspect_options($aspect){
+    switch($aspect){
+        case 'main':
+            $boqx_aspects[] = ['name'=>'things', 'value'=>'things', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'receipts', 'value'=>'receipts', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'collections', 'value'=>'collections', 'has_children'=>true];
+        	$boqx_aspects[] = ['name'=>'experience', 'value'=>'experience', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'project', 'value'=>'project', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'issue', 'value'=>'issue', 'has_children'=>false];
+        	break;
+        case 'collections':
+            $boqx_aspects[] = ['name'=>'music collection', 'value'=>'music_collection', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'book collection', 'value'=>'book_collection', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'comic book collection', 'value'=>'comic_book_collection', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'coin collection', 'value'=>'coin_collection', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'stamp collection', 'value'=>'stamp_collection', 'has_children'=>false];
+            break;
+        default:
+    }
+    return $boqx_aspects;
+}

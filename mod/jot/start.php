@@ -21,7 +21,7 @@ function jot_init() {
 	
     // Register libraries of helper functions
     elgg_register_library('elgg:jot', elgg_get_plugins_path() . 'jot/lib/jot.php');
-    elgg_register_library('elgg:jot:navigation', elgg_get_plugins_path() . 'jot/lib/navigation.php');
+    elgg_register_library('jot:navigation', elgg_get_plugins_path() . 'jot/lib/navigation.php');
     elgg_register_library('elgg:jot:issues', elgg_get_plugins_path() . 'jot/lib/issues.php');
     elgg_register_library('elgg:jot:observations', elgg_get_plugins_path() . 'jot/lib/observations.php');
     elgg_register_library('elgg:jot:insights', elgg_get_plugins_path() . 'jot/lib/insights.php');
@@ -281,7 +281,7 @@ function jot_init() {
 function jot_page_handler($page) {
 
      elgg_load_library('elgg:jot');
-     elgg_load_library('elgg:jot:navigation');
+     elgg_load_library('jot:navigation');
      elgg_load_library('elgg:jot:issues');
      elgg_load_library('elgg:jot:observations');
      elgg_load_library('elgg:jot:insights');

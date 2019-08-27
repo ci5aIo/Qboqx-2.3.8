@@ -48,8 +48,8 @@ $(document).ready(function(){
 			    $('a:visible.elgg-after').click();
 			  }
 			},1000);*/
-	$(document).on('click', 'span.elgg-child-menu-toggle', function(){
-		$(this).parent().children('ul.elgg-child-menu').toggle();
+	$(document).on('click', 'span.elgg-child-menu-toggle, span.CategoryDropdownMenu___fa7PcH7A', function(){
+		$(this).closest('.elgg-menu-parent').children('ul.elgg-child-menu').toggle();
 		$(this).children('span.collapse').toggle();
 		$(this).children('span.expand').toggle();
 	});
@@ -616,12 +616,15 @@ $(document).ready(function(){
     $(document).on("click", "a.collapser-effort", function(e) {
         e.preventDefault();
         var cid = $(this).attr("data-cid"),
-            show = true;
+            show = true
+            pallet = $(this).parents('.pallet');
         var name = $(this).parent().find("textarea[data-focus-id=NameEdit--"+cid+"]").val(),
-            state       = $(this).parents('.Effort__CPiu2C5N').attr('data-aid');
+            state       = $(this).parents('.Effort__CPiu2C5N').attr('data-aid')
+    	    stack   = pallet.find('.tn-pallet__stack');
         var $this_panel = $('.EffortEdit_fZJyC62e[data-cid='+cid+']');
         var $show_panel = $('.EffortShow_haqOwGZY[data-cid='+cid+']');
         var $add_panel  = $('.TaskAdd_uZhkkYv8[data-cid='+cid+']');
+        var $empty_boqx = stack.find('.empty-boqx');
         console.log('cid: '+cid);
         if(typeof name == 'undefined'){
             show = false;
@@ -642,18 +645,21 @@ $(document).ready(function(){
 	            }
 	            $show_panel.show();
 	            $this_panel.hide();
+                $empty_boqx.hide();
 	        }
 	        else {
 	            $add_panel.show();
 	            $this_panel.hide();
+                $empty_boqx.hide();
 	        }
         }
         else{                                        // state == 'view'
             $show_panel.show();
             $this_panel.hide();
+            $empty_boqx.hide();
         }
     });
-    $(".dropdown_menu .dropdown_item").on({
+    $(".weir_menu .pickItem__S1zeipik, .weir_selections .pickedItem__Dows8rhn").on({
        mouseenter: function(){
           $(this).addClass('hover');
        },
@@ -669,6 +675,24 @@ $(document).ready(function(){
       if (closed_state)                                              //allows menu toggling
           $(this).next(".dropdown section").removeClass('closed');
     });
+    $(document).on("click", "li.pickItem__S1zeipik", function(e) {
+       var value = $(this).data("value"),
+           label = $(this).find(".pickLabel__sdRC4Kf9").text(),
+           cid   = $(this).parents('.dropdown').data('cid'),
+           aspect= $(this).data('aspect'),
+           $menu = $(this).parents('.pickAspect__RFFo494j');
+       var $contents_section  = $('section.contents .boqx-contents.'+aspect+'[data-cid='+cid+']');
+       var has_children = $(this).hasClass('has_children');
+       
+       if (has_children) return;
+       
+       var has_aspect   = typeof(aspect) != 'undefined' ;
+       $(this).parents(".dropdown").children("input").attr("value", value);
+       $(this).parents(".dropdown").children("a.selection").children("span").text(label);
+       $menu.addClass('closed');
+       $('section.contents').children('.boqx-contents').addClass('closed');
+       $contents_section.removeClass('closed');
+    });    
     $(document).on("click", "li.dropdown_item", function(e) {
        var value = $(this).data("value"),
            label = $(this).find(".dropdown_label").text(),
@@ -868,7 +892,7 @@ $(document).ready(function(){
             $this_panel  = $boqx.children('.TaskEdit___1Xmiy6lz');
         var $show_panel  = $boqx.children('.TaskShow___2LNLUMGe');
         var $add_panel   = $boqx.children('.AddSubresourceButton___2PetQjcb');
-        if (fill_level == 'full'){
+        if (fill_level == 'full' || fill_level >= 3){
            $show_panel.show();
            $this_panel.hide();
         }
@@ -878,6 +902,34 @@ $(document).ready(function(){
          }
         
     });
+    $(document).on("click", "a.collapser-receipt-item", function(e) {
+        e.preventDefault();
+        var cid = $(this).attr("data-cid");
+        var $boqx = $(document).find('#'+cid);
+        var fill_level = $boqx.attr('boqx-fill-level'),
+            $this_panel  = $boqx.children('.ItemEdit___7asBc1YY');
+        var $show_panel  = $boqx.children('.ItemShow_Btc471up');
+        var $add_panel   = $boqx.children('.AddSubresourceButton___oKRbUbg6');
+        if (fill_level == 'full' || fill_level >= 3){
+           $show_panel.show();
+           $this_panel.hide();
+        }
+        else {
+           $add_panel.show();
+           $this_panel.hide();
+         }
+        
+    });
+    $(document).on('click', 'a.ItemEdit__showContainer', function(e){
+          var cid = $(this).data('cid');
+          $('.ItemEdit__descriptionContainer___Mr67pXjd.ItemEditContainer__'+cid).toggle();
+    });
+    $(document).on('focus', '.textContainer___2EcYJKlD', function(e){
+          $(this).addClass('textContainer--focused___3O2vB2yM');
+     });
+     $(document).on('blur', '.textContainer___2EcYJKlD', function(e){
+          $(this).removeClass('textContainer--focused___3O2vB2yM');
+     });
     $(document).on("click", ".DescriptionShow___3-QsNMNj", function(e) {
         e.preventDefault();
         var edit = $(this).next(".DescriptionEdit___1FO6wKeX");
@@ -888,6 +940,14 @@ $(document).ready(function(){
         $(this).hide();
         $(textarea).focus();
     });
+/*    $(document).on('blur', 'textarea.AutosizeTextarea__textarea___1LL2IPEy', function(){
+        contents = $(this).val();
+        this_container = $(this).parents('.DescriptionEdit___1FO6wKeX');
+        show_container =  $(this_container).parent().children('.DescriptionShow___3-QsNMNj');
+        $(show_container).text(contents)
+        $(show_container).show();
+        $(this_container).hide();
+    });*/
     $(document).on("click", ".ServiceShow___3-QsNMNj", function(e) {
         e.preventDefault();
         var edit = $(this).next(".ServiceEdit___1FO6wKeX");
@@ -919,6 +979,11 @@ $(document).ready(function(){
         var $cid = $(this).data('cid');
         $(this).hide();
         $('.TaskEdit___1Xmiy6lz[data-cid = '+$cid+']').show();
+    });
+    $(document).on('click', '.AddSubresourceButton___oKRbUbg6', function(){
+        var $cid = $(this).data('cid');
+        $(this).hide();
+        $('.ItemEdit___7asBc1YY[data-cid = '+$cid+']').show();
     });
     $(document).on('click', '.AddSubresourceButton___S1LFUcMd', function(){
         var $cid = $(this).parents('.TaskAdd_uZhkkYv8').data('cid');
@@ -1235,15 +1300,6 @@ $(document).ready(function(){
 		 	else            {$(save).removeAttr('disabled');
 	                         $(save).children('span.fa-check').attr('title','Save');}
         }
-    });
-    $(document).on('blur', 'textarea.AutosizeTextarea__textarea___1LL2IPEy', function(){
-        contents = $(this).val();
-        this_container = $(this).parents('.DescriptionEdit___1FO6wKeX');
-        show_container =  $(this_container).parent().children('.DescriptionShow___3-QsNMNj');
-        $(show_container).text(contents)
-        $(show_container).show();
-        $(this_container).hide();
-        
     });
     $(document).on("blur", "input:text.recipient_input", function(){
         var name = $(this).val();
@@ -1865,8 +1921,7 @@ $(document).ready(function(){
             sales_tax  = parseFloat($sales_tax.val()),
             subtotal,
             total;                                                          console.log('qid = '+qid); console.log('qid_n = '+qid_n);console.log('$qbox = ',$qbox);
-        var subtotal = 0;
-          
+        var subtotal = 0;          
         $('div.TaskEdit___1Xmiy6lz#'+qid).
            find("span.line_total_raw").
              each(function(){
@@ -1883,6 +1938,52 @@ $(document).ready(function(){
         $total_raw.text(total);                                            console.log('total = '+total);
        
 	});
+          
+     $(document).on('click', '.remove-receipt-item', function(e){
+          e.preventDefault();
+          // remove the node
+        var cid               = $(this).data('cid'),
+            parent_cid        = $(this).data('parent_cid'),
+            $service_item_add = $(this).parents('.rTable.receipt-line-items').find('a.new-item');
+         var item_rows         = $service_item_add.attr('data-rows');
+        var $qbox             = $(this).parents('div.TaskEdit___1Xmiy6lz'),
+            qid               = $(this).parents('div.TaskEdit___1Xmiy6lz').data('cid'),
+            element_type      = $(this).data('element');
+         $service_item_add.attr('data-rows', item_rows-1);
+          $('.rTableRow.service_item[data-qid='+qid_n+']').remove();
+         $('.ServiceEffort__26XCaBQk[data-qid='+qid_n+']').remove();
+         $('div.jq-dropdown#'+qid_n).remove();
+        // Recalculate the totals
+        var $sales_tax = $("input[name='jot[sales_tax]'][data-qid="+qid+"]")    || $("input[data-name='sales_tax'][data-qid="+qid+"]"),
+            $shipping  = $("input[name='jot[shipping_cost]'][data-qid="+qid+"]" || $("input[data-name='shipping_cost'][data-qid="+qid+"]")),
+            $subtotal  = $("span#"+qid+"_subtotal"),
+            $subtotal_raw  = $("span."+qid+"_subtotal"),
+            $total     = $("span#"+qid+"_total"),
+            $total_raw = $("span."+qid+"_total");
+            if (isNaN($sales_tax)) $sales_tax = $("input[data-name='sales_tax'][data-qid="+qid+"]");
+            if (isNaN($shipping))  $shipping  = $("input[data-name='shipping_cost'][data-qid="+qid+"]");
+        var shipping   = parseFloat($shipping.val()),
+            sales_tax  = parseFloat($sales_tax.val()),
+            subtotal,
+            total;                                                          console.log('qid = '+qid); console.log('qid_n = '+qid_n);console.log('$qbox = ',$qbox);
+        var subtotal = 0;          
+        $('div.TaskEdit___1Xmiy6lz#'+qid).
+           find("span.line_total_raw").
+             each(function(){
+               var value = $(this).text();                                      console.log('value: '+value);
+               if(!isNaN(value) && value.length>0)
+                    {subtotal += parseFloat(value);}
+             });
+		$subtotal.text(moneyFormat(subtotal));
+        $subtotal_raw.text(subtotal);
+        if(isNaN(shipping)  || shipping.length  == 0){shipping  = 0;}
+        if(isNaN(sales_tax) || sales_tax.length == 0){sales_tax = 0;}
+        total = subtotal+shipping+sales_tax;
+        $total.text(moneyFormat(total)); 
+        $total_raw.text(total);                                            console.log('total = '+total);
+       
+	});
+     
     $(document).on('click', '.remove-loose-thing, .remove-book', function(e){
           e.preventDefault();
           // remove the node
@@ -2317,10 +2418,7 @@ $(document).ready(function(){
 		var html = $('.individual_features1').html();
 		$(html).insertBefore('.new_individual_feature1');
 	});
-	$('.Description___3oUx83yQ').on('click', function(){
-		$(this).next('.DescriptionEdit___1FO6wKeX').show();
-		$(this).hide();
-	});
+
 };	
 
 /*  @TODO Figure out how to set this up correctly.

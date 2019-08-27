@@ -228,3 +228,19 @@ function jot_tabs($vars, $selected = 'summary') {
 	}
 	return $tabs;
 }
+function jot_boqx_aspect_options($aspect){
+    switch($aspect){
+        case 'main':
+            $boqx_aspects[] = ['name'=>'things', 'value'=>'things', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'receipts', 'value'=>'receipts', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'collections', 'value'=>'collections', 'has_children'=>true];
+        	$boqx_aspects[] = ['name'=>'experience', 'value'=>'experience', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'project', 'value'=>'project', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'issue', 'value'=>'issue', 'has_children'=>false];
+        	break;
+        case 'collections':
+            break;
+        default:
+    }
+    return $boqx_aspects;
+}

@@ -241,7 +241,7 @@ function quebx_display_child_nodes($options){
 function quebx_new_cid (){
     return 'c'.mt_rand(1,99999);
 }
-function quebx_new_id ($prefix){
+function quebx_new_id ($prefix=''){
     return $prefix.mt_rand(1,99999);
 }
 function quebx_initials ($string){

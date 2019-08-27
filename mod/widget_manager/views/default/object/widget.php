@@ -13,7 +13,7 @@ if (!elgg_instanceof($widget, 'object', 'widget')) {
 }
 //@EDIT 2019-06-22 - SAJ
 $class = elgg_extract('class', $vars);
-$body_class = elgg_extract('body_class', $vars, 'story model item draggable');
+$body_class = elgg_extract('body_class', $vars, 'full-pallet__stack');
 $module_type = elgg_extract('module_type', $vars);
 //$class = explode(' ', $class);
 if (!($widget instanceof WidgetManagerWidget)) {

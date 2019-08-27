@@ -19,27 +19,35 @@ if($numchars == ''){
 }
 $guid         = elgg_extract('guid', $vars, false);
 $entity       = elgg_extract('entity', $vars, false);
+$tags         = elgg_extract('markettags', $vars);
 $body         = $vars['marketbody'];
-$tags         = elgg_extract('markettags', $vars, $entity->gettags());
 $access_id    = $vars['access_id'];
-$model_no     = $entity->model_no;
-$serial_no    = $entity->serial_no;
 $entity_guid  = $guid;
 $asset_guid   = $guid;
-$owner = get_entity($entity->owner_guid);
 
 /****/
+$selected       = elgg_extract('selected'         , $vars, 'family');
+$space          = elgg_extract('space'            , $vars);
+$aspect         = elgg_extract('aspect'           , $vars);
 $perspective    = elgg_extract('perspective'      , $vars, 'edit');
 $section        = elgg_extract('section'          , $vars, 'main');
 $snippet        = elgg_extract('snippet'          , $vars);
+$presentation   = elgg_extract('presentation'     , $vars);
+$parent_cid     = elgg_extract('parent_cid'       , $vars, false);
+$cid            = elgg_extract('cid'              , $vars, quebx_new_id('c'));
+$qid            = elgg_extract('qid'              , $vars, quebx_new_id('q'));
 
+if ($entity){
+    $tags  = elgg_extract('markettags', $vars, $entity->gettags());
+    $owner = get_entity($entity->owner_guid);
+}
+    
 
-
-$family_values = item_prepare_form_vars(NULL,NULL,$entity);
-$entity_values = item_prepare_form_vars(NULL,NULL,$entity);
+$family_values = item_prepare_form_vars(NULL,NULL,$entity, null, null);
+$entity_values = item_prepare_form_vars(NULL,NULL,$entity, null, null);
 $values        = array_merge($family_values, $entity_values);
 foreach($values as $value=>$field){
-	$display .= $value.'=>'.$field.'<br>';
+//	$display .= $value.'=>'.$field.'<br>';
 }
 //$form .= $display;
 
@@ -54,7 +62,123 @@ Switch ($perspective){
  ****************************************/
     case 'add':
         switch ($section){
-            
+            case 'main':
+                $tabs[]=['title'=>'Family'     , 'aspect'=>'family'       , 'section'=>'us' , 'note'=>'Common characteristics'               , 'class'=>'qbox-q3', 'data-qid'=>"{$qid}_1", 'selected'=>$selected == 'family'];
+                $tabs[]=['title'=>'Individual' , 'aspect'=>'individual'   , 'section'=>'this' , 'note'=>'Characteristics unique to this item', 'class'=>'qbox-q3', 'data-qid'=>"{$qid}_2", 'selected'=>$selected == 'individual'];
+                $tabs[]=['title'=>'Receipt'    , 'aspect'=>'receipt'      , 'section'=>'get' , 'note'=>'Acquisition'                         , 'class'=>'qbox-q3', 'data-qid'=>"{$qid}_3", 'selected'=>$selected == 'receipt'];
+                $tabs[]=['title'=>'Gallery'    , 'aspect'=>'gallery'      , 'section'=>'pics', 'note'=>'Pictures'                            , 'class'=>'qbox-q3', 'data-qid'=>"{$qid}_4", 'selected'=>$selected == 'gallery'];
+                $tabs[]=['title'=>'Library'    , 'aspect'=>'library'      , 'section'=>'docs', 'note'=>'Documents'                           , 'class'=>'qbox-q3', 'data-qid'=>"{$qid}_5", 'selected'=>$selected == 'library'];
+                $panels[]=['aspect'=>'family'    , 'class'=>'option-panel family-option-panel'    , 'content'=> elgg_view("forms/market/edit/family"     , $vars)];
+                $panels[]=['aspect'=>'individual', 'class'=>'option-panel individual-option-panel', 'content'=> elgg_view("forms/market/edit/individual" , $vars)];
+                $panels[]=['aspect'=>'receipt'   , 'class'=>'option-panel receipt-option-panel'   , 'content'=> elgg_view("forms/market/edit/acquisition", $vars)];
+                $panels[]=['aspect'=>'gallery'   , 'class'=>'option-panel gallery-option-panel'   , 'content'=> elgg_view("forms/market/edit/gallery"    , $vars)];
+                $panels[]=['aspect'=>'library'   , 'class'=>'option-panel library-option-panel'   , 'content'=> elgg_view("forms/market/edit/library"    , $vars)];
+        
+                switch ($presentation){
+                    case 'pallet':
+                        unset($tabs, $panels);
+                    	$tabs[]=['title'=>'Family'     , 'aspect'=>'family'       , 'section'=>'us'  , 'note'=>'Common characteristics'              , 'class'=>'qbox-q3', 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'family'];
+                        $tabs[]=['title'=>'Individual' , 'aspect'=>'individual'   , 'section'=>'this', 'note'=>'Characteristics unique to this item' , 'class'=>'qbox-q3', 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'individual'];
+                        $tabs[]=['title'=>'Gallery'    , 'aspect'=>'gallery'      , 'section'=>'pics', 'note'=>'Pictures'                            , 'class'=>'qbox-q3', 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'gallery'];
+                        $tabs[]=['title'=>'Library'    , 'aspect'=>'library'      , 'section'=>'docs', 'note'=>'Documents'                           , 'class'=>'qbox-q3', 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'library'];
+                        
+/*                         * @uses array $vars['tabs'] A multi-dimensional array of tab entries in the format array(
+ * 	'text' => string, // The string between the <a></a> tags
+ * 	'href' => string, // URL for the link
+ * 	'class' => string  // Class of the li element
+ * 	'id' => string, // ID of the li element
+ * 	'selected' => bool // if this tab is currently selected (applied to li element)
+ * 	'link_class' => string, // Class to pass to the link
+ * 	'link_id' => string, // ID to pass to the link
+*/                        foreach($tabs as $key=>$tab){
+                            unset($content);
+                            $content = elgg_view("forms/market/edit", array_merge($vars, ['section'=>$tab['aspect'], 'parent_cid'=>$parent_cid]));                                     $display.="$tab[aspect] = ".$tab['aspect'].'<br>';
+                            $panels[] = ['aspect'=>$tab['aspect'], 'id'=>$tab['data-qid']    , 'class'=>"option-panel ".$tab['aspect']."-option-panel"    , 'content'=> $content];
+                        }
+//                         $panels[]=['aspect'=>'family'    , 'class'=>'option-panel family-option-panel'    , 'content'=> elgg_view("forms/market/edit", array_merge($vars, ['section'=>'family']))];
+//                         $panels[]=['aspect'=>'individual', 'class'=>'option-panel individual-option-panel', 'content'=> elgg_view("forms/market/edit", array_merge($vars, ['section'=>'individual']))];
+//                         $panels[]=['aspect'=>'gallery'   , 'class'=>'option-panel gallery-option-panel'   , 'content'=> elgg_view("forms/market/edit", array_merge($vars, ['section'=>'gallery']))];
+//                         $panels[]=['aspect'=>'library'   , 'class'=>'option-panel library-option-panel'   , 'content'=> elgg_view("forms/market/edit", array_merge($vars, ['section'=>'library']))];  
+                        break;
+                    default:
+                        break;
+                }
+                $nav['tabs']  = $tabs;
+                $nav['space'] = $space;
+                $nav['qid']   = $qid;
+                $nav['class'] ='quebx-tabs';
+                $navigation   = elgg_view('navigation/tabs_slide', $nav);
+                foreach($panels as $key=>$panel){
+                	$is_selected = $selected == $panel['aspect'];
+                	$class       = $panel['class'];
+            	    if ($is_selected) {
+            			$class .= ' qbox-state-selected';
+            		}
+                	$detail .= elgg_format_element('div',['id'=>$panel['id'], 'class'=>$class, 'parent_cid'=>$parent_cid], $panel['content']);
+                }
+                $details = elgg_format_element('div',['class'=>"qbox-details"], $detail);
+                $form    = $navigation.$details;
+                
+                break;
+            case 'profile':
+                
+                break;
+            case 'tabs':
+                
+                break;
+            case 'category':
+                
+                break;
+            case 'family':
+                unset($hidden, $hidden_fields);
+                $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
+                $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
+                $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $section    , 'data-focus-id' => "Aspect--{$cid}"];
+                $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => '0'         , 'data-focus-id' => "FillLevel--{$cid}"];
+                if (!empty($hidden)){                
+                    foreach($hidden as $key=>$field){
+                        $hidden_fields .= elgg_view('input/hidden', $field);}}
+                
+                $form = $hidden_fields.'family';
+                break;
+            case 'individual':
+                unset($hidden, $hidden_fields);
+                $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
+                $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
+                $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $section    , 'data-focus-id' => "Aspect--{$cid}"];
+                $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => '0'         , 'data-focus-id' => "FillLevel--{$cid}"];
+                if (!empty($hidden)){                
+                    foreach($hidden as $key=>$field){
+                        $hidden_fields .= elgg_view('input/hidden', $field);}}
+                
+                $form = $hidden_fields.'individual';
+                break;
+            case 'gallery':
+                unset($hidden, $hidden_fields);
+                $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
+                $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
+                $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $section    , 'data-focus-id' => "Aspect--{$cid}"];
+                $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => '0'         , 'data-focus-id' => "FillLevel--{$cid}"];
+                if (!empty($hidden)){                
+                    foreach($hidden as $key=>$field){
+                        $hidden_fields .= elgg_view('input/hidden', $field);}}
+                
+                $form = $hidden_fields.'gallery';
+                break;
+            case 'library':
+                unset($hidden, $hidden_fields);
+                $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
+                $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
+                $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $section    , 'data-focus-id' => "Aspect--{$cid}"];
+                $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => '0'         , 'data-focus-id' => "FillLevel--{$cid}"];
+                if (!empty($hidden)){                
+                    foreach($hidden as $key=>$field){
+                        $hidden_fields .= elgg_view('input/hidden', $field);}}
+                
+                $form = $hidden_fields.'library';
+                break;
+            default:
+                break;            
         }
         break;
     case 'edit':
@@ -759,3 +883,4 @@ Switch ($perspective){
     }
 }
 echo $form;
+//register_error($display);

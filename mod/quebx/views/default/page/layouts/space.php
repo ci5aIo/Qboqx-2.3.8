@@ -127,7 +127,8 @@ for ($column_index = 1; $column_index <= $num_pallets; $column_index++) {
         	                                      'id'            => 'slot_'.$column_index,
 	                                              'data-contents' => $panel_contents ?: 'open',
         	                                      'data-cid'      => $cid,
-        	                                      'style'         =>'width:375px;']
+        //	                                      'style'         =>'min-width:375px;',
+	                                             ]
         	                                    , $container_content);
 }
 

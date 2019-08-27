@@ -307,14 +307,8 @@ define(function(require) {
            $show_panel.find('.TaskShow__service_items___2wMiVig').html('<p>'+receipt_total+'</p>');
            $show_panel.show();
            $show_panel.find('button.IconButton___2y4Scyq6').show();
-           if (points > 0 && points < 3){
-        	   $boqx.attr('boqx-fill-level', 'partial');
-        	   $boqx.find('input[data-focus-id = "FillLevel--'+cid+'"]').val('partial');
-           }
-           if (points >= 3){
-        	   $boqx.attr('boqx-fill-level', 'full');
-        	   $boqx.find('input[data-focus-id="FillLevel--'+cid+'"]').val('full');
-           }
+    	   $boqx.attr('boqx-fill-level', points);
+    	   $boqx.find('input[data-focus-id = "FillLevel--'+cid+'"]').val(points);
            $this_panel.hide();
            if (state=='add'){
         	   $(this).attr('data-aid', 'saveReceiptButton');
@@ -339,7 +333,86 @@ define(function(require) {
        else {
            $add_panel.show();
            $this_panel.hide();
-           $boqx.attr('boqx-fill-level', 'empty');
+           $boqx.attr('boqx-fill-level', '0');
+       }
+   });
+   $(document).on('click', '.ReceiptItem__submit___u7pvMd9T', function(e){
+       e.preventDefault();
+       var cid          = $(this).attr("data-cid"),
+       	   parent_cid   = $(this).parents('.add.details').attr('data-cid'),
+           qid          = $(this).attr("data-qid"),
+           state        = $(this).attr('data-aid').replace('ReceiptButton',''),
+           egg          = $(this).hasClass('egg');
+       var service_items= $(this).parents('.ItemEdit__descriptionContainer___Mr67pXjd').find("a.new-item").attr('data-rows'),
+           show_merchant= true,
+           show_receipt = true;
+       var this_element = $(this),
+   	       $this_panel  = $(this).parents('.TaskEdit___1Xmiy6lz'),
+   	       $boqx        = $(this).parents('.ServiceEffort__26XCaBQk');
+       var $pallet      = $boqx.parent(),
+           $show_panel  = $boqx.find('.TaskShow___2LNLUMGe'),
+           $add_panel   = $boqx.find('.AddSubresourceButton___2PetQjcb'),
+           ajax         = new Ajax(),
+           new_cid      = "c"+Math.floor((Math.random()*999)+1),
+           property_element = 'properties_service_item'
+           points       = 0;
+       var eggs         = parseInt($('span.receipts-count[data-cid='+parent_cid+']').attr('eggs'), 10);
+       var receipt_name = $this_panel.find("textarea[data-focus-id=NameEdit--"+cid+"]").val() || '[no receipt name]',
+//           merchant     = $this_panel.find('h3.elgg-listing-summary-title').text() || $this_panel.find('input.elgg-input-group-picker').val(),
+           merchant     = $this_panel.find('ul.elgg-group-picker-list').children('li').find('.elgg-body').text() || $this_panel.find('input.elgg-input-group-picker').val() || '[no merchant selected]',
+           receipt_total= $this_panel.find('#'+cid+'_total').text() || '$0.00';
+           receipt_total_raw= $this_panel.find('.'+cid+'_total_raw').text();
+         if (typeof receipt_name  != 'undefined' && receipt_name.length  > 0) points++;
+         if (typeof merchant      != 'undefined' && merchant.length      > 0) points++;
+         if (typeof receipt_total != 'undefined' && receipt_total.length > 0 && parseFloat(receipt_total_raw)>0) points++;
+/*       if (typeof receipt_name  != 'undefined' && receipt_name.length  > 0 &&
+    	   typeof merchant      != 'undefined' && merchant.length      > 0 &&
+    	   typeof receipt_total != 'undefined' && receipt_total.length > 0 && parseFloat(receipt_total_raw)>0 )
+    	   show_receipt = true;
+       if (typeof merchant == 'undefined')
+           show_merchant    = false;
+*/       if (isNaN(eggs)){eggs = 0;}
+       console.log('cid: '+cid);
+       console.log('parent_cid: '+parent_cid);
+       console.log('receipt_name: '+receipt_name);
+       console.log('state: '+state);
+       console.log('merchant: '+merchant);
+       console.log('receipt_total: '+receipt_total);
+       console.log('points: '+points);
+       if (show_receipt){
+    	   //if (!show_merchant){merchant='No merchant selected';}
+           $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+receipt_name+'</p>');
+           $show_panel.find('.TaskShow__description___qpuz67f').html('<p>'+merchant+'</p>');
+           $show_panel.find('.TaskShow__service_items___2wMiVig').html('<p>'+receipt_total+'</p>');
+           $show_panel.show();
+           $show_panel.find('button.IconButton___2y4Scyq6').show();
+    	   $boqx.attr('boqx-fill-level', points);
+    	   $boqx.find('input[data-focus-id = "FillLevel--'+cid+'"]').val(points);
+           $this_panel.hide();
+           if (state=='add'){
+        	   $(this).attr('data-aid', 'saveReceiptButton');
+        	   $(this).html('Save');
+	           ajax.view('partials/jot_form_elements',{
+		    	   data: {
+		    		   element: 'new_receipt',
+		    		   cid: new_cid,
+		    		   parent_cid: parent_cid,
+		    		   qid: qid
+		    	   },
+		       }).done(function(output) {
+		    	   $pallet.append($(output));
+		       }).success(function(){
+		    	   if (egg){
+	                 	$('span.receipts-count[data-cid='+parent_cid+']').attr('eggs', ++eggs);
+	                 	$(this_element).removeClass('egg');
+	                 }
+		       });
+           }
+       }
+       else {
+           $add_panel.show();
+           $this_panel.hide();
+           $boqx.attr('boqx-fill-level', '0');
        }
    });
    $(document).on('click', '.BoqxShow__lsk3jlWE', function(e){
@@ -1516,8 +1589,10 @@ define(function(require) {
     	var empty_boqx = stack.find('.empty-boqx');
     	var boqx_exists = empty_boqx.length > 0;
     	//console.log('items_container: ',items_container);
-    	if (boqx_exists)
+    	if (boqx_exists){
+    		empty_boqx.show();
     		empty_boqx.find('.EffortEdit_fZJyC62e').show();
+    	}
     	else
 	    	ajax.view('partials/jot_form_elements',{
 	    	   data: {
@@ -1527,6 +1602,7 @@ define(function(require) {
 	    	   },
 		       }).done(function(output) {
 		    	   stack.prepend($(output)).find('.EffortEdit_fZJyC62e').show();
+		    	   stack.find('.empty-boqx').show();
 		       });
      });
 	   //Add a new label when one presses the 'comma' key
@@ -1566,6 +1642,106 @@ define(function(require) {
 			}).removeClass('label-hidden');
 		}
 	});
+    $(document).on('click', '.ItemEdit___7asBc1YY .controls___2K44hJCR .SMkCk__Button', function(e){
+    	var action      = $(this).data('aid'),
+    	    cid         = $(this).data('cid'),
+    	    boqx        = $(this).parents('.ItemEdit___7asBc1YY');
+    	var description = boqx.find('.AutosizeTextarea__container___31scfkZp textarea.tracker_markup').val();
+    	console.log('boqx: ',boqx);
+    	console.log('description: '+description);
+    	switch(action){
+    	   	case 'cancel':
+    	   		boqx.find('.AutosizeTextarea__container___31scfkZp textarea.tracker_markup').val('');
+    	   		boqx.find('.DescriptionShow___3-QsNMNj').html('');
+    	   		break;
+    	   	case 'save':
+    	   		boqx.find('.DescriptionShow___3-QsNMNj').html('<span class="tracker_markup"><p>'+description+'</p></span>');  
+    	   		break;  
+    	}
+   		boqx.find('.DescriptionEdit___1FO6wKeX').hide();
+   		boqx.find('.DescriptionShow___3-QsNMNj').show();
+    });
+    $(document).on('click', '.dropdown_item.has_children', function(e){
+    	var value = $(this).data('value'),
+    	    cid   = $(this).parents('.dropdown').data('cid');
+    	    compartment = $(this).closest('div'),
+    	    ajax   = new Ajax();
+    	ajax.view('partials/jot_form_elements',{
+	    	   data: {
+	    		 element       : 'dropdown_menu',
+	    		 cid           : cid,
+	    		 value         : value,
+	    	   },
+		       }).done(function(output) {
+		    	   compartment.append($(output));
+		       });
+    });
+    $(document).on("click", "li.pickItem__S1zeipik.has_children", function(e) {
+       var value = $(this).data("value"),
+           label = $(this).data('aspect'),
+           aspect= $(this).data('aspect'),
+           boqx  = $(this).parents('.compartmentBoqx__m2HVyVRp').data('boqx'),
+           menu_level = $(this).parents('.compartmentBoqx__m2HVyVRp').data('level'),
+           cid   = $(this).parents('.dropdown').data('cid'),
+           $menu = $(this).parents('.weir_menu'),
+           ajax  = new Ajax();
+       var $contents_section  = $('section.contents .boqx-contents.'+aspect+'[data-cid='+cid+']');
+       var has_children = $(this).hasClass('has_children');
+       var $selections  = $menu.children('.weir_selections').children('.selections'),
+            selector    = $menu.children('.weir_selections').children('.selector');
+       var crumb        = "<a class='pickedLink__elUW0FxF'><span class='pickedLabel__uNI8tKTa'>"+label+"</span></a>";
+       var crumb_level  = $selections.find('ul').length;
+       $(this).parents(".dropdown").children("input").attr("value", value);
+       $(this).parents(".dropdown").children("a.selection").children("span").text(label);
+       ajax.view('partials/jot_form_elements',{
+    	   data: {
+    		 element       : 'weir_menu',
+    		 cid           : cid,
+    		 value         : value,
+    		 menu_level    : menu_level+1,
+    	   },
+	       }).done(function(output) {
+	    	   $menu.children('.compartmentBoqx__m2HVyVRp').remove();
+	    	   $menu.append($(output));
+	       }).success(function(){
+	    	   if (crumb_level > 0)
+		    	   var last_label = $selections.find('ul')[crumb_level-1];
+		       if (typeof last_label == 'undefined') $selections.html("<ul class='pickedList__XR2j7lQP'><li class='pickedItem__Dows8rhn' data-value='"+value+"' data-aspect='"+aspect+"' data-boqx='"+boqx+"' data-level='"+menu_level+"'>"+crumb+"</li></ul>")
+		       else                                  $(last_label).children('li').append("<ul class='pickedList__XR2j7lQP'><li class='pickedItem__Dows8rhn' data-value='"+value+"' data-aspect='"+aspect+"' data-boqx='"+boqx+"' data-level='"+menu_level+"'>"+crumb+"</li></ul>");
+		       $(selector).attr('data-value', value);
+	       });
+    });
+    $(document).on("click", "li.pickedItem__Dows8rhn", function(e) {
+       var value = $(this).data("value"),
+           aspect= $(this).data('aspect'),
+           boqx  = $(this).data('boqx'),
+           pickedList = $(this).parent('.pickedList__XR2j7lQP'),
+           crumb_level = $(this).data('level');
+           cid   = $(this).parents('.dropdown').data('cid'),
+           $menu = $(this).parents('.weir_menu'),
+           $pickSection = $(this).parents('.pickAspect__RFFo494j'),
+           $pickedList  = $(this).parent('ul'), 
+           ajax  = new Ajax();
+       ajax.view('partials/jot_form_elements',{
+    	   data: {
+    		 element       : 'weir_menu',
+    		 cid           : cid,
+    		 value         : boqx,
+    		 menu_level    : crumb_level,
+    	   },
+	       }).done(function(output) {
+	    	   if (crumb_level > 1){
+		    	   $menu.children('.compartmentBoqx__m2HVyVRp').remove();
+		    	   $menu.append($(output));
+	    	   }
+	    	   else {
+	    		   $menu.remove();
+	    		   $pickSection.append($(output));
+	    	   }
+	       }).success(function() {
+	    	   $pickedList.remove();
+	       });
+    });
 });
 
 function filterList() {

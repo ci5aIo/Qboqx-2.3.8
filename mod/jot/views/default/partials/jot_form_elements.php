@@ -1192,7 +1192,7 @@ register_error($display);
         		 $body_vars['snippet'] = 'pallet';
         		 $body_vars['presentation'] = 'pallet';
         		 $form_version         = 'transfers/edit';
-            	 $action               = 'jot/edit_scratch2';
+            	 $action               = 'jot/edit_pallet';
                     
         		 break;
             case 'transfer':
@@ -1207,6 +1207,17 @@ register_error($display);
                       'enctype' => 'multipart/form-data', 
                       'action'  => "action/$action"];
         $form_body = elgg_format_element('div',['class'=>'empty-boqx'], elgg_view_form($form_version, $form_vars, $body_vars));
+	    break;
+	case 'weir_menu':
+	    $value = elgg_extract('value', $vars);
+        $options['aspects']    = quebx_boqx_aspect_options($value);// $boqx_aspects;//elgg_view('navigation/boqx_aspect_picker');
+        $options['aspect']     = $value;                     
+        $options['cid']        = elgg_extract('cid', $vars);
+        $options['menu_level'] = elgg_extract('menu_level', $vars, 1);
+        $options['boqx_class'] ='compartmentBoqx__m2HVyVRp';
+        $options['list_class'] ='pickList__q0EfbGIo';
+        $options['item_class'] ='pickItem__S1zeipik';
+        $form_body = elgg_view('navigation/weir_menu', $options);
 	    break;
 	default:
 	break;
