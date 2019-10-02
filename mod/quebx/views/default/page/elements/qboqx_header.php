@@ -14,8 +14,9 @@
  */
 /*$header_elements[] =['text'       => elgg_view('page/elements/header_logo', $vars),
                     'attributes' => ['class'=> '']];*/
+
+
 $placeholder_logo  = elgg_get_site_url().'mod/quebx/graphics/placeholder_logo.png';
-$header_elements[] = ['text'     => "<a href='/dashboard' aria-label='Dashboard' class='tc_header_item tc_header_logo' style='margin-right: 8px;'><img class='headerLogo__image' src='$placeholder_logo' alt='tracker logo'></a>",];
 $site = elgg_get_site_entity();
 $site_name = $site->name;
 $space_button = elgg_format_element('button',['aria-label'=>'Q:boqx  - Everything',
@@ -23,8 +24,6 @@ $space_button = elgg_format_element('button',['aria-label'=>'Q:boqx  - Everythin
                                               'class'=>'tc_projects_dropdown_link tc_context_name'],
                                              "<span class='tc_context_name'><span class='raw_context_name'>$site_name</span></span>");
 $space_menu = elgg_view('navigation/menu/space');
-$header_elements[] = ['text'       => elgg_format_element('div',[],$space_button.$space_menu),
-                      'attributes' => ['class'=> '']];
 
 // drop-down login
 //echo elgg_view('core/account/login_dropdown');
@@ -49,7 +48,70 @@ $user_menu =
                                                 'aria-label'=>'Profile Dropdown',
                                                 'type'=>'button'], 
                                             $user_tag));
+$bulk_actions =
+    elgg_format_element('div',['class'=>"selectedStoriesControls", 'data-aid'=>"SelectedStoriesControls"],
+		elgg_format_element('div',['class'=>"selectedStoriesControls__status"],
+			elgg_format_element('span',[],
+				elgg_format_element('span',['class'=>"selectedStoriesControls__counter"],'0')
+				.
+				elgg_format_element('span',['class'=>"selectedStoriesControls__counterLabel"],'story selected'))
+			.
+			elgg_format_element('button',['class'=>["selectedStoriesControls__button","selectedStoriesControls__button--deselectAll"],
+			                              'type'=>"button",
+										  'title'=>"Deselect all selected items",
+										  'data-aid'=>"BulkDeselect"],
+				elgg_format_element('span',[],'Deselect all')))
+		.
+		elgg_format_element('div',['class'=>"selectedStoriesControls__actions"],
+			elgg_format_element('a',['class'=>["selectedStoriesControls__button","selectedStoriesControls__button--label"],
+			                         'data-aid'=>"BulkLabels",
+									 'type'=>"button",
+									 'title'=>"Add/remove labels to/from selected items"],
+				elgg_format_element('span',[],'Label'))
+			.
+			elgg_format_element('a',['class'=>["selectedStoriesControls__button","selectedStoriesControls__button--move", "move"],
+			                         'data-aid'=>"MoveItems",
+									 'type'=>"button",
+									 'title'=>"Move selected items to another space"],
+				elgg_format_element('span',[],'Move'))
+			.
+			elgg_format_element('a',['class'=>["selectedStoriesControls__button","selectedStoriesControls__button--review"],
+			                         'data-aid'=>"BulkReviews",
+									 'type'=>"button",
+									 'title'=>"Add/remove reviews to/from selected items"],
+				elgg_format_element('span',[],'Review'))
+			.
+			elgg_format_element('button',['class'=>["selectedStoriesControls__button","selectedStoriesControls__button--clone","clone"],
+			                         'data-aid'=>"SelecteditemsControls__Clone",
+									 'type'=>"button",
+									 'title'=>"Clone selected items"],
+				elgg_format_element('span',[],'Clone'))
+			.
+			elgg_format_element('a',['class'=>["selectedStoriesControls__button","selectedStoriesControls__button--people"],],
+				elgg_format_element('div',['class'=>"DropdownButton__icon___1qwu3upG",
+				                           'data-aid'=>"bulkPeople",
+										   'tabindex'=>"0",
+										   'title'=>"Actions"],
+								    'People'))
+			.
+			elgg_format_element('button',['class'=>["selectedStoriesControls__button","selectedStoriesControls__button--csv","export_csv"],
+			                         'data-aid'=>"SelectedStoriesControls__Clone",
+									 'type'=>"button",
+									 'title'=>"Export selected items to CSV"],
+				elgg_format_element('span',[],'CSV'))
+			.
+			elgg_format_element('button',['class'=>["selectedStoriesControls__button"," selectedStoriesControls__button--delete","delete"],
+			                              'data-aid'=>'DeleteItems',
+										  'type' =>"button",
+										  'title'=>"Delete selected items"],
+				elgg_format_element('span',[],'Delete'))));
 
+$header_elements[] = ['text'     => "<a href='/dashboard' aria-label='Dashboard' class='tc_header_item tc_header_logo' style='margin-right: 8px;'><img class='headerLogo__image' src='$placeholder_logo' alt='tracker logo'></a>",
+                      'attributes'=>['class'=>'tc_page_nav_header']];
+$header_elements[] = ['text'       => elgg_format_element('div',[],$space_button.$space_menu),
+                      'attributes' => ['class'=> 'tc_page_nav_header']];
+$header_elements[] = ['text'       => $bulk_actions,
+                      'attributes' => ['class'=>'tc_page_bulk_header']];
 $header_elements[] = ['text'       => $user_menu,
                      'attributes' =>['class'=>'tc_pull_right tc_extra_wide']];
 $header_elements[] = ['text'      => "<div class='Dropdown _nCX4ioru__HelpDropdown__indicator--newHeader'>

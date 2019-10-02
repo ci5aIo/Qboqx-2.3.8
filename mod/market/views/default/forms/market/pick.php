@@ -1,4 +1,4 @@
-Form: market\views\default\forms\market\pick.php<br>
+<!-- Form: market\views\default\forms\market\pick.php -->
 <?php
 /**
  * QuebX pick item form
@@ -9,51 +9,42 @@ Form: market\views\default\forms\market\pick.php<br>
  	*  
  **/
 
-$access_id          = elgg_extract('access_id', $vars, ACCESS_PUBLIC);
-$guid               = elgg_extract('guid', $vars);
-$selected_item      = elgg_extract('item', $vars, false);
-$element_type       = elgg_extract('element_type', $vars);
-$elements           = elgg_extract('elements', $vars);
-$container_guid     = elgg_extract('container_guid', $vars);                           $display .= '$container_guid: '.$container_guid.'<br>';
-$container_type     = elgg_extract('container_type', $vars);
-$content_options    = elgg_extract('content_options', $vars);
-$origin             = elgg_extract('origin', $vars);
+$element_type       = elgg_extract('element_type'     , $vars);
+$container_guid     = elgg_extract('container_guid'   , $vars);                           $display .= '$container_guid: '.$container_guid.'<br>';
+$elements           = elgg_extract('elements'         , $vars);
+$access_id          = elgg_extract('access_id'        , $vars, ACCESS_PUBLIC);
+$guid               = elgg_extract('guid'             , $vars);
+$selected_item      = elgg_extract('item'             , $vars, false);
+$container_type     = elgg_extract('container_type'   , $vars);
+$content_options    = elgg_extract('content_options'  , $vars);
+$origin             = elgg_extract('origin'           , $vars);
+$presentation       = elgg_extract('presentation'     , $vars, 'full');                $display .= '$presentation='.$presentation.'<br>';
+
 $submit_label       = elgg_echo('Set');
 $owner              = elgg_get_page_owner_entity();
 $owner_guid         = $owner->guid;
+if (!$owner_guid) {
+	$owner_guid = elgg_get_logged_in_user_guid();
+}
+$this_container = get_entity($container_guid);
+$guid = $guid ?: $this_container->item_guid;
+
 if ($selected_item) {
 	$url = $selected_item->getURL();
     $display = '<br>$item_guid: '.$selected_item->getguid().'<br>';
 }
 if ($element_type == 'item'){$link_type = 'single';}
 if ($element_type == 'family_characteristics'){$link_type = 'multiple';}
-//if ($element_type == 'supplier'){$link_type = 'multiple';}
-$display .= '$guid: '.$guid.'<br>';
-$display .= '$url: '.$url.'<br>';
-$display .= '$element_type: '.$element_type.'<br>';
-$display .= '$container_guid: '.$container_guid.'<br>';
-$display .= '$container_type: '.$container_type.'<br>';
-
-if (!$owner_guid) {
-	$owner_guid = elgg_get_logged_in_user_guid();
-}
-$this_container = get_entity($container_guid);
-$display .= '$item_guid: '.$this_container->item_guid.'<br>';
-$guid = $guid ?: $this_container->item_guid;
-// $container_type = $container->getsubtype();
-/*
-elgg_register_library('elgg:containers', elgg_get_plugins_path() . 'market/lib/market.php');
-elgg_load_library('elgg:containers');
-echo elgg_dump($vars);
-*/
+                                                                                        $display .= '$guid: '.$guid.'<br>';
+                                                                                        $display .= '$url: '.$url.'<br>';
+                                                                                        $display .= '$element_type: '.$element_type.'<br>';
+                                                                                        $display .= '$container_guid: '.$container_guid.'<br>';
+                                                                                        $display .= '$container_type: '.$container_type.'<br>';
+                                                                                        $display .= '$item_guid: '.$this_container->item_guid.'<br>';
 elgg_load_css('jquery.treeview');
 
-if (!empty($elements)){
-	$containers = $elements;
-}
-else {
-	$containers = elgg_get_entities(array('type'=>'object','subtype'=>'market', 'owner_guid' => $owner_guid, ));
-}
+if ($elements) $containers = $elements;
+else           $containers = elgg_get_entities(array('type'=>'object','subtype'=>'market', 'owner_guid' => $owner_guid, ));
 
 // Experimental $images
 $images = elgg_list_entities(array(
@@ -118,7 +109,16 @@ foreach ($elements as $string){
 //	echo $string->characteristic_name.'<br>';
 }
 
+/******************************************************************************************************
+ * 
+ * Element Types
+ *
+*******************************************************************************************************/
+
 Switch ($element_type){
+/****************************************
+ * $element_type = 'item'                *****************************************************************************
+ ****************************************/
     case 'item':
         $title          = elgg_echo("Properties for receipt line");
 
@@ -127,12 +127,12 @@ Switch ($element_type){
     				'label'  => 'Pin to Timeline as',
     				'value'  => 1,
     		);
-    	if ($container->show_on_timeline == 1){$show_on_timeline_options[checked]= 'checked';}
+    	if ($this_container->show_on_timeline == 1){$show_on_timeline_options[checked]= 'checked';}
     	$show_on_timeline = elgg_view('input/checkbox', $show_on_timeline_options);
     
     	$timeline_label   = elgg_view('input/text', array(
     							'name' => 'pick[timeline_label]',
-    							'value' => $container->timeline_label,	
+    							'value' => $this_container->timeline_label,	
     							));
     	
     	$add_cost_to_que_options = array(
@@ -140,7 +140,7 @@ Switch ($element_type){
     				'label'  => 'Add cost to this que',
     				'value'  => 1,
     		);
-    	if ($container->add_cost_to_que == 1){$add_cost_to_que_options[checked] = 'checked';}
+    	if ($this_container->add_cost_to_que == 1){$add_cost_to_que_options[checked] = 'checked';}
     	$add_cost_to_que = elgg_view('input/checkbox', $add_cost_to_que_options);
     
     	$distribute_freight_options = array(
@@ -148,7 +148,7 @@ Switch ($element_type){
     				'label'  => 'Distribute shipping cost to this line item',
     				'value'  => 1,
     		);
-    	if ($container->distribute_freight == 1){$distribute_freight_options[checked] = 'checked';}
+    	if ($this_container->distribute_freight == 1){$distribute_freight_options[checked] = 'checked';}
     	$distribute_freight = elgg_view('input/checkbox',$distribute_freight_options);
     
     	$unpack_options = array(
@@ -156,30 +156,29 @@ Switch ($element_type){
     			'label'  => 'Unpack these items when I save this receipt',
     			'value'  => 1,
     	);
-    	if ($container->unpack == 1){
+    	if ($this_container->unpack == 1){
     			$unpack_options[checked] = 'checked';
     	}
     	$unpack = elgg_view('input/checkbox',$unpack_options);
     	
     	$params = array(
     			'name' => 'pick[que_contribution]',
-    			'value' => $container->que_contribution,
-    			'options_values' => array('purchase'    => 'Purchase',
-    							          'maintenance' => 'Maintenance',
-    							          'sales'       => 'Selling',
-    					                  'none'        => 'No que',
-     				                     ),
+    			'value' => $this_container->que_contribution,
+    			'options_values' => ['purchase'    => 'Purchase',
+							         'maintenance' => 'Maintenance',
+							         'sales'       => 'Selling',
+					                 'none'        => 'No que',],
     	);
     	
     	$que_options = elgg_view('input/dropdown', $params);
     	$link_type = elgg_view('input/dropdown',array(
     			'name'    => 'pick[link_type]',
-    			'value'   => $container->link_type,
+    			'value'   => $this_container->link_type,
     			'options' => array('pick link type ...', 'Part', 'Supply', 'Warranty'),
     	));
     	$label_toggle = elgg_view("input/radio", array(
     			"name" => 'pick[retain_line_label]',
-    			"value"=> $container->retain_line_label,
+    			"value"=> $this_container->retain_line_label,
     			"options" => array(
     					'Keep my label for this receipt line'                   => "yes",
     					'Create a new item from this receipt line'              => "create",
@@ -312,150 +311,178 @@ Switch ($element_type){
 			}
 		}
 	}
+
+    if ($containers) {
+        elgg_load_library('elgg:market');
+    	aasort($containers,"title");
+    	$sort_order = (int) '';
+    
+    	foreach ($containers as $container) {
+    			$sort_order = $sort_order + 1;
+    			$link = elgg_view('output/url', array(
+    			      'text' => $container['title'],
+    			      'href' =>  'market/view/'.$container['guid']));
+    				$input = elgg_view('input/checkbox', array(
+    						   'id'=>$container['guid'], 
+    						   'value'=>$container['guid'], 
+    						   ));
+    				if ($container['guid'] == $linked_item['guid']){
+    //					$input_radio = "<input type='radio' checked='checked' name='item_guid' value={$container['guid']}>$link</input>";
+    					$input_radio = '<input type="radio" checked="checked" name="item_guid" value='. $container['guid'].'>'.$container['title'];
+    				}
+    				else {
+    //					$input_radio = "<input type='radio' name='item_guid' value={$container['guid']}>$link</input>";
+    					$input_radio = '<input type="radio" name="item_guid" value='. $container['guid'].'>'.$container['title'];				
+    				}
+    			elgg_register_menu_item('containers_checkboxes', array(
+    				'name' => $container['guid'],
+    				'text' => $input.$container['title'],
+    				'href' => false,
+    				'parent_name' => $container['parent_guid'],
+    			));
+    			
+    			elgg_register_menu_item('containers_radio', array(
+    				'name' => $container['guid'],
+    				'text' => $input_radio,
+    				'href' => false,
+    				'parent_name' => $container['parent_guid'],
+    				'sort_order' => $sort_order,
+    			));
+    		}
+    	
+        	$content_checkbox = elgg_view_menu('containers_checkboxes', array('class' => 'containers-nav', 'sort_by' => 'sort_order'));
+        	if (!$content_checkbox) {
+        		$content_checkbox = '<p>' . elgg_echo('containers:none') . '</p>';
+        	}
+        	
+        	//echo elgg_view_module('aside', $title, $content);
+        	
+        	//$content_location = elgg_view_form('market/add/element', array("action" => "action/market/pick?element_type=item&item_guid=$item_guid&container_guid=$container_guid"));
+        	
+        	$content_radio = elgg_view_menu('containers_radio', array('class' => 'containers-nav', 'sort_by' => 'sort_order'));
+        	if (!$content_radio) {
+        		$content_radio = '<p>' . elgg_echo('containers:none') . '</p>';
+        	}
+        	
+        	//$content  = $content_location;
+        	//$content .= "<div class=\"elgg-col elgg-col-1of3\">";
+        	$shelf_link = elgg_view('output/url', array('text'=>'shelf', 'href'=>"shelf"));
+        	$shelf_link = "<span title='Set on the shelf to appear in this list'>$shelf_link</span>";
+        	if ($link_type == 'single'){
+        		$content  = "Linked item on $shelf_link:<br>";
+        		$content .= $content_radio;
+        	}
+        	if ($link_type == 'multiple'){
+        		$content  = "Linked items on $shelf_link:<br>";
+        		$content .= $content_checkbox;
+        	}
+        	
+        	//echo elgg_view_module('aside', $title, $content);
+        	
+        	?>
+        	<script>
+        	require(['jquery', 'jquery.treeview'], function($) {
+        		$(function() {
+        			$(".containers-nav").treeview({
+        				persist: "location",
+        				collapsed: false,
+        				unique: true
+        			});
+        	
+        	<?php if ($selected_container) { ?>
+        			// if in a container, we need to manually select the correct menu item
+        			// code taken from the jquery.treeview library
+        			var current = $(".containers-nav a[href='<?php echo $url; ?>']");
+        			var items = current.addClass("selected").parents("ul, li").add( current.next() ).show();
+        			var CLASSES = $.treeview.classes;
+        			items.filter("li")
+        				.swapClass( CLASSES.collapsable, CLASSES.expandable )
+        				.swapClass( CLASSES.lastCollapsable, CLASSES.lastExpandable )
+        					.find(">.hitarea")
+        						.swapClass( CLASSES.collapsableHitarea, CLASSES.expandableHitarea )
+        						.swapClass( CLASSES.lastCollapsableHitarea, CLASSES.lastExpandableHitarea );
+        	<?php } ?>
+        		});
+        	});
+        	</script>
+        	<?php
+        
+        //echo $display;
+        foreach($hidden_fields as $name => $value){
+            echo elgg_view('input/hidden', array('name' => $name, 'value' => $value));
+        }
+/*        echo $content_options;
+        echo '<div>';
+        echo elgg_view_module('aside', $title, $content);
+        echo elgg_view('input/submit', array('value' => $submit_label)).'</p>';
+        echo '</div>';*/
+        $form_body = $content_options.
+                     elgg_format_element('div', 
+                                          [], 
+                                          elgg_view_module('aside', $title, $content).
+                                          elgg_view('input/submit', array('value' => $submit_label)));
+    }
     break; //($element_type == 'item')
+
+/****************************************
+ * $element_type = 'family_characteristics' *****************************************************************************
+ ****************************************/
+    case 'family_characteristics':
+        
+        Switch ($presentation){
+            case 'pallet':
+                
+                break;
+            default:
+                // legacy
+                if ($containers) {
+                	$sort_order = (int) '';
+                	$submit_label = 'Pick';
+                	$characteristic_names = $this_container->characteristic_names;              
+                	if ($characteristic_names && !is_array($characteristic_names)){
+                		$characteristic_names = array($characteristic_names);
+                	}
+                		foreach($characteristic_names as $characteristic){                //echo '216 characteristic_name: '.$characteristic.'<br>';
+                		}
+                	
+                	foreach ($containers as $container) {
+                		$sort_order = $sort_order + 1;
+                		$this_characteristic = $container->characteristic_name; 
+                		if (in_array($this_characteristic, $characteristic_names) || $this_container->record_stage == 'newborn' ){
+                			$input = elgg_view('input/checkbox', array(
+                			   'id'   =>$sort_order,
+                			   'name' => 'pick[characteristic_names][]',
+                			   'value'=>$this_characteristic,
+                			   'checked' => 'checked',
+                			   'disabled' => true,
+                			   ));
+                		}
+                		else {
+                			$input = elgg_view('input/checkbox', array(
+                			   'id'   =>$sort_order,
+                			   'name' => 'pick[characteristic_names][]',
+                			   'value'=>$this_characteristic,
+                			   ));
+                		}
+                		elgg_register_menu_item('containers_checkboxes', array(
+                				'name' => $this_characteristic,
+                				'text' => $input.$this_characteristic,
+                				'href' => false,
+                //				'parent_name' => $container['parent_guid'],
+                			));
+                	}
+                }
+        }
+        break;
 } 
 
-if ($containers && $element_type == 'item') {
-    elgg_load_library('elgg:market');
-	aasort($containers,"title");
-	$sort_order = (int) '';
+/******************************************************************************************************
+ * 
+ * Shared elements
+ *
+*******************************************************************************************************/
 
-	foreach ($containers as $container) {
-			$sort_order = $sort_order + 1;
-			$link = elgg_view('output/url', array(
-			      'text' => $container['title'],
-			      'href' =>  'market/view/'.$container['guid']));
-				$input = elgg_view('input/checkbox', array(
-						   'id'=>$container['guid'], 
-						   'value'=>$container['guid'], 
-						   ));
-				if ($container['guid'] == $linked_item['guid']){
-//					$input_radio = "<input type='radio' checked='checked' name='item_guid' value={$container['guid']}>$link</input>";
-					$input_radio = '<input type="radio" checked="checked" name="item_guid" value='. $container['guid'].'>'.$container['title'];
-				}
-				else {
-//					$input_radio = "<input type='radio' name='item_guid' value={$container['guid']}>$link</input>";
-					$input_radio = '<input type="radio" name="item_guid" value='. $container['guid'].'>'.$container['title'];				
-				}
-			elgg_register_menu_item('containers_checkboxes', array(
-				'name' => $container['guid'],
-				'text' => $input.$container['title'],
-				'href' => false,
-				'parent_name' => $container['parent_guid'],
-			));
-			
-			elgg_register_menu_item('containers_radio', array(
-				'name' => $container['guid'],
-				'text' => $input_radio,
-				'href' => false,
-				'parent_name' => $container['parent_guid'],
-				'sort_order' => $sort_order,
-			));
-		}
-}
 
-if ($containers && $element_type == 'family_characteristics') {
-	$sort_order = (int) '';
-	$submit_label = 'Pick';
-	$characteristic_names = $this_container->characteristic_names;              
-	if ($characteristic_names && !is_array($characteristic_names)){
-		$characteristic_names = array($characteristic_names);
-	}
-		foreach($characteristic_names as $characteristic){                //echo '216 characteristic_name: '.$characteristic.'<br>';
-		}
-	
-	foreach ($containers as $container) {
-		$sort_order = $sort_order + 1;
-		$this_characteristic = $container->characteristic_name; 
-		if (in_array($this_characteristic, $characteristic_names) || $this_container->record_stage == 'newborn' ){
-			$input = elgg_view('input/checkbox', array(
-			   'id'   =>$sort_order,
-			   'name' => 'pick[characteristic_names][]',
-			   'value'=>$this_characteristic,
-			   'checked' => 'checked',
-			   'disabled' => true,
-			   ));
-		}
-		else {
-			$input = elgg_view('input/checkbox', array(
-			   'id'   =>$sort_order,
-			   'name' => 'pick[characteristic_names][]',
-			   'value'=>$this_characteristic,
-			   ));
-		}
-		elgg_register_menu_item('containers_checkboxes', array(
-				'name' => $this_characteristic,
-				'text' => $input.$this_characteristic,
-				'href' => false,
-//				'parent_name' => $container['parent_guid'],
-			));
-		
-	}
-	
-}	
-	$content_checkbox = elgg_view_menu('containers_checkboxes', array('class' => 'containers-nav', 'sort_by' => 'sort_order'));
-	if (!$content_checkbox) {
-		$content_checkbox = '<p>' . elgg_echo('containers:none') . '</p>';
-	}
-	
-	//echo elgg_view_module('aside', $title, $content);
-	
-	//$content_location = elgg_view_form('market/add/element', array("action" => "action/market/pick?element_type=item&item_guid=$item_guid&container_guid=$container_guid"));
-	
-	$content_radio = elgg_view_menu('containers_radio', array('class' => 'containers-nav', 'sort_by' => 'sort_order'));
-	if (!$content_radio) {
-		$content_radio = '<p>' . elgg_echo('containers:none') . '</p>';
-	}
-	
-	//$content  = $content_location;
-	//$content .= "<div class=\"elgg-col elgg-col-1of3\">";
-	$shelf_link = elgg_view('output/url', array('text'=>'shelf', 'href'=>"shelf"));
-	$shelf_link = "<span title='Set on the shelf to appear in this list'>$shelf_link</span>";
-	if ($link_type == 'single'){
-		$content  = "Linked item on $shelf_link:<br>";
-		$content .= $content_radio;
-	}
-	if ($link_type == 'multiple'){
-		$content  = "Linked items on $shelf_link:<br>";
-		$content .= $content_checkbox;
-	}
-	
-	//echo elgg_view_module('aside', $title, $content);
-	
-	?>
-	<script>
-	require(['jquery', 'jquery.treeview'], function($) {
-		$(function() {
-			$(".containers-nav").treeview({
-				persist: "location",
-				collapsed: false,
-				unique: true
-			});
-	
-	<?php if ($selected_container) { ?>
-			// if in a container, we need to manually select the correct menu item
-			// code taken from the jquery.treeview library
-			var current = $(".containers-nav a[href='<?php echo $url; ?>']");
-			var items = current.addClass("selected").parents("ul, li").add( current.next() ).show();
-			var CLASSES = $.treeview.classes;
-			items.filter("li")
-				.swapClass( CLASSES.collapsable, CLASSES.expandable )
-				.swapClass( CLASSES.lastCollapsable, CLASSES.lastExpandable )
-					.find(">.hitarea")
-						.swapClass( CLASSES.collapsableHitarea, CLASSES.expandableHitarea )
-						.swapClass( CLASSES.lastCollapsableHitarea, CLASSES.lastExpandableHitarea );
-	<?php } ?>
-		});
-	});
-	</script>
-	<?php
 
-//echo $display;
-foreach($hidden_fields as $name => $value){
-    echo elgg_view('input/hidden', array('name' => $name, 'value' => $value));
-}
-echo $content_options;
-echo '<div>';
-echo elgg_view_module('aside', $title, $content);
-echo elgg_view('input/submit', array('value' => $submit_label)).'</p>';
-echo '</div>';
+echo $form_body;
+//register_error($display);

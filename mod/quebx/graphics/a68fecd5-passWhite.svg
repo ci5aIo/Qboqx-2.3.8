@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+  <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
+  <title>Group</title>
+  <desc>Created with Sketch.</desc>
+  <defs>
+    <mask id="mask" height="22" width="22">
+      <g id="baseline-check-24px">
+        <rect x="0" y="0" width="22" height="22" fill="#FFFFFF"></rect>
+        <polygon id="Shape" stroke="#000000" fill="#000000" transform="translate(1.000000, 3.000000)"
+                 points="7.5508143 11.5302013 4.28766345 8.23766285 3.17647059 9.35096723 7.5508143 13.7647059 16.9411765 4.28977497 15.8378089 3.17647059"></polygon>
+      </g>
+    </mask>
+  </defs>
+  <circle id="Oval" cx="11" cy="11" r="11" fill="#FFFFFF" mask="url(#mask)"></circle>
+</svg>

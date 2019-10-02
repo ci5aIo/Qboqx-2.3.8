@@ -259,6 +259,7 @@ function jot_init() {
 	elgg_register_action("jot/edit_scratch/"  , "{$action_url}jot/edit_scratch.php");
 	elgg_register_action("jot/edit_scratch2/" , "{$action_url}jot/edit_scratch2.php");
 	elgg_register_action("jot/edit_v4/"       , "{$action_url}jot/edit_v4.php");
+	elgg_register_action("jot/edit_pallet/"   , "{$action_url}jot/edit_pallet.php");
 	elgg_register_action("jot/delete/"        , "{$action_url}jot/delete.php");
 	elgg_register_action("jot/route/"         , "{$action_url}jot/route.php");
 	elgg_register_action("jot/tag/"           , "{$action_url}jot/tag.php");

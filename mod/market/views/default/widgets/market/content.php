@@ -40,7 +40,7 @@ Switch ($module_type){
     case 'warehouse':
         if (is_array($posts) && sizeof($posts) > 0) {
        		foreach($posts as $post) {
-                echo elgg_view('page/components/pallet_boqx', ['entity'=>$post, 'aspect'=>'things']);
+                echo elgg_view('page/components/pallet_boqx', ['entity'=>$post, 'aspect'=>'thing']);
        		   }
           }
         break;

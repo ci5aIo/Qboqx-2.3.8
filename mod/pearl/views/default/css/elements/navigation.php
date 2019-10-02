@@ -47,8 +47,8 @@
 	TABS
 *************************************** */
 .elgg-tabs {
-	margin-bottom: 5px;
-	border-bottom: 2px solid #cccccc;
+/*	margin-bottom: 5px;
+	border-bottom: 2px solid #cccccc;*/
 	display: table;
 	width: 100%;
 }

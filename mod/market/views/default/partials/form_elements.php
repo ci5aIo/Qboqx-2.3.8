@@ -144,27 +144,42 @@ Switch ($element){
 		$form_body = str_replace('<<cid>>', $cid, $story_model);
 	break;
 	case 'new_item_characteristic':
+	    if($cid){
+	        $characteristic_name = "jot[$cid][characteristic_names][]";
+            $characteristic_value = "jot[$cid][characteristic_values][]";
+	    }
+	    else {
+	        $characteristic_name = 'item[characteristic_names][]';
+            $characteristic_value = 'item[characteristic_values][]';
+	    }
 		$form_body = "
             <div class='rTableRow'>
 				<div class='rTableCell' style='width:250px'>".
 				    elgg_view('input/text', array(
-					'name'  => 'item[characteristic_names][]',
+					'name'  => $characteristic_name,
 					'placeholder'=>'Characteristic'
 				))."</div>
 				<div class='rTableCell' style='width:460px'>".
 				elgg_view('input/text', array(
-					'name'  => 'item[characteristic_values][]',
+					'name'  => $characteristic_value,
 					'placeholder'=> 'Value',
  					'class' => 'last_characteristic',
 				))."</div>
 			</div>";
+		
 	break;
 	case 'new_item_feature':
+	    if($cid){
+	        $feature_name = "jot[$cid][features][]";
+	    }
+	    else {
+	        $feature_name = 'item[features][]';
+	    }
 		$form_body = "
         <div class='rTableRow'>
-				<div class='rTableCell' style='width:90%'>".
+				<div class='rTableCell'>".
 			      elgg_view('input/text', array(
-						'name' => 'item[features][]',
+						'name' => $feature_name,
 						'placeholder'=>'Feature',
 			      		'class' => 'last_feature',
 					))."

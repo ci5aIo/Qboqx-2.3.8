@@ -51,3 +51,49 @@ function cars_shoe_picker_callback($query, $options = array()) {
 		'order_by' => 'oe.title ASC'
 	));
 }
+
+/**
+ * Adapted from engine\lib\access.php\get_user_access_collections
+ * Returns an array of database row labels owned by $owner_guid.
+ *
+ * @param int $owner_guid The entity guid
+ * @param int $site_guid  The GUID of the site (default: current site).
+ *
+ * @return array|false
+ */
+function get_family_characteristics_collections($owner_guid, $site_guid = 0) {
+	global $CONFIG;
+	$owner_guid = (int) $owner_guid;
+	$site_guid  = (int) $site_guid;
+	$dbprefix   = elgg_get_config('dbprefix');
+	
+	if (($site_guid == 0) && (isset($CONFIG->site_guid))) {
+		$site_guid = $CONFIG->site_guid;
+	}
+	$wheres[] = "s1.string   = 'characteristic_names'";
+	$wheres[] = "s4.type     = 'object'";
+	$wheres[] = "s4.owner_guid = $owner_guid";
+	$wheres[] = "s5.subtype  = 'market'";
+	if ($category)	$wheres[] = "s7.string   = '$category'";
+	$wheres[] = "s2.value_id = t1.id)";
+
+	$query = "SELECT *
+	        FROM {$dbprefix}metastrings msv
+			where msv.string is not null
+              and msv.string <> ''
+              and exists (Select *
+			              from {$dbprefix}entities e
+			              join {$dbprefix}metadata md 
+			              on md.entity_guid = e.guid
+			              JOIN {$dbprefix}metastrings msn 
+			              on md.name_id = msn.id
+					      where md.owner_guid = {$owner_guid}
+						    AND e.site_guid = {$site_guid}
+							and msv.id = md.value_id
+							and msn.string IN ('tags'))
+			 order by msv.string";
+
+	$collections = get_data($query);
+
+	return $collections;
+}

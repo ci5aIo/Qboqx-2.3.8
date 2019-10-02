@@ -24,7 +24,7 @@ if ($container){
 }
 
 elgg_gatekeeper();
-elgg_group_gatekeeper();
+elgg_group_gatekeeper();                                                             //goto eof;//for testing
 
 // create form
 //@TODO: Move this to the form itself
@@ -239,6 +239,14 @@ if ($element_type == 'family_characteristics'){
 	$container_guid = $item->guid;
 	$category       = $item->marketcategory;
 	$owner_guid     = $owner->getGUID();
+	$wheres[]       = "s1.string   = 'characteristic_names'";
+	$wheres[]       = "AND s4.type     = 'object'";
+	$wheres[]       = "AND s4.owner_guid = $owner_guid";
+	$wheres[]       = "AND s5.subtype  = 'market'";
+	if($category)
+	$wheres[]       = "AND s7.string   = '$category'";
+	$wheres[]       = "AND s2.value_id = t1.id";
+	$where_conditions = implode(' ', $wheres);
 
 	// Extract characteristic names from existing entities
 	$dbprefix = elgg_get_config('dbprefix');
@@ -252,12 +260,7 @@ if ($element_type == 'family_characteristics'){
 					  JOIN {$dbprefix}entity_subtypes s5 ON s5.id          = s4.subtype
 					  JOIN {$dbprefix}metadata s6        ON s6.entity_guid = s4.guid
 					  JOIN {$dbprefix}metastrings s7     ON s7.id          = s6.value_id
-					  WHERE s1.string   = 'characteristic_names'
-					    AND s4.type     = 'object'
-					    AND s4.owner_guid = $owner_guid
-					    AND s5.subtype  = 'market'
-					    AND s7.string   = '{$category}'
-				  	    AND s2.value_id = t1.id)
+					  WHERE $where_conditions)
 		ORDER BY t1.string";
 	
 	if ($owner_guid != 0){
@@ -280,9 +283,9 @@ $pick_body_vars  = array('element_type'   => $element_type,
 		                 'elements'       => $elements,
        	                 'container_guid' => $container_guid,
 		                 'container_type' => $container_type,
-		                 'content_options'=> $content_options,
-);
+		                 'content_options'=> $content_options,                        );
 $content = elgg_view_form($pick_action, $pick_form_vars, $pick_body_vars);
+
 
 $body = elgg_view_layout('action', array(
 	'content' => $identifiers.$content,
@@ -310,3 +313,5 @@ $module_options = array(
 // display form 
 echo elgg_view_module($module_options, '', $body);
 //echo elgg_view_module($module_type, $title, $body);
+eof:
+//echo 'pick_test';

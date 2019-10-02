@@ -456,9 +456,9 @@ function quebx_get_filed_items ($category_guid, $params = array()) {
 
 	return elgg_get_entities_from_relationship($params);
 }
-function quebx_boqx_aspect_options($aspect){
+function quebx_boqx_aspect_options($aspect, $options){
     switch($aspect){
-        case 'main':
+        case 'root':
             $boqx_aspects[] = ['name'=>'things', 'value'=>'things', 'has_children'=>false];
         	$boqx_aspects[] = ['name'=>'receipts', 'value'=>'receipts', 'has_children'=>false];
         	$boqx_aspects[] = ['name'=>'collections', 'value'=>'collections', 'has_children'=>true];
@@ -467,11 +467,24 @@ function quebx_boqx_aspect_options($aspect){
         	$boqx_aspects[] = ['name'=>'issue', 'value'=>'issue', 'has_children'=>false];
         	break;
         case 'collections':
-            $boqx_aspects[] = ['name'=>'music collection', 'value'=>'music_collection', 'has_children'=>false];
-        	$boqx_aspects[] = ['name'=>'book collection', 'value'=>'book_collection', 'has_children'=>false];
-        	$boqx_aspects[] = ['name'=>'comic book collection', 'value'=>'comic_book_collection', 'has_children'=>false];
-        	$boqx_aspects[] = ['name'=>'coin collection', 'value'=>'coin_collection', 'has_children'=>false];
-        	$boqx_aspects[] = ['name'=>'stamp collection', 'value'=>'stamp_collection', 'has_children'=>false];
+            $boqx_aspects[] = ['name'=>'music_collection', 'value'=>'music_collection', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'book_collection', 'value'=>'book_collection', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'comic_book collection', 'value'=>'comic_book_collection', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'coin_collection', 'value'=>'coin_collection', 'has_children'=>false];
+        	$boqx_aspects[] = ['name'=>'stamp_collection', 'value'=>'stamp_collection', 'has_children'=>false];
+            break;
+        case 'category':
+            $root = elgg_extract('root', $options);
+            unset($options['root']);
+            $categories    = hypeJunction\Categories\get_subcategories($root, $options);
+            if ($categories){
+                foreach($categories as $category){
+                    unset($children, $has_children);
+                    $children = hypeJunction\Categories\get_subcategories($category->guid);
+                    $has_children = count($children)>0;
+                    $boqx_aspects[] = ['name'=>$category->title, 'value'=>$category->guid, 'has_children'=>$has_children];
+                }
+            }
             break;
         default:
     }

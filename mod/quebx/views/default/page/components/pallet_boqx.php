@@ -28,6 +28,7 @@ $points = elgg_extract('points', $vars, -1);
 $owner = $entity->getOwnerEntity();
 $owner_name = $owner->name;
 $owner_initials = quebx_initials($owner_name);
+$aspect = elgg_extract('aspect', $vars, 'thing');
 /*placeholders*/
 $entity->blocked = true;
 $item_labels[] = 'juxtaposition';
@@ -39,6 +40,14 @@ foreach ($item_labels as $item_label){
 }
 if (count($item_labels > 0)){
     $labels = elgg_format_element('span',['class'=>'labels post'], $labels_post);
+}
+
+Switch ($aspect){
+    case 'thing'     : $contents_aspect ='item' ; break;
+    case 'receipt'   :
+    case 'experience':
+    case 'project'   :
+    case 'issue'     : $contents_aspect =$aspect; break;
 }
 /*****/
 $expander = elgg_format_element('button',
@@ -72,7 +81,7 @@ $body = "
               data-cid='$cid'>
               $expander
               <a class='selector undraggable' 
-                 title='Select this story for bulk actions' 
+                 title='Set this item on the shelf' 
                  tabindex='-1'></a>
               $metadata
               <a class='reveal story button' 
@@ -81,11 +90,11 @@ $body = "
                  data-type='item'
                  tabindex='-1'>
                  <span class='locator' 
-                       title='Reveal this story'></span>
+                       title='Reveal this item'></span>
               </a>
               $progress
               <span class='name normal'>
-                   <span class='story_name'>
+                   <span class='story_name' data-guid='$guid' data-cid='$cid'>
                         <span class='tracker_markup' 
                               data-aid='StoryPreviewItem__title'>$title</span>
                         <span class='parens'>
@@ -101,7 +110,7 @@ $body = "
       </header>";
 
 echo elgg_format_element('div', 
-                        ['class'    => "story model item has_tasks draggable story_$guid $cid feature unscheduled point_scale_linear estimate_$points is_estimatable not_collapsed $has_blockers",
+                        ['class'    => "story model $contents_aspect has_tasks draggable story_$guid $cid feature unscheduled point_scale_linear estimate_$points is_estimatable not_collapsed $has_blockers",
                          'data-aid' => 'StoryPreviewItem',
                          'data-cid' => $cid,
                          'data-id'  => $guid,

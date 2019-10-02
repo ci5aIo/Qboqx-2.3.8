@@ -19,14 +19,7 @@ else {
     $class_pick = 'BoqxLabelsPick__ThUG84u6';
     $class_show = 'BoqxLabelsShow__LFaMXDtw';
 }
-/*
-$options = array(
-	'tag_name'  => 'tags',
-	'item_guid' => $item_guid,
-);
 
-$tag_data = get_labels($options);
-*/
 //get array of all label collections owned by the requesting user
 $collections = get_user_label_collections($user->guid);
 
@@ -57,17 +50,6 @@ $body = "<div class='row clearfix $class_show'>";
 	}
 $body .= '</div>';
 }
-/*$body .= elgg_view('output/longtext', array('value' => elgg_echo('labels:form:instructions'),
-                                        	'class' => 'elgg-subtext'));*/	
-/*$body .= 'New Labels: ';
-$body .= elgg_view('input/text', array(
-	'name' => 'rtags',
-	'id' => 'labels_rtags',
-    'placeholder'=> 'Separate, new labels, with commas'
-//	'value' => implode(', ', $itemcollections),
-		));
-*/
-
 if ($collections) {
 	foreach ($collections as $collection) {
 	    unset($checkbox_options, $id);
@@ -81,20 +63,6 @@ if ($collections) {
 		        'class'  => 'LabelDropdownItem-checkbox'
 			    
 		];
-
-//		if (in_array($collection->string, $itemcollections)) {
-//			$checkbox_options['checked'] = 'checked';
-//		}
-		
-/*		$body .= "<div class=\"elgg-col elgg-col-1of3\">
-                    <div class='SmartListSelector__child___zbvaMzth'>
-                        <div class='LabelDropdownItem___3IFJX-oo' data-scroll-id = 'LabelDropdownItem--c{$id}' data-cid='c{$id}' data-aid ='LabelDropdownItem--{$collection->string}'>"
-//    			        .elgg_view('input/checkbox', $checkbox_options)
-    			        ."<label for=\"rtag{$id}\">" . $collection->string . "</label>
-                        </div>
-                    </div>
-                  </div>";*/
-    			        
     	$label_options .= elgg_format_element('div',['class'=>'SmartListSelector__child___zbvaMzth'],
     	                elgg_format_element('div', ['class'=>'LabelDropdownItem___3IFJX-oo',
     	                                            'data-scroll-id' => "LabelDropdownItem--c{$id}",

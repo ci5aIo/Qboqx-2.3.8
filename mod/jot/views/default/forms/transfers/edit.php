@@ -31,7 +31,8 @@ $qid_n          = elgg_extract('qid_n'            , $vars, $qid.'_'.$n);
 $presentation   = elgg_extract('presentation'     , $vars, 'full');                    $display       .= '$presentation='.$presentation.'<br>';
 $perspective    = elgg_extract('perspective'      , $vars, 'edit');                    $display       .= '$perspective='.$perspective.'<br>';
 $action         = elgg_extract('action'           , $vars, $perspective);              $display       .= '$action='.$action.'<br>';
-
+$display_state  = elgg_extract('display_state'    , $vars, $perspective); //Options: add, edit, show
+		                
 $transfer_vars  = $vars;
 $subtype        = 'transfer';
 $exists         = true;
@@ -109,31 +110,8 @@ Switch ($perspective){
                     'data-cid'=> $cid,
                     'tabindex'=> '-1',]);
                 $maximize_button = "<button type='button' class='autosaves maximize hoverable' id='story_maximize_$cid' tabindex='-1' title='Switch to a full view'></a>";
-                $view_id = '<<view_id>>';
                 $url = elgg_get_site_url().'jot';
-/*                $marker_title = "<textarea data-aid='name' tabindex='0' data-focus-id='NameEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy2 NameEdit___2W_xAa_R' name='jot[$parent_cid][$cid][title]' placeholder='Give this effort a name'></textarea>";
-                $marker_date_picker = elgg_view('input/date', ['name'  => "jot[$parent_cid][$cid][moment]", 'style'=>'width:75px; height: 20px;']);
-                $marker_type_selector = elgg_view_field(['#type'    =>'select',
-                    'name'    =>"jot[$parent_cid][$cid][type]",
-                    'options_values' =>['investigation'=>'Investigation', 'repair'=>'Repair', 'test'=>'Test']
-                ]);
-                $owner                 = get_entity($owner_guid ?: elgg_get_logged_in_user_guid());
-                $marker_work_order_no  = elgg_view_field(['#type'   => 'text',
-                    'name'    => "jot[$parent_cid][$cid][wo_no]"]);
-                foreach(explode(' ', $owner->name) as $name){$initials .= $name[0];}
-                $marker_participant_link     = elgg_view('output/div',['class'=>'dropdown',
-                    'content' =>elgg_view('output/url',['class'=>'selection',
-                        'href' => "profile/{$owner->username}",
-                        'text' => elgg_view('output/span',['content'=>elgg_view('output/div',['class'=>'name', 'options'=>['style'=>'float:right'], 'content'=>$owner->name,]).
-                            elgg_view('output/div',['class'=>'initials', 'options'=>['style'=>'float:right'], 'content'=>$initials])])])]);
-                $add_story_button = elgg_view('output/url', array(
-                    'title'    => 'Add service effort',
-                    'data-element' => 'new_service_effort',
-                    'data-cid'     => $cid,
-                    'class'    => 'trigger-element add_marker',
-                    'tabindex' => '-1'
-                ));
-*/                Switch ($snippet){
+                Switch ($snippet){
                     /****************************************
 *add********** $section = 'things_boqx' $snippet = 'contents'  *****************************************************************
                      ****************************************/
@@ -348,8 +326,8 @@ Switch ($perspective){
 				 ****************************************/
                     case 'pallet':
                         unset($hidden, $hidden_fields);
+                        $hidden[] =['name'=>"jot[cid]"          , 'value' => "$cid"];
                         $hidden[] =['name'=>"jot[$cid][subtype]", 'value' => 'boqx'];
-                        $hidden[] =['name'=>"jot[$cid][cid]"    , 'value' => "$cid"];
                         if (!empty($hidden)){                
                             foreach($hidden as $key=>$field){
                                 $hidden_fields .= elgg_view('input/hidden', $field);}}
@@ -361,9 +339,9 @@ Switch ($perspective){
 				 ****************************************/
                     default:
                         unset($hidden, $hidden_fields);
-                        $hidden[] =['name'=>"jot[subtype]", 'value' => 'boqx'];
-                        $hidden[] =['name'=>"jot[boqx]"   , 'value' => "$parent_cid"];
-                        $hidden[] =['name'=>"jot[cid]"    , 'value' => "$cid"];
+                        $hidden[] =['name'=>"jot[boqx]"         , 'value' => "$parent_cid"];
+                        $hidden[] =['name'=>"jot[cid]"          , 'value' => "$cid"];
+                        $hidden[] =['name'=>"jot[$cid][subtype]", 'value' => 'boqx'];
                         if (!empty($hidden)){                
                             foreach($hidden as $key=>$field){
                                 $hidden_fields .= elgg_view('input/hidden', $field);}}
@@ -374,10 +352,8 @@ Switch ($perspective){
                             'snippet'     => 'contents',
                             'parent_cid'  => $cid,
                             'n'           => $n,
-//                            'cid'         => $cid,
-                      //initialize $boqx_cid
+                          //initialize  boqx_cid
                             'boqx_cid'    => $cid,
-//                            'service_cid' => $service_cid,
                             'qid'         => $qid]);                                        $display .= '315 parent_cid = '.$parent_cid.'<br>315 $cid = '.$cid.'<br>';
                                                                                             //register_error($display);
                         break;
@@ -443,7 +419,7 @@ Switch ($perspective){
                             	 "</label>";
             	$maximize_button = "<button type='button' class='autosaves maximize hoverable' id='story_maximize_$cid' tabindex='-1' title='Switch to a full view'></a>";
                 $delete = elgg_view("output/span", ["class"=>"remove-card", "content"=>$delete_button]);
-                $collapser = "<a class='autosaves collapser-effort' id='effort_collapser_$cid' data-cid='$cid' tabindex='-1'></a>";
+                $collapser = "<a class='collapser collapser-effort' id='effort_collapser_$cid' data-cid='$cid' tabindex='-1'></a>";
             	
             	$add_effort = "<button data-aid='addEffortButton' class='ThingsBundle__submit___q0kFhFBf autosaves button std egg' type='submit' tabindex='-1' data-parent-cid='$parent_cid' data-cid='$cid' data-qid='$qid'>Add</button>";
             	switch($presentation){
@@ -462,14 +438,17 @@ Switch ($perspective){
             	                                         'name'    =>"jot[$cid][type]",  
             			                                 'options_values' =>['investigation'=>'Investigation', 'repair'=>'Repair', 'test'=>'Test']
             	                                         ]);
-
-                $options['aspects']    = quebx_boqx_aspect_options('main');
-                $options['aspect']     = 'main';
+            	$boqx_value = 'root';
+                $options['aspects']    = quebx_boqx_aspect_options($boqx_value);
+                $options['boqx_value']  = $boqx_value;
+                $options['boqx_aspect']= 'contents';
                 $options['cid']        = $cid;
                 $options['menu_level'] = 1;
                 $options['boqx_class'] ='compartmentBoqx__m2HVyVRp';
                 $options['list_class'] ='pickList__q0EfbGIo';
                 $options['item_class'] ='pickItem__S1zeipik';
+                $options['crumb_class']='pickItem__ujGWJJw9';
+                $options['label_class']='pickLabel__sdRC4Kf9';
                 $weir_menu             = elgg_view('navigation/weir_menu', $options);
 
                 $marker_boqx_selector = "<div class='dropdown aspect' data-selector='boqx_aspect' data-cid='$cid'>  
@@ -658,7 +637,7 @@ Switch ($perspective){
 *add********** $section = 'boqx_contents' $snippet='single_thing' *****************************************************************
                ****************************************/
                         case 'single_thing':
-             			unset($hidden, $hidden_fields);
+/*             			unset($hidden, $hidden_fields);
              			$hidden[] =['name'=>"jot[$parent_cid][$cid][$n][subtype]",
              			            'value' => 'boqx'];
              			$hidden[] =['name'=>"jot[$parent_cid][$cid][$n][aspect]",
@@ -697,7 +676,349 @@ Switch ($perspective){
 									<div class='rTableCell'>$hidden_fields".elgg_view('input/number',   ['name'=>"jot[$parent_cid][$cid][$n][qty]",'data-qid'=>$qid_n, 'data-name'=>'qty', 'value'=>'1', 'max'=>'0'])."</div>
 									<div class='rTableCell'>$set_properties_button "
 									                         .elgg_view('input/text',     ['name'=>"jot[$parent_cid][$cid][$n][title]", 'style'=>'width:95%', 'data-name'=>'title','data-jq-dropdown' => '#'.$cid.'_'.$n,'data-horizontal-offset'=>$horizontal_offset_title])."</div>
-				                </div>";
+				                </div>";*/
+						
+				        /*$form_body = elgg_view($view,[ 
+										  'perspective' => $perspective,
+                                          'presentation'=> $presentation,
+										  'section'     =>'boqx_contents_receipt', 
+										  //'snippet'     =>'loose_things',
+										  'snippet'     => 'receipt_item',
+				                          'aspect'      => $aspect,
+				                          'display_state'  => $display_state,
+										  'effort'      => $effort,      
+										  'parent_cid'  => $parent_cid, 
+										  'n'           => $n,]);*/
+                        $aspect        = elgg_extract('aspect', $vars, 'item');
+                        $element = 'item';
+		                $delete = elgg_format_element("span",['class'=>'remove-item'], elgg_format_element('a', ['title' =>'remove item'],
+                                                                    	                                                elgg_view_icon('delete-alt')));
+		                switch($presentation){
+		                    case 'pallet':
+                     			unset($hidden);
+                     			unset($form_body, $disabled, $hidden, $hidden_fields, $id_value);
+        		                $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
+        		                $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
+                                $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $aspect      , 'data-focus-id' => "Aspect--{$cid}"];
+        		                $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => '0'            , 'data-focus-id' => "FillLevel--{$cid}"];
+        		                $hidden[] =['name'=>"jot[$cid][sort_order]", 'value' => "$n"           , 'data-focus-id' => "SortOrder--{$cid}"];
+		                        //$qid_n = "{$cid}_{$n}";
+		                        $collapser = elgg_format_element('a',['class'=>['collapser','collapser-item'], 'id'=>"item_collapser_{$cid}",'data-cid'=>"$cid", 'tabindex'=>'-1']);
+		                        $id_value = $guid;
+		                        $unpack_class='';
+		                        $clone_class='';
+		                        $delete_class='';
+		                        switch($aspect){
+		                            case 'item':
+		                                $unpack_class    = 'selected';
+		                                $unpack_toggle   = 1;
+		                                $clone_disabled  = 'disabled';
+		                                $delete_disabled = 'disabled';
+		                                break;
+		                            case 'receipt_item':
+		                                $unpack_toggle   = 0;
+		                                $clone_disabled  = 'disabled';
+		                                $delete_disabled = 'disabled';		                                
+		                                break;
+		                        }
+        		                $hidden[] =['name'=>"jot[$cid][unpack]"    , 'value' => $unpack_toggle , 'data-focus-id' => "Unpack--{$cid}"];
+        		                if (!empty($hidden)){                
+                                    foreach($hidden as $key=>$field){
+                                        $hidden_fields .= elgg_view('input/hidden', $field);}}
+		                        $add_item = "<button data-aid='addItemButton'  type='submit'  class='AddItem__submit___u7pvMd9T std egg' style='margin: 3px 3px 0 15px;order: 2;' data-boqx='$parent_cid' data-cid='$cid' data-presence='$presentation'>Add</button>";
+		                        $horizontal_offset = '-140';
+		                        $item_header_qty   = 'Quantity';
+                                $item_header_tax   = 'Taxable';
+                                $item_header_cost  = 'Item Cost';
+                                $item_header_total = 'Total Cost';
+                                $unpack_button = elgg_format_element('button',['class'=>['autosaves', 'unpack_item', 'hoverable', 'left_endcap', $unpack_class],
+                                                                               'title'=>'Unpack this item'.$unpack_title_label,
+                                                                               'id'=>"item_unpack_button_$cid",
+                                                                               'data-aid'=>'Unpack',
+                                                                               'tabindex'=>'-1',
+                                                                                $unpack_disabled]);
+                                $clone_button  = elgg_format_element('button',['class'=>['autosaves', 'clone_item', 'hoverable', 'left_endcap', $clone_class],
+                                                                               'title'=>'Clone this item'.$clone_title_label,
+                                                                               'id'=>"item_clone_button_$cid",
+                                                                               'data-aid'=>'Clone',
+                                                                               'tabindex'=>'-1',
+                                                                                $clone_disabled]);
+                                $delete_button  = elgg_format_element('button',['class'=>['autosaves', 'delete', 'hoverable', 'right_endcap', $delete_class],
+                                                                                'title'=>'Delete this item'.$delete_title_label,
+                                                                                'id'=>"item_delete_button_$cid",
+                                                                                'data-aid'=>'Delete',
+                                                                                'tabindex'=>'-1',
+                                                                                 $delete_disabled]);
+        		                $item_controls     = "<section class='story_or_epic_header'>
+                                                            $collapser
+                                                            <nav class='edit'>
+		                                                          <section class='controls' style='width:100%'>
+                                                                      <div class='persistence' style='order:1'>
+		                                                                 $add_item
+		                                                              </div>
+		                                                              <div class='actions'>
+		                                                                $unpack_button
+		                                                                $clone_button
+		                                                                $delete_button
+		                                                              </div>
+		                                                            </section>
+		                                                      </nav>
+		                            					    
+		                            					</section>";
+                                
+		                        $style_add = $style_show = $style_edit = "style='display:none;'";
+		                        $edit_properties_button = elgg_view('output/url', ['data-cid'            => $cid,
+        														                   'class'               => "ItemEdit__showContainer",
+		                                                                           'text'                => elgg_view_icon('settings-alt').'Item Details', 
+        												                           'title'               => 'show properties',]);
+		                        $item_title        = "<textarea data-aid='name' tabindex='0' data-focus-id='NameEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy2 NameEdit___Mak{$cid}_{$n}' style='padding-top: 0px;margin: 8px;' name='jot[$cid][title]' placeholder='Item name'></textarea>";
+//                    	        $item_description  = "<textarea name='jot[$cid][description]' aria-labelledby='description$cid' data-aid='textarea' data-focus-id='ServiceEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy editor___1qKjhI5c tracker_markup' placeholder='Describe the item'></textarea>";
+                    	        $item_description  = "<div data-aid='Description' class='Description___3oUx83yQ'><h4 id='description$cid'>Description</h4><div class='DescriptionShow___3-QsNMNj DescriptionShow__placeholder___1NuiicbF' tabindex='0' data-aid='renderedDescription' data-focus-id='DescriptionShow--$cid'>Add a description</div>
+                    	                                      <div class='DescriptionEdit___1FO6wKeX'>
+                                                                <div class='markdownHelpContainer___32_mTqNL'>
+                                                                    <div>
+                                                                        <button class='DescriptionEdit__tab___7lFo9PZA'>Write</button>
+                                                                        <button class='DescriptionEdit__tab___7lFo9PZA DescriptionEdit__tab--disabled___1x2-iUxr'>Preview</button>
+                                                                    </div>
+                                                                    <a href='/help/markdown' class='markdownHelp___2yFSQCip' target='_blank'>Formatting help</a>
+                                                                </div>
+                                                                <div data-aid='editor' class='textContainer___2EcYJKlD'>
+                                                                    <div>
+                                                                        <div class='DescriptionEdit__write___207LwO1n'>
+                                                                            <div class='AutosizeTextarea___2iWScFt6'>
+                                                                                <div class='AutosizeTextarea__container___31scfkZp'>
+                                                                                    <textarea name='jot[$cid][description]' aria-labeledby='description$cid' data-aid='textarea' data-cid='$cid' data-focus-id='DescriptionEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy editor___1qKjhI5c tracker_markup' placeholder='Add a description'></textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class='DescriptionEdit__preview_____Tr424N'>
+                                                                            <span class='tracker_markup'><p>Preview your <a href='/help/markdown' target='_blank' rel='noopener' tabindex='-1'>Markdown formatted</a> text here.</p></span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class='controls___2K44hJCR'>
+                                                                        <div>
+                                                                            <button class='SMkCk__Button QbMBD__Button--primary _3olWk__Button--small button__save___2XVnhUJI' data-aid='save' data-cid='$cid' type='button'>Add description</button>
+                                                                            <button class='SMkCk__Button ibMWB__Button--open _3olWk__Button--small' data-aid='cancel' data-cid='$cid' type='button'>Cancel</button>
+                                                                        </div>
+                                                                    <div class='Controls__text___B_l9ri3_'>
+                                                                        <button class='IconButton___2y4Scyq6 IconButton--borderless___1t-CE8H2 IconButton--inverted___2OWhVJqP IconButton--opaque___3am6FGGe' data-aid='AddEmoji' aria-label='Add emoji to description'>
+                                                                            <span class='' title='Add emoji to description' style='background: url(https://assets.pivotaltracker.com/next/assets/next/2b4b3f66-emoji-light.svg) center center no-repeat;'></span>
+                                                                        </button>
+                                                                    <div class='Dropdown Dropdown--left StoryTemplateDropdown___3ctobFmT'>
+                                                                        <div class='Dropdown__content' data-aid='StoryTemplateDropdown'>
+                                                                            <button class='SMkCk__Button ibMWB__Button--open StoryTemplate__button___6_DPoMAr _1m_u1__Button--short' type='button'>
+                                                                                <img title='Select story template' class='_3iG1d__IconButton__icon' src='https://assets.pivotaltracker.com/next/assets/next/b202db4f-story-templates.svg'>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                               </div>";
+                    	        if ($aspect == 'receipt_item'){$acquisition_details  = "<div class='row'>
+                                                                                            <h2>Acquisition Details</h2>
+                                                                            		    </div>
+                                                                                        <div class='row'>
+                                                                                            <div class='column_01'>
+                                                                                                <label for='jot[$cid][qty]'>$item_header_qty</label>
+                                                                                            </div>
+                                                                                            <div class='column_02'>
+                                                                                                ".elgg_view('input/number',   ['name'=>"jot[$cid][qty]",'data-qid'=>$qid_n, 'data-name'=>'qty', 'value'=>'1', 'max'=>'0'])."
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class='row'>
+                                                                                            <div class='column_01'>
+                                                                                                <label for='jot[$cid][cost]'>$item_header_cost</label>
+                                                                                                <div class='column_01b'>
+                                                                                                    <label for='jot[$cid][taxable]'>$item_header_tax</label>".
+                                                                                                    elgg_view('input/checkbox', ['name'=>"jot[$cid][taxable]",'value'=>1,'data-qid'=>$qid_n,'data-name'=>'taxable','default'=> false,])."
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class='column_02'>
+                                                                                                ".elgg_view('input/text', [ 'name'      => "jot[$cid][cost]",
+                                                            										 						'class'     => 'last_line_item',
+                                                            											                    'data-qid'  => $qid_n,
+                                                            											                    'data-name' => 'cost',
+                                                            				    											'class'     => 'nString',
+                                                            															   ])."
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class='row'>
+                                                                                            <div class='column_01'>
+                                                                                                <label>$item_header_total</label>
+                                                                                            </div>
+                                                                                            <div class='column_02'>
+                                                                                                <span id='{$cid}_line_total'></span><span class='{$cid}_line_total_raw line_total_raw'></span>
+                                                                                            </div>
+                                                                                        </div>";}
+                            	$value                 = elgg_get_site_entity()->guid;
+                            	$boqx_name             = 'category';
+                                $options['aspects']    = quebx_boqx_aspect_options($boqx_name,['root'=>$value]);//, 'order_by_metadata'=>['name'=>'name','direction' => 'ASC', 'as' => 'text']]);
+                                $options['boqx_name']  = $boqx_name;
+                                $options['boqx_aspect']= 'category';
+                                $options['boqx_value'] = $value;
+                                $options['cid']        = $cid;
+                                $options['menu_level'] = 1;
+                                $options['boqx_class'] ='compartmentBoqx__Cdil2TkU';
+                                $options['list_class'] ='pickList__Upq66A3H';
+                                $options['item_class'] ='pickItem__GaGSmQJ6';
+                                $options['crumb_class']='pickItem__ehybudK0';
+                                $options['label_class']='pickLabel__2JR0Zrcl';
+                                $weir_menu             = elgg_view('navigation/weir_menu', $options);
+                
+                                $marker_boqx_selector = "<div class='dropdown category' data-selector='boqx_category' data-cid='$cid'>  
+                                        <input aria-hidden='true' type='hidden' name='jot[$cid][category]'>
+                                      <a id='item_category_dropdown_$cid' class='selection item_0' tabindex='-1'><span>Select ...</span></a>
+                                      <a id='item_category_dropdown_{$cid}_arrow' class='arrow target' tabindex='-1'></a>
+                                      <section class='pickCategory__VRYE6ZAO closed'>
+                                        $weir_menu
+                                    </section>
+                                  </div>";                            	
+                    	        $item_category     = elgg_format_element('div', ['class'=>['info_box','free']],
+                    	                                         elgg_format_element('div', ['class'=>'info'],
+                    	                                              elgg_format_element('div', ['class'=>'row'],
+                    	                                                  "<em>Category</em>".
+                    	                                                  $marker_boqx_selector)));
+                    	        $category_picker = elgg_view('input/category', ['presentation'=>$presentation, 'perspective'=>$perspective, 'parent_cid'=>$cid, 'add_leaf' => false,'category_class'=>'BoqxCategoryPick__gNSC0Iny','item_class'=>'CategoryDropdownItem___qgkw9JYv', 'root_name_override'=>'blah', 'show_section_headers'=>false]);
+                    	        $line_item_properties      = $item_description;
+        						//$line_item_properties     .= elgg_view('forms/market/profile', ['presentation'=>$presentation]);
+        						
+        						$line_item_properties     .= $item_category;
+                    	        $line_item_properties     .= elgg_view('forms/market/edit', ['presentation'=>$presentation, 'perspective'=>$perspective, 'cid'=>$cid]);    
+                    	        switch ($display_state){case 'add':  unset($style_add);  break;
+                    	                                case 'show': unset($style_show); break;
+                    	                                case 'edit': $style_edit = "style='display:flex;'"; break;}
+		                        $boqx_contents_add = "<div tabindex='0' class='AddSubresourceButton___oKRbUbg6' $style_add data-aid='TaskAdd' data-focus-id='TaskAdd' data-cid='$cid' data-guid='$guid'>
+                                                    				<span class='AddSubresourceButton__icon___h1-Z9ENT'></span>
+                                                    				<span class='AddSubresourceButton__message___2vsNCBXi'>Add an item</span>
+                                                			  </div>";
+                                $boqx_contents_show = "<div class='ItemShow_Btc471up' $style_show data-aid='TaskShow' data-cid='$cid' draggable='true'>
+                    					<div>
+                                            <nav class='ItemShow__actions__4AR4v8MP ItemShow__actions--unfocused___1df6Nh5x'>
+                            					<button class='IconButton___2y4Scyq6 IconButton--small___3D375vVd' data-aid='delete' aria-label='Delete' data-cid='$cid'>
+                            						$delete
+                            					</button>
+                            				</nav>
+                    					</div>
+                                        <div class='ItemShow__line_gSpQE5Ao'>
+                                            <span class='ItemShow__title__8tlRYJcP section-add-boqx_contents_marker1'></span>
+                        					<span class='ItemShow__item_total__Dgd1dOSZ'></span>
+                                        </div>
+                        			</div>";
+/*                                $boqx_contents_edit = "
+                                    <div class='ItemEdit___7asBc1YY info_box free' $style_edit data-aid='ItemEdit' data-cid='$cid'>
+                        			    $hidden_fields
+                                        <div class='ItemEditValue'>
+                            	    		$collapser
+                                            <section class='ItemLedger__KY8DM3qs' data-cid='$cid'>
+                                                <fieldset class='name'>
+                                                	<div class='AutosizeTextarea___2iWScFt6' style='display: flex;'>
+                                                        <div data-reactroot='' class='AutosizeTextarea___2iWScFt62' style='flex-basis: 400px;'>
+                                        					<div class='AutosizeTextarea__container___31scfkZp'>
+                                        					    $item_title
+                                        					</div>
+                                        				</div>
+                            							<button data-aid='addItemButton'  type='submit'  class='AddItem__submit___u7pvMd9T std egg' style='margin: 3px 3px 0 15px;order: 2;' data-boqx='$parent_cid' data-cid='$cid' data-presence='$presentation'>Add</button>
+                                        			</div>
+                                        		</fieldset>
+                                                $acquisition_details
+                                            </section>
+                                        </div>
+                                        <div class='ShowItemDetails__Uc3MWjrS'>
+                                            <div class='ShowItemDetailsButton__qWXhMy9t' data-cid='$cid'>
+                                                <h3>".elgg_view_icon('settings-alt')."Item Details</h3>
+                                            </div>
+                            				<section class='ItemEdit__descriptionContainer___Mr67pXjd ItemEditContainer__$cid' >
+                                                <section class='item-properties item-properties__$cid'>
+                                                 		$line_item_properties
+                                                </section>
+                            				</section>
+                                        </div>
+                        			</div>";*/
+                                $boqx_contents_edit = "
+                                    <div class='ItemEdit___7asBc1YY info_box free' $style_edit data-aid='ItemEdit' data-cid='$cid'>
+                        			    $hidden_fields
+                                        <div class='ItemEditValue'>
+                            	    		$item_controls
+                                            <section class='ItemLedger__KY8DM3qs' data-cid='$cid'>
+                                                <fieldset class='name'>
+                                                	<div class='AutosizeTextarea___2iWScFt6' style='display: flex;'>
+                                                        <div data-reactroot='' class='AutosizeTextarea___2iWScFt62' style='flex-basis: 400px;'>
+                                        					<div class='AutosizeTextarea__container___31scfkZp'>
+                                        					    $item_title
+                                        					</div>
+                                        				</div>
+                                        			</div>
+                                        		</fieldset>
+                                                $acquisition_details
+                                            </section>
+                                        </div>
+                                        <div class='ShowItemDetails__Uc3MWjrS'>
+                                            <div class='ShowItemDetailsButton__qWXhMy9t' data-cid='$cid'>
+                                                <h3>".elgg_view_icon('settings-alt')."Item Details</h3>
+                                            </div>
+                            				<section class='ItemEdit__descriptionContainer___Mr67pXjd ItemEditContainer__$cid' >
+                                                <section class='item-properties item-properties__$cid'>
+                                                 		$line_item_properties
+                                                </section>
+                            				</section>
+                                        </div>
+                        			</div>";
+                            						
+                                $single_thing = elgg_format_element('div',['class'=>['boqx-item','Item__nhjb4ONn'], 'id'=>"$cid", 'data-boqx'=>$parent_cid, 'data-aspect'=>$aspect, 'boqx-fill-level'=>'0'], $boqx_contents_add.$boqx_contents_show.$boqx_contents_edit);
+		                        break;
+		                    default:
+                     			unset($hidden, $hidden_fields);
+                                $hidden[] =['name'=>"jot[$parent_cid][$cid][$n][aspect]",
+        		                            'value' => 'item',
+        		                            'data-focus-id' => "Aspect--{$qid_n}"];
+        		                $hidden[] =['name'=>"jot[$parent_cid][$cid][$n][fill_level]",
+        		                            'value' => '0',
+        		                            'data-focus-id' => "FillLevel--{$qid_n}"];
+                				if (!empty($hidden)){                
+                                    foreach($hidden as $key=>$field){
+                                        $hidden_fields .= elgg_view('input/hidden', $field);}}
+		                        $horizontal_offset = '-15';
+        						$delete = elgg_view('output/url', ['title'=>'remove item',
+        						                                   'class'=>'remove-item',
+        													       'data-element'=>$element,
+        														   'data-qid' => $qid_n,
+        													       'style'=> 'cursor:pointer',
+        													       'text' => elgg_view_icon('delete-alt'),]);
+        						$action_button = elgg_view('input/button', ['class'      => 'IconButton___2y4Scyq6 IconButton--small___3D375vVd',
+        								                                    'data-aid'   => 'delete',
+        								                                    'aria-label' => 'Delete',
+        								                                    'data-cid'   => $cid]);
+        						$unpack_icon   = "<span title='Unpack this'>"
+        								            .elgg_view('input/checkbox', ['name'=>"jot[$parent_cid][$cid][$n][unpack]",'value'=>1, 'class'=>'boqx-unpack closed','data-cid'=>$cid,'data-name'=>'unpack-this','default'=> false,])
+        						                ."</span>";
+        						$set_properties_button = elgg_view('output/url', ['data-jq-dropdown'    => '#'.$cid.'_'.$n,
+        						                                                  'data-qid'            => $qid_n,
+        														                  'data-horizontal-offset'=>$horizontal_offset,
+        												                          'text'                => elgg_view_icon('settings-alt'), 
+        												                          'title'               => 'set properties',
+        						]);
+        						$single_thing ="
+        								<div class='rTableRow $element ui-sortable-handle' data-qid='$qid_n' data-cid='$cid' data-parent-cid='$parent_cid' data-row-id='$n'>
+                                            $hidden_fields
+                                        	<div class='rTableCell'>$delete</div>
+        									<div class='rTableCell'>$unpack_icon</div>
+        									<div class='rTableCell'>".elgg_view('input/number',   ['name'=>"jot[$parent_cid][$cid][$n][qty]",'data-qid'=>$qid_n, 'data-name'=>'qty', 'value'=>'1', 'max'=>'0'])."</div>
+        									<div class='rTableCell'>$set_properties_button "
+        									                         .elgg_view('input/text',     ['name'=>"jot[$parent_cid][$cid][$n][title]",'class'=>'rTableform90','id'=>'line_item_input','data-name'=>'title','data-jq-dropdown' => '#'.$cid.'_'.$n,'data-horizontal-offset'=>$horizontal_offset,])."</div>
+        									<div class='rTableCell'>".elgg_view('input/checkbox', ['name'=>"jot[$parent_cid][$cid][$n][taxable]",'value'=>1,'data-qid'=>$qid_n,'data-name'=>'taxable','default'=> false,])."</div>
+        									<div class='rTableCell'>".elgg_view('input/text', array(
+        																'name'      => "jot[$parent_cid][$cid][$n][cost]",
+        										 						'class'     => 'last_line_item',
+        											                    'data-qid'  => $qid_n,
+        											                    'data-name' => 'cost',
+        				    											'class'     => 'nString',
+        															))."</div>
+        									<div class='rTableCell'><span id='{$qid_n}_line_total'></span><span class='{$qid_n}_line_total_raw line_total_raw'></span></div>
+        				                </div>";
+        						break;
+		                }
              		    break;
                /****************************************
 *add********** $section = 'boqx_contents' $snippet='receipt' *****************************************************************
@@ -741,9 +1062,11 @@ Switch ($perspective){
                ****************************************/
              		    case 'books':
                         unset($hidden, $hidden_fields);
-                        $hidden[] =['name'=>"jot[$parent_cid][$cid][subtype]",
-                                    'value' => 'boqx'];
-                        $hidden[] =['name'=>"jot[$parent_cid][$cid][aspect]",
+                        $hidden[] =['name'=>"jot[$cid][boqx]",
+                                    'value' => $parent_cid];
+                        $hidden[] =['name'=>"jot[$cid][cid]",
+                                    'value' => $cid];
+                        $hidden[] =['name'=>"jot[$cid][aspect]",
                                     'value' => 'books'];
                         if (!empty($hidden)){                
                             foreach($hidden as $key=>$field){
@@ -799,10 +1122,12 @@ Switch ($perspective){
                ****************************************/
                         case 'single_book':
              			unset($hidden, $hidden_fields);
-             			$hidden[] =['name'=>"jot[$parent_cid][$cid][$n][subtype]",
-             			            'value' => 'boqx'];
-             			$hidden[] =['name'=>"jot[$parent_cid][$cid][$n][aspect]",
-                     			    'value' => 'book'];
+                        $hidden[] =['name'=>"jot[$cid][boqx]",
+                                    'value' => $parent_cid];
+                        $hidden[] =['name'=>"jot[$cid][cid]",
+                                    'value' => $cid];
+                        $hidden[] =['name'=>"jot[$cid][aspect]",
+                                    'value' => 'book'];
              			if (!empty($hidden)){
              			    foreach($hidden as $key=>$field){
              			        $hidden_fields .= elgg_view('input/hidden', $field);}}
@@ -831,11 +1156,11 @@ Switch ($perspective){
 												                          'title'               => 'set properties',
 						]);
 						$form_body ="
-								<div class='rTableRow $element ui-sortable-handle' data-qid='$qid_n' data-cid='$cid' data-parent-cid='$parent_cid' data-row-id='$n'>
+								<div class='rTableRow $element ui-sortable-handle' data-qid='$qid_n' data-cid='$cid' data-boqx='$parent_cid' data-row-id='$n'>
                                     <div class='rTableCell'>$delete</div>
-									<div class='rTableCell'>$hidden_fields".elgg_view('input/number',   ['name'=>"jot[$parent_cid][$cid][$n][qty]",'data-qid'=>$qid_n, 'data-name'=>'qty', 'value'=>'1', 'max'=>'0'])."</div>
+									<div class='rTableCell'>$hidden_fields".elgg_view('input/number',   ['name'=>"jot[$cid][qty]",'data-qid'=>$qid_n, 'data-name'=>'qty', 'value'=>'1', 'max'=>'0'])."</div>
 									<div class='rTableCell'>$set_properties_button "
-									                         .elgg_view('input/text',     ['name'=>"jot[$parent_cid][$cid][$n][title]", 'style'=>'width:95%', 'data-name'=>'title','data-jq-dropdown' => '#'.$cid.'_'.$n,])."</div>
+									                         .elgg_view('input/text',     ['name'=>"jot[$cid][title]", 'style'=>'width:95%', 'data-name'=>'title','data-jq-dropdown' => '#'.$cid.'_'.$n,])."</div>
 				                </div>";
              		    break;
                /****************************************
@@ -872,9 +1197,12 @@ Switch ($perspective){
 			    $view = 'forms/transfers/edit';
 				$add_things = elgg_view($view,[ 
 										  'perspective' => $perspective,
-                                          'presentation'   => $presentation,
+                                          'presentation'=> $presentation,
 										  'section'     =>'boqx_contents', 
-										  'snippet'     =>'loose_things',
+										  //'snippet'     =>'loose_things',
+										  'snippet'     => 'single_thing',
+				                          'aspect'      => 'item',
+				                          'display_state'=>'edit',
 										  'effort'      => $effort,      
 										  'parent_cid'  => $parent_cid, 
 										  'n'           => $n,]);
@@ -889,9 +1217,8 @@ Switch ($perspective){
 				 ****************************************/
              	    case 'marker1':
              			unset($hidden, $hidden_fields);
-             	        $display_state = elgg_extract('display_state', $vars, $perspective);
-		                $unpack_icon = "<span title='Unpack all'>"
-								           .elgg_view('input/checkbox', ['name'=>"jot[$parent_cid][$cid][$n][unpack]",'value'=>1,'class'=>'boqx-unpack closed','data-cid'=>$cid,'data-name'=>'unpack-all','default'=> false,])
+             	        $unpack_icon = "<span title='Unpack all'>"
+								           .elgg_view('input/checkbox', ['name'=>"jot[$cid][$n][unpack]",'value'=>1,'class'=>'boqx-unpack closed','data-cid'=>$cid,'data-name'=>'unpack-all','default'=> false,])
 						              ."</span>";
                 		switch($presentation){
                 		    case 'pallet':
@@ -989,7 +1316,7 @@ Switch ($perspective){
                                 </div>";                                                                                                               $display.='$presentation'.$presentation.'<br>';
         //Note: $qid receives the value of $cid
                         		//$first_line = elgg_view('forms/transfers/edit',['perspective'=>$perspective, 'presentation'=>$presentation, 'section'=>'boqx_contents_receipt', 'snippet'=>'receipt_item', 'display_state'=>'edit', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$cid, 'qid_n'=>$cid.'_'.$n, 'n'=>$n]);
-                        		$first_line = elgg_view('forms/transfers/edit',['perspective'=>$perspective, 'presentation'=>$presentation, 'section'=>'boqx_contents_receipt', 'snippet'=>'receipt_item', 'display_state'=>'edit', 'parent_cid'=>$cid]);
+                        		$first_line = elgg_view('forms/transfers/edit',['perspective'=>$perspective, 'presentation'=>$presentation, 'section'=>'boqx_contents', 'snippet'=>'single_thing', 'aspect'=>'receipt_item', 'display_state'=>'edit', 'parent_cid'=>$cid]);
                         		$first_line_properties = elgg_view('forms/transfers/edit',['perspective'=>$perspective, 'presentation'=>$presentation, 'section'=>'boqx_contents_receipt', 'snippet'=>'receipt_item_properties', 'parent_cid'=>$cid]);
                         		$preorder_input .= "<div class='rTable pre-order'>
                                                  <div class='rTableBody'>
@@ -1005,10 +1332,7 @@ Switch ($perspective){
                         					  </div>";
                         		
                         		
-                                $line_items_header= "
-                                                $first_line
-                        			    		<div id={$cid}_new_line_items class='new_line_items'></div>
-                                                $line_items_footer";
+                                $line_items_header = $first_line;
                                 $form_header = "
                         	    	<div class='rTable'>
                         				<div class='rTableBody'>
@@ -1071,7 +1395,7 @@ Switch ($perspective){
                                 $boqx_contents_receipt_edit = "
                                     <div class='TaskEdit___1Xmiy6lz' data-aid='TaskEdit' data-cid='$cid'>
                                         $hidden_fields
-                        			    <a class='autosaves collapser-receipt' id='receipt_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
+                        			    <a class='collapser collapser-receipt' id='receipt_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
                         				<section class='TaskEdit__descriptionContainer___3NOvIiZo info_box'>
                                             <fieldset class='name'>
                                             	<div class='AutosizeTextarea___2iWScFt6' style='display: flex;'>
@@ -1087,56 +1411,60 @@ Switch ($perspective){
                                                 $form_header
                                             </section>
                                             <section class='receipt-items'>
-                                             	<div>
+                                             	<div class='boqx-pallet' data-cid='$cid'>
                                              		<h5 style='padding:10px 0 0 10px;'>Items</h5>
                                              		$line_items_header
                                              	</div>
+                                                $line_items_footer
                                             </section>
                         				</section>
                         			</div>";
 
-                		        break;                		    
+                		        break;
+				/****************************************
+*add********** $section = 'boqx_contents_receipt' $snippet= default *****************************************************************
+				 ****************************************/
                 		    default:
-                		        $hidden[] =['name'=>"jot[$parent_cid][$cid][boqx]",
+                		        $hidden[] =['name'=>"jot[$cid][boqx]",
         		                            'value' => $parent_cid];
-        		                $hidden[] =['name'=>"jot[$parent_cid][$cid][cid]",
+        		                $hidden[] =['name'=>"jot[$cid][cid]",
         		                            'value' => $cid];
-                                $hidden[] =['name'=>"jot[$parent_cid][$cid][aspect]",
+                                $hidden[] =['name'=>"jot[$cid][aspect]",
         		                            'value' => 'receipt',
         		                            'data-focus-id' => "Aspect--{$cid}"];
-        		                $hidden[] =['name'=>"jot[$parent_cid][$cid][fill_level]",
+        		                $hidden[] =['name'=>"jot[$cid][fill_level]",
         		                            'value' => '0',
         		                            'data-focus-id' => "FillLevel--{$cid}"];
-        		                $title_input             = elgg_view('input/text'  , ['name' => "jot[$parent_cid][$cid][title]"             , 'class'=>'receipt-input'  , 'placeholder' => 'Receipt name', 'required'=>'']);
-        		                $merchant = elgg_view('output/span', ['content'=>elgg_view('input/grouppicker', ['name' => "jot[$parent_cid][$cid][merchant]",
+        		                $title_input             = elgg_view('input/text'  , ['name' => "jot[$cid][title]"             , 'class'=>'receipt-input'  , 'placeholder' => 'Receipt name', 'required'=>'']);
+        		                $merchant = elgg_view('output/span', ['content'=>elgg_view('input/grouppicker', ['name' => "jot[$cid][merchant]",
                                                                                                                  'limit'=> 1,
                                                                                                                  'autocomplete'=>'on',
                                                                                     				            ]),
                                                                       'options' => ['data-focus-id'=> "MerchantAdd--$cid"],
                                 		                              'class'=>'receipt-input',]);
                                 $associate_label         = 'Sales Assoc.';
-                                $asset_input             = elgg_view('input/text'  , ['name' => "jot[$parent_cid][$cid][asset]"             , 'class'=>'receipt-input']);
-                                $cashier                 = elgg_view('input/text'  , ['name' => "jot[$parent_cid][$cid][cashier]"           , 'class'=>'receipt-input']);
+                                $asset_input             = elgg_view('input/text'  , ['name' => "jot[$cid][asset]"             , 'class'=>'receipt-input']);
+                                $cashier                 = elgg_view('input/text'  , ['name' => "jot[$cid][cashier]"           , 'class'=>'receipt-input']);
                                 $transaction_date_label  = 'Purchase Date';
                                 $moment_label_receipt    = elgg_view('output/span' , ['content'=>'Date'                                                       , 'class'=>'receipt-input']);
-                                $moment                  = elgg_view('input/date'  , ['name' => "jot[$parent_cid][$cid][moment]"            , 'class'=>'receipt-input'   , 'value' => strtotime("now")]);
+                                $moment                  = elgg_view('input/date'  , ['name' => "jot[$cid][moment]"            , 'class'=>'receipt-input'   , 'value' => strtotime("now")]);
                                 $actor_label             = 'Buyer';
-                                $purchased_by            = elgg_view('input/text'  , ['name' => "jot[$parent_cid][$cid][purchased_by]"      , 'class'=>'receipt-input']);
+                                $purchased_by            = elgg_view('input/text'  , ['name' => "jot[$cid][purchased_by]"      , 'class'=>'receipt-input']);
                                 $order_no_label          = 'Order #';
-                                $order_no                = elgg_view('input/text'  , ['name' => "jot[$parent_cid][$cid][order_no]"          , 'class'=>'receipt-input']);
+                                $order_no                = elgg_view('input/text'  , ['name' => "jot[$cid][order_no]"          , 'class'=>'receipt-input']);
                                 $preorder_label          = 'Ordered';
-                                $preorder_options        =                           ['name'=>"jot[$parent_cid][$cid][preorder_flag]"       , 'class'=>'preorder-flag'   ,'label_class'=>'receipt-input'];
+                                $preorder_options        =                           ['name'=>"jot[$cid][preorder_flag]"       , 'class'=>'preorder-flag'   ,'label_class'=>'receipt-input'];
                                 $preorder_flag           = elgg_view('input/switchbox',$preorder_options);
                                 $preorder_style          = 'visibility:hidden';
                                 $delivery_date_label     = 'Scheduled date';
-                                $delivery_date           = elgg_view('input/date'  , ['name'=>"jot[$parent_cid][$cid][delivery_date]"       , 'class'=>'receipt-input'   , 'style'=>'width:100px;']);
+                                $delivery_date           = elgg_view('input/date'  , ['name'=>"jot[$cid][delivery_date]"       , 'class'=>'receipt-input'   , 'style'=>'width:100px;']);
                                 $purchase_order_no_label = 'PO #';
-                                $purchase_order_no       = elgg_view('input/text'  , ['name' => "jot[$parent_cid][$cid][purchase_order_no]" , 'class'=>'receipt-input'   , 'style'=>'width:100px;']);
+                                $purchase_order_no       = elgg_view('input/text'  , ['name' => "jot[$cid][purchase_order_no]" , 'class'=>'receipt-input'   , 'style'=>'width:100px;']);
                                 $invoice_no_label        = 'Invoice #';
-                            	$invoice_no              = elgg_view('input/text'  , ['name' => "jot[$parent_cid][$cid][invoice_no]"        , 'class'=>'receipt-input']);
-                                $document_no             = elgg_view('input/text'  , ['name' => "jot[$parent_cid][$cid][document_no]"       , 'class'=>'receipt-input']);
+                            	$invoice_no              = elgg_view('input/text'  , ['name' => "jot[$cid][invoice_no]"        , 'class'=>'receipt-input']);
+                                $document_no             = elgg_view('input/text'  , ['name' => "jot[$cid][document_no]"       , 'class'=>'receipt-input']);
                                 $transaction_no_label    = 'Receipt #';
-                                $receipt_no              = elgg_view('input/text'  , ['name' => "jot[$parent_cid][$cid][receipt_no]"        , 'class'=>'receipt-input']);
+                                $receipt_no              = elgg_view('input/text'  , ['name' => "jot[$cid][receipt_no]"        , 'class'=>'receipt-input']);
         //Note: $qid receives the value of $cid
                                 $receipt_item_header_selector = elgg_view('output/span', ['content'=> elgg_view('output/url', ['text' => '+',
                             																			 					   'href' => '#',
@@ -1165,11 +1493,11 @@ Switch ($perspective){
                                             	        'text' => elgg_view_icon('delete-alt'),
                                             	    ));
                             	$delete = elgg_view("output/span", ["content"=>$delete_button]);
-                            	$service_marker_title       = "<textarea data-aid='name' tabindex='0' data-focus-id='NameEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy2 NameEdit___Mak{$cid}_{$n}' style='padding-top: 0px;margin: 8px;' name='jot[$parent_cid][$cid][title]' placeholder='Receipt name'></textarea>";
-                            	$service_marker_description = "<textarea name='jot[$parent_cid][$cid][description]' aria-labelledby='description$cid' data-aid='textarea' data-focus-id='ServiceEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy editor___1qKjhI5c tracker_markup' style='margin: 0px 0px 3px;display: block;' placeholder='Describe the service'></textarea>";
+                            	$service_marker_title       = "<textarea data-aid='name' tabindex='0' data-focus-id='NameEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy2 NameEdit___Mak{$cid}_{$n}' style='padding-top: 0px;margin: 8px;' name='jot[$cid][title]' placeholder='Receipt name'></textarea>";
+                            	$service_marker_description = "<textarea name='jot[$cid][description]' aria-labelledby='description$cid' data-aid='textarea' data-focus-id='ServiceEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy editor___1qKjhI5c tracker_markup' style='margin: 0px 0px 3px;display: block;' placeholder='Describe the service'></textarea>";
                             	
-                        		$shipping_cost  = elgg_view('input/text', ['name' => "jot[$parent_cid][$cid][shipping_cost]", 'data-qid'=>"$cid", 'data-name'=>'shipping_cost', 'data-focus-id'=>"ShippingCost--{$cid}", 'class'=> 'nString']);
-                        		$sales_tax      = elgg_view('input/text', ['name' => "jot[$parent_cid][$cid][sales_tax]", 'data-qid'=>"$cid", 'data-name'=>'sales_tax', 'data-focus-id'=>"SalesTax--{$cid}", 'class'=> 'nString']);
+                        		$shipping_cost  = elgg_view('input/text', ['name' => "jot[$cid][shipping_cost]", 'data-qid'=>"$cid", 'data-name'=>'shipping_cost', 'data-focus-id'=>"ShippingCost--{$cid}", 'class'=> 'nString']);
+                        		$sales_tax      = elgg_view('input/text', ['name' => "jot[$cid][sales_tax]", 'data-qid'=>"$cid", 'data-name'=>'sales_tax', 'data-focus-id'=>"SalesTax--{$cid}", 'class'=> 'nString']);
                         		$sales_tax_rate = $transfer->sales_tax_rate;
                         		$total          = $item_exists ? $receipt_item_total
                         		                                 : money_format('%#10n', $transfer->total);
@@ -1213,7 +1541,8 @@ Switch ($perspective){
                         				<div class='rTableCell'><span id={$cid}_total>$total</span><span class='{$cid}_total_raw total_raw'></span></div>
                         			</div>";
         //Note: $qid receives the value of $cid
-                        		$first_line = elgg_view('forms/transfers/edit',['perspective'=>$perspective, 'presentation'=>$presentation, 'section'=>'boqx_contents_receipt', 'snippet'=>'receipt_item', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$cid, 'qid_n'=>$cid.'_'.$n, 'n'=>$n]);
+                        		//$first_line = elgg_view('forms/transfers/edit',['perspective'=>$perspective, 'presentation'=>$presentation, 'section'=>'boqx_contents_receipt', 'snippet'=>'receipt_item', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$cid, 'qid_n'=>$cid.'_'.$n, 'n'=>$n]);
+                        		$first_line = elgg_view('forms/transfers/edit',['perspective'=>$perspective, 'presentation'=>$presentation, 'display_state'=>$perspective, 'section'=>'boqx_contents', 'snippet'=>'single_thing', 'aspect'=>'receipt_item', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$cid, 'qid_n'=>$cid.'_'.$n, 'n'=>$n]);
                         		$first_line_properties = elgg_view('forms/transfers/edit',['perspective'=>$perspective, 'presentation'=>$presentation, 'section'=>'boqx_contents_receipt', 'snippet'=>'receipt_item_properties', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$cid, 'qid_n'=>$cid.'_'.$n, 'n'=>$n]);
                         		$preorder_input .= "<div class='rTable pre-order'>
                                                  <div class='rTableBody'>
@@ -1303,7 +1632,7 @@ Switch ($perspective){
                                 $boqx_contents_receipt_edit = "
                                     <div class='TaskEdit___1Xmiy6lz' style='display:none' data-aid='TaskEdit' data-cid='$cid'>
                         			    $hidden_fields
-                        	    		<a class='autosaves collapser-receipt-item' id='story_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
+                        	    		<a class='collapser collapser-receipt-item' id='story_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
                         				<section class='TaskEdit__descriptionContainer___3NOvIiZo info_box'>
                                             <fieldset class='name'>
                                             	<div class='AutosizeTextarea___2iWScFt6' style='display: flex;'>
@@ -1337,18 +1666,18 @@ Switch ($perspective){
 				/****************************************
 *add********** $section = 'boqx_contents_receipt' $snippet='service_item' 'receipt_item' *****************************************************************
 				 ****************************************/
-             		case 'service_item':
-             		case 'receipt_item':
-                        $display_state = elgg_extract('display_state', $vars, $perspective);
+/*             		case 'service_item_xxx':
+             		case 'receipt_item_xxx':
+                        $aspect        = elgg_extract('aspect', $vars, 'receipt_item');
                         $element = 'receipt_item';
-		                $delete = elgg_format_element("span",['class'=>'remove-receipt-item'], elgg_format_element('url', ['title' =>'remove receipt item',
-                                                                    	                                                   '#text' => elgg_view_icon('delete-alt'),]));
+		                $delete = elgg_format_element("span",['class'=>'remove-receipt-item'], elgg_format_element('a', ['title' =>'remove receipt item'],
+                                                                    	                                                elgg_view_icon('delete-alt')));
 		                switch($presentation){
 		                    case 'pallet':
                      			unset($hidden, $hidden_fields);
         		                $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
         		                $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
-                                $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => 'receipt'      , 'data-focus-id' => "Aspect--{$cid}"];
+                                $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $aspect      , 'data-focus-id' => "Aspect--{$cid}"];
         		                $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => '0'            , 'data-focus-id' => "FillLevel--{$cid}"];
         		                $hidden[] =['name'=>"jot[$cid][sort_order]", 'value' => "$n"           , 'data-focus-id' => "SortOrder--{$cid}"];
         		                if (!empty($hidden)){                
@@ -1365,7 +1694,7 @@ Switch ($perspective){
 		                        $style_add = $style_show = $style_edit = "style='display:none;'";
 		                        $edit_properties_button = elgg_view('output/url', ['data-cid'            => $cid,
         														                   'class'               => "ItemEdit__showContainer",
-		                                                                           'text'                => elgg_view_icon('settings-alt')."Item Details", 
+		                                                                           'text'                => elgg_view_icon('settings-alt').'Item Details', 
         												                           'title'               => 'show properties',]);
 		                        $receipt_item_title        = "<textarea data-aid='name' tabindex='0' data-focus-id='NameEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy2 NameEdit___Mak{$cid}_{$n}' style='padding-top: 0px;margin: 8px;' name='jot[$cid][title]' placeholder='Item name'></textarea>";
 //                    	        $receipt_item_description  = "<textarea name='jot[$cid][description]' aria-labelledby='description$cid' data-aid='textarea' data-focus-id='ServiceEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy editor___1qKjhI5c tracker_markup' placeholder='Describe the item'></textarea>";
@@ -1412,41 +1741,34 @@ Switch ($perspective){
                                                         </div>
                                                     </div>
                                                </div>";
-                    	        $category_selector = "<div class='dropdown contents closed' data-contents='collections-$cid' data-cid='$cid'>  
-                                    <input aria-hidden='true' type='hidden' name='jot[$cid][aspect2]' value='0'>
-                                  <a id='story_estimate_dropdown_$cid' class='selection item_0' tabindex='-1'><span>Select ...</span></a>
-                                  <a id='story_estimate_dropdown_{$cid}_arrow' class='arrow target' tabindex='-1'></a>
-                                  <section>
-                                  <div class='dropdown_menu'>
-                                      <ul>
-                                        <li data-value='music' data-index='11' class='dropdown_item' data-aspect='music_collection'>
-                                            <a class='item_10' id='10_boqx_aspect2_dropdown_$cid' href='#'>
-                                                <span class='dropdown_label'>Music Collection</span></a></li>
-                                        <li data-value='book' data-index='12' class='dropdown_item' data-aspect='book_collection'>
-                                            <a class='item_11' id='11_boqx_aspect2_dropdown_$cid' href='#'>
-                                                <span class='dropdown_label'>Book Collection</span></a></li>
-                                        <li data-value='comic_book' data-index='13' class='dropdown_item' data-aspect='comic_book_collection'>
-                                            <a class='item_12' id='12_boqx_aspect2_dropdown_$cid' href='#'>
-                                                <span class='dropdown_label'>Comic Book Collection</span></a></li>
-                                        <li data-value='coin' data-index='14' class='dropdown_item' data-aspect='coin_collection'>
-                                            <a class='item_13' id='13_boqx_aspect2_dropdown_$cid' href='#'>
-                                                <span class='dropdown_label'>Coin Collection</span></a></li>
-                                        <li data-value='stamp' data-index='15' class='dropdown_item' data-aspect='stamp_collection'>
-                                            <a class='item_14' id='14_boqx_aspect2_dropdown_$cid' href='#'>
-                                                <span class='dropdown_label'>Stamp Collection</span></a></li></ul>
-                                    </div>
-                                  </section>
-                                </div>";
-                            	
-                    	        $receipt_item_category     = elgg_format_element('div', 
-                    	                                                        ['class'=>'info_box'],
-                    	                                                         elgg_format_element('div', 
-                    	                                                                            ['class'=>'info'],
-                    	                                                                             elgg_format_element('div',
-                    	                                                                                                ['class'=>'row'],
-                    	                                                                                                "<em>Category</em>".
-                    	                                                                                                 $category_selector
-                    	                                                                                                 )));
+                            	$value                 = elgg_get_site_entity()->guid;
+                            	$boqx_name             = 'category';
+                                $options['aspects']    = quebx_boqx_aspect_options($boqx_name,['root'=>$value]);//, 'order_by_metadata'=>['name'=>'name','direction' => 'ASC', 'as' => 'text']]);
+                                $options['boqx_name']  = $boqx_name;
+                                $options['boqx_aspect']= 'category';
+                                $options['boqx_value'] = $value;
+                                $options['cid']        = $cid;
+                                $options['menu_level'] = 1;
+                                $options['boqx_class'] ='compartmentBoqx__Cdil2TkU';
+                                $options['list_class'] ='pickList__Upq66A3H';
+                                $options['item_class'] ='pickItem__GaGSmQJ6';
+                                $options['crumb_class']='pickItem__ehybudK0';
+                                $options['label_class']='pickLabel__2JR0Zrcl';
+                                $weir_menu             = elgg_view('navigation/weir_menu', $options);
+                
+                                $marker_boqx_selector = "<div class='dropdown aspect' data-selector='boqx_aspect' data-cid='$cid'>  
+                                        <input aria-hidden='true' type='hidden' name='jot[$cid][aspect]'>
+                                      <a id='story_estimate_dropdown_$cid' class='selection item_0' tabindex='-1'><span>Select ...</span></a>
+                                      <a id='story_estimate_dropdown_{$cid}_arrow' class='arrow target' tabindex='-1'></a>
+                                      <section class='pickAspect__VRYE6ZAO closed'>
+                                        $weir_menu
+                                    </section>
+                                  </div>";                            	
+                    	        $receipt_item_category     = elgg_format_element('div', ['class'=>['info_box','free']],
+                    	                                         elgg_format_element('div', ['class'=>'info'],
+                    	                                              elgg_format_element('div', ['class'=>'row'],
+                    	                                                  "<em>Category</em>".
+                    	                                                  $marker_boqx_selector)));
                     	        $category_picker = elgg_view('input/category', ['presentation'=>$presentation, 'perspective'=>$perspective, 'parent_cid'=>$cid, 'add_leaf' => false,'category_class'=>'BoqxCategoryPick__gNSC0Iny','item_class'=>'CategoryDropdownItem___qgkw9JYv', 'root_name_override'=>'blah', 'show_section_headers'=>false]);
                     	        $line_item_properties      = $receipt_item_description;
         						//$line_item_properties     .= elgg_view('forms/market/profile', ['presentation'=>$presentation]);
@@ -1455,31 +1777,30 @@ Switch ($perspective){
                     	        $line_item_properties     .= elgg_view('forms/market/edit', ['presentation'=>$presentation, 'perspective'=>$perspective, 'parent_cid'=>$cid]);    
                     	        switch ($display_state){case 'add':  unset($style_add);  break;
                     	                                case 'show': unset($style_show); break;
-                    	                                case 'edit': unset($style_edit); break;}
+                    	                                case 'edit': $style_edit = "style='display:flex;'"; break;}
 		                        $boqx_contents_add = "<div tabindex='0' class='AddSubresourceButton___oKRbUbg6' $style_add data-aid='TaskAdd' data-focus-id='TaskAdd' data-cid='$cid' data-guid='$guid'>
                                                     				<span class='AddSubresourceButton__icon___h1-Z9ENT'></span>
                                                     				<span class='AddSubresourceButton__message___2vsNCBXi'>Add an item</span>
                                                 			  </div>";
-                                $boqx_contents_show = "<div class='ItemShow_Btc471up' $style_show data-aid='TaskShow' data-cid='$cid' style='display:none' draggable='true'>
+                                $boqx_contents_show = "<div class='ItemShow_Btc471up' $style_show data-aid='TaskShow' data-cid='$cid' draggable='true'>
                     					<div>
-                                            <nav class='TaskShow__actions___3dCdQMej TaskShow__actions--unfocused___3SQSv294'>
+                                            <nav class='ItemShow__actions__4AR4v8MP ItemShow__actions--unfocused___1df6Nh5x'>
                             					<button class='IconButton___2y4Scyq6 IconButton--small___3D375vVd' data-aid='delete' aria-label='Delete' data-cid='$cid'>
                             						$delete
                             					</button>
                             				</nav>
                     					</div>
-                                        <div>
-                                            <span class='TaskShow__title___O4DM7q tracker_markup section-add-boqx_contents_receipt-marker1'></span>
-                            				<span class='TaskShow__description___qpuz67f tracker_markup'></span>
-                        					<span class='TaskShow__service_items___2wMiVig tracker_markup'></span>
+                                        <div class='ItemShow__line_gSpQE5Ao'>
+                                            <span class='ItemShow__title__8tlRYJcP section-add-boqx_contents_receipt-marker1'></span>
+                        					<span class='ItemShow__item_total__Dgd1dOSZ'></span>
                                         </div>
                         			</div>";
                                 $boqx_contents_edit = "
-                                    <div class='ItemEdit___7asBc1YY info_box' $style_edit data-aid='ItemEdit' data-cid='$cid'>
+                                    <div class='ItemEdit___7asBc1YY info_box free' $style_edit data-aid='ItemEdit' data-cid='$cid'>
                         			    $hidden_fields
                                         <div class='ItemEditValue'>
-                            	    		<a class='autosaves collapser-receipt-item' id='receipt_item_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
-                                            <section class='ItemLedger__KY8DM3qs'>
+                            	    		<a class='collapser collapser-receipt-item' id='receipt_item_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
+                                            <section class='ItemLedger__KY8DM3qs' data-cid='$cid'>
                                                 <fieldset class='name'>
                                                 	<div class='AutosizeTextarea___2iWScFt6' style='display: flex;'>
                                                         <div data-reactroot='' class='AutosizeTextarea___2iWScFt62' style='flex-basis: 400px;'>
@@ -1528,18 +1849,18 @@ Switch ($perspective){
                                                 </div>
                                             </section>
                                         </div>
-                                        <div>
-                                            <h5 style='padding:10px 0 0 10px;'>$edit_properties_button</h5>
-                                        </div>
-                                        <div>
-                        				<section class='ItemEdit__descriptionContainer___Mr67pXjd info_box ItemEditContainer__$cid' >
-                                            <section class='receipt-item-properties receipt-item-properties__$cid'>
-                                             		$line_item_properties
-                                            </section>
-                        				</section>
+                                        <div class='ShowItemDetails__Uc3MWjrS'>
+                                            <div class='ShowItemDetailsButton__qWXhMy9t' data-cid='$cid'>
+                                                <h3>".elgg_view_icon('settings-alt')."Item Details</h3>
+                                            </div>
+                            				<section class='ItemEdit__descriptionContainer___Mr67pXjd ItemEditContainer__$cid' >
+                                                <section class='receipt-item-properties receipt-item-properties__$cid'>
+                                                 		$line_item_properties
+                                                </section>
+                            				</section>
                                         </div>
                         			</div>";
-                                $receipt_item_row = elgg_format_element('div',['class'=>'boqx-receipt-item', 'id'=>"$cid", 'boqx-fill-level'=>'0'], $boqx_contents_add.$boqx_contents_show.$boqx_contents_edit);
+                                $receipt_item_row = elgg_format_element('div',['class'=>['boqx-receipt-item','ReceiptItem__nhjb4ONn'], 'id'=>"$cid", 'boqx-fill-level'=>'0'], $boqx_contents_add.$boqx_contents_show.$boqx_contents_edit);
 		                        break;
 		                    default:
                      			unset($hidden, $hidden_fields);
@@ -1592,7 +1913,7 @@ Switch ($perspective){
         				                </div>";
         						break;
 		                }
-             			break;
+             			break;*/
 				/****************************************
 *add********** $section = 'boqx_contents_receipt' $snippet='service_item_properties' 'receipt_item_properties'***********
 				 ****************************************/
@@ -1605,7 +1926,7 @@ Switch ($perspective){
 					                    'parent_cid'     => $parent_cid,
                                   	    'cid'            => $cid,
                                   	    'n'              => $n,
-					                    'data_prefix'    => "jot[$parent_cid][$cid][$n][",
+					                    'data_prefix'    => "jot[$cid][$n][",
 					                   ];
 					    $content = elgg_view($form_action,$body_vars);
              		    break;
@@ -1665,7 +1986,7 @@ Switch ($perspective){
 	                                    'parent_cid'     => $parent_cid,
                                   	    'cid'            => $cid,
                                   	    'n'              => $n,
-					                    'data_prefix'    => "jot[$parent_cid][$cid][$n][",
+					                    'data_prefix'    => "jot[$cid][",
 					                   ];
 					    $content = elgg_view($form_action,$body_vars);
              		    break;
@@ -1961,7 +2282,7 @@ Switch ($perspective){
                             	 "</label>";
             	$maximize_button = "<button type='button' class='autosaves maximize hoverable' id='story_maximize_$cid' tabindex='-1' title='Switch to a full view'></a>";
                 $delete = elgg_view("output/span", ["class"=>"remove-card", "content"=>$delete_button]);
-                $collapser = elgg_extract('collapser', $vars, "<a class='autosaves collapser-effort' id='effort_collapser_$cid' data-cid='$cid' tabindex='-1'></a>");
+                $collapser = elgg_extract('collapser', $vars, "<a class='collapser collapser-effort' id='effort_collapser_$cid' data-cid='$cid' tabindex='-1'></a>");
             	
             	$edit_boqx = "<button data-aid='editEffortButton' class='ThingsBundle__submit___q0kFhFBf autosaves button std egg' type='submit' tabindex='-1' data-parent-cid='$parent_cid' data-cid='$cid' data-qid='$qid' data-guid='$guid'>Save</button>";
             	$cancel_effort = "<button class='autosaves cancel clear' type='reset' id='boqx_submit_cancel_$cid' data-parent-cid='$parent_cid' data-cid='$cid' data-qid='$qid' data-guid='$guid' tabindex='-1'>Cancel</button>";
@@ -2471,7 +2792,7 @@ Switch ($perspective){
                         $boqx_contents_receipt_edit = "
                             <div class='TaskEdit___1Xmiy6lz' style='display:none' data-aid='TaskEdit' data-cid='$cid'>
                 			    $hidden_fields
-                	    		<a class='autosaves collapser-receipt-item' id='story_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
+                	    		<a class='collapser collapser-receipt-item' id='story_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
                 				<section class='TaskEdit__descriptionContainer___3NOvIiZo info_box'>
                                     <fieldset class='name'>
                                     	<div class='AutosizeTextarea___2iWScFt6' style='display: flex;'>
@@ -3207,7 +3528,7 @@ Switch ($perspective){
                         $boqx_contents_receipt_edit = "
                             <div class='TaskEdit___1Xmiy6lz' style='display:none' data-aid='TaskEdit' data-cid='$cid'>
                 			    $hidden_fields
-                	    		<a class='autosaves collapser-receipt-item' id='story_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
+                	    		<a class='collapser collapser-receipt-item' id='story_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
                 				<section class='TaskEdit__descriptionContainer___3NOvIiZo info_box'>
                                     <fieldset class='name'>
                                     	<div class='AutosizeTextarea___2iWScFt6' style='display: flex;'>
@@ -3392,18 +3713,20 @@ $section = 'things_boqx'              ******************************************
                     'n'           => $n,
                     'cid'         => $cid,
                     'boqx_cid'    => $parent_cid,
-                    'qid'         => $qid,
-                    'hidden_fields'=>$hidden_fields,]);
-                $form_body .= "<div data-aid='Efforts' class='things-boqx-default' action ='$perspective'>
+                    'qid'         => $qid,]);
+                $counter     = elgg_format_element('span', ['class'=>'efforts-eggs', 'data-aid'=>'effortCounts', 'data-cid'=>$cid, 'data-qid'=>$qid, 'data-guid'=>$guid]);
+/*                $form_body .= "<div data-aid='Efforts' class='things-boqx-default' action ='$perspective'>
+                                    $hidden_fields
                                     <span class='efforts-eggs' data-aid='effortCounts' $data_guid data-cid='$cid' data-qid='$qid'></span>
                                     $things_boqx
                                </div>";                                                                          $display .= '1076 $things_boqx-default ... <br>1076 $cid: '.$cid.'<br>1076 $service_cid: '.$service_cid;
+*/                $form_body .= $hidden_fields.elgg_format_element('div',['id'=>$cid, 'class'=>'Effort__ATAgsAWL things-boqx-default', 'data-aid'=>'Efforts', 'action'=>$perspective],$counter.$things_boqx);
                 break;
             default:
                 if (!$things_boqx)
                     break;
-                $form_body .= "<div data-aid='Efforts' class='things-boqx-default' action ='$perspective'>
-                                    $hidden_fields
+                $form_body .= "$hidden_fields
+                               <div data-aid='Efforts' class='things-boqx-default' action ='$perspective'>
                                     <span class='efforts-eggs' data-aid='effortCounts' $data_guid data-cid='$cid' data-qid='$qid'></span>
                                     $things_boqx
                                </div>";                                                                          $display .= '1076 $things_boqx-default ... <br>1076 $cid: '.$cid.'<br>1076 $service_cid: '.$service_cid;
@@ -3457,7 +3780,7 @@ $section = 'things_bundle'              ****************************************
 		                                                      </nav>
 		                            					    
 		                            					</section>
-<!--                                                        <section class='model_instructions'>
+<!--                                                    <section class='model_instructions'>
                                                             $instructions
                                                         </section>
 -->		                            					<aside>
@@ -3494,7 +3817,7 @@ $section = 'things_bundle'              ****************************************
         		                                                          $marker_participant_link
     		                                                         </div>
 			                                                       </div>
-    		                                                       <div class='aspect row'>
+    		                                                       <div class='contents row'>
     		                                                          <em>Contents</em>
         		                                                      <div class='dropdown'>
                                                                           <div class='contents-selectors'>
@@ -3502,7 +3825,7 @@ $section = 'things_bundle'              ****************************************
         		                                                          </div>
                                                                       </div>
     		                                                       </div>
-    		                                                       <div class='aspect row'>
+    		                                                       <div class='labels row'>
     		                                                          <section class='labels_container full'>
                                                                         <div id='story_labels_$cid' class='labels'>
                                                                             <div class='StoryLabelsMaker___Lw8q4VmA'>
@@ -3620,6 +3943,7 @@ $section = 'boqx_contents'                **************************************
 					    $form_body = $loose_things_line_items;
 					    break;
 					case 'single_thing':
+					    $form_body = $single_thing;
 					case 'single_book':
 					case 'book':
 					case 'comic_book':
@@ -3653,15 +3977,8 @@ $section = 'boqx_contents'                **************************************
 $section = 'boqx_contents_loose_things'    *****************************************************************
 ****************************************/
             case 'boqx_contents_loose_things':
-				$form_body .= "<div class='boqx-contents things' data-aid='Loose Things' data-cid='$parent_cid'>
-                                  <div data-aid='Things'>
-                                       $hidden_fields
-        							   <span class='things-count' data-aid='thingCounts' data-cid='$parent_cid'><h4>Things</h4></span>
-        						       $add_things
-    								   $edit_things
-    								   $view_things
-    						      </div>
-                             </div>";
+				$counter    = elgg_format_element('span', ['class'=>'item-count', 'data-aid'=>'itemCount', 'data-cid'=>$parent_cid], '<h4>Things</h4>');
+				$form_body .= elgg_format_element('div', ['class'=>['boqx-pallet', 'things'], 'data-aid'=>'items', 'data-cid'=>$parent_cid],$hidden_fields.$counter.$add_things.$edit_things.$view_things);
 				break;
 /****************************************
 $section = 'boqx_contents_receipt'        *****************************************************************
@@ -3669,7 +3986,7 @@ $section = 'boqx_contents_receipt'        **************************************
             case 'boqx_contents_receipt':
 				Switch ($snippet){
 					case 'marker1':
-						$form_body .="<div id='$cid' class='ServiceEffort__26XCaBQk boqx_contents_receipt-marker1' data-qid='$qid' data-parent-cid='$parent_cid' data-cid='$cid' boqx-fill-level='0'>
+						$form_body .="<div class='ServiceEffort__26XCaBQk boqx_contents_receipt-marker1' data-qid='$qid' data-parent-cid='$parent_cid' data-cid='$cid' boqx-fill-level='0'>
             							$boqx_contents_receipt_add
             							$boqx_contents_receipt_show
             							$boqx_contents_receipt_edit
@@ -3693,7 +4010,7 @@ $section = 'boqx_contents_receipt' $snippet = 'service_item_properties' 'receipt
 $section = 'boqx_contents_receipt' *******************************************
 ****************************************/
 						default:
-						$form_body .= "<div id='$parent_cid' class='AcquistionEffort__bNMQfidM boqx-contents receipts closed' data-cid='$parent_cid' data-aid='Receipts'>
+						$form_body .= "<div class='AcquistionEffort__bNMQfidM boqx-pallet receipts closed' data-cid='$parent_cid' data-aid='Receipts'>
                                          <div data-aid='Tasks'>
                                                $hidden_fields
                 							   <span class='receipts-count' data-aid='receiptCounts' data-cid='$parent_cid'><h4>Receipts</h4></span>
@@ -3710,7 +4027,7 @@ $section = 'boqx_contents_receipt' *******************************************
 $section = 'boqx_contents_experience'    *****************************************************************
 ****************************************/
             case 'boqx_contents_experience':
-				$form_body .= "<div class='boqx-contents experience closed' data-aid='Experience' data-cid='$parent_cid'>
+				$form_body .= "<div class='boqx-pallet experience closed' data-aid='Experience' data-cid='$parent_cid'>
                                   <div>
                                        $hidden_fields
         							   <span class='things-count' data-aid='thingCounts' data-cid='$parent_cid'><h4>Experience</h4></span>
@@ -3733,7 +4050,7 @@ $section = 'boqx_contents_books'         ***************************************
                                </div>";
 			        break;
 			    default:
-				$form_body .= "<div class='boqx-contents book_collection closed' data-aid='Book Collection' data-cid='$parent_cid'>
+				$form_body .= "<div class='boqx-pallet book_collection closed' data-aid='Book Collection' data-cid='$parent_cid'>
                                    <div data-aid='Books'>
                                        $hidden_fields
         							   <span class='things-count' data-aid='thingCounts' data-cid='$parent_cid'><h4>Book Collection</h4></span>

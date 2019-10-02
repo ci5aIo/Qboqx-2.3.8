@@ -564,9 +564,25 @@ $(document).ready(function(){
        $(this).addClass('restore');
        $(this).attr('title', 'Restore view');
     });
+    $(document).on('click', 'button.maximize',function(e){
+       e.preventDefault();
+       var $boqx = $(this).parents('.empty-boqx');
+       $boqx.addClass('maximized');
+       $(this).removeClass('maxmize');
+       $(this).addClass('restore');
+       $(this).attr('title', 'Restore view');
+    });
     $(document).on('click', 'a.restore',function(e){
        e.preventDefault();
        var $boqx = $(this).parents('.EffortEdit_fZJyC62e');
+       $boqx.removeClass('maximized');
+       $(this).addClass('maxmize');
+       $(this).removeClass('restore');
+       $(this).attr('title', 'Switch to a full view');
+    });
+    $(document).on('click', 'button.restore',function(e){
+       e.preventDefault();
+       var $boqx = $(this).parents('.empty-boqx');
        $boqx.removeClass('maximized');
        $(this).addClass('maxmize');
        $(this).removeClass('restore');
@@ -597,7 +613,7 @@ $(document).ready(function(){
           console.log('cid: '+cid);
           $(header).removeClass("collapsed");
           $(header).addClass("expanded");
-          $(header).find("span.story_name").html(str);
+         // $(header).find("span.story_name").html(str);
           $(model).hide();
       });
     $(document).on("click", "a.collapser", function(e) {
@@ -659,14 +675,14 @@ $(document).ready(function(){
             $empty_boqx.hide();
         }
     });
-    $(".weir_menu .pickItem__S1zeipik, .weir_selections .pickedItem__Dows8rhn").on({
+/*    $(".weir_menu .pickItem__S1zeipik, .weir_selections .pickedItem__Dows8rhn").on({
        mouseenter: function(){
           $(this).addClass('hover');
        },
        mouseleave: function(){
           $(this).removeClass('hover');
        }
-    });
+    });*/
     $(document).on("click", ".dropdown .arrow", function(e){
       e.preventDefault();
       var closed_state = $(this).next('section').hasClass('closed');
@@ -675,24 +691,56 @@ $(document).ready(function(){
       if (closed_state)                                              //allows menu toggling
           $(this).next(".dropdown section").removeClass('closed');
     });
+//    $(document).on("click", "li.pickItem__S1zeipik :not(.pickChildren__HBThno)", function(e) {
     $(document).on("click", "li.pickItem__S1zeipik", function(e) {
+    // Bail if children requested.  Handled by Ajax in jot_form_elements.js
+       if ($(e.target).is('.pickChildren__HBThno')) return;
+    //Boqx Contents Selector
        var value = $(this).data("value"),
            label = $(this).find(".pickLabel__sdRC4Kf9").text(),
            cid   = $(this).parents('.dropdown').data('cid'),
            aspect= $(this).data('aspect'),
            $menu = $(this).parents('.pickAspect__RFFo494j');
-       var $contents_section  = $('section.contents .boqx-contents.'+aspect+'[data-cid='+cid+']');
+       var $contents_section  = $('section.contents .boqx-pallet.'+aspect+'[data-cid='+cid+']');
+       $(this).parents(".dropdown").children("input").attr("value", value);
+       $(this).parents(".dropdown").children("a.selection").children("span").text(label);
+       $menu.addClass('closed');
+       $('section.contents').children('.boqx-pallet').addClass('closed');
+       $contents_section.removeClass('closed');
+    });
+    $(document).on("click", ".pickItem__GaGSmQJ6", function(e) {
+    // Bail if children requested.  Handled by Ajax in jot_form_elements.js
+       if ($(e.target).is('.pickChildren__HBThno')) return;
+    //Receipt Item Category Selector
+       var value = $(this).data("value"),
+           label = $(this).find(".pickLabel__2JR0Zrcl").text(),
+           cid   = $(this).parents('.dropdown').data('cid'),
+           aspect= $(this).data('aspect'),
+           $menu = $(this).parents('.pickCategory__VRYE6ZAO');
        var has_children = $(this).hasClass('has_children');
        
        if (has_children) return;
        
-       var has_aspect   = typeof(aspect) != 'undefined' ;
        $(this).parents(".dropdown").children("input").attr("value", value);
        $(this).parents(".dropdown").children("a.selection").children("span").text(label);
        $menu.addClass('closed');
-       $('section.contents').children('.boqx-contents').addClass('closed');
+    });
+    $(document).on("click", ".pickItem__ujGWJJw9", function(e) {
+       var value = $(this).data("value"),
+           aspect= $(this).parents(".dropdown").children("input").val(),
+           aspect_class,
+           cid   = $(this).parents('.dropdown').data('cid'),
+           $menu = $(this).parents('.pickAspect__RFFo494j');
+       if(typeof aspect == 'undefined') aspect_class = '.'+aspect;
+       var $contents_section  = $('section.contents .boqx-pallet'+aspect_class+'[data-cid='+cid+']');
+       $menu.addClass('closed');
+       $('section.contents').children('.boqx-pallet').addClass('closed');
        $contents_section.removeClass('closed');
-    });    
+    });
+    $(document).on("click", ".pickItem__ehybudK0", function(e) {
+       var $menu = $(this).parents('pickCategory__VRYE6ZAO');
+       $menu.addClass('closed');
+    });
     $(document).on("click", "li.dropdown_item", function(e) {
        var value = $(this).data("value"),
            label = $(this).find(".dropdown_label").text(),
@@ -902,7 +950,7 @@ $(document).ready(function(){
          }
         
     });
-    $(document).on("click", "a.collapser-receipt-item", function(e) {
+    $(document).on("click", "a.collapser-item", function(e) {
         e.preventDefault();
         var cid = $(this).attr("data-cid");
         var $boqx = $(document).find('#'+cid);
@@ -910,7 +958,7 @@ $(document).ready(function(){
             $this_panel  = $boqx.children('.ItemEdit___7asBc1YY');
         var $show_panel  = $boqx.children('.ItemShow_Btc471up');
         var $add_panel   = $boqx.children('.AddSubresourceButton___oKRbUbg6');
-        if (fill_level == 'full' || fill_level >= 3){
+        if (fill_level == 'full' || fill_level >= 2){
            $show_panel.show();
            $this_panel.hide();
         }
@@ -920,7 +968,7 @@ $(document).ready(function(){
          }
         
     });
-    $(document).on('click', 'a.ItemEdit__showContainer', function(e){
+    $(document).on('click', '.ShowItemDetailsButton__qWXhMy9t', function(e){
           var cid = $(this).data('cid');
           $('.ItemEdit__descriptionContainer___Mr67pXjd.ItemEditContainer__'+cid).toggle();
     });
@@ -967,6 +1015,12 @@ $(document).ready(function(){
     $(document).on("click", ".EffortShow_haqOwGZY", function(e) {
         e.preventDefault();
         var edit = $(this).next(".EffortEdit_fZJyC62e");
+        $(edit).show();
+        $(this).hide();        
+    });
+    $(document).on("click", ".ItemShow_Btc471up", function(e) {
+        e.preventDefault();
+        var edit = $(this).next(".ItemEdit___7asBc1YY");
         $(edit).show();
         $(this).hide();        
     });
@@ -1166,6 +1220,7 @@ $(document).ready(function(){
         console.log('button.IconButton___2y4Scyq6.cid: '+cid);
  	   $('span.tasks-count[data-cid='+parent_cid+']').attr('eggs', eggs-1);
         $('div.ServiceEffort__26XCaBQk[data-cid='+cid+']').remove();
+        $('div.Item__nhjb4ONn#'+cid).remove();
     }); 
     $(document).on('click', 'button.IconButton___4wjSqnXU', function(e){
         e.preventDefault();
@@ -1379,14 +1434,13 @@ $(document).ready(function(){
 	    if(!selected){
 		   $(qbox_tabs).find("li.qbox-q3").removeClass('elgg-state-selected');
 		   $(this).parents('li.qbox-q3').addClass('elgg-state-selected');
-		   
+           $all_panels.hide();
+           $this_panel.show();
 	    }
-	    else {
+/*	    else {
 		   $(this).parents('li.qbox-q3').removeClass('elgg-state-selected');
 		   aspect = null;
-	    }
-		$all_panels.hide();
-		$this_panel.show();
+	    }*/
     });
    $(document).on('change','input[name="jot[transfer][donate][delivery]"]', function(e){
 	   var $delivery_address = $(this).parents('ul').parent().next('div.inset');
@@ -1441,37 +1495,40 @@ $(document).ready(function(){
    });
    /**Calculate values for receipts and service items**/
    $(document).on('change', "input[data-name='qty'], input[data-name='cost']",function(e){
-	    var qid_n      = $(this).data('qid');
-        var $qbox      = $(this).parents('div.qbox');
+	    var qid_n           = $(this).data('qid');
+        var $qbox           = $(this).parents('div.qbox');
          if (isNaN($qbox))
-            $qbox      = $(this).parents('div.TaskEdit___1Xmiy6lz');
-        var $line_item = $(this).parents('.rTableRow.receipt_item, .rTableRow.service_item');
-	    var qid        = $qbox.attr('id'),
-            cid        = $line_item.data('cid');
-         if (typeof qid == 'undefined')
-            qid        = $qbox.data('cid');
-        var $this_form = $(this).parents("#"+cid);
-        var $this_row  = $(this).parents('.rTableRow');
-	    var $qty       = $line_item.find("input[data-name='qty'][data-qid="+qid_n+"]")
-            $cost      = $line_item.find("input[data-name='cost'][data-qid="+qid_n+"]"),
-            $line_total= $line_item.find("span#"+qid_n+"_line_total"),
-            $line_total_raw = $line_item.find("span."+qid_n+"_line_total.line_total_raw"),
-            $sales_tax = $qbox.find("input[name='jot[sales_tax]'][data-qid="+qid+"]"),
-            $shipping  = $qbox.find("input[name='jot[shipping_cost]'][data-qid="+qid+"]");
-            if (isNaN($sales_tax)) $sales_tax = $qbox.find("input[data-name='sales_tax'][data-qid="+qid+"]");
-            if (isNaN($shipping))  $shipping  = $qbox.find("input[data-name='shipping_cost'][data-qid="+qid+"]");
-            $subtotal  = $qbox.find("span#"+qid+"_subtotal"),
-            $subtotal_raw  = $qbox.find("span."+qid+"_subtotal"),
-            $total     = $qbox.find("span#"+qid+"_total"),
-            $total_raw = $qbox.find("span."+qid+"_total");
-	    var qty        = parseFloat($qty.val()),
-            cost       = parseFloat($cost.val()),
-            shipping   = parseFloat($shipping.val()),
-            sales_tax  = parseFloat($sales_tax.val()),
+            $qbox           = $(this).parents('div.TaskEdit___1Xmiy6lz');
+        var $line_item      = $(this).parents('.ItemLedger__KY8DM3qs');
+	    if (typeof $line_item == 'undefined') $line_item = $(this).parents('.rTableRow.receipt_item, .rTableRow.service_item');       //console.log('$line_item = ',$line_item);
+        var qid             = $qbox.attr('id'),       
+            cid             = $line_item.data('cid');
+        if (typeof qid == 'undefined')
+            qid             = $qbox.data('cid');                                                                         //console.log('qid = '+qid);console.log('cid = '+cid);
+        var $this_form      = $(this).parents("#"+cid);
+        var $this_row       = $(this).parents('.rTableRow');
+	    var $qty            = $("input[data-name='qty'][data-qid="+qid_n+"]"),
+            $cost           = $("input[data-name='cost'][data-qid="+qid_n+"]"),
+            $line_total     = $("span#"+qid_n+"_line_total"),
+            $line_total_raw = $("span."+qid_n+"_line_total.line_total_raw"),
+            $sales_tax      = $("input[name='jot[sales_tax]'][data-qid="+qid+"]"),
+            $shipping       = $("input[name='jot[shipping_cost]'][data-qid="+qid+"]"),
+            $subtotal       = $("span#"+qid+"_subtotal"),
+            $subtotal_raw   = $("span."+qid+"_subtotal"),
+            $total          = $("span#"+qid+"_total"),
+            $total_raw      = $("span."+qid+"_total");                                                                  //console.log('$qty = ',$qty); console.log('$cost = ',$cost);
+            if (isNaN($line_total))     $line_total     = $("span#"+cid+"_line_total");                                 //console.log('$line_total = ',$line_total);
+            if (isNaN($line_total_raw)) $line_total_raw = $("span."+cid+"_line_total_raw");                             //console.log('$line_total_raw = ',$line_total_raw);
+            if (isNaN($sales_tax))      $sales_tax      = $("input[data-name='sales_tax'][data-qid="+qid+"]");          //console.log('$sales_tax = ',$sales_tax);
+            if (isNaN($shipping))       $shipping       = $("input[data-name='shipping_cost'][data-qid="+qid+"]");      //console.log('$shipping = ',$shipping);
+	    var qty             = parseFloat($qty.val()),
+            cost            = parseFloat($cost.val()),
+            shipping        = parseFloat($shipping.val()),
+            sales_tax       = parseFloat($sales_tax.val()),
             total,
-            subtotal   = 0;
-		var line_total = parseFloat(qty*cost)
-        console.log('qty = '+qty); console.log('cost = '+cost); console.log('qid = '+qid); console.log('qid_n = '+qid_n);console.log('$qbox = ',$qbox);console.log('shipping = '+shipping);console.log('sales tax = '+sales_tax);
+            subtotal        = 0;
+		var line_total = parseFloat(qty*cost);                                                                          //console.log('line_total = '+line_total);
+        //console.log('qty = '+qty); console.log('cost = '+cost); console.log('qid = '+qid); console.log('qid_n = '+qid_n);console.log('$qbox = ',$qbox);console.log('$line_item = ',$line_item);console.log('shipping = '+shipping);console.log('sales tax = '+sales_tax);
     	$line_total.text(addCommas(line_total.toFixed(2)));
     	$line_total_raw.text(line_total);
     	$qbox.find("span.line_total_raw").each(function(){
@@ -1604,7 +1661,77 @@ $(document).ready(function(){
 		$(this).parents('.rTableBody').find('div.properties-input-selector').css('display', '')
 		$(this).parents('.rTableBody').find('div.item-'+item_type).css('display', 'table-row');
 	});
-
+    $(document).on('click', '.story.model.item a.selector', function(e){
+       var selected = $(this).hasClass('selected'),
+           selected_count = 0,
+           selected_counter = parseFloat($('.selectedStoriesControls__counter').text());
+       console.log('selected_counter = '+selected_counter);
+       if (selected){
+          $(this).removeClass('selected');
+          selected_count = selected_counter - 1;
+          if (selected_count <= 0){
+               $('.tc_page_bulk_header').hide();
+               $('.tc_page_nav_header').show();
+          }
+          if (selected_count == 1)
+               $('.selectedStoriesControls__counterLabel').html('item selected');
+          else
+               $('.selectedStoriesControls__counterLabel').html('items selected');
+          $('.selectedStoriesControls__counter').html(selected_count);
+       }
+       else{
+          $(this).addClass('selected');
+          if (selected_counter <= 0){
+               $('.tc_page_bulk_header').show();
+               $('.tc_page_nav_header').hide();
+          }
+          selected_count = selected_counter + 1;
+          if (selected_count == 1)
+               $('.selectedStoriesControls__counterLabel').html('item selected');
+          else
+               $('.selectedStoriesControls__counterLabel').html('items selected');
+          $('.selectedStoriesControls__counter').html(selected_count);
+       }
+    });
+    $(document).on('click', '.selectedStoriesControls__button', function(e){
+       var action = $(this).data('aid');
+       switch(action){
+           case 'BulkDeselect':
+               $('.story.model.item a.selector').removeClass('selected');
+               $('.selectedStoriesControls__counter').html(0);
+               $('.tc_page_bulk_header').hide();
+               $('.tc_page_nav_header').show();
+               break;
+           case 'BulkLabels':
+               break;
+           case 'MoveItems':
+               break;
+           case 'BulkReviews':
+               break;
+           case 'SelecteditemsControls__Clone':
+               break;
+           case 'DeleteItems':
+               break;
+       }   
+    });
+    $(document).on('click', '.controls .actions button', function(e){
+       e.preventDefault();
+       var action   = $(this).data('aid'),
+           selected = $(this).hasClass('selected'),
+           cid      = $(this).parents('.boqx-item').attr('id');
+       var unpack_toggle = 1;
+       if (selected) unpack_toggle = 0;
+       switch(action){
+          case 'Unpack':
+               $(this).toggleClass('selected');
+               $('input[data-focus-id=Unpack--'+cid+']').val(unpack_toggle);
+          break;
+          case 'Clone':
+          case 'Delete':
+          break; 
+       }
+    });
+    
 	$(document).on( "click", ".boqx-label", function(e) {
 		var $this = $(this),
 		    state;
@@ -2126,7 +2253,7 @@ $(document).ready(function(){
          var cid         = card.data('cid');
          var search_box  = $('input[data-cid='+cid+']'); 
          var label_container = card.siblings('.StoryLabelsMaker__container___2B23m_z1').children('.StoryLabelsMaker__contentContainer___3CvJ07iU'),
-             label_badge = "<div class='Label___mHNHD3zD' tabindex='-1'><div class='Label__Name___mTDXx408' name='jot["+cid+"][labels][]'>"+label+"</div><div class='Label__RemoveButton___2fQtutmR'></div></div>";
+             label_badge = "<div class='Label___mHNHD3zD' tabindex='-1'><div class='Label__Name___mTDXx408'>"+label+"</div><div class='Label__RemoveButton___2fQtutmR'></div><input name='jot["+cid+"][labels][]' value='"+label+"' type='hidden'></div>";
          $(label_selector).addClass('label-selected');
          $(label_container).prepend(label_badge);
          //search_box.val('');

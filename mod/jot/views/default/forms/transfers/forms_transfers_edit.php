@@ -1148,7 +1148,7 @@ Switch ($perspective){
                         $boqx_contents_receipt_edit = "
                             <div class='TaskEdit___1Xmiy6lz' style='display:none' data-aid='TaskEdit' data-cid='$cid'>
                 			    $hidden_fields
-                	    		<a class='autosaves collapser-receipt-item' id='story_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
+                	    		<a class='collapser collapser-receipt-item' id='story_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
                 				<section class='TaskEdit__descriptionContainer___3NOvIiZo'>
                                     <fieldset class='name'>
                                     	<div class='AutosizeTextarea___2iWScFt6' style='display: flex;'>
@@ -2099,7 +2099,7 @@ Switch ($perspective){
                         $boqx_contents_receipt_edit = "
                             <div class='TaskEdit___1Xmiy6lz' style='display:none' data-aid='TaskEdit' data-cid='$cid'>
                 			    $hidden_fields
-                	    		<a class='autosaves collapser-receipt-item' id='story_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
+                	    		<a class='collapser collapser-receipt-item' id='story_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
                 				<section class='TaskEdit__descriptionContainer___3NOvIiZo'>
                                     <fieldset class='name'>
                                     	<div class='AutosizeTextarea___2iWScFt6' style='display: flex;'>
@@ -2836,7 +2836,7 @@ Switch ($perspective){
                         $boqx_contents_receipt_edit = "
                             <div class='TaskEdit___1Xmiy6lz' style='display:none' data-aid='TaskEdit' data-cid='$cid'>
                 			    $hidden_fields
-                	    		<a class='autosaves collapser-receipt-item' id='story_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
+                	    		<a class='collapser collapser-receipt-item' id='story_collapser_$cid' data-cid='$cid' tabindex='-1'></a>
                 				<section class='TaskEdit__descriptionContainer___3NOvIiZo'>
                                     <fieldset class='name'>
                                     	<div class='AutosizeTextarea___2iWScFt6' style='display: flex;'>

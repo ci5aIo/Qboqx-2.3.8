@@ -263,6 +263,7 @@ define(function(require) {
        	   parent_cid   = $(this).parents('.add.details').attr('data-cid'),
            qid          = $(this).attr("data-qid"),
            state        = $(this).attr('data-aid').replace('ReceiptButton',''),
+           presentation = $(this).data('presence'),
            egg          = $(this).hasClass('egg');
        var service_items= $(this).parents('.TaskEdit__descriptionContainer___3NOvIiZo').find("a.new-item").attr('data-rows'),
            show_merchant= true,
@@ -318,6 +319,7 @@ define(function(require) {
 		    		   element: 'new_receipt',
 		    		   cid: new_cid,
 		    		   parent_cid: parent_cid,
+		    		   presentation: presentation,
 		    		   qid: qid
 		    	   },
 		       }).done(function(output) {
@@ -336,74 +338,65 @@ define(function(require) {
            $boqx.attr('boqx-fill-level', '0');
        }
    });
-   $(document).on('click', '.ReceiptItem__submit___u7pvMd9T', function(e){
+   $(document).on('click', '.AddItem__submit___u7pvMd9T', function(e){
        e.preventDefault();
-       var cid          = $(this).attr("data-cid"),
-       	   parent_cid   = $(this).parents('.add.details').attr('data-cid'),
-           qid          = $(this).attr("data-qid"),
-           state        = $(this).attr('data-aid').replace('ReceiptButton',''),
-           egg          = $(this).hasClass('egg');
-       var service_items= $(this).parents('.ItemEdit__descriptionContainer___Mr67pXjd').find("a.new-item").attr('data-rows'),
-           show_merchant= true,
-           show_receipt = true;
-       var this_element = $(this),
-   	       $this_panel  = $(this).parents('.TaskEdit___1Xmiy6lz'),
-   	       $boqx        = $(this).parents('.ServiceEffort__26XCaBQk');
-       var $pallet      = $boqx.parent(),
-           $show_panel  = $boqx.find('.TaskShow___2LNLUMGe'),
-           $add_panel   = $boqx.find('.AddSubresourceButton___2PetQjcb'),
-           ajax         = new Ajax(),
-           new_cid      = "c"+Math.floor((Math.random()*999)+1),
-           property_element = 'properties_service_item'
-           points       = 0;
-       var eggs         = parseInt($('span.receipts-count[data-cid='+parent_cid+']').attr('eggs'), 10);
-       var receipt_name = $this_panel.find("textarea[data-focus-id=NameEdit--"+cid+"]").val() || '[no receipt name]',
-//           merchant     = $this_panel.find('h3.elgg-listing-summary-title').text() || $this_panel.find('input.elgg-input-group-picker').val(),
-           merchant     = $this_panel.find('ul.elgg-group-picker-list').children('li').find('.elgg-body').text() || $this_panel.find('input.elgg-input-group-picker').val() || '[no merchant selected]',
-           receipt_total= $this_panel.find('#'+cid+'_total').text() || '$0.00';
-           receipt_total_raw= $this_panel.find('.'+cid+'_total_raw').text();
-         if (typeof receipt_name  != 'undefined' && receipt_name.length  > 0) points++;
-         if (typeof merchant      != 'undefined' && merchant.length      > 0) points++;
-         if (typeof receipt_total != 'undefined' && receipt_total.length > 0 && parseFloat(receipt_total_raw)>0) points++;
-/*       if (typeof receipt_name  != 'undefined' && receipt_name.length  > 0 &&
-    	   typeof merchant      != 'undefined' && merchant.length      > 0 &&
-    	   typeof receipt_total != 'undefined' && receipt_total.length > 0 && parseFloat(receipt_total_raw)>0 )
-    	   show_receipt = true;
-       if (typeof merchant == 'undefined')
-           show_merchant    = false;
-*/       if (isNaN(eggs)){eggs = 0;}
-       console.log('cid: '+cid);
-       console.log('parent_cid: '+parent_cid);
-       console.log('receipt_name: '+receipt_name);
-       console.log('state: '+state);
-       console.log('merchant: '+merchant);
-       console.log('receipt_total: '+receipt_total);
-       console.log('points: '+points);
+       var cid           = $(this).data('cid'),
+           parent_cid    = $(this).data('boqx'),
+       	   qid           = $(this).attr("data-qid"),
+           state         = $(this).attr('data-aid').replace('ItemButton',''),
+           egg           = $(this).hasClass('egg');
+       var service_items = $(this).parents('.ItemEdit__descriptionContainer___Mr67pXjd').find("a.new-item").attr('data-rows'),
+           show_merchant = true,
+           show_receipt  = true;
+       var this_element  = $(this),
+   	       $this_panel   = $(this).parents('.ItemEdit___7asBc1YY'),
+   	       $boqx         = $('.Item__nhjb4ONn[id='+cid+']');
+       var $pallet       = $('.boqx-pallet[data-cid='+parent_cid+']'),
+           $show_panel   = $('.ItemShow_Btc471up[data-cid='+cid+']'),
+           $add_panel    = $('.AddSubresourceButton___oKRbUbg6[data-cid='+cid+']'),
+           ajax          = new Ajax(),
+           new_cid       = "c"+Math.floor((Math.random()*9999)+1),
+           property_element = 'properties_service_item',
+           boqx_aspect   = $boqx.data('aspect'),
+           fill_level,
+           points        = 0;
+       var eggs          = parseInt($('span.item-count[data-cid='+parent_cid+']').attr('eggs'), 10);
+       var item_name     = $("textarea[data-focus-id=NameEdit--"+cid+"]").val() || '[no item name]',
+           item_total    = $('#'+cid+'_line_total').text() || '$0.00';
+           item_total_raw= $('.'+cid+'_line_total_raw').text();
+       if (typeof item_name  != 'undefined' && item_name.length  > 0) points++;
+       if (typeof item_total != 'undefined' && item_total.length > 0 && parseFloat(item_total_raw)>0) points++;
+       if (boqx_aspect == 'item' && points>= 1) fill_level = 'full'; // an item only needs a title to be complete
+       else                                     fill_level = points;
+       if (isNaN(eggs)){eggs = 0;}                                                                                 console.log('cid: '+cid);console.log('parent_cid: '+parent_cid);console.log('receipt_name: '+item_name);console.log('state: '+state);console.log('item_total: '+item_total);console.log('points: '+points);console.log('$boqx: ',$boqx);console.log('$pallet: ',$pallet);
        if (show_receipt){
     	   //if (!show_merchant){merchant='No merchant selected';}
-           $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+receipt_name+'</p>');
-           $show_panel.find('.TaskShow__description___qpuz67f').html('<p>'+merchant+'</p>');
-           $show_panel.find('.TaskShow__service_items___2wMiVig').html('<p>'+receipt_total+'</p>');
+           $show_panel.find('.ItemShow__title__8tlRYJcP').html('<p>'+item_name+'</p>');
+           if (boqx_aspect == 'receipt_item')
+        	   $show_panel.find('.ItemShow__item_total__Dgd1dOSZ').html('<p>'+item_total+'</p>');
            $show_panel.show();
            $show_panel.find('button.IconButton___2y4Scyq6').show();
-    	   $boqx.attr('boqx-fill-level', points);
-    	   $boqx.find('input[data-focus-id = "FillLevel--'+cid+'"]').val(points);
+    	   $boqx.attr('boqx-fill-level', fill_level);
+    	   $boqx.find('input[data-focus-id = "FillLevel--'+cid+'"]').val(fill_level);
            $this_panel.hide();
            if (state=='add'){
-        	   $(this).attr('data-aid', 'saveReceiptButton');
+        	   $(this).attr('data-aid', 'saveItemButton');
         	   $(this).html('Save');
 	           ajax.view('partials/jot_form_elements',{
 		    	   data: {
-		    		   element: 'new_receipt',
+		    		   element: 'new_item',
 		    		   cid: new_cid,
 		    		   parent_cid: parent_cid,
-		    		   qid: qid
+		    		   aspect: boqx_aspect,
+		    		   qid: qid,
+		    		   presence: 'panel',
+		    		   presentation: 'pallet'
 		    	   },
 		       }).done(function(output) {
 		    	   $pallet.append($(output));
 		       }).success(function(){
 		    	   if (egg){
-	                 	$('span.receipts-count[data-cid='+parent_cid+']').attr('eggs', ++eggs);
+	                 	$('span.item-count[data-cid='+parent_cid+']').attr('eggs', ++eggs);
 	                 	$(this_element).removeClass('egg');
 	                 }
 		       });
@@ -412,7 +405,7 @@ define(function(require) {
        else {
            $add_panel.show();
            $this_panel.hide();
-           $boqx.attr('boqx-fill-level', '0');
+           $boqx.attr('boqx-fill-level', fill_level);
        }
    });
    $(document).on('click', '.BoqxShow__lsk3jlWE', function(e){
@@ -527,7 +520,7 @@ define(function(require) {
            $this_panel.hide();
        }
    });
-   $(document).on('click', '.ThingsBundle__submit___q0kFhFBf', function(e){
+/*   $(document).on('click', '.ThingsBundle__submit___q0kFhFBf', function(e){
 	  e.preventDefault();
 	  var ajax         = new Ajax(),
 	      form         = $(this).parents('form'),
@@ -561,7 +554,7 @@ define(function(require) {
 		}).fail(function() {
 //			alert('failed');
 		});		
-   });
+   });*/
    $(document).on('click', 'a.jot-q', function(e) {
        e.preventDefault();
        var this_element = this;
@@ -1462,7 +1455,7 @@ define(function(require) {
 			   break;
 	   }
    });
-   $(document).on('click', '.story.item button.expander', function(e){
+   $(document).on('click', '.story.item button.expander, .story.item span.story_name', function(e){
 	  //alert('works');
 	  var ajax        = new Ajax();
 	  var view_boqx   = $(this).parents('.story.item');
@@ -1676,20 +1669,136 @@ define(function(require) {
 		    	   compartment.append($(output));
 		       });
     });
-    $(document).on("click", "li.pickItem__S1zeipik.has_children", function(e) {
+    $(document).on("click", ".pickChildren__HBThno", function(e) {
+       var value  = $(this).parent().data("value"),
+           label  = $(this).parent().data('aspect'),
+           aspect = $(this).parent().data('aspect'),
+           cid    = $(this).parents('.dropdown').data('cid'),
+           $menu  = $(this).parents('.weir_menu'),
+           $boqx  = $(this).parents('.compartmentBoqx__m2HVyVRp, .compartmentBoqx__Cdil2TkU'),
+           ajax   = new Ajax();
+       var boqx_value    = $boqx.data('value'),
+           boqx_aspect  = $boqx.data('aspect'),
+           menu_level   = $boqx.data('level'),
+           li_class,
+           a_class;
+       var $selections  = $menu.children('.weir_selections').children('.selections'),
+            selector    = $menu.children('.weir_selections').children('.selector');
+       
+       if($boqx.hasClass('compartmentBoqx__Cdil2TkU')) {li_class = 'pickedItem__R8VF5oDQ'; a_class = 'pickedLink__1yKII8tz';}
+       else                                            {li_class = 'pickedItem__Dows8rhn'; a_class = 'pickedLink__elUW0FxF';} 
+       var crumb        = "<a class='"+a_class+"'><span class='pickedLabel__uNI8tKTa'>"+label+"</span></a>";
+       var crumb_level  = $selections.find('ul').length;
+       $(this).parents(".dropdown").children("input").attr("value", value);
+       $(this).parents(".dropdown").children("a.selection").children("span").text(label);
+       console.log('value: '+value);
+       console.log('aspect: '+aspect);
+       console.log('boqx_value: '+boqx_value);
+       console.log('boqx_aspect: '+boqx_aspect);
+       ajax.view('partials/jot_form_elements',{
+    	   data: {
+    		 element       : 'weir_menu',
+    		 flow          : 'down',
+    		 cid           : cid,
+    		 value         : value,
+    		 aspect        : aspect,
+    		 boqx_value    : boqx_value,
+    		 boqx_aspect   : boqx_aspect,
+    		 menu_level    : menu_level+1,
+    	   },
+	       }).done(function(output) {
+	    	   $menu.children('.compartmentBoqx__m2HVyVRp, .compartmentBoqx__Cdil2TkU').remove();
+	    	   $menu.append($(output));
+	       }).success(function(){
+	    	   $boqx.attr('data-value', value);
+	    	   if (crumb_level > 0)
+		    	   var last_label = $selections.find('ul')[crumb_level-1];
+		       if (typeof last_label == 'undefined') $selections.html("<ul class='pickedList__XR2j7lQP'><li class='"+li_class+"' data-value='"+value+"' data-aspect='"+boqx_aspect+"' data-boqx='"+boqx_value+"' data-level='"+menu_level+"'>"+crumb+"</li></ul>")
+		       else                                  $(last_label).children('li').append("<ul class='pickedList__XR2j7lQP'><li class='"+li_class+"' data-value='"+value+"' data-aspect='"+boqx_aspect+"' data-boqx='"+boqx_value+"' data-level='"+menu_level+"'>"+crumb+"</li></ul>");
+		       $(selector).attr('data-value', value);
+	       });
+    });
+    $(document).on("click", "li.pickedItem__Dows8rhn", function(e) {
+       var value        = $(this).data("value"),
+           boqx_aspect  = $(this).data('aspect'),
+           boqx_value   = $(this).data('boqx'),
+           crumb_level  = $(this).data('level'),
+           cid          = $(this).parents('.dropdown').data('cid'),
+           $menu        = $(this).parents('.weir_menu'),
+           $pickSection = $(this).parents('.pickAspect__RFFo494j'),
+           $pickedList  = $(this).closest('ul.pickedList__XR2j7lQP'), 
+           ajax         = new Ajax();
+       ajax.view('partials/jot_form_elements',{
+    	   data: {
+    		 element       : 'weir_menu',
+    		 flow          : 'up',
+    		 cid           : cid,
+    		 boqx_value    : boqx_value,
+    		 boqx_aspect   : boqx_aspect,
+    		 value         : value,
+    		 menu_level    : crumb_level,
+    	   },
+	       }).done(function(output) {
+	    	   if (crumb_level > 1){
+		    	   $menu.children('.compartmentBoqx__m2HVyVRp').remove();
+		    	   $menu.append($(output));
+	    	   }
+	    	   else {
+	    		   $menu.remove();
+	    		   $pickSection.append($(output));
+	    	   }
+	       }).success(function() {
+	    	   $pickedList.remove();
+	       });
+    });
+    $(document).on("click", "a.pickedLink__1yKII8tz", function(e) {
+       var value        = $(this).parent('.pickedItem__R8VF5oDQ').data("value"),
+           boqx_aspect  = $(this).parent('.pickedItem__R8VF5oDQ').data('aspect'),
+           boqx_value   = $(this).parent('.pickedItem__R8VF5oDQ').data('boqx'),
+           crumb_level  = $(this).parent('.pickedItem__R8VF5oDQ').data('level'),
+           cid          = $(this).parents('.dropdown').data('cid'),
+           $menu        = $(this).parents('.weir_menu'),
+           $pickSection = $(this).parents('.pickCategory__VRYE6ZAO'),
+           $pickedList  = $(this).closest('ul.pickedList__XR2j7lQP'), 
+           ajax         = new Ajax();
+       ajax.view('partials/jot_form_elements',{
+    	   data: {
+    		 element       : 'weir_menu',
+    		 flow          : 'up',
+    		 cid           : cid,
+    		 boqx_value    : boqx_value,
+    		 boqx_aspect   : boqx_aspect,
+    		 value         : value,
+    		 menu_level    : crumb_level,
+    	   },
+	       }).done(function(output) {
+	    	   if (crumb_level > 1){
+		    	   $menu.children('.compartmentBoqx__Cdil2TkU').remove();
+		    	   $menu.append($(output));
+	    	   }
+	    	   else {
+	    		   $menu.remove();
+	    		   $pickSection.append($(output));
+	    	   }
+	       }).success(function() {
+	    	   $pickedList.remove();
+	       });
+    });
+    $(document).on("click", "li.pickItem__GaGSmQJ6.has_children", function(e) {
        var value = $(this).data("value"),
            label = $(this).data('aspect'),
            aspect= $(this).data('aspect'),
-           boqx  = $(this).parents('.compartmentBoqx__m2HVyVRp').data('boqx'),
-           menu_level = $(this).parents('.compartmentBoqx__m2HVyVRp').data('level'),
            cid   = $(this).parents('.dropdown').data('cid'),
            $menu = $(this).parents('.weir_menu'),
+           $boqx  = $(this).parents('.compartmentBoqx__Cdil2TkU'),
            ajax  = new Ajax();
-       var $contents_section  = $('section.contents .boqx-contents.'+aspect+'[data-cid='+cid+']');
-       var has_children = $(this).hasClass('has_children');
+       var boqx_name    = $boqx.data('boqx'),
+           boqx_aspect  = $boqx.data('aspect'),
+           boqx_value   = $boqx.data('value'),
+           menu_level   = $boqx.data('level');
        var $selections  = $menu.children('.weir_selections').children('.selections'),
             selector    = $menu.children('.weir_selections').children('.selector');
-       var crumb        = "<a class='pickedLink__elUW0FxF'><span class='pickedLabel__uNI8tKTa'>"+label+"</span></a>";
+       var crumb        = "<a class='pickedLink__7M19RCBV'><span class='pickedLabel__Pc5ckRQZ'>"+label+"</span></a>";
        var crumb_level  = $selections.find('ul').length;
        $(this).parents(".dropdown").children("input").attr("value", value);
        $(this).parents(".dropdown").children("a.selection").children("span").text(label);
@@ -1697,41 +1806,51 @@ define(function(require) {
     	   data: {
     		 element       : 'weir_menu',
     		 cid           : cid,
+    		 boqx_name     : aspect,
+    		 boqx_aspect   : boqx_aspect,
+    		 boqx_value    : boqx_value,
+    		 aspect        : aspect,
     		 value         : value,
     		 menu_level    : menu_level+1,
     	   },
 	       }).done(function(output) {
-	    	   $menu.children('.compartmentBoqx__m2HVyVRp').remove();
+	    	   $menu.children('.compartmentBoqx__Cdil2TkU').remove();
 	    	   $menu.append($(output));
 	       }).success(function(){
 	    	   if (crumb_level > 0)
 		    	   var last_label = $selections.find('ul')[crumb_level-1];
-		       if (typeof last_label == 'undefined') $selections.html("<ul class='pickedList__XR2j7lQP'><li class='pickedItem__Dows8rhn' data-value='"+value+"' data-aspect='"+aspect+"' data-boqx='"+boqx+"' data-level='"+menu_level+"'>"+crumb+"</li></ul>")
-		       else                                  $(last_label).children('li').append("<ul class='pickedList__XR2j7lQP'><li class='pickedItem__Dows8rhn' data-value='"+value+"' data-aspect='"+aspect+"' data-boqx='"+boqx+"' data-level='"+menu_level+"'>"+crumb+"</li></ul>");
+		       if (typeof last_label == 'undefined') $selections.html("<ul class='pickedList__3rgp3Mtb'><li class='pickedItem__BWylRYY7' data-value='"+boqx_value+"' data-aspect='"+boqx_aspect+"' data-boqx='"+boqx_name+"' data-level='"+menu_level+"'>"+crumb+"</li></ul>")
+		       else                                  $(last_label).children('li').append("<ul class='pickedList__3rgp3Mtb'><li class='pickedItem__BWylRYY7' data-value='"+boqx_value+"' data-aspect='"+boqx_aspect+"' data-boqx='"+boqx_name+"' data-level='"+menu_level+"'>"+crumb+"</li></ul>");
 		       $(selector).attr('data-value', value);
 	       });
     });
-    $(document).on("click", "li.pickedItem__Dows8rhn", function(e) {
-       var value = $(this).data("value"),
-           aspect= $(this).data('aspect'),
-           boqx  = $(this).data('boqx'),
-           pickedList = $(this).parent('.pickedList__XR2j7lQP'),
-           crumb_level = $(this).data('level');
-           cid   = $(this).parents('.dropdown').data('cid'),
-           $menu = $(this).parents('.weir_menu'),
-           $pickSection = $(this).parents('.pickAspect__RFFo494j'),
-           $pickedList  = $(this).parent('ul'), 
-           ajax  = new Ajax();
+    $(document).on("click", ".pickedLink__7M19RCBV", function(e) {
+       var $list_item   = $(this).parent('.pickedItem__BWylRYY7'),
+            label       = $(this).children('.pickedLabel__Pc5ckRQZ').text();
+       var value        = $list_item.data("value"),
+       	   boqx_aspect  = $list_item.data('aspect'),
+           boqx_name    = $list_item.data('boqx'),
+           pickedList   = $list_item.parent('.pickedList__3rgp3Mtb'),
+           crumb_level  = $list_item.data('level');
+           cid          = $list_item.parents('.dropdown').data('cid'),
+           $menu        = $list_item.parents('.weir_menu'),
+           $pickSection = $list_item.parents('.pickCategory__VRYE6ZAO'),
+           $pickedList  = $list_item.parent('ul'), 
+           ajax         = new Ajax();
+       $(this).parents(".dropdown").children("input").attr("value", value);
+       $(this).parents(".dropdown").children("a.selection").children("span").text(label);
        ajax.view('partials/jot_form_elements',{
     	   data: {
     		 element       : 'weir_menu',
     		 cid           : cid,
-    		 value         : boqx,
+    		 boqx_name     : boqx_name,
+    		 boqx_aspect   : boqx_aspect,
+    		 value         : value,
     		 menu_level    : crumb_level,
     	   },
 	       }).done(function(output) {
 	    	   if (crumb_level > 1){
-		    	   $menu.children('.compartmentBoqx__m2HVyVRp').remove();
+		    	   $menu.children('.compartmentBoqx__Cdil2TkU').remove();
 		    	   $menu.append($(output));
 	    	   }
 	    	   else {

@@ -49,14 +49,16 @@ define(function(require) {
 	$(document).on('keydown', 'input.last_characteristic', function(e) { 
 	    var keyCode = e.keyCode || e.which;
 	    var ajax = new Ajax();
-	    var field_type ='new_item_characteristic';
+	    var field_type ='new_item_characteristic',
+	        cid        = $(this).parents('.Item__nhjb4ONn').attr('id');
 	    
 	    if (keyCode == 9) { 
 	      e.preventDefault(); 
 	      $(this).removeClass("last_characteristic");
 		  ajax.view('partials/form_elements',{
 	    	   data: {
-	    		 element: field_type
+	    		 element: field_type,
+	    		 cid: cid
 	    	   },
 	       }).done(function(output) {
 	    	   $('.new_characteristic').before($(output));
@@ -66,14 +68,16 @@ define(function(require) {
 	$(document).on('keydown', 'input.last_feature', function(e) { 
 	    var keyCode = e.keyCode || e.which;
 	    var ajax = new Ajax();
-	    var field_type ='new_item_feature';
+	    var field_type ='new_item_feature',
+	        cid        = $(this).parents('.Item__nhjb4ONn').attr('id');
 	    
 	    if (keyCode == 9) { 
 	      e.preventDefault(); 
 	      $(this).removeClass("last_feature");
 		  ajax.view('partials/form_elements',{
 	    	   data: {
-	    		 element: field_type
+	    		 element: field_type,
+	    		 cid: cid
 	    	   },
 	       }).done(function(output) {
 	    	   $('.new_feature').before($(output));

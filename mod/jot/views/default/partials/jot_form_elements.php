@@ -207,9 +207,10 @@ Switch ($element){
 	    $form_body = elgg_view('forms/transfers/edit',['perspective'=>'add', 'presentation'=>$presentation, 'section'=>'boqx_contents_receipt', 'snippet'=>'marker1', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'n'=>$n]);
 //		$form_body = elgg_view('forms/transfers/elements/receipt', ['presentation'=>'box_experimental', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'n'=>$n]);
 		break;
+	case 'new_item':
 	case 'new_loose_thing':
 	    if ($presence == 'panel') {
-	       $form_body = elgg_view('forms/transfers/edit',['perspective'=>'add', 'presentation'=>$presentation, 'section'=>'boqx_contents', 'snippet'=>'single_thing', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$qid, 'qid_n'=>$qid_n, 'n'=>$n]);
+	       $form_body = elgg_view('forms/transfers/edit',['perspective'=>'add', 'presentation'=>$presentation, 'aspect'=>$aspect, 'section'=>'boqx_contents', 'snippet'=>'single_thing', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$qid, 'qid_n'=>$qid_n, 'n'=>$n]);
 	       break;
 	    }
 	    break;
@@ -1209,15 +1210,44 @@ register_error($display);
         $form_body = elgg_format_element('div',['class'=>'empty-boqx'], elgg_view_form($form_version, $form_vars, $body_vars));
 	    break;
 	case 'weir_menu':
-	    $value = elgg_extract('value', $vars);
-        $options['aspects']    = quebx_boqx_aspect_options($value);// $boqx_aspects;//elgg_view('navigation/boqx_aspect_picker');
-        $options['aspect']     = $value;                     
-        $options['cid']        = elgg_extract('cid', $vars);
-        $options['menu_level'] = elgg_extract('menu_level', $vars, 1);
-        $options['boqx_class'] ='compartmentBoqx__m2HVyVRp';
-        $options['list_class'] ='pickList__q0EfbGIo';
-        $options['item_class'] ='pickItem__S1zeipik';
-        $form_body = elgg_view('navigation/weir_menu', $options);
+	    $value                 = elgg_extract('value', $vars);                        $display.='$value: '.$value.'<br>';
+	    $boqx_aspect           = elgg_extract('boqx_aspect', $vars);                  $display.='$boqx_aspect: '.$boqx_aspect.'<br>';
+	    $boqx_name             = elgg_extract('boqx_name', $vars);                    $display.='$boqx_name: '.$boqx_name.'<br>';
+	    $boqx_value            = elgg_extract('boqx_value', $vars); 
+	    $flow                  = elgg_extract('flow', $vars);
+	    switch ($boqx_aspect){
+	        case 'contents':
+                if($flow == 'up') $root = $boqx_value;
+                else              $root = $value;
+                $options['aspects']    = quebx_boqx_aspect_options($root);// $boqx_aspects;//elgg_view('navigation/boqx_aspect_picker');
+                $options['boqx_aspect']= $boqx_aspect;                     
+                $options['cid']        = elgg_extract('cid', $vars);
+                $options['boqx_name']  = $boqx_name;
+                $options['boqx_value'] = $root;
+                $options['menu_level'] = elgg_extract('menu_level', $vars, 1);
+                $options['boqx_class'] ='compartmentBoqx__m2HVyVRp';
+                $options['list_class'] ='pickList__q0EfbGIo';
+                $options['item_class'] ='pickItem__S1zeipik';
+                $options['crumb_class']='pickItem__ujGWJJw9';
+                $options['label_class']='pickLabel__sdRC4Kf9';
+                break;
+            case 'category':
+                if($flow == 'up') $root = $boqx_value;
+                else              $root = $value;
+                $options['aspects']    = quebx_boqx_aspect_options($boqx_aspect,['root'=>$root]);
+                $options['boqx_aspect']= $boqx_aspect;
+                $options['cid']        = elgg_extract('cid', $vars);
+                $options['boqx_name']  = $boqx_name;
+                $options['boqx_value'] = $root;
+                $options['menu_level'] = elgg_extract('menu_level', $vars, 1);        $display.='menu_level: '.$options['menu_level'].'<br>';
+                $options['boqx_class'] ='compartmentBoqx__Cdil2TkU';
+                $options['list_class'] ='pickList__Upq66A3H';
+                $options['item_class'] ='pickItem__GaGSmQJ6';
+                $options['crumb_class']='pickItem__ehybudK0';
+                $options['label_class']='pickLabel__2JR0Zrcl';
+                break;
+	    }
+        $form_body = elgg_view('navigation/weir_menu', $options);                     //echo register_error($display);
 	    break;
 	default:
 	break;
@@ -1225,4 +1255,4 @@ register_error($display);
 
 
 echo $form_body;
-//echo $display;
+//echo register_error($display);
