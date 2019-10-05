@@ -135,7 +135,7 @@ ul.edit_gallery li {
 ._257Dx__projectNavTab:hover {text-decoration: none;color: #FFF;}
 ._257Dx__projectNavTab:after {content: '';height: 12px;width: 1px;display: inline-block;margin-left: 22px;position: relative;top: 2px;background-color: #fff;opacity: 0.10;}
 ._3-iOd__projectNav__toggleWrapper {cursor: pointer;display: inline-block;}
-._GPfz__projectNav__toggle {-moz-transition: opacity .05s ease-in;-o-transition: opacity .05s ease-in;-webkit-transition: opacity .05s ease-in;background-color: transparent;background-image: url(//assets.pivotaltracker.com/next/assets/next/fb94c441-proj-nav-toggle-arrow.svg);background-position: center;background-repeat: no-repeat;border-radius: 0;border: 2px solid transparent;cursor: pointer;display: inline-block;height: 14px;opacity: 0.6;transition: opacity .05s ease-in;width: 40px;}
+._GPfz__projectNav__toggle {-moz-transition: opacity .05s ease-in;-o-transition: opacity .05s ease-in;-webkit-transition: opacity .05s ease-in;background-color: transparent;background-image: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/fb94c441-proj-nav-toggle-arrow.svg);background-position: center;background-repeat: no-repeat;border-radius: 0;border: 2px solid transparent;cursor: pointer;display: inline-block;height: 14px;opacity: 0.6;transition: opacity .05s ease-in;width: 40px;}
 ._1WzQ9__ProductUpdatesDropdown__indicator--newHeader:after {border: 2px solid #256188;}
 ._2uo_D__ProductUpdatesDropdown__indicator:after, ._1WzQ9__ProductUpdatesDropdown__indicator--newHeader:after {background-color: #F98D3F;border-radius: 7px;border: 2px solid #256188;box-sizing: border-box;content: '';height: 10px;margin-left: 10px;position: absolute;right: 8px;top: 4px;width: 10px;z-index:2;}
 ._3olWk__Button--small {font-size: 12px;line-height: 19px;padding: 4px 8px;}
@@ -159,7 +159,7 @@ ul.edit_gallery li {
 .Dropdown__content {display:flex;}
 .Dropdown__options{margin-top: 10px;}
 ._2Oy9G__NotificationsBell__button {background-color: transparent;border-radius: 0;border: 2px solid transparent;opacity: 1;padding: 6px;}
-._2Oy9G__NotificationsBell__button:before {background-color: transparent;background-image: url(https://assets.pivotaltracker.com/next/assets/next/37e2c22b-notifications-bell.svg);background-position: center;background-repeat: no-repeat;content: '';display: inline-block;height: 18px;min-width: 14px;opacity: .25;position: relative;}
+._2Oy9G__NotificationsBell__button:before {background-color: transparent;background-image: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/37e2c22b-notifications-bell.svg);background-position: center;background-repeat: no-repeat;content: '';display: inline-block;height: 18px;min-width: 14px;opacity: .25;position: relative;}
 ._3weZY__NotificationsBell {position: relative;width: 40px;}
 ._3pEKc__NotificationsBell__dropdownContainer,
  ._1Npm___NotificationsBell__dropdownContent {display: inline;}
@@ -176,7 +176,7 @@ ul.edit_gallery li {
 .AddSubresourceButton___oKRbUbg6 {-ms-flex-align: center;display: -ms-flexbox;display: flex;width:inherit;margin:5px;border-radius:2px;}
 .AddSomethingButton___k1dvTuKc {cursor: pointer;}
 .AddSubresourceButton__icon___h1-Z9ENT,
-  .AddSomethingButton__icon___h1-Z9ENT {background: url(http://assets.pivotaltracker.com/next/assets/next/77478e4c-blocker-add.svg) no-repeat 50%;cursor: pointer;height: 14px;margin-left: 8px;width: 14px;}
+  .AddSomethingButton__icon___h1-Z9ENT {background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/77478e4c-blocker-add.svg) no-repeat 50%;cursor: pointer;height: 14px;margin-left: 8px;width: 14px;}
 .AddSubresourceButton__message___2vsNCBXi,
   .AddSomethingButton__message___2vsNCBXi {border-bottom: 1px solid transparent;border-left: 1px solid transparent;line-height: 18px;padding: 10px 8px;}
 .attachment.not_thumbnailable .thumbnail,.dropdown .selection span,.edit_project_ghost .edit_project .name span,.flyover.epic_flyover footer p.scribe,.flyover.epic_flyover hgroup .labels,.flyover.epic_flyover hgroup .pill.label span,.flyover.followers_flyover footer p.scribe,.flyover.followers_flyover hgroup .labels,.flyover.followers_flyover hgroup .pill.label span,.flyover.integration_story_flyover footer p.scribe,.flyover.integration_story_flyover hgroup .labels,.flyover.integration_story_flyover hgroup .pill.label span,.flyover.story_flyover footer p.scribe,.flyover.story_flyover hgroup .labels,.flyover.story_flyover hgroup .pill.label span,.info_box .row.other_integration span,.info_box .row.participant .story_participants .name,.info_box .row.requester .dropdown_label,.info_box .row.requester a.selection div.name,.item.integration_story .preview section .scribe,.item.notification .project_name,.lightbox .lightbox.participant .name,.lightbox .lightbox.participant h2,.menu ol.items .item a,.menu ol.items .item button,.menu ol.items .item label,.menu ol.items .item span,.menu ul.items .item a,.menu ul.items .item button,.menu ul.items .item label,.menu ul.items .item span,.panel.labels .labels_items .label .incomplete,.panel.labels .labels_items .label .name,.pallet.labels .labels_items .label .incomplete,.pallet.labels .labels_items .label .name,.person_controls .person_name .anchor,aside.sidebar .add_projects .edit_project .name span,aside.sidebar .name span.full,aside.sidebar .projects .edit_project .name span,aside.sidebar .searches .panel_name,aside.sidebar a.panel_toggle .panel_name,ul.attachments .thumbnail abbr{-ms-text-overflow:ellipsis;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -202,7 +202,7 @@ ul.edit_gallery li {
 .BlockerShow__controls___2bTZp0xk {display: -ms-flexbox;display: flex;-ms-flex: 0 1 auto;flex: 0 1 auto;margin: 2px 2px 2px 3px;opacity: 0;}
 .BlockerShow__controls___2bTZp0xk {background-size: 13px!important;position: absolute;right: 3px;}
 .BlockerShow__description___3LsV-EfY {-ms-flex: 1 1 0px;flex: 1 1 0;font-family: Open Sans,open-sans,EmojiFontFace,helvetica,arial,sans-serif;font-size: 12px;line-height: 21px;margin: 3px 0 0 1px;min-width: 0;}
-.BlockerShow__toggleButton___2GFmLA4H {background-size: 13px;background: url(https://assets.pivotaltracker.com/next/assets/next/1931d421-blocked-icon.svg) no-repeat 50%;cursor: pointer;-ms-flex: 0 1 auto;flex: 0 1 auto;height: 13px;margin: 8px 3px 0 4px;width: 18px;border: none;}
+.BlockerShow__toggleButton___2GFmLA4H {background-size: 13px;background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/1931d421-blocked-icon.svg) no-repeat 50%;cursor: pointer;-ms-flex: 0 1 auto;flex: 0 1 auto;height: 13px;margin: 8px 3px 0 4px;width: 18px;border: none;}
 .button__save___2XVnhUJI {margin-left: 4px;float: right;}
 .Code___3pLWnu1D {margin-top: 14px;}
 .Code__heading___2LJTrLuO {color: #000;font-size: 12px;font-weight: 600;line-height: 16px;margin: 0 8px 0 0;text-transform: uppercase;display: inline;}
@@ -228,13 +228,13 @@ ul.edit_gallery li {
 /*.CommentEditToolbar__action___3t8pcxD7 {display: inline-block;margin-right: 2px;line-height: 0;}*/
 .CommentEditToolbar__action___3t8pcxD7 {margin-right: 4px;line-height: 0;}
 .CommentEditToolbar__attachmentDropdownButton___y4HpuAvB {display: inline-block;}
-.CommentEditToolbar__attachmentIcon___48kfJPfH {display: inline-block;width: 30px;height: 30px;background: url(https://assets.pivotaltracker.com/next/assets/next/63d7937c-attachment.svg) no-repeat 50%;}
+.CommentEditToolbar__attachmentIcon___48kfJPfH {display: inline-block;width: 30px;height: 30px;background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/63d7937c-attachment.svg) no-repeat 50%;}
 .CommentEditToolbar__container___3LKaxfw8 {display: -ms-flexbox;display: flex;}
 .CommentGutter___1wlvO_PP{width:50px;-ms-flex: 0 0 auto;flex: 0 0 auto;}
 .compartmentBoqx__m2HVyVRp,
   .compartmentBoqx__Cdil2TkU {margin: 5px;border: 1px solid grey;overflow-x: auto;}
 .compartmentBoqx__m2HVyVRp .pickItem__S1zeipik {text-transform: capitalize;color: #333;cursor: pointer;}
-.DensityControl___jzMNmfpK {display: inline;height: 34px;width: 36px;position: relative;background-color: transparent;border: none;border-left: 1px solid #2f3337;background: url(https://assets.pivotaltracker.com/next/assets/next/b39ba4dd-density-mode.svg) no-repeat 50%;background-size: 50%;cursor: pointer;opacity: .8;}
+.DensityControl___jzMNmfpK {display: inline;height: 34px;width: 36px;position: relative;background-color: transparent;border: none;border-left: 1px solid #2f3337;background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/b39ba4dd-density-mode.svg) no-repeat 50%;background-size: 50%;cursor: pointer;opacity: .8;}
 .Description___3oUx83yQ .edit___2HbkmNDA,
 .Description___Dljkfzd5 .edit___2HbkmNDA{text-transform:lowercase;font-size:11px;font-weight:400;text-decoration:none;color:#0957a4;background:none;border:none;margin:0 0 0 3px;padding:0;cursor:pointer}
 .Description___3oUx83yQ .edit___2HbkmNDA:focus,
@@ -318,16 +318,16 @@ ul.edit_gallery li {
   .integration_story.has_tasks .meta:after, 
   .story.comments .meta:after, 
   .story.description .meta:after, 
-  .story.has_tasks .meta:after {background-size: 12px 15px;background-repeat: no-repeat;background-image: url(https://assets.pivotaltracker.com/next/assets/next/4670783f-comment.png);}
+  .story.has_tasks .meta:after {background-size: 12px 15px;background-repeat: no-repeat;background-image: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/4670783f-comment.png);}
 .expanded_header .selectedStoriesControls .selectedStoriesControls__actions {margin-top: 13px;}
 .expanded_header .selectedStoriesControls .selectedStoriesControls__counter {margin: 6px 7px 6px 14px;}
 .expanded_header .selectedStoriesControls .selectedStoriesControls__status {left: 13px;top: 13px;}
 .expanded_header .selectedStoriesControls {height: 60px;}
 
 .flyover article.feature .meta:before, 
-  .story.feature .meta:before {background-size: 16px 16px;background-repeat: no-repeat;background-image: url(https://assets.pivotaltracker.com/next/assets/next/902493c4-feature.png);}
+  .story.feature .meta:before {background-size: 16px 16px;background-repeat: no-repeat;background-image: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/902493c4-feature.png);}
 .flyover article.point_scale_linear.estimate_-1 .meta, 
-  .point_scale_linear.estimate_-1.story .meta {background-size: 18px 15px;background-repeat: no-repeat;background-image: url(https://assets.pivotaltracker.com/next/assets/next/ed692f7d-estimate_unestimated_linear.png);}
+  .point_scale_linear.estimate_-1.story .meta {background-size: 18px 15px;background-repeat: no-repeat;background-image: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/ed692f7d-estimate_unestimated_linear.png);}
 .GitHubAttach__input___3-hGhNzg {border-radius: 3px;border: 1px solid #ccc;margin: 8px 0;padding: 8px 9px;width: 100%;height: 40px;box-sizing: border-box;font-size: 12px;}
 .hbsAvatar {position: relative;color: #fff;box-sizing: border-box;font-size: 10px;line-height: 24px;margin: 2px 0 0 6px;text-align: center;text-transform: uppercase;cursor: pointer;}
 .hbsAvatar__initials {background-color: #a1a4ad;position: absolute;top: 0;left: 0;}
@@ -380,7 +380,7 @@ ul.edit_gallery li {
 .info_box .row.participant .story_participants .add_participant:after{content:"";background-size:8px 8px;background-repeat:no-repeat;background-image:url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/add_participant.png);width:8px;height:8px;float:left;margin:3px 0 0 3px}
 .info_box .row.owner .story_owners {float: right;display: -ms-flexbox;display: flex;-ms-flex-direction: row-reverse;flex-direction: row-reverse;}
 .info_box .row.owner .story_owners .add_owner {width: 14px;height: 14px;margin: 6px -1px 0 2px;border-width: 1px;border-style: solid;}
-.info_box .row.owner .story_owners .add_owner:after {content: "";background-size: 8px 8px;background-repeat: no-repeat;background-image: url(https://assets.pivotaltracker.com/next/assets/next/94a6f47c-add_owner.png);width: 8px;height: 8px;float: left;margin: 3px;}
+.info_box .row.owner .story_owners .add_owner:after {content: "";background-size: 8px 8px;background-repeat: no-repeat;background-image: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/94a6f47c-add_owner.png);width: 8px;height: 8px;float: left;margin: 3px;}
 .info_box .row.owner .story_owners .selectable_owner_row_element {display: -ms-flexbox;display: flex;-ms-flex-direction: row-reverse;flex-direction: row-reverse;}
 .info_box .row.owner .story_owners .wrapper {max-width: 150px;display: block;overflow: hidden;}
 .info_box .row.requester a.selection div{display:inline-block;float:right}
@@ -408,14 +408,14 @@ ul.edit_gallery li {
 .LabelDropdown__smartSelectorOverride___3vMWP5SD {border: none!important;overflow-x: hidden;max-height: 267px;}
 .LabelDropdown__smartSelectorOverride___3vMWP5SD div {border: none!important;}
 .LabelDropdownItem--highlighted___2El2tWOR {background-color: #eee;}
-.LabelDropdownItem___3IFJX-oo:before {background: url(https://assets.pivotaltracker.com/next/assets/next/fa589119-label.svg) no-repeat 50%;background-size: contain;height: 11px;width: 13px;top: 9px;left: 6px;position: absolute;content: "";}
+.LabelDropdownItem___3IFJX-oo:before {background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/fa589119-label.svg) no-repeat 50%;background-size: contain;height: 11px;width: 13px;top: 9px;left: 6px;position: absolute;content: "";}
 .LabelDropdownItem___3IFJX-oo {color: #008040;font-size: 11px;padding: 0 0 0 23px;position: relative;white-space: nowrap;}
 .LabelDropdownItem___3IFJX-oo:hover {background-color: #eee;}
 .LabelDropdownItem--highlighted___2El2tWOR {background-color: #eee;}
 .LabelDropdownItem-checkbox{cursor: pointer;}
 .Label--highlighted___3TzLB5s0 .Label__Name___mTDXx408, .Label__Name___mTDXx408:hover {background-color: #3c6000;}
 .Label--highlighted___3TzLB5s0 .Label__RemoveButton___2fQtutmR, .Label__RemoveButton___2fQtutmR:hover {background-color: #3c6000;}
-.Label__RemoveButton___2fQtutmR {background-image: url(https://assets.pivotaltracker.com/next/assets/next/49e754ef-x-white.svg);background-position: 50%;background-repeat: no-repeat;background-size: 10px 10px;}
+.Label__RemoveButton___2fQtutmR {background-image: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/49e754ef-x-white.svg);background-position: 50%;background-repeat: no-repeat;background-size: 10px 10px;}
 .Label__RemoveButton___2fQtutmR {background-color: #588a00;cursor: pointer;border-radius: 0 3px 3px 0;padding: 0 8px;}
 .LabelsSearch___2V7bl828 {-ms-flex: 1;flex: 1;margin: 2px;min-width: 50px;}
 .LabelsSearch__input___3BARDmFr {background-color: transparent;border: none;font-family: Open Sans,open-sans,AppleEmoji,SegoeUIEmoji,EmojiOne,helvetica,arial,sans-serif;font-size: 12px;line-height: 16px;margin: 0;outline: none;padding: 4px;}
@@ -457,31 +457,14 @@ ul.edit_gallery li {
 .model section.edit fieldset.name{box-sizing:border-box;-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;min-width:0;padding-right:4px;word-wrap:break-word}
 .model section.edit h4{display:block;color:#000;font-size:11px;font-weight:600;line-height:16px;margin-top:14px;margin-bottom:8px;text-transform:uppercase}
 .model section.edit section.activity h4{margin-top:0;margin-bottom:0}
-.model section.edit .collapser, .collapser-service-item, .collapser-boqx {
-/*    background-size: 13px 13px;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-image: url(http://qboqx.smarternetwork.com/mod/quebx/graphics/collapser.png);*/
-    cursor: pointer;
-    -webkit-box-flex: 0;
-    -ms-flex: 0 0 13px;
-    flex: 0 0 13px;
-    left: 0px;
-    margin-top: 14px;
-    padding: 4px;
-    position: relative;
-/*    width: 13px;
-    height: 13px;*/
-}
-.model section.edit .collapser:before, .collapser-service-item:before, .collapser-boqx:before {
-    background-size: 13px 13px;
-    background: url(http://qboqx.smarternetwork.com/mod/quebx/graphics/collapser.png) no-repeat 50%;
-    background-position: center;
-    content: "";
-    display: block;
-    height: 13px;
-    width: 13px;
-}
+.model section.edit .collapser, 
+  .collapser-service-item, 
+  .collapser-boqx,
+  .collapser-item {cursor: pointer;-webkit-box-flex: 0;-ms-flex: 0 0 13px;flex: 0 0 13px;left: 0px;margin-top: 14px;padding: 4px;position: relative;}
+.model section.edit .collapser:before, 
+  .collapser-service-item:before, 
+  .collapser-boqx:before, 
+  .collapser-item:before  {background-size: 13px 13px;background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/collapser.png) no-repeat 50%;background-position: center;content: "";display: block;height: 13px;width: 13px;}
 .model section.edit nav.edit{width:290px;position:relative}
 .model section.edit nav.edit:after {content: "";display: table;clear: both;}
 .model section.edit nav.edit .cancel{line-height: 8px;}
@@ -544,7 +527,7 @@ label.button{border:1px solid #fff;color:#111;cursor:pointer;display:inline-bloc
 .scrim {position: absolute;top: 0;left: 0;bottom: 0;right: 0;display: none;z-index: 100;background-color: transparent;}
 .scrollable {overflow-x: hidden;overflow-y: auto;}
 .search_bar {-ms-flex-align: center;align-items: center;background-color: hsla(0,0%,100%,.18);border-radius: 3px;border: 2px solid transparent;display: -ms-flexbox;display: flex;height: 22px;margin-top: 4px;overflow: hidden;width: 234px;}
-.search_bar .magnify {background: url(http://assets.pivotaltracker.com/next/assets/next/3b414a0c-MagnifyingGlassWhite.svg);display: inline-block;float: left;height: 12px;margin: 0 8px;opacity: .6;width: 12px;}
+.search_bar .magnify {background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/3b414a0c-MagnifyingGlassWhite.svg);display: inline-block;float: left;height: 12px;margin: 0 8px;opacity: .6;width: 12px;}
 .search_bar input {background-color: transparent;border: 0;box-sizing: border-box;color: #ecf0f4;-ms-flex-positive: 1;flex-grow: 1;float: left;font-family: Open Sans,open-sans,EmojiFontFace,helvetica,arial,sans-serif;font-size: 12px;font-weight: 400;height: 24px;margin: 0;padding: 0;width: 178px;}
 .search_bar_container.next.menu .search_help {float: right;padding: 0;margin-right: 4px;line-height: 19px;text-decoration: none;color: #afc5d2;font-size: 13px;background-color: transparent;cursor: pointer;border: 2px solid transparent;border-radius: 0;}
 .selectedStoriesControls .selectedStoriesControls__actions {display: -ms-flexbox;display: flex;-ms-flex-pack: center;justify-content: center;height: 34px;}
@@ -773,7 +756,7 @@ label.button{border:1px solid #fff;color:#111;cursor:pointer;display:inline-bloc
 .ToggleHeading___1K1l1zUE {font-weight: 600;font-size: 12px;margin-right: 8px;}
 .ToggleComment___yucMHq3w {color: #0957a4;cursor: pointer;display: inline-block;font-size: 12px;position: relative;-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;}
 .ToggleStatus___34uUfSHP {-ms-flex-align: center;align-items: center;border: 1px solid transparent;display: -ms-flexbox;display: flex;}
-.ToggleStatus___34uUfSHP:after {background: url(https://assets.pivotaltracker.com/next/assets/next/5aae6cdd-chevron.svg) no-repeat 50%;content: "";display: inline-block;height: 12px;margin-left: 8px;transform: rotate(180deg);width: 12px;}
+.ToggleStatus___34uUfSHP:after {background: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/5aae6cdd-chevron.svg) no-repeat 50%;content: "";display: inline-block;height: 12px;margin-left: 8px;transform: rotate(180deg);width: 12px;}
 .tracker_markup{word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;overflow:hidden;}
 .tracker_markup a {color: #0957a4;}
 .tracker_markup a, .tracker_markup a.label:active, .tracker_markup a.label:hover, .tracker_markup a:visited {text-decoration: none;}
@@ -782,7 +765,7 @@ label.button{border:1px solid #fff;color:#111;cursor:pointer;display:inline-bloc
 .NameView___rHG8dOIP{border-radius:2px;border:1px solid #ccc;box-sizing:border-box;font-family:open-sans,EmojiFontFace,helvetica,arial,sans-serif;font-size:12px;line-height:18px;margin:0}
 .NameView___rHG8dOIP{border:none;font-size: 18px;}
 .Velocity_Indicator___2XilNZd- {background-color: transparent;border: none;color: #bbb;cursor: pointer;display: inline;font-size: 10px;line-height: 14px;text-decoration: none;white-space: nowrap;}
-.Velocity_Indicator--icon___1l1IPRy8 {display: inline-block;width: 16px;height: 14px;background-repeat: no-repeat;background-position: center 4px;background-image: url(https://assets.pivotaltracker.com/next/assets/next/7c5904bd-velocity.png);@media (-webkit-min-device-pixel-ratio: 1.5),(min-device-pixel-ratio:1.5),(min-resolution:144dpi){background-image:url(https://assets.pivotaltracker.com/next/assets/next/4e8ccfb8-velocity.png)};}
+.Velocity_Indicator--icon___1l1IPRy8 {display: inline-block;width: 16px;height: 14px;background-repeat: no-repeat;background-position: center 4px;background-image: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/7c5904bd-velocity.png);@media (-webkit-min-device-pixel-ratio: 1.5),(min-device-pixel-ratio:1.5),(min-resolution:144dpi){background-image:url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/4e8ccfb8-velocity.png)};}
 a{cursor:pointer}
 a.button,button,input[type=submit]{font-family:open-sans,EmojiFontFace,helvetica,arial,sans-serif}
 a.button.std, button.std, input[type=submit].std {background-color: #555;border: 1px solid;border-radius: 3px;box-shadow: inset 0 0 2px hsla(0,0%,100%,.7);text-align: center;color: #fff;}
@@ -860,7 +843,7 @@ section.model_instructions .bounding_box {background-color: #dedede;padding: 2px
 section.model_instructions .instructions {margin:10px;}
 section.model_details{padding:6px 10px 10px 10px;}
 section.model_details .actions{width:320px}
-section.controls .actions button{float:left;border-radius:4px;border:1px solid #ccc;background-color:#f6f6f6;height:22px;width:22px;margin-right:3px;cursor:pointer;border-radius:2px;margin-right:0;padding:0}
+section.controls .actions button{float:left;border-radius:4px;border:1px solid #ccc;background-color:#e9e8e0;height:22px;width:22px;margin-right:3px;cursor:pointer;border-radius:2px;margin-right:0;padding:0}
 section.controls .actions button:before{content:'';float:left;opacity:.6}
 section.controls .actions button.delete{position:relative}
 section.controls .actions button.delete:before{display:block;width:100%;height:100%}
@@ -878,8 +861,6 @@ section.controls .actions button.history:before{background:url(<?php echo elgg_g
 section.controls .actions button.link{position:relative}
 section.controls .actions button.left_endcap{border-radius:2px 0 0 2px;margin-right:0;border-right:none;width:21px}
 section.controls .actions button.right_endcap{border-radius:0 2px 2px 0}
-section.controls .actions button{float:left;border-radius:4px;border:1px solid #ccc;background-color:#f6f6f6;height:22px;width:22px;margin-right:3px;cursor:pointer;border-radius:2px;margin-right:0;padding:0}
-section.controls .actions button:before{content:'';float:left;opacity:.6}
 section.controls .actions button.id{position:relative}
 section.controls .actions button.id:before{display:block;width:100%;height:100%}
 section.controls .actions button.id:before{background:url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/story-id.svg) no-repeat 50%}
@@ -889,7 +870,7 @@ section.controls .actions button.link:before{background:url(<?php echo elgg_get_
 section.controls .actions button[disabled] {opacity: .5;cursor: default;}
 section.controls .actions button.unpack_item{position:relative}
 section.controls .actions button.unpack_item:before{display:block;width:100%;height:100%;background:url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/ARGFYEUi_unpack_button.png) no-repeat 50%}
-section.controls .actions button.unpack_item.selected{background-color:#e9e8e0;}
+section.controls .actions button.unpack_item.selected{background-color:#f6f6f6;}
 section.controls .button_with_field{float:left;margin-right:5px}
 section.controls .button_with_field:after{content:"";display:table;clear:both}
 section.controls .button_with_field button{border-radius:2px 0 0 2px;float:left;margin-right:0}
@@ -1945,3 +1926,5 @@ li.quebx-list-boqx-item{
 .weir_selections {display: -webkit-flex;display: flex;-webkit-align-items: center;align-items: center;width: 100%;}
 .weir_selections .selections{padding: 3px 4px;text-transform: capitalize;-webkit-flex-grow:1;flex-grow:1;}
 .weir_selections ul{margin:0 5px;}
+.toggleTags .toggleUnpackTag{font-size: 11px;color:#3b2def;}
+.toggleTags .toggleUnpackTag:before{background-size: 10px 10px;background-repeat: no-repeat;background-image: url(<?php echo elgg_get_site_url(); ?>mod/quebx/graphics/DCYEgC99_selector_on.png);}

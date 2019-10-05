@@ -456,7 +456,7 @@ function get_user_label_collections($owner_guid, $site_guid = 0) {
 					      where md.owner_guid = {$owner_guid}
 						    AND e.site_guid = {$site_guid}
 							and msv.id = md.value_id
-							and msn.string IN ('tags'))
+							and msn.string IN ('tags', 'labels'))
 			 order by msv.string";
 
 	$collections = get_data($query);

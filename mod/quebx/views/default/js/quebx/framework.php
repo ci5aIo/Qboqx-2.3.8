@@ -628,7 +628,7 @@ $(document).ready(function(){
           $(".rTableRow.story[data-cid="+cid+"]").css("cursor", "move");
           $(".details[data-cid="+cid+"]").removeClass("expanded");
           $(".details[data-cid="+cid+"]").addClass("collapsed");
-      });
+    });
     $(document).on("click", "a.collapser-effort", function(e) {
         e.preventDefault();
         var cid = $(this).attr("data-cid"),
@@ -934,7 +934,7 @@ $(document).ready(function(){
 */
     $(document).on("click", "a.collapser-receipt", function(e) {
         e.preventDefault();
-        var cid = $(this).attr("data-cid");
+        var cid = $(this).data("cid");
         var $boqx = $(document).find('#'+cid);
         var fill_level = $boqx.attr('boqx-fill-level'),
             $this_panel  = $boqx.children('.TaskEdit___1Xmiy6lz');
@@ -952,13 +952,13 @@ $(document).ready(function(){
     });
     $(document).on("click", "a.collapser-item", function(e) {
         e.preventDefault();
-        var cid = $(this).attr("data-cid");
+        var cid = $(this).data("cid");
         var $boqx = $(document).find('#'+cid);
         var fill_level = $boqx.attr('boqx-fill-level'),
             $this_panel  = $boqx.children('.ItemEdit___7asBc1YY');
         var $show_panel  = $boqx.children('.ItemShow_Btc471up');
         var $add_panel   = $boqx.children('.AddSubresourceButton___oKRbUbg6');
-        if (fill_level == 'full' || fill_level >= 2){
+        if (fill_level == 'full' || fill_level >= 1){
            $show_panel.show();
            $this_panel.hide();
         }
@@ -1725,6 +1725,7 @@ $(document).ready(function(){
           case 'Unpack':
                $(this).toggleClass('selected');
                $('input[data-focus-id=Unpack--'+cid+']').val(unpack_toggle);
+               $(this).parents('.controls').find('.toggleTags .toggleUnpackTag').toggle();
           break;
           case 'Clone':
           case 'Delete':

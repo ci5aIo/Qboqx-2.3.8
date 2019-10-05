@@ -44,6 +44,7 @@ function init() {
 	}
 	
 	elgg_register_page_handler('labels', __NAMESPACE__ . '\\labels_page_handler');
+	elgg_register_tag_metadata_name('labels');
 }
 
 

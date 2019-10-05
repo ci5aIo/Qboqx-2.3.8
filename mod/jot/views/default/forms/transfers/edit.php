@@ -693,6 +693,12 @@ Switch ($perspective){
                         $element = 'item';
 		                $delete = elgg_format_element("span",['class'=>'remove-item'], elgg_format_element('a', ['title' =>'remove item'],
                                                                     	                                                elgg_view_icon('delete-alt')));
+                        $labels_maker = elgg_view($view,[ 
+        										  'perspective' => $perspective,
+                                                  'presentation'=> $presentation,
+        										  'section'     =>'labels_maker',
+        										  'cid'         => $cid]);
+		                
 		                switch($presentation){
 		                    case 'pallet':
                      			unset($hidden);
@@ -703,7 +709,7 @@ Switch ($perspective){
         		                $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => '0'            , 'data-focus-id' => "FillLevel--{$cid}"];
         		                $hidden[] =['name'=>"jot[$cid][sort_order]", 'value' => "$n"           , 'data-focus-id' => "SortOrder--{$cid}"];
 		                        //$qid_n = "{$cid}_{$n}";
-		                        $collapser = elgg_format_element('a',['class'=>['collapser','collapser-item'], 'id'=>"item_collapser_{$cid}",'data-cid'=>"$cid", 'tabindex'=>'-1']);
+		                        $collapser = elgg_format_element('a',['class'=>'collapser-item', 'id'=>"item_collapser_{$cid}",'data-cid'=>"$cid", 'tabindex'=>'-1']);
 		                        $id_value = $guid;
 		                        $unpack_class='';
 		                        $clone_class='';
@@ -712,13 +718,19 @@ Switch ($perspective){
 		                            case 'item':
 		                                $unpack_class    = 'selected';
 		                                $unpack_toggle   = 1;
+		                                $unpack_tag_toggle = 'display:inline;';
 		                                $clone_disabled  = 'disabled';
+		                                $clone_title_label = ' (disabled)';
 		                                $delete_disabled = 'disabled';
+		                                $delete_title_label = ' (disabled)';
 		                                break;
 		                            case 'receipt_item':
 		                                $unpack_toggle   = 0;
+		                                $unpack_tag_toggle = 'display:none;';
 		                                $clone_disabled  = 'disabled';
-		                                $delete_disabled = 'disabled';		                                
+		                                $clone_title_label = ' (disabled)';
+		                                $delete_disabled = 'disabled';
+		                                $delete_title_label = ' (disabled)';		                                
 		                                break;
 		                        }
         		                $hidden[] =['name'=>"jot[$cid][unpack]"    , 'value' => $unpack_toggle , 'data-focus-id' => "Unpack--{$cid}"];
@@ -736,19 +748,19 @@ Switch ($perspective){
                                                                                'id'=>"item_unpack_button_$cid",
                                                                                'data-aid'=>'Unpack',
                                                                                'tabindex'=>'-1',
-                                                                                $unpack_disabled]);
+                                                                                'disabled'=>$unpack_disabled]);
                                 $clone_button  = elgg_format_element('button',['class'=>['autosaves', 'clone_item', 'hoverable', 'left_endcap', $clone_class],
                                                                                'title'=>'Clone this item'.$clone_title_label,
                                                                                'id'=>"item_clone_button_$cid",
                                                                                'data-aid'=>'Clone',
                                                                                'tabindex'=>'-1',
-                                                                                $clone_disabled]);
+                                                                                'disabled'=>$clone_disabled]);
                                 $delete_button  = elgg_format_element('button',['class'=>['autosaves', 'delete', 'hoverable', 'right_endcap', $delete_class],
                                                                                 'title'=>'Delete this item'.$delete_title_label,
                                                                                 'id'=>"item_delete_button_$cid",
                                                                                 'data-aid'=>'Delete',
                                                                                 'tabindex'=>'-1',
-                                                                                 $delete_disabled]);
+                                                                                 'disabled'=>$delete_disabled]);
         		                $item_controls     = "<section class='story_or_epic_header'>
                                                             $collapser
                                                             <nav class='edit'>
@@ -761,6 +773,9 @@ Switch ($perspective){
 		                                                                $clone_button
 		                                                                $delete_button
 		                                                              </div>
+                                                                      <section class='toggleTags'>
+                                                                          <span class='toggleUnpackTag' style='$unpack_tag_toggle'>Unpack item</span>
+                                                                      </section>
 		                                                            </section>
 		                                                      </nav>
 		                            					    
@@ -817,7 +832,7 @@ Switch ($perspective){
                                                     </div>
                                                </div>";
                     	        if ($aspect == 'receipt_item'){$acquisition_details  = "<div class='row'>
-                                                                                            <h2>Acquisition Details</h2>
+                                                                                            <h4>Acquisition Details</h4>
                                                                             		    </div>
                                                                                         <div class='row'>
                                                                                             <div class='column_01'>
@@ -940,7 +955,7 @@ Switch ($perspective){
                                     <div class='ItemEdit___7asBc1YY info_box free' $style_edit data-aid='ItemEdit' data-cid='$cid'>
                         			    $hidden_fields
                                         <div class='ItemEditValue'>
-                            	    		$item_controls
+                                            $item_controls
                                             <section class='ItemLedger__KY8DM3qs' data-cid='$cid'>
                                                 <fieldset class='name'>
                                                 	<div class='AutosizeTextarea___2iWScFt6' style='display: flex;'>
@@ -951,6 +966,7 @@ Switch ($perspective){
                                         				</div>
                                         			</div>
                                         		</fieldset>
+                                                $labels_maker
                                                 $acquisition_details
                                             </section>
                                         </div>
@@ -1220,12 +1236,19 @@ Switch ($perspective){
              	        $unpack_icon = "<span title='Unpack all'>"
 								           .elgg_view('input/checkbox', ['name'=>"jot[$cid][$n][unpack]",'value'=>1,'class'=>'boqx-unpack closed','data-cid'=>$cid,'data-name'=>'unpack-all','default'=> false,])
 						              ."</span>";
+             	        $labels_maker = elgg_view($view,[ 
+        										  'perspective' => $perspective,
+                                                  'presentation'=> $presentation,
+        										  'section'     =>'labels_maker',
+        										  'cid'         => $cid]);
+		                
                 		switch($presentation){
                 		    case 'pallet':
         		                $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
         		                $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
                                 $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => 'receipt'      , 'data-focus-id' => "Aspect--{$cid}"];
         		                $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => '0'            , 'data-focus-id' => "FillLevel--{$cid}"];
+        		                $hidden[] =['name'=>"jot[$cid][sort_order]", 'value' => "$n"           , 'data-focus-id' => "SortOrder--{$cid}"];
                         		        
                         		$title_input             = elgg_view('input/text'  , ['name' => "jot[$cid][title]"             , 'class'=>'receipt-input'  , 'placeholder' => 'Receipt name', 'required'=>'']);
         		                $merchant = elgg_view('output/span', ['content'=>elgg_view('input/grouppicker', ['name' => "jot[$cid][merchant]",
@@ -1407,12 +1430,13 @@ Switch ($perspective){
                         							<button data-aid='addReceiptButton'  type='submit'  class='ReceiptAdd__submit___lS0kknw9 std egg' style='margin: 3px 3px 0 15px;order: 2;' data-cid='$cid' data-parent_cid='$parent_cid' data-presence='$presentation'>Add</button>
                                     			</div>
                                     		</fieldset>
+                                            $labels_maker
                                             <section class='receipt-header'>
                                                 $form_header
                                             </section>
                                             <section class='receipt-items'>
                                              	<div class='boqx-pallet' data-cid='$cid'>
-                                             		<h5 style='padding:10px 0 0 10px;'>Items</h5>
+                                             		<h4>Items</h4>
                                              		$line_items_header
                                              	</div>
                                                 $line_items_footer
@@ -1649,7 +1673,7 @@ Switch ($perspective){
                                             </section>
                                             <section class='receipt-items'>
                                              	<div>
-                                             		<h5 style='padding:10px 0 0 10px;'>Received Items</h5>
+                                             		<h4>Received Items</h4>
                                              		$line_items_header
                                              	</div>
                                             </section>
@@ -2025,6 +2049,44 @@ Switch ($perspective){
             case 'emoji_bar':
                 $emoji_bar = elgg_view('elements/emoji_bar');
                 break;
+				/****************************************
+*add********** $section = labels_maker ***********
+				 ****************************************/
+            case 'labels_maker':
+				$label_card = elgg_view_module('labels', null, elgg_view('forms/labels/add',['cid'=>$cid]));
+                $close_icon= elgg_view_icon('window-close',['title'=>'Close']);
+                $close_button = "<a id='qboxClose' class='labelBoqxClose' data-cid='$cid' data-perspective='$perspective'>
+                                     $close_icon
+                                </a>";
+            	$form_body = "<div class='StoryLabelsMaker___Lw8q4VmA'>
+								<h4>Labels</h4>
+								<div class='StoryLabelsMaker__container___2B23m_z1'>
+									<div data-aid='StoryLabelsMaker__contentContainer' class='StoryLabelsMaker__contentContainer___3CvJ07iU'>
+										<div class='LabelsSearch___2V7bl828' data-aid='LabelsSearch'>
+											<div class='tn-text-input___1CFr3eiU LabelsSearch__container___kJAdoNya'>
+												<div>
+													<input autocomplete='off' data-cid='$cid' class='tn-text-input__field___3gLo07Il tn-text-input__field--medium___v3Ex3B7Z LabelsSearch__input___3BARDmFr' type='text' placeholder='new label' data-aid='LabelsSearch__input' data-focus-id='LabelsSearch--$cid' aria-label='Search for an existing label or type a new label' value=''></div>
+												</div>
+											</div>
+										</div>
+										<a class='StoryLabelsMaker__arrow___OjD5Om2A' data-aid='StoryLabelsMaker__arrow' data-jq-dropdown='#BoqxLabelsCard__{$cid}' data-horizontal-offset='-260' data-vertical-offset='50'></a>
+									</div>
+									<div class='BoqxLabelsPicker__Vof1oGNB' data-cid='$cid'>
+										<div id = 'BoqxLabelsCard__{$cid}' class='qbox-dropdown qbox-dropdown-tip_xxx qbox-dropdown-relative'>
+											<div id='qboxContent'>
+												<div class='qbox-dropdown-panel' style='max-width:450px;display:flex;justify-content:flex-end;flex-flow:column nowrap;'>
+													<div style='text-align:right;'>
+														$close_button
+													</div>
+													<div>
+														$label_card
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>";
+				break;
 				/****************************************
 *add********** $section = default ***********
 				 ****************************************/
@@ -2809,7 +2871,7 @@ Switch ($perspective){
                                     </section>
                                     <section class='receipt-items'>
                                      	<div>
-                                     		<h5 style='padding:10px 0 0 10px;'>Received Items</h5>
+                                     		<h4>Received Items</h4>
                                      		$line_items_header
                                      	</div>
                                     </section>
@@ -3545,7 +3607,7 @@ Switch ($perspective){
                                     </section>
                                     <section class='receipt-items'>
                                      	<div>
-                                     		<h5 style='padding:10px 0 0 10px;'>Received Items</h5>
+                                     		<h4>Received Items</h4>
                                      		$line_items_header
                                      	</div>
                                     </section>
@@ -3732,6 +3794,11 @@ $section = 'things_boqx'              ******************************************
                                </div>";                                                                          $display .= '1076 $things_boqx-default ... <br>1076 $cid: '.$cid.'<br>1076 $service_cid: '.$service_cid;
                 break;
         }                                                                                         //register_error($display);
+        
+    $experimental .= '3798 elgg_get_tags(): '.print_r(elgg_get_tags(), true).'<br>';
+    $experimental .= '3799 elgg_get_registered_tag_metadata_names(): '.print_r(elgg_get_registered_tag_metadata_names(), true).'<br>';
+    
+register_error($experimental);
         break;
         
 /****************************************
@@ -3741,16 +3808,12 @@ $section = 'things_bundle'              ****************************************
 			    switch($snippet){
             		case 'marker':
             			if ($disabled == 'disabled') $disabled_label = ' (disabled)';
-/*            			$label_card = elgg_view_layout('qbox',['content'=>elgg_view_module('info', null, elgg_view('forms/labels/add',['cid'=>$cid])),
-            			                                       'show_save'=>false,
-            			                                       'show_full_view'=>false,
-            			                                       'qid'=>"BoqxLabelsCard__{$cid}",]);
-*/            			$label_card = elgg_view_module('labels', null, elgg_view('forms/labels/add',['cid'=>$cid]));
-//		            	$label_card = elgg_view('forms/labels/add',['cid'=>$cid]);
-                        $close_icon= elgg_view_icon('window-close',['title'=>'Close']);
-                        $close_button = "<a id='qboxClose' class='labelBoqxClose' data-cid='$cid' data-perspective='$perspective'>
-                                            $close_icon
-                                        </a>";
+                        $view = 'forms/transfers/edit';
+        				$labels_maker = elgg_view($view,[ 
+        										  'perspective' => $perspective,
+                                                  'presentation'=> $presentation,
+        										  'section'     =>'labels_maker',
+        										  'cid'         => $cid]);
             			$form_body .= "	   	<div class='$perspective details things_bundle-marker expanded' data-cid='$cid' data-guid='$guid' data-qid='$qid' action='$action'>
 		    					                   <section class='edit' data-aid='StoryDetailsEdit' tabindex='-1'>
 		                                              <section class='model_details'>
@@ -3828,35 +3891,8 @@ $section = 'things_bundle'              ****************************************
     		                                                       <div class='labels row'>
     		                                                          <section class='labels_container full'>
                                                                         <div id='story_labels_$cid' class='labels'>
-                                                                            <div class='StoryLabelsMaker___Lw8q4VmA'>
-                                                                                <h4>Labels</h4>
-                                                                                <div class='StoryLabelsMaker__container___2B23m_z1'>
-                                                                                    <div data-aid='StoryLabelsMaker__contentContainer' class='StoryLabelsMaker__contentContainer___3CvJ07iU'>
-                                                                                        <div class='LabelsSearch___2V7bl828' data-aid='LabelsSearch'>
-                                                                                            <div class='tn-text-input___1CFr3eiU LabelsSearch__container___kJAdoNya'>
-                                                                                                <div>
-                                                                                                    <input autocomplete='off' data-cid='$cid' class='tn-text-input__field___3gLo07Il tn-text-input__field--medium___v3Ex3B7Z LabelsSearch__input___3BARDmFr' type='text' placeholder='new label' data-aid='LabelsSearch__input' data-focus-id='LabelsSearch--$cid' aria-label='Search for an existing label or type a new label' value=''></div>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <a class='StoryLabelsMaker__arrow___OjD5Om2A' data-aid='StoryLabelsMaker__arrow' data-jq-dropdown='#BoqxLabelsCard__{$cid}' data-horizontal-offset='-260' data-vertical-offset='50'></a>
-                                                                                    </div>
-                                                                                    <div class='BoqxLabelsPicker__Vof1oGNB' data-cid='$cid'>
-                                                                                        <div id = 'BoqxLabelsCard__{$cid}' class='qbox-dropdown qbox-dropdown-tip_xxx qbox-dropdown-relative'>
-						                                                                    <div id='qboxContent'>
-                                                                                                <div class='qbox-dropdown-panel' style='max-width:450px;display:flex;justify-content:flex-end;flex-flow:column nowrap;'>
-                                                                                                    <div style='text-align:right;'>
-                                                                                                        $close_button
-                                                                                                    </div>
-                                                                                                    <div>
-                                                                                                        $label_card
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
+                                                                            $labels_maker
+                                                                        </div>
                                                                       </section>
     		                                                       </div>
 		                                                        </div>
@@ -3986,7 +4022,7 @@ $section = 'boqx_contents_receipt'        **************************************
             case 'boqx_contents_receipt':
 				Switch ($snippet){
 					case 'marker1':
-						$form_body .="<div class='ServiceEffort__26XCaBQk boqx_contents_receipt-marker1' data-qid='$qid' data-parent-cid='$parent_cid' data-cid='$cid' boqx-fill-level='0'>
+						$form_body .="<div id='$cid' class='ServiceEffort__26XCaBQk boqx_contents_receipt-marker1' data-qid='$qid' data-parent-cid='$parent_cid' boqx-fill-level='0'>
             							$boqx_contents_receipt_add
             							$boqx_contents_receipt_show
             							$boqx_contents_receipt_edit
