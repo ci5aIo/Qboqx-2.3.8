@@ -50,8 +50,6 @@ echo "<div class='user_menu_icons'>
 	    <span class='your_friends pearl_button'>
 	        <span class='user_menu_tooltip'>My&nbsp;Friends</span>
 	    </span>
-	    <div style='clear:left;'>
-	    </div>
 	    <span class='your_settings pearl_button'>
 	        <span class='user_menu_tooltip'>My&nbsp;Settings</span>
 	    </span>

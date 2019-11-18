@@ -31,7 +31,7 @@ Switch ($context){
         		$list_item = elgg_view('navigation/menu/elements/item', ['item' => $menu_item,
                                                         			'item_class' => $item_class,
                                                         		   ]);
-        		$lis .= elgg_format_element('li', '', $list_item);
+        		$lis .= elgg_format_element('li', [], $list_item);
         	}
         }
         

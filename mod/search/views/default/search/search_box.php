@@ -11,7 +11,7 @@ Switch ($context){
     case 'dashboard':
         $search_form = "<form action='#' onsubmit='tracker.preventDefault.apply(this,arguments)' class='search_bar'>
                           <a class='magnify'></a>
-                          <input name='search' type='text' aria-label='Search project' placeholder='Search project' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' value=''>
+                          <input name='search' type='text' aria-label='Search space' placeholder='Search space' autocomplete='off' autocorrect='off' autocapitalize='off' spellcheck='false' value=''>
                           <button class='search_help anchor' aria-label='search help' }='' type='button'>?</button>
                         </form>";
         break;

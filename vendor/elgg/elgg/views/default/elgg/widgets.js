@@ -40,8 +40,10 @@ define('elgg/widgets', ['elgg', 'jquery'], function (elgg, $) {
 		$(document).on('click', 'a.elgg-widget-delete-button', widgets.remove);
 		$(document).on('submit', '.elgg-widget-edit > form ', widgets.saveSettings);
 		$(document).on('click', 'a.elgg-widget-collapse-button', widgets.collapseToggle);
-
+		
+/* @EDIT 2019-10-26 - SAJ - Removed to prevent resizing of pallets 
 		widgets.setMinHeight(".elgg-widgets");
+*/		
 	};
 
 	/**

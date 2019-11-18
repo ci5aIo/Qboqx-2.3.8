@@ -1,7 +1,7 @@
 <?php
 $element      = elgg_extract('element', $vars);
 $guid         = elgg_extract('guid', $vars);
-
+$perspective  = elgg_extract('perspective', $vars, 'sidebar');
 
 Switch ($element){
     case 'delete':
@@ -87,7 +87,6 @@ Switch ($element){
             system_message(elgg_echo('shelf:add_to_shelf:success'));
             
             $entity = get_entity($guid);
-            $perspective = 'sidebar';
             $qty = 1;
             $content = elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective]);
         }

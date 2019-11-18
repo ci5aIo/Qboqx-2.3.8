@@ -15,7 +15,7 @@ if (!elgg_instanceof($widget, 'object', 'widget')) {
 $class = elgg_extract('class', $vars);
 $body_class = elgg_extract('body_class', $vars, 'full-pallet__stack');
 $module_type = elgg_extract('module_type', $vars);
-//$class = explode(' ', $class);
+
 if (!($widget instanceof WidgetManagerWidget)) {
 	// need this for newly created widgets (elgg_create_widget returns ElggWidget)
 	$widget = new \WidgetManagerWidget($widget->toObject());
@@ -24,6 +24,9 @@ if (!($widget instanceof WidgetManagerWidget)) {
 	_elgg_invalidate_cache_for_entity($widget->guid);
 	_elgg_invalidate_memcache_for_entity($widget->guid);
 }
+$parent_cid = elgg_extract('parent_cid', $vars, quebx_new_id('c'));
+$cid = quebx_new_id('c');
+$empty_boqx_id = quebx_new_id('c');
 
 $show_access = elgg_extract('show_access', $vars, true);
 elgg_set_config('widget_show_access', $show_access);
@@ -55,19 +58,26 @@ if (($widget->widget_manager_hide_header !== 'yes') || $can_edit) {
 		'show_edit' => $can_edit,
 //@EDIT 2019-06-22 - SAJ
 	    'module_type'=>$module_type,
+//@EDIT 2019-11-06 - SAJ
+        'cid' => $parent_cid,
+	    'target_boqx'=>$empty_boqx_id
 	]);
 		
 //@EDIT 2019-06-22 - SAJ
 	//$widget_header = "<div class='elgg-widget-handle clearfix'><h3 class='elgg-widget-title'>$title</h3>$controls</div>";
-	$widget_header = elgg_format_element('div',['class'=>'elgg-widget-handle clearfix tn-PanelHeader__inner___3Nt0t86w tn-PanelHeader__inner--single___3Nq8VXGB'],
-	                                           elgg_format_element('h3',['class'=>'elgg-widget-title tn-PanelHeader__name___2UfJ8ho9'],
-	                                                                    $title).
-	                                           $controls);
+	$widget_header = elgg_format_element('div',['class'=>['elgg-widget-handle','clearfix','tn-PanelHeader__inner___3Nt0t86w','tn-PanelHeader__inner--single___3Nq8VXGB']],
+                           elgg_format_element('h3',['class'=>['elgg-widget-title','tn-PanelHeader__name___2UfJ8ho9']],
+                                $title).
+                           $controls);
+	$widget_header .= elgg_format_element('div',['class'=>'tn-PanelHeader__input__xCdUunkH'],
+	                      elgg_format_element('div',['id'=>$empty_boqx_id,'class'=>'empty-boqx', 'data-boqx'=>$parent_cid],
+	                          elgg_view('partials/jot_form_elements',['element'=>'pallet','handler'=>$handler,'perspective'=>'add','empty_boqx_id'=>$empty_boqx_id,'parent_cid'=>$parent_cid])));
 }
 $widget_body_vars = [
-	'id' => "elgg-widget-content-{$widget->guid}",
-	'class' => ['elgg-widget-content', $body_class]
-];
+	'id'        => $cid,
+    'data-boqx' => $parent_cid,
+	'class'     => ['elgg-widget-content', $body_class],
+    'data-guid' => $widget->guid,];
 
 $fixed_height = sanitize_int($widget->widget_manager_fixed_height, false);
 if ($fixed_height) {
@@ -77,14 +87,13 @@ if ($fixed_height) {
 if ($widget->showCollapsed()) {
 	$widget_body_vars['class'][] = 'hidden';
 }
-
+$vars['boqx_id']    = $cid;
 $widget_body        = elgg_format_element('div', $widget_body_vars, elgg_view('object/widget/elements/content', $vars));
 $widget_class       = array_merge($widget->getClasses(), $class);                         //$display .= '$widget_class:'.print_r($widget_class,true);
 $widget_module_vars = [
 	'class' => $widget_class,
-	'id' => "elgg-widget-{$widget->guid}",
+	'id' => $parent_cid,
 	'header' => $widget_header];
-$empty_boqx = elgg_view('partials/jot_form_elements',['element'=>'pallet','handler'=>$handler,'perspective'=>'add']);
 		       
 echo "<!-- module_type: $module_type -->";
 //echo elgg_view_module('widget', '', $widget_body, $widget_module_vars);
@@ -93,10 +102,11 @@ Switch ($module_type){
 // @EDIT - 2019-07-28 - SAJ - Make the pallet un-draggable
         $rem_key = array_search('elgg-module-widget', $widget_module_vars['class']);
         unset($widget_module_vars['class'][$rem_key]);
-        $widget_body = elgg_format_element('div', ['class'=>'tn-pallet__stack'], $empty_boqx.$widget_body);
-        $widget_module_vars['title'] = '';
-        $widget_module_vars['body']  = $widget_body;
+        $widget_body                       = elgg_format_element('div', ['class'=>'tn-pallet__stack'], $widget_body);
+        $widget_module_vars['title']       = '';
+        $widget_module_vars['body']        = $widget_body;
         $widget_module_vars['module_type'] = $module_type;
+        $widget_module_vars['handler']     = $handler;
         $module = elgg_view('page/components/module_warehouse', $widget_module_vars);
         break;
     default:

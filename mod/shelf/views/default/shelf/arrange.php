@@ -2,6 +2,8 @@
 $inventory   = elgg_extract('inventory'  , $vars);
 $item        = elgg_extract('entity'     , $vars);
 $perspective = elgg_extract('perspective', $vars, 'page');
+$parent_cid  = elgg_extract('parent_cid' , $vars);
+$cid         = quebx_new_id('c');
 
 if ($item){
 	$element_type = 'receipt item';
@@ -38,6 +40,15 @@ Switch ($perspective){
                         </div>
 					</li>";
 		break;
+	case 'header':
+	    $content = 
+	       elgg_format_element('li',['class'=>'shelf-viewer','data-perspective'=>$perspective,'id'=>"quebx-shelf-item-$item->guid",'data-container-guid'=>$item->container_guid],
+	           elgg_format_element('div',['id'=>$cid,'class'=>['story','model','item','feature','unscheduled'], 'data-boqx'=>$parent_cid, 'data-guid'=>$item->guid],
+	               elgg_format_element('div',['class'=>['shelfview'], 'data-cid'=>$cid],
+	                   elgg_format_element('span',['class'=>['name','normal']],
+	                       elgg_format_element('span',[],
+	                           elgg_format_element('span',[],$item->title))))));
+	    break;
 	case 'page':
 	default:
 		$content = "<div class='rTableRow'>

@@ -2,6 +2,14 @@
 $element = elgg_extract('element', $vars);
 
 Switch ($element){
+    case 'market':
+        $style = "
+        textarea:focus {outline-offset: -2px;}
+        :focus {outline: -webkit-focus-ring-color auto 1px;}
+        textarea {-webkit-writing-mode: horizontal-tb !important;text-rendering: auto;color: initial;letter-spacing: normal;word-spacing: normal;text-transform: none;text-indent: 0px;text-shadow: none;display: inline-block;text-align: start;-webkit-appearance: textarea;background-color: white;-webkit-rtl-ordering: logical;flex-direction: column;resize: auto;cursor: text;white-space: pre-wrap;overflow-wrap: break-word;margin: 0em;font: 400 13.3333px Arial;border-width: 1px;border-style: solid;border-color: rgb(169, 169, 169);border-image: initial;padding: 2px;}
+         ";
+        $user_agent = elgg_format_element('style',['type'=>'text/css'],$style);
+        break;
     case 'experience':
         $user_agent = "<style type='text/css'>
             .tc_scrim {
@@ -3222,7 +3230,7 @@ Switch ($element){
             }
             </style>";
                     
-                    $user_agent .= "<style type='text/css'>
+    $user_agent .= "<style type='text/css'>
             ._199kd__projectNavExpanded {
               display: block;
               clear: both;

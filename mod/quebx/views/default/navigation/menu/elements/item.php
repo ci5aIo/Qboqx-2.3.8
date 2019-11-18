@@ -22,7 +22,7 @@ Switch ($context){
         	$item->addLinkClass($link_class);
         	$item->addLinkClass('elgg-menu-parent');
         }
-        $menu_text = elgg_format_element('span', '', $item->getText()); 
+        $menu_text = elgg_format_element('span', [], $item->getText()); 
         $menu_item = elgg_view_menu_item($item, ['text'=>$menu_text, 'class'=>$link_class]);
         if ($children) {
         	$menu_item .= elgg_view('navigation/menu/elements/section', array(

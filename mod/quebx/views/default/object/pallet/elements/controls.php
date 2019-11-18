@@ -8,13 +8,18 @@
 $entity      = elgg_extract('pallet', $vars);
 $show_edit   = elgg_extract('show_edit', $vars, true);
 $module_type = elgg_extract('module_type', $vars);
+$cid         = elgg_extract('cid', $vars);
+$parent_cid  = elgg_extract('parent_cid', $vars);
+$target_boqx = elgg_extract('target_boqx', $vars);
 
 Switch($module_type){
     case 'warehouse':
 	$add = array(
 		'name' => 'add',
 	    'title'=> 'Add',
-		'class' => 'tn-AddButton___hGq7Vqlr'
+		'class' => 'tn-AddButton___hGq7Vqlr',
+		'data-cid'=>$cid,
+		'data-target-boqx'=> $target_boqx,
 	);
 	$return[] = elgg_format_element('li',['class'=>'tn-PanelHeader__addArea___hw7L0xB'],
 	                                     elgg_format_element('a', $add));

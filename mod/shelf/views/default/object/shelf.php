@@ -1,5 +1,6 @@
 <?php
 $perspective = elgg_extract('perspective', $vars, 'page');
+$parent_cid  = elgg_extract('parent_cid', $vars, false);
 
 $file        = new ElggFile;
 $file->owner_guid = elgg_get_logged_in_user_guid();
@@ -39,14 +40,14 @@ foreach($data as $key=>$contents){
         case 'market':
         case 'item':
             ++$n_items;
-            $content_item .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective]);
+            $content_item .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
             break;
         case 'receipt':
             ++$n_receipts;
-            $content_receipt .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective]);
+            $content_receipt .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
             break;
         default:
-            $content_default .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective]);
+            $content_default .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
     }
 }
 Switch ($perspective){
@@ -113,6 +114,9 @@ Switch ($perspective){
     	    </div>
 	    </div>";
 		break;
+	case 'header':
+	    $content = $content_item.$content_receipt;
+	    break;
 }
 			
 echo $content;

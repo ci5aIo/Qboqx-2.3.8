@@ -32,14 +32,16 @@ $things_options = ['type'=>'object',
                     	                          AND e.guid = md.entity_guid)"], 
                    'limit'=>0];
 $things_count = count(elgg_get_entities($things_options));
-$panel_list_items[]=['title'=>'My things'  , 'class'=>'my_things'              , 'name'=>'my things'  , 'handler'=>'market'      , 'count'=>$things_count, 'id'=>'market'.'_'.$space_id       , 'cid'=>quebx_new_id('c')];
+$shelf_items_count = shelf_count_items ();
+$panel_list_items[]=['title'=>'things'     , 'class'=>'my_things'              , 'name'=>'things'     , 'handler'=>'market'      , 'count'=>$things_count, 'id'=>'market'.'_'.$space_id       , 'cid'=>quebx_new_id('c')];
+$panel_list_items[]=['title'=>'shelf'      , 'class'=>'shelf'                  , 'name'=>'shelf'      , 'handler'=>'shelf'       , 'count'=>$shelf_items_count, 'id'=>'shelf'.'_'.$space_id        , 'cid'=>quebx_new_id('c')];
+$panel_list_items[]=['title'=>'boqxes'     , 'class'=>'boqxes'                 , 'name'=>'boqxes'     , 'handler'=>'boqx'                                , 'id'=>'boqx'.'_'.$space_id         , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'Transfers'  , 'class'=>'backlog transfers'      , 'name'=>'transfers'  , 'handler'=>'transfer'                            , 'id'=>'transfer'.'_'.$space_id     , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'Activity'   , 'class'=>'icebox activity'        , 'name'=>'activity'   , 'handler'=>'river_widget'                        , 'id'=>'river_widget'.'_'.$space_id , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'experiences', 'class'=>'experiences'            , 'name'=>'experiences', 'handler'=>'experience'                          , 'id'=>'experience'.'_'.$space_id   , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'Done'       , 'class'=>'done'                   , 'name'=>'done'       , 'handler'=>'done'                                , 'id'=>'done'.'_'.$space_id         , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'Issues'     , 'class'=>'blockers issues'        , 'name'=>'issues'     , 'handler'=>'issue'       , 'count'=>1            , 'id'=>'issue'.'_'.$space_id        , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'Collections', 'class'=>'epics collections'      , 'name'=>'collections', 'handler'=>'collection'                          , 'id'=>'collection'.'_'.$space_id   , 'cid'=>quebx_new_id('c')];
-$panel_list_items[]=['title'=>'Labels'     , 'class'=>'labels'                 , 'name'=>'labels'     , 'handler'=>'labelcloud'                          , 'id'=>'label'.'_'.$space_id        , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'history'    , 'class'=>'project_history history', 'name'=>'history'    , 'handler'=>'history'                             , 'id'=>'history'.'_'.$space_id      , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'files'      , 'class'=>'filerepo'               , 'name'=>'files'      , 'handler'=>'filerepo'                            , 'id'=>'files'.'_'.$space_id        , 'cid'=>quebx_new_id('c')];
 
@@ -107,43 +109,36 @@ for ($column_index = 1; $column_index <= $num_pallets; $column_index++) {
 		foreach ($column_widgets as $widget) {
 			    unset($panel_contents,  $cid, $panel_toggle);
 			    $panel_contents = $widget->handler;
-			    foreach($panel_list_items as $key=>$panel_item){                                                      
+			    foreach($panel_list_items as $key=>$panel_item){
 			        if ($panel_item['handler'] == $widget->handler) {
 			            $panel_toggle = $panel_item;
-			            $panel_list_items[$key]['visible'] = 'true';
+			            $panel_list_items[$key]['visible'] = true;
 			        }
 			    }
 			    $cid = $panel_toggle['cid'];
+			    
 //			if (array_key_exists($widget->handler, $widget_types)) {
 			    $container_content .= elgg_view_entity($widget, ['show_access' => $show_access, 
 				                                                 'class'       =>['boqx', 'container', 'droppable', 'tn-panelWrapper___fTILOVmk'], 
 				                                                 'module_type' =>'warehouse',
 			                                                     'widget_id'   => $panel_contents,
-				                                                 'cid'         => $cid]);
+				                                                 'parent_cid'  => $cid]);
 //			}
 		}
 	}
-	$panel_content .= elgg_format_element('div', ['class'         =>"elgg-widgets pallet items_draggable $panel_visibility",
-        	                                      'id'            => 'slot_'.$column_index,
-	                                              'data-contents' => $panel_contents ?: 'open',
-        	                                      'data-cid'      => $cid,
-        //	                                      'style'         =>'min-width:375px;',
-	                                             ]
-        	                                    , $container_content);
+	$panel_content .= elgg_format_element('div', ['id'=>$cid,'class'=>['elgg-widgets','pallet','items_draggable',$panel_visibility],'data-contents' => $panel_contents ?: 'open',], $container_content);
 }
 
 foreach($panel_list_items as $panel_item){
     unset($attributes, $text);
     $cid = elgg_extract('cid', $panel_item, quebx_new_id('c'));
-    if ($panel_item['visible'] == 'true') $panel_visibility = ' visible';
-    else                                $panel_visibility = ' available';
+    $panel_visibility = $panel_item['visible'] ? ' visible' : ' available';
     foreach($panel_item as $aspect=>$value){
         if ($aspect == 'title') continue;
         else $attributes[$aspect]=$value;}
     $attributes['class'] = 'item '.$panel_item['class'].$panel_visibility;
     $text = elgg_format_element('button', 
-                               ['class'              =>'pallet_toggle',
-                                'aria-label'         =>'hide pallet',
+                               ['class'              => 'pallet_toggle',
                                 'data-pallet-visible'=> $panel_item['visible'],
                                 'data-boqx'          => $panel_item['handler'],      
                                 'data-cid'           => $cid

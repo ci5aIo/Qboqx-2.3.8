@@ -456,7 +456,7 @@ function quebx_get_filed_items ($category_guid, $params = array()) {
 
 	return elgg_get_entities_from_relationship($params);
 }
-function quebx_boqx_aspect_options($aspect, $options){
+function quebx_boqx_aspect_options($aspect, $options=array()){
     switch($aspect){
         case 'root':
             $boqx_aspects[] = ['name'=>'things', 'value'=>'things', 'has_children'=>false];

@@ -17,40 +17,36 @@ $title = elgg_extract('title', $vars, '');
 $body = elgg_extract('body', $vars, '');                                                           $display.='$body is '.strlen($body).' characters long<br>';
 $footer = elgg_extract('footer', $vars, '');
 $show_inner = elgg_extract('show_inner', $vars, false);
-
-$body_class = 'elgg_body items panel_content';
-$attrs = [
-	'id' => elgg_extract('id', $vars),
-	'class' => elgg_extract_class($vars, 'elgg-module'),
-];
-
-if ($type) {
-	$attrs['class'][] = "elgg-module-$type";
-}
-
+$handler = elgg_extract('handler', $vars);                                                         $display .= 'module_warehouse 20 $handler = '.$handler.'<br>';
+$parent_cid = elgg_extract('parent_cid', $vars);
+$cid     = elgg_extract('id', $vars);
 $header = elgg_extract('header', $vars);
-if ($title) {
-	$header = elgg_format_element('h3', [], $title);
-}
 
-if ($header !== null) {
-	$header = elgg_format_element('header', ['class' => 'elgg-head tn-PanelHeader___c0XQCVI7 tn-PanelHeader--single___2ns28dRL draggable']
-	                                      , $header);
-}
-$body = elgg_format_element('section', 
-                           ['class'           => 'items_container tn-panel-items-container___1Fk42hjC',
-                            'data-scrollable' => 'true'], 
-                             elgg_format_element('div', 
-                                                ['class' => $body_class], 
-                                                 $body));
-if ($footer) {
+$body_class = ['elgg_body','items','panel_content'];
+$attrs = ['id' => $cid,'class' => elgg_extract_class($vars, 'elgg-module'), 'data-boqx'=>$parent_cid];
+
+if ($type)
+	$attrs['class'][] = "elgg-module-$type";
+
+$user_agent_styles = elgg_view('css/quebx/user_agent',['element' => $handler]);
+
+if ($title)
+	$header = elgg_format_element('h3', [], $title);
+
+if ($header !== null) 
+	$header = elgg_format_element('header', ['class' => ['elgg-head tn-PanelHeader___c0XQCVI7','tn-PanelHeader--single___2ns28dRL','draggable'],'cid'=>$cid], $header);
+
+$body = elgg_format_element('section', ['class'=>['items_container','tn-panel-items-container___1Fk42hjC'],'cid'=>$cid,'data-scrollable' => 'true'], 
+            elgg_format_element('div', ['class' => $body_class],$body));
+
+if ($footer)
 	$footer = elgg_format_element('div', ['class' => 'elgg-foot'], $footer);
-}
 
 $contents = $header . $body . $footer;
-if ($show_inner) {
-	$contents = elgg_format_element('div', ['class' => 'elgg-inner'], $contents);
-}
 
-echo elgg_format_element('div', $attrs, $contents);
+if ($show_inner)
+	$contents = elgg_format_element('div', ['class' => 'elgg-inner'], $contents);
+
+$container = elgg_format_element('div', $attrs, $contents);
+echo $user_agent_styles . $container;
 //register_error($display);

@@ -67,8 +67,9 @@ function quebx_init() {
      $jquery_dropdown_js     = 'mod/quebx/vendors/jquery/dropdown/jquery.dropdown.js';
      $qboqx_dropdown_js     = 'mod/quebx/views/default/js/quebx/qboqx.dropdown.js';
      $jquery_inputmask       = 'https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js';
-     $infinite_scroll        = 'https://unpkg.com/infinite-scroll@3/dist/infinite-scroll.pkgd.js';
-//     $pivotal_js_framework   = 'https://assets.pivotaltracker.com/next/assets/next/75f82ab85fa556a21bf3-next.js';
+     //$infinite_scroll        = 'https://unpkg.com/infinite-scroll@3/dist/infinite-scroll.pkgd.js';
+     $materialize_js         = elgg_get_simplecache_url('js', 'materialize.js');
+     //$pivotal_js_framework   = 'https://assets.pivotaltracker.com/next/assets/next/75f82ab85fa556a21bf3-next.js';
      //css
      $parsley_validation_css = 'mod/quebx/vendors/parsley/src/parsley.css';
      $quebx_css_framework    = elgg_get_simplecache_url('css', 'quebx/framework');
@@ -76,7 +77,8 @@ function quebx_init() {
      $quebx_icons            = elgg_get_simplecache_url('css', 'quebx/icomoon_sprites_16');
      $quebx_css_from_pivotal = elgg_get_simplecache_url('css', 'quebx/from_pivotal.css');
      $jquery_dropdown_css    = 'mod/quebx/vendors/jquery/dropdown/jquery.dropdown.css';
-     $qboqx_dropdown_css    = 'mod/quebx/views/default/css/quebx/qboqx.dropdown.css';
+     $qboqx_dropdown_css     = 'mod/quebx/views/default/css/quebx/qboqx.dropdown.css';
+     $materialize_css        = elgg_get_simplecache_url('css', 'materialize.css');
 //register
      //js
      elgg_register_js('quebx.slide_menu.js' , $quebx_js_slide_menu);
@@ -85,6 +87,7 @@ function quebx_init() {
      elgg_register_js('dropdown.js'         , $jquery_dropdown_js);
      elgg_register_js('qboqx_dropdown.js'   , $qboqx_dropdown_js);
      elgg_register_js('inputmask.js'        , $jquery_inputmask);
+     elgg_register_js('materialize.js'      , $materialize_js);     
 //     elgg_register_js('pivotal.js'          , $pivotal_js_framework);
 //     elgg_register_js('infinite_scroll.js'  , $infinite_scroll, 'head', 500);
      //css 
@@ -95,6 +98,7 @@ function quebx_init() {
      elgg_register_css('quebx.icons'            , $quebx_icons);
      elgg_register_css('dropdown.css'           , $jquery_dropdown_css);
      elgg_register_css('qboqx_dropdown.css'     , $qboqx_dropdown_css);
+     elgg_register_css('materialize.css'        , $materialize_css);
 //load
      //js
 //     elgg_load_js('infinite_scroll.js');
@@ -104,6 +108,7 @@ function quebx_init() {
      elgg_load_js('dropdown.js');
      elgg_load_js('qboqx_dropdown.js');
      elgg_load_js('inputmask.js');
+     elgg_load_js('materialize.js');
 //     elgg_load_js('pivotal.js');
      //css
      elgg_load_css('quebx.framework.css');
@@ -112,8 +117,9 @@ function quebx_init() {
      elgg_load_css('dropdown.css');
      elgg_load_css('qboqx_dropdown.css');
      elgg_load_css('parsley.validation.css');
+     elgg_load_css('materialize.css');
 //require
-     elgg_require_js($infinite_scroll);
+     //elgg_require_js($infinite_scroll);
      elgg_require_js($quebx_js_framework);
 // @EDIT - 2019-07-22 - SAJ - Draft - Disabled
 //      elgg_require_js($quebx_widgets_js);
