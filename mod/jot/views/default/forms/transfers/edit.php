@@ -11,6 +11,7 @@ $entity         = elgg_extract('entity'           , $vars);
 $guid           = (int) elgg_extract('guid'       , $vars, 0);         $display       .= '$guid='.$guid.'<br>';
 if ($entity && $guid == 0) 
     $guid       = $entity->getGUID();
+$guid           = $guid==0 ? '' : $guid;
 $section        = elgg_extract('section'          , $vars, 'main');    $display       .= '$section='.$section.'<br>';
 $snippet        = elgg_extract('snippet'          , $vars);
 $aspect         = elgg_extract('aspect'           , $vars);            $display       .= '$aspect='.$aspect.'<br>';
@@ -23,11 +24,13 @@ $referrer       = elgg_extract('referrer'         , $vars);            $display 
 $shelf          = elgg_extract('shelf'            , $vars);
 $n              = elgg_extract('n'                , $vars, 1);
 $boqx_cid       = elgg_extract('boqx_cid'         , $vars);
+$carton_id      = elgg_extract('carton_id'        , $vars);
 //@TASK: Replace [transfer] with [$boqx_cid] 
 $parent_cid     = elgg_extract('parent_cid'       , $vars, quebx_new_id ('c'));
 $cid            = elgg_extract('cid'              , $vars, quebx_new_id ('c'));
 $qid            = elgg_extract('qid'              , $vars, quebx_new_id ('q'));
 $qid_n          = elgg_extract('qid_n'            , $vars, $qid.'_'.$n);
+$carton_id      = elgg_extract('carton_id'        , $vars, quebx_new_id ('c'));
 $presentation   = elgg_extract('presentation'     , $vars, 'full');                    $display       .= '$presentation='.$presentation.'<br>';
 $perspective    = elgg_extract('perspective'      , $vars, 'edit');                    $display       .= '$perspective='.$perspective.'<br>';
 $action         = elgg_extract('action'           , $vars, $perspective);              $display       .= '$action='.$action.'<br>';
@@ -36,8 +39,7 @@ $display_state  = elgg_extract('display_state'    , $vars, $perspective); //Opti
 $transfer_vars  = $vars;
 $subtype        = 'transfer';
 $exists         = true;
-$now            = new DateTime();
-$now->setTimezone(new DateTimeZone('America/Chicago'));
+$now            = new DateTime('now', new DateTimeZone('America/Chicago'));
 if (elgg_entity_exists($guid)){
      $jot  = get_entity($guid);
      $subtype = $jot->getSubtype();
@@ -51,7 +53,7 @@ $transfer_vars['presentation'] = $presentation;
 $transfer_vars['transfer_guid']= $guid;
 $transfer_vars['exists']       = $exists;
 $transfer_vars['entity']       = $jot;
-echo "<!--perspective=$perspective, section=$section, snippet=$snippet, presentation=$presentation-->";
+echo "<!--perspective=$perspective, section=$section, snippet=$snippet, presentation=$presentation-->";                             $display .= "perspective=$perspective, section=$section, snippet=$snippet, presentation=$presentation".'<br>';
 
 /******************************************************************************************************
  * 
@@ -438,7 +440,9 @@ Switch ($perspective){
             	}
             	
             	$url = elgg_get_site_url().'jot';
-            	$marker_title         = "<textarea data-aid='name' tabindex='0' data-focus-id='NameEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy2 NameEdit___2W_xAa_R' name='jot[$cid][title]' data-name='title' placeholder='Boqx name'></textarea>";
+//            	$marker_title         = "<textarea data-aid='name' tabindex='0' data-focus-id='NameEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy2 NameEdit___2W_xAa_R' name='jot[$cid][title]' data-name='title' placeholder='Boqx name'></textarea>";
+            	$marker_title         = elgg_format_element('input',['type'=>'text','class'=>['AutosizeTextarea__textarea___1LL2IPEy2',"NameEdit___2W_xAa_R"],'name'=>"jot[$cid][title]",'value'=>$entity->title, 'tabindex'=>'0','data-focus-id'=>"NameEdit--$cid",'data-aid'=>'name','data-name'=>'title','placeholder'=>'Boqx name'],
+                                                          $entity->title);
             	$marker_date_picker   = elgg_view('input/date', ['name'  => "jot[$cid][moment]", 'placeholder' => $now->format('Y-m-d'), 'value' => $now->format('Y-m-d'), 'style'=>'height: 28px;']);
             	$marker_type_selector = elgg_view_field(['#type'    =>'select',
             	                                         'name'    =>"jot[$cid][type]",  
@@ -640,25 +644,142 @@ Switch ($perspective){
                             </div>";
                         break;
                /****************************************
+*add********** $section = 'boqx_contents' $snippet='single_part' *****************************************************************
+               ****************************************/
+                        case 'single_part':
+                            $task = 'part';
+                            $visible_window = 'edit';
+                            $cards = elgg_extract('cards', $vars, 0);                                                                                  $display .= "652 parent_cid=$parent_cid <br>652 cid=$cid".'<br>';
+                            if ($cards > 0)
+                                $visible_window = 'add';
+            	            $utility_details  = 
+            	                    elgg_format_element('div',['class'=>'ItemLedger__KY8DM3qs'],
+                                        elgg_format_element('input',['type'=>'text','class'=>['id'=>"{$cid}_line_title", 'AutosizeTextarea__textarea___1LL2IPEy2','NameEdit___2W_xAa_R'],'data-aid'=>'name','tabindex'=>'0','data-focus-id'=>"NameEdit--$cid",'style'=>'padding-top: 0;margin: 8px;','name'=>"jot[$cid][title]",'placeholder'=>'Part name']).
+            	                        elgg_format_element('div',['class'=>'row'],
+                                            elgg_format_element('div',['class'=>'column_01'],
+                                                elgg_format_element('label',['for'=>"jot[$cid][qty]"],'Quantity')).
+                                            elgg_format_element('div',['class'=>'column_02'],
+                                                elgg_view('input/number',['id'=>"{$cid}_line_qty",'name'=>"jot[$cid][qty]",'data-cid'=>$cid, 'data-name'=>'qty', 'value'=>'1', 'max'=>'0']))).
+                                        elgg_format_element('div',['class'=>'row'],
+                                            elgg_format_element('div',['class'=>'column_01'],
+                                                elgg_format_element('label',['for'=>"jot[$cid][cost]"],'Item Cost')).
+                                             elgg_format_element('div',['class'=>'column_02'],
+                                                 elgg_view('input/text', ['id'=>"{$cid}_line_cost",'name'=>"jot[$cid][cost]",'data-cid'=>$cid,'data-name'=>'cost','class'=>'nString',]))).
+                                        elgg_format_element('div',['class'=>'row'],
+                                            elgg_format_element('div',['class'=>'column_01'],
+                                                elgg_format_element('label',[],'Total Cost')).
+                                            elgg_format_element('div',['class'=>'column_02'],
+                                                elgg_format_element('span',['id'=>"{$cid}_line_total"]).
+                                                elgg_format_element('span',['id'=>"{$cid}_line_total_raw", 'class'=>["{$cid}_line_total_raw",'line_total_raw']]))).
+            	                        elgg_view('navigation/controls',['form_method'=>'stuff','aspect'=>$aspect, 'parent_cid'=>$parent_cid,'cid'=>$cid,'guid'=>$guid,'action'=>$perspective,'presentation'=>$presentation,'presence'=>$presence, 'buttons'=>['copy_link'=>false,'copy_id'=>false,'show_guid'=>false,'import'=>false,'clone'=>false,'history'=>false,'delete'=>true,'delete_action'=>'replace','delete_class'=>'trashEnvelope_0HziOPGx','maximize'=>false,'cancel'=>true,'cancel_class'=>'closeEnvelope_1kZzzgcR','action'=>true]]));
+	                        $info_boqx = $utility_details;
+                            
+                             break;
+               /****************************************
+*add********** $section = 'boqx_contents' $snippet='single_effort' *****************************************************************
+               ****************************************/
+                        case 'single_effort':
+                        	unset($form_body, $disabled, $hidden, $hidden_fields, $id_value);
+                            $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
+                            $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
+                            if($guid && $guid!=0)
+                                $hidden[] =['name'=>"jot[$cid][guid]"  , 'value' => $guid];
+                            $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $aspect, 'data-focus-id' => "Aspect--{$cid}"];
+                            $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => '0'    , 'data-focus-id' => "FillLevel--{$cid}"];
+                            $hidden[] =['name'=>"jot[$cid][sort_order]", 'value' => "$n"   , 'data-focus-id' => "SortOrder--{$cid}"];                 $display .= "687 parent_cid=$parent_cid <br>1910 cid=$cid".'<br>';
+                            if (!empty($hidden)){                
+                                foreach($hidden as $key=>$field){
+                                    $hidden_fields .= elgg_view('input/hidden', $field);}}
+                            $task = 'effort';
+                            $participants_list_id = quebx_new_id('c');
+                            $date_picker   = elgg_format_element('input',['type'=>'date','name'=>"jot[$cid][moment]", 'value'=>$jot->moment ?: $now->format('Y-m-d')]);
+                    	    $visible_window = 'edit';
+                            $cards = elgg_extract('cards', $vars, 0);                                                                                  $display .= "695 parent_cid=$parent_cid <br>652 cid=$cid".'<br>';
+                            if ($cards > 0)
+                                $visible_window = 'add';
+            	            $owner                = get_entity($jot->participant_id ?: elgg_get_logged_in_user_guid());
+                        	$owner_names          = explode(' ',$owner->name);
+                        	$owner_initials       = strToUpper(str_split($owner_names[0])[0]).strToUpper(str_split($owner_names[1])[0]);
+                        	$users                = elgg_get_entities(['type'=>'user', 'limit'=>0]);
+                    		foreach ($users as $item) {
+                    			$item_icon        = elgg_view_entity_icon($item, "tiny");
+                    			$item_url         = elgg_view('output/url',['text'=>$item->getDisplayName(), 'href'=>$item->getURL(), 'class'=>'recipient']);
+                    			$list_items[$item_icon.$item_url] = $item->getGUID();
+                    		}
+                    		foreach($users as $user){
+                    		    $user_cid         = quebx_new_id('c');
+                    		    $user_guid        = $user->getGUID();
+                    		    $user_names       = explode(' ',$user->name);
+                    		    $user_initials    = strToUpper(str_split($user_names[0])[0]).strToUpper(str_split($user_names[1])[0]);
+                    		    $icon_src         = $user->getIconURL('tiny');
+                    		    if ($user->hasIcon('tiny'))
+                    		        $avatar       = elgg_format_element('span',['id'=>"icon_$user_cid",'class'=>"dropdown_icon", 'style'=>"background-image:url('$icon_src')", 'data-icon'=>$icon_src]);
+                    		    else
+                    		        $avatar       = elgg_format_element('span',['id'=>"icon_$user_cid",'class'=>"dropdown_initials"],$user_initials);
+    			                $li[]             = 
+                        		    elgg_format_element('li',['id'=>$user_cid, 'class'=>["pickItem__m15wyqaE"], 'data-boqx'=>$participants_list_id, 'data-value'=>$user_guid,'data-index'=>"1"],
+                                        elgg_format_element('a',['id'=>"select_$user_cid",'class'=>"item_$user_cid",'data-guid'=>$user_guid,'data-href'=>"profile/$user->username", 'href'=>"#"],
+                                            $avatar.
+                                            elgg_format_element('span',['id'=>"label_$user_cid",'class'=>"dropdown_label"],$user->name)));
+                    		}
+                        	$participant         = 
+                            	elgg_format_element('div',['class'=>'dropdown', 'data-cid'=>$cid],
+                                     elgg_format_element('input',['type'=>"hidden",'name'=>"jot[$cid][participant_id]",'value'=>$owner->getGUID(),'data-type'=>"number"]).
+                                     elgg_format_element('a',['id'=>'person_'.$owner->getGUID(), 'class'=>["selection","item_$cid"],'tabindex'=>"-1"],
+                                         elgg_format_element('span',['tabindex'=>"-1"],
+                                             elgg_format_element('div',['class'=>['pickAvatar','pickAvatar__hasHoverCard'],'data-person-id'=>$owner->getGUID()],
+                                                 elgg_format_element('span',['class'=>"pickAvatar__initials"],$owner_initials))).
+                                         elgg_format_element('span',[],
+                                             elgg_format_element('div',['class'=>['name','pickAvatarName']],$owner->name))).
+                                     elgg_format_element('a',['class'=>['arrow','target']]).
+                                     elgg_format_element('section',['class'=>['pick-boqx','closed']],
+                                         elgg_format_element('div',['class'=>["dropdown_menu","search"]],
+            		                         elgg_format_element('div',['class'=>"search_item"],
+                                                  elgg_format_element('input',['type'=>"text",'id'=>"filter_$cid",'class'=>"filter",'onkeyup'=>"filterList('$cid','$participants_list_id')"])).
+                                             elgg_format_element('ul',['id'=>$participants_list_id,'class'=>['pickList__NRi0PbnO',"selections_$cid"],'data-boqx'=>$cid], implode('',$li)))));
+                        	$info_box = 
+                        	   elgg_format_element('div',['class'=>['activity','info_box'],'style'=>'display:block'],
+                					elgg_format_element('div',['class'=>'info'],
+                						elgg_format_element('div',['class'=>'date row'],
+                						  "<em>Date</em>".
+                						  elgg_format_element('div',['class'=>['dropdown','story_date']],$date_picker)).
+                						elgg_format_element('div',['class'=>'participant row'],
+                						  "<em>Participant</em>".
+                							  $participant)));
+            	            $utility_details  = 
+            	                    elgg_format_element('div',['class'=>'ItemLedger__KY8DM3qs'],
+                                        elgg_format_element('input',['type'=>'text','class'=>['id'=>"{$cid}_line_title", 'AutosizeTextarea__textarea___1LL2IPEy2','NameEdit___2W_xAa_R'],'data-aid'=>'name','tabindex'=>'0','data-focus-id'=>"NameEdit--$cid",'style'=>'padding-top: 0;margin: 8px;','name'=>"jot[$cid][title]",'placeholder'=>'Task']).
+                                        elgg_view('input/description',['cid'=>$cid,'input_type'=>'comment','metadata_name'=>'comment', 'value'=>$jot->comment]).
+            	                        elgg_format_element('div',['class'=>'row'],
+                                            elgg_format_element('div',['class'=>'column_01','style'=>'width:50%'],
+                                                elgg_format_element('label',['for'=>"jot[$cid][hours]"],'Hours')).
+                                            elgg_format_element('div',['class'=>'column_02','style'=>'width:50%'],
+                                                elgg_format_element('input',['type'=>'number', 'id'=>"{$cid}_hours",'name'=>"jot[$cid][hours]",'value'=>$jot->hours,'data-cid'=>$cid, 'data-name'=>'hours', 'placeholder'=>'0.00', 'step'=>'0.25']))).
+            	                        elgg_view('navigation/controls',['form_method'=>'stuff','aspect'=>$aspect, 'parent_cid'=>$parent_cid,'cid'=>$cid,'guid'=>$guid,'action'=>$perspective,'presentation'=>$presentation,'presence'=>$presence, 'buttons'=>['copy_link'=>false,'copy_id'=>false,'show_guid'=>false,'import'=>false,'clone'=>false,'history'=>false,'delete'=>true,'delete_action'=>'replace','delete_class'=>'trashEnvelope_0HziOPGx','maximize'=>false,'cancel'=>true,'cancel_class'=>'closeEnvelope_1kZzzgcR','action'=>true]]));
+	                        $info_boqx = elgg_format_element('div',[],$hidden_fields.$info_box.$utility_details);
+                            break;
+               /****************************************
 *add********** $section = 'boqx_contents' $snippet='single_thing' *****************************************************************
                ****************************************/
                         case 'single_thing':
-                        $aspect        = elgg_extract('aspect', $vars, 'item');
-                        $element = 'item';
-		                $delete = elgg_format_element("span",['class'=>'remove-item'], elgg_format_element('a', ['title' =>'remove item'],
-                                                                    	                                                elgg_view_icon('delete-alt')));
-                        $labels_maker = elgg_view($view,[ 
-        										  'perspective' => $perspective,
-                                                  'presentation'=> $presentation,
-        										  'section'     =>'labels_maker',
-        										  'cid'         => $cid]);
-		                
+                            $aspect        = elgg_extract('aspect', $vars, 'item');
+                            $element = 'item';
+    		                $delete = elgg_format_element("span",['class'=>'remove-item'], elgg_format_element('a', ['title' =>'remove item'],
+                                                                        	                                                elgg_view_icon('delete-alt')));
+                            $labels_maker = elgg_view($view,[ 
+            										  'perspective' => $perspective,
+                                                      'presentation'=> $presentation,
+            										  'section'     =>'labels_maker',
+            										  'cid'         => $cid]);
 		                switch($presentation){
+		                    case 'carton':
 		                    case 'pallet':
                      			unset($hidden);
                      			unset($form_body, $disabled, $hidden, $hidden_fields, $id_value);
         		                $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
         		                $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
+                                if($guid && $guid!=0)
+                                    $hidden[] =['name'=>"jot[$cid][guid]"  , 'value' => $guid];
                                 $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $aspect      , 'data-focus-id' => "Aspect--{$cid}"];
         		                $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => '0'            , 'data-focus-id' => "FillLevel--{$cid}"];
         		                $hidden[] =['name'=>"jot[$cid][sort_order]", 'value' => "$n"           , 'data-focus-id' => "SortOrder--{$cid}"];
@@ -745,7 +866,7 @@ Switch ($perspective){
                                             ).
                                             elgg_format_element('div',['class'=>'column_02'],
                                                 elgg_format_element('span',['id'=>"{$cid}_line_total"]).
-                                                elgg_format_element('span',['class'=>["{$cid}_line_total_raw",'line_total_raw']])
+                                                elgg_format_element('span',['id'=>"{$cid}_line_total_raw", 'class'=>["{$cid}_line_total_raw",'line_total_raw']])
                                             )
                                         );}
                             	$value                 = elgg_get_site_entity()->guid;
@@ -846,7 +967,6 @@ Switch ($perspective){
         												elgg_format_element('section',['class'=>['item-properties',"item-properties__$cid"]],$line_item_properties)));
                             						
 //                                $single_thing = elgg_format_element('div',['class'=>['boqx-item','Item__nhjb4ONn'], 'id'=>"$cid", 'data-boqx'=>$parent_cid, 'data-aspect'=>$aspect, 'boqx-fill-level'=>'0'], $boqx_contents_add.$boqx_contents_show.$boqx_contents_edit);
-                                $single_thing = elgg_view('page/elements/envelope',['task'=>$task,'action'=>$action,'has_collapser'=>false, 'guid'=>$guid, 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$qid, 'hidden_fields'=>$hidden_fields, 'info_boqx'=>$info_boqx, 'visible'=>'edit']);
                                 
                                 /*******************/
                                 
@@ -1862,6 +1982,98 @@ Switch ($perspective){
 				];
 				$add_issue = elgg_view($view,$body_vars);
 				break;
+                /****************************************
+*add********** $section = 'boqx_contents_parts'              *****************************************************************
+             * Pass-through - Assumes single part.  Used to provide compatibility with action = 'edit'.
+             ****************************************/
+            case 'boqx_contents_parts':
+                    if(empty($carton_id))
+                        $carton_id         = quebx_new_id('c');
+                    $parts_vars            = $vars;
+                    $parts_vars['section'] = 'boqx_contents_part';
+                    $parts_vars['carton_id']=$carton_id;
+                    $contents_parts[]      = elgg_view('forms/transfers/edit',$parts_vars);
+                    $packing_slip          =
+                	    elgg_format_element('div',['class'=>'packingSlip__5dmGOa9Z', 'data-cid'=>$cid],
+                            elgg_format_element('div',['class'=>'row'],
+            				    elgg_format_element('div',['class'=>'column_01'],
+                        			elgg_format_element('span',['class'=>'rTableCell'],'Parts Total')).
+            				    elgg_format_element('div',['class'=>'column_02'],
+                                    elgg_format_element('span',['id'=>"{$cid}_total"],$total).
+                				    elgg_format_element('span',['id'=>"{$cid}_total_raw", 'class'=>["{$cid}_total_raw",'total_raw']]))));
+                    $form_body             = elgg_view_layout('carton',['cid'=>$cid,'carton_id'=>$carton_id,'aspect'=>'parts','pieces'=>$contents_parts,'footer'=>$packing_slip, 'title'=>'Parts'] );
+                    break;
+                
+				/****************************************
+*add********** $section = 'boqx_contents_part'    *****************************************************************
+                ****************************************/
+            case 'boqx_contents_part':                                                                                                
+     			unset($form_body, $disabled, $hidden, $hidden_fields, $id_value);
+                $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
+                $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
+                if($guid && $guid!=0)
+                    $hidden[] =['name'=>"jot[$cid][guid]"  , 'value' => $guid];
+                $hidden[] =['name'=>"jot[$cid][proximity]" , 'value' => 'in'];
+                $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $aspect, 'data-focus-id' => "Aspect--{$cid}"];
+                $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => '0'    , 'data-focus-id' => "FillLevel--{$cid}"];
+                $hidden[] =['name'=>"jot[$cid][sort_order]", 'value' => "$n"   , 'data-focus-id' => "SortOrder--{$cid}"];       $display .= "2018 parent_cid=$parent_cid <br>2018 cid=$cid".'<br>';
+                if (!empty($hidden)){                
+                    foreach($hidden as $key=>$field){
+                        $hidden_fields .= elgg_view('input/hidden', $field);}}
+                //$qid_n = "{$cid}_{$n}";
+/*        	    $packing_slip =
+        	    elgg_format_element('div',['class'=>'packingSlip__5dmGOa9Z', 'data-cid'=>$cid],
+                    elgg_format_element('div',['class'=>'rTable'],
+                        elgg_format_element('div',['class'=>'rTableBody'],
+            				elgg_format_element('div',['class'=>'rTableRow pin'],
+                				elgg_format_element('div',['class'=>'rTableCell']).
+                				elgg_format_element('div',['class'=>'rTableCell'],'Parts Total').
+                				elgg_format_element('div',['class'=>'rTableCell'],
+                				    elgg_format_element('span',['id'=>"{$cid}_total"],$total).
+                				    elgg_format_element('span',['id'=>"{$cid}_total_raw", 'class'=>["{$cid}_total_raw",'total_raw']]))))));*/
+                
+        	    
+                $contents = elgg_view('forms/transfers/edit',['perspective' => $action,'section'=>'boqx_contents','snippet'=> 'single_part','presentation'=> $presentation,'display_state'=>'edit','effort'=> $effort,'parent_cid'=> $cid,'carton_id'=>$carton_id]);
+                //$form_body= elgg_format_element('div',['class'=>'envelopeContents__HDxvaVJd', 'data-cid'=>$cid], $hidden_fields.$contents.$packing_slip);
+                $form_body= elgg_view('page/elements/envelope',['task'=>'part','title'=>$title,'action'=>$action, 'guid'=>$guid, 'parent_cid'=>$parent_cid,'cid'=>$cid, 'carton_id'=>$carton_id,'info_boqx'=>$contents,'visible'=>$visible,'has_collapser'=>'no', 'hidden_fields'=>$hidden_fields,'presentation'=>$presentation, 'presence'=>$presence]);
+                break;
+				/****************************************
+*add********** $section = 'boqx_contents_efforts'    *****************************************************************
+                ****************************************/
+            case 'boqx_contents_efforts':                                                                                                
+     			unset($form_body, $disabled, $hidden, $hidden_fields, $id_value);
+                $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
+                $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
+                $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $aspect, 'data-focus-id' => "Aspect--{$cid}"];
+                $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => '0'    , 'data-focus-id' => "FillLevel--{$cid}"];
+                $hidden[] =['name'=>"jot[$cid][sort_order]", 'value' => "$n"   , 'data-focus-id' => "SortOrder--{$cid}"];       $display .= "1910 parent_cid=$parent_cid <br>1910 cid=$cid".'<br>';
+                if (!empty($hidden)){                
+                    foreach($hidden as $key=>$field){
+                        $hidden_fields .= elgg_view('input/hidden', $field);}}
+                //$qid_n = "{$cid}_{$n}";
+/*        	    $packing_slip =
+        	    elgg_format_element('div',['class'=>'packingSlip__5dmGOa9Z', 'data-cid'=>$cid],
+                    elgg_format_element('div',['class'=>'rTable'],
+                        elgg_format_element('div',['class'=>'rTableBody'],
+            				elgg_format_element('div',['class'=>'rTableRow pin'],
+                				elgg_format_element('div',['class'=>'rTableCell']).
+                				elgg_format_element('div',['class'=>'rTableCell'],'Parts Total').
+                				elgg_format_element('div',['class'=>'rTableCell'],
+                				    elgg_format_element('span',['id'=>"{$cid}_total"],$total).
+                				    elgg_format_element('span',['id'=>"{$cid}_total_raw", 'class'=>["{$cid}_total_raw",'total_raw']]))))));*/
+                
+        	    $packing_slip =
+        	    elgg_format_element('div',['class'=>'packingSlip__5dmGOa9Z', 'data-cid'=>$cid],
+                    elgg_format_element('div',['class'=>'row'],
+    				    elgg_format_element('div',['class'=>'column_01'],
+                			elgg_format_element('span',['class'=>'rTableCell'],'Hours Total')).
+    				    elgg_format_element('div',['class'=>'column_02'],
+                            elgg_format_element('span',['id'=>"{$cid}_total"],$total).
+        				    elgg_format_element('span',['id'=>"{$cid}_total_raw", 'class'=>["{$cid}_total_raw",'total_raw']]))));
+                $contents = elgg_format_element('div',['id'=>$carton_id, 'class'=>'boqx-carton', 'data-boqx'=>$cid, 'data-aspect'=>'efforts'],
+    						    elgg_view('forms/transfers/edit',['perspective' => $action,'section'=>'boqx_contents','snippet'=> 'single_effort','presentation'=> $presentation,'aspect'=>'effort','display_state'=>'edit','effort'=> $effort,'parent_cid'=> $cid,'carton_id'=>$carton_id]));
+                $efforts  = elgg_format_element('div',['class'=>'envelopeContents__HDxvaVJd', 'data-cid'=>$cid], $hidden_fields.$contents.$packing_slip);
+                break;
 				/****************************************
 *add********** $section = 'boqx_contents_books'    *****************************************************************
                 ****************************************/
@@ -2814,6 +3026,41 @@ Switch ($perspective){
 												  'n'           => $n,]);
              	}
              	break;
+				/****************************************
+*edit********** $section = 'boqx_contents_parts'    *****************************************************************
+                ****************************************/
+            case 'boqx_contents_parts':
+                $carton_id   = quebx_new_id('c');
+                $parts =  elgg_get_entities(['type'=>'object','container_guid'=>$guid,'subtype'=>'part']);
+                if($parts){
+                    foreach($parts as $part){
+                        unset($part_vars);
+                        $part_vars = $vars;
+                        $part_vars['action']  = 'add';
+                        $part_vars['section'] = 'boqx_contents_part';
+                        $part_vars['guid']    = $part->guid;
+                        $contents_parts[]     = elgg_view('forms/transfers/edit',$part_vars);
+                        $total               += $part->qty * $part->cost;
+                    }
+                }
+                // Add a blank part card
+                unset($part_vars);
+                $part_vars            = $vars;
+                $part_vars['action']  = 'add';
+                $part_vars['section'] = 'boqx_contents_part';
+                $part_vars['guid']    = 0;
+                $contents_parts[]     =  elgg_view('forms/transfers/edit',$part_vars);
+                $packing_slip         =
+            	    elgg_format_element('div',['class'=>'packingSlip__5dmGOa9Z', 'data-cid'=>$cid],
+                        elgg_format_element('div',['class'=>'row'],
+        				    elgg_format_element('div',['class'=>'column_01'],
+                    			elgg_format_element('span',['class'=>'rTableCell'],'Parts Total')).
+        				    elgg_format_element('div',['class'=>'column_02'],
+                                elgg_format_element('span',['id'=>"{$cid}_total"],$total).
+            				    elgg_format_element('span',['id'=>"{$cid}_total_raw", 'class'=>["{$cid}_total_raw",'total_raw']]))));
+                $form_body            = elgg_view_layout('carton',['cid'=>$cid,'carton_id'=>$carton_id,'aspect'=>$aspect,'pieces'=>$contents_parts,'footer'=>$packing_slip, 'title'=>'Parts'] );
+             	    
+                break;
 				/****************************************
 *edit********** $section = 'labels_maker'               *****************************************************************
 				 ****************************************/
@@ -3840,7 +4087,10 @@ $section = 'boqx_contents'                **************************************
 					    $form_body = $loose_things_line_items;
 					    break;
 					case 'single_thing':
-					    $form_body = $single_thing;
+					case 'single_part':
+					case 'single_effort':
+					    $form_body = elgg_view('page/elements/envelope',['task'=>$task,'action'=>$action,'has_collapser'=>false, 'guid'=>$guid, 'presentation'=>$presentation, 'presence'=>$presence, 'parent_cid'=>$parent_cid,'carton_id'=>$carton_id, 'cid'=>$cid, 'qid'=>$qid, 'hidden_fields'=>$hidden_fields, 'info_boqx'=>$info_boqx, 'visible'=>$visible_window]);
+					    break;
 					case 'single_book':
 					case 'book':
 					case 'comic_book':
@@ -3950,6 +4200,18 @@ $section = 'boqx_contents_issue'        ****************************************
     							$view_issue
 					    )
                     );
+                break;
+/****************************************
+$section = 'boqx_contents_parts'        *****************************************************************
+****************************************/
+			case 'boqx_contents_parts':
+                $form_body = $parts;
+                break;
+/****************************************
+$section = 'boqx_contents_efforts'      *****************************************************************
+****************************************/
+			case 'boqx_contents_efforts':
+                $form_body = $efforts;
                 break;
 /****************************************
 $section = 'boqx_contents_books'         *****************************************************************

@@ -18,12 +18,12 @@ $body = elgg_extract('body', $vars, '');                                        
 $footer = elgg_extract('footer', $vars, '');
 $show_inner = elgg_extract('show_inner', $vars, false);
 $handler = elgg_extract('handler', $vars);                                                         $display .= 'module_warehouse 20 $handler = '.$handler.'<br>';
-$parent_cid = elgg_extract('parent_cid', $vars);
+$data_boqx = elgg_extract('data-boqx', $vars);
 $cid     = elgg_extract('id', $vars);
 $header = elgg_extract('header', $vars);
 
 $body_class = ['elgg_body','items','panel_content'];
-$attrs = ['id' => $cid,'class' => elgg_extract_class($vars, 'elgg-module'), 'data-boqx'=>$parent_cid];
+$attrs = ['id' => $cid,'class' => elgg_extract_class($vars, 'elgg-module'), 'data-boqx'=>$data_boqx];
 
 if ($type)
 	$attrs['class'][] = "elgg-module-$type";

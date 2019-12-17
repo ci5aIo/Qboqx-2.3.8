@@ -443,7 +443,7 @@ Switch ($perspective){
                          $weir_menu
                       </section>
                   </div>";                            	
-    	        $item_category     = elgg_format_element('div', ['class'=>['info_box','free']],
+    	        $item_category     = elgg_format_element('div', ['class'=>['info_box']],
     	                                         elgg_format_element('div', ['class'=>'info'],
     	                                              elgg_format_element('div', ['class'=>'row'],
     	                                                  "<em>Category</em>".
@@ -458,12 +458,15 @@ Switch ($perspective){
                ****************************************/
             case 'item edit':
                 unset($form_body, $disabled, $hidden, $hidden_fields, $id_value);
-                $hidden[] =['name'=>"jot[cid]"             , 'value' => $parent_cid];
+                $hidden[] =['name'=>"jot[cid]"                , 'value' => $parent_cid];
                 $hidden[] =['name'=>"jot[$parent_cid][aspect]", 'value' => 'things'];
-                $hidden[] =['name'=>"jot[$parent_cid][cid]", 'value' => $parent_cid];
+                $hidden[] =['name'=>"jot[$parent_cid][boqx]"  , 'value' => '...'];
+                $hidden[] =['name'=>"jot[$parent_cid][cid]"   , 'value' => $parent_cid];
+                
                 $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
                 $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
                 $hidden[] =['name'=>"jot[$cid][guid]"      , 'value' => $guid];
+                $hidden[] =['name'=>"jot[$cid][proximity]" , 'value' => 'boqx'];
                 $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $aspect    , 'data-focus-id' => "Aspect--{$cid}"];
                 $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => $fill_level, 'data-focus-id' => "FillLevel--{$cid}"];
                 $hidden[] =['name'=>"jot[$cid][sort_order]", 'value' => "$n"       , 'data-focus-id' => "SortOrder--{$cid}"];
@@ -579,11 +582,11 @@ Switch ($perspective){
 							</section>
 						</div>";
                 $issue_body_vars = $vars;
-                $issue_body_vars['parent_cid'] = $cid; 
-                unset($issue_body_vars['cid']);
-                $issue_body_vars['action'] = 'add';
-                $issue_body_vars['section']='issue';
-                $issue_body_vars['presentation']='pallet';
+                $issue_body_vars['cid'] = $cid; 
+//                unset($issue_body_vars['cid']);
+                $issue_body_vars['action'] = $perspective;
+                $issue_body_vars['section']='issues';
+                $issue_body_vars['presentation']='carton';
                 $issue_body_vars['presence']='item boqx';
                 $item_issues = elgg_view('forms/experiences/edit',$issue_body_vars);
     	        $boqx_contents_edit = "

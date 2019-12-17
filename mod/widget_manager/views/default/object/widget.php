@@ -27,6 +27,7 @@ if (!($widget instanceof WidgetManagerWidget)) {
 $parent_cid = elgg_extract('parent_cid', $vars, quebx_new_id('c'));
 $cid = quebx_new_id('c');
 $empty_boqx_id = quebx_new_id('c');
+$module_id     = quebx_new_id('c');
 
 $show_access = elgg_extract('show_access', $vars, true);
 elgg_set_config('widget_show_access', $show_access);
@@ -59,7 +60,7 @@ if (($widget->widget_manager_hide_header !== 'yes') || $can_edit) {
 //@EDIT 2019-06-22 - SAJ
 	    'module_type'=>$module_type,
 //@EDIT 2019-11-06 - SAJ
-        'cid' => $parent_cid,
+        'cid' => $module_id,
 	    'target_boqx'=>$empty_boqx_id
 	]);
 		
@@ -70,12 +71,12 @@ if (($widget->widget_manager_hide_header !== 'yes') || $can_edit) {
                                 $title).
                            $controls);
 	$widget_header .= elgg_format_element('div',['class'=>'tn-PanelHeader__input__xCdUunkH'],
-	                      elgg_format_element('div',['id'=>$empty_boqx_id,'class'=>'empty-boqx', 'data-boqx'=>$parent_cid],
-	                          elgg_view('partials/jot_form_elements',['element'=>'pallet','handler'=>$handler,'perspective'=>'add','empty_boqx_id'=>$empty_boqx_id,'parent_cid'=>$parent_cid])));
+	                      elgg_format_element('div',['id'=>$empty_boqx_id,'class'=>'empty-boqx', 'data-boqx'=>$module_id],
+	                          elgg_view('partials/jot_form_elements',['element'=>'pallet','handler'=>$handler,'perspective'=>'add','empty_boqx_id'=>$empty_boqx_id,'parent_cid'=>$module_id])));
 }
 $widget_body_vars = [
 	'id'        => $cid,
-    'data-boqx' => $parent_cid,
+    'data-boqx' => $module_id,
 	'class'     => ['elgg-widget-content', $body_class],
     'data-guid' => $widget->guid,];
 
@@ -91,9 +92,10 @@ $vars['boqx_id']    = $cid;
 $widget_body        = elgg_format_element('div', $widget_body_vars, elgg_view('object/widget/elements/content', $vars));
 $widget_class       = array_merge($widget->getClasses(), $class);                         //$display .= '$widget_class:'.print_r($widget_class,true);
 $widget_module_vars = [
-	'class' => $widget_class,
-	'id' => $parent_cid,
-	'header' => $widget_header];
+	'class'     => $widget_class,
+	'id'        => $module_id,
+	'data-boqx' => $parent_cid,
+	'header'    => $widget_header];
 		       
 echo "<!-- module_type: $module_type -->";
 //echo elgg_view_module('widget', '', $widget_body, $widget_module_vars);

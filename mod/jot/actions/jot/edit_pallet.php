@@ -39,33 +39,40 @@ $exists         =      elgg_entity_exists($guid);
 $moment         =      $jot['moment']         ?: $now;                                  $display .= '39 $moment = '.$moment->format('Y-m-d').'<br>';
 $cid            =      $jot['cid'];                                                     $display .= '40 $cid = '.$cid.'<br>';
 $boqx_has_title =      false;
-$containers           = array();
-$aspects              = array();
-$boqx_attributes      = ['cid','boqx','guid','aspect','fill_level','sort_order', 'unpack', 'blank_label'];
+
+$containers        = array();
+$boqxes            = array();
+$aspects           = array();
+$boqx_attributes   = array_fill_keys(['cid','boqx','aspect','fill_level','sort_order', 'unpack', 'blank_label','proximity'],'');
+$entity_properties = array_fill_keys(['guid','container_guid','site_guid','owner_guid','type','subtype','access_id'],'');
+$object_attributes = array_fill_keys(['guid','title','description'],'');
+$access_controls   = ['ACCESS_PRIVATE'=>0,'ACCESS_LOGGED_IN'=>1,'ACCESS_PUBLIC'=>2,'ACCESS_FRIENDS'=>-2];
 //Identify the boqxes
 if (is_array($jot))
     foreach($jot as $key=>$value)
-        if (is_array($value) && !empty($value['cid']) && !in_array($value['cid'],$containers))
-            $boqxes[] = ['cid'=>$value['cid'], 'boqx'=>$value['boqx'],'guid'=>$value['guid'],'aspect'=>$value['aspect'], 'fill_level'=>$value['fill_level'],'sort_order'=>$value['sort_order'], 'unpack'=>$jot['unpack'], 'labels'=>$jot['labels'], 'blank_label'=>$jot['blank_label']];  $display .= '50 $value[cid] = '.$value['cid'].'<br>';
+        if (is_array($value) && !empty($value['cid']) && !in_array($value['cid'],$boqxes))
+            $boqxes[] = array_intersect_key($value, $boqx_attributes);//  ['cid'=>$value['cid'], 'boqx'=>$value['boqx'],'guid'=>$value['guid'],'aspect'=>$value['aspect'], 'fill_level'=>$value['fill_level'],'sort_order'=>$value['sort_order'], 'unpack'=>$jot['unpack'], 'labels'=>$jot['labels'], 'blank_label'=>$jot['blank_label'],'proximity'=>$jot['proximity']];
 // Display boqx contents
 foreach($jot as $key=>$value){
-	if (empty($value)) continue;                                                        $display .= '57 jot['.$key.'] = '.$value.'<br>';
+	if (empty($value)) continue;                                                        $display .= '52 jot['.$key.'] = '.$value.'<br>';
 	if (is_array($value) && count($value)>0){
 	    foreach($value as $key1=>$value1){
-	        if (empty($value1)) continue;                                               $display .= '60 jot['.$key.']['.$key1.'] = '.$value1.'<br>';
+	        if (empty($value1)) continue;                                               $display .= '55 jot['.$key.']['.$key1.'] = '.$value1.'<br>';
     			if (is_array($value1) && count($value1)>0){
 				foreach($value1 as $key2=>$value2){
-				    if (empty($value2)) continue;                                       $display .= '64 jot['.$key.']['.$key1.']['.$key2.'] = '.$value2.'<br>';
+				    if (empty($value2)) continue;                                       $display .= '58 jot['.$key.']['.$key1.']['.$key2.'] = '.$value2.'<br>';
 					if(is_array($value2) && count($value2)>0){
 						foreach($value2 as $key3=>$value3){
-						    if (empty($value3)) continue;                               $display .= '67 jot['.$key.']['.$key1.']['.$key2.']['.$key3.'] = '.$value3.'<br>';
+						    if (empty($value3)) continue;                               $display .= '61 jot['.$key.']['.$key1.']['.$key2.']['.$key3.'] = '.$value3.'<br>';
 							if (is_array($value3) && count($value3)>0){
 								foreach($value3 as $key4=>$value4){
-								    if (empty($value4)) continue;                       $display .= '70 jot['.$key.']['.$key1.']['.$key2.']['.$key3.']['.$key4.'] = '.$value4.'<br>';
+								    if (empty($value4)) continue;                       $display .= '64 jot['.$key.']['.$key1.']['.$key2.']['.$key3.']['.$key4.'] = '.$value4.'<br>';
 									if (is_array($value4) && count($value4)>0){
 										foreach($value4 as $key5=>$value5){  
-										    if (empty($value5)) continue;}}}}}}}}}}}    $display .= '73 jot['.$key.']['.$key1.']['.$key2.']['.$key3.']['.$key4.']['.$key5.'] = '.$value5.'<br>';
-
+										    if (empty($value5)) continue;}}}}}}}}}}}    $display .= '67 jot['.$key.']['.$key1.']['.$key2.']['.$key3.']['.$key4.']['.$key5.'] = '.$value5.'<br>';
+//                                                                                        $display .= '$boqx_attributes: '.print_r($boqx_attributes, true);$display .= '$boqxes: '.print_r($boqxes, true);
+//goto eof;        
+										    
 /* Boqxes without labels are 'Invisible' and do not become objects. 
  * Boqxes accumulate under their labels
  * 
@@ -82,29 +89,25 @@ Switch ($boqx->aspect){
     case 'project'   :
     case 'issue'     : $contents_aspect =$boqx->aspect; break;
 }
-//Extract contents for only the selected aspect
-foreach($boqxes as $container){
+
+foreach($boqxes as $key=>$element){
     unset($container_id);
-    $container_id=$container['cid'];
-    // Since we're here, let's clean up a bit ...
-/*    $attr = is_array($jot[$container_id]['characteristic_names']) ? $jot[$container_id]['characteristic_names'] : (array) $jot[$container_id]['characteristic_names'];
-    $jot[$container_id]['characteristic_names'] = $attr;
-    if($attr){
-        foreach($attr as $key=>$value)
-			if ($value == ''){
-				unset($jot[$container_id]['characteristic_names'][$key], $jot[$container_id]['characteristic_values'][$key]);}
-        if(count($jot[$container_id]['characteristic_names']==0))
-            unset($jot[$container_id]['characteristic_names'], $jot[$container_id]['characteristic_values']);
-        else 
-            $jot[$container_id]['characteristic_values'] = is_array($jot[$container_id]['characteristic_values']) ? $jot[$container_id]['characteristic_values'] : (array) $jot[$container_id]['characteristic_values'];
-    }
+    $container_id=$element['cid'];
+// Since we're here, let's clean up a bit ...
+    if(is_array($jot[$container_id]['characteristic_names'])){
+        foreach($jot[$container_id]['characteristic_names'] as $key=>$value)
+    		if ($value == ''){
+    			unset($jot[$container_id]['characteristic_names'][$key]);
+    			unset($jot[$container_id]['characteristic_values'][$key]);}
+    	if(count($jot[$container_id]['characteristic_names'])==0){
+            unset($jot[$container_id]['characteristic_names'], $jot[$container_id]['characteristic_values']);}}
     if(is_array($jot[$container_id]['this_characteristic_names'])){
         foreach($jot[$container_id]['this_characteristic_names'] as $key=>$value)
 			if ($value == ''){
 				unset($jot[$container_id]['this_characteristic_names'][$key]);
 				unset($jot[$container_id]['this_characteristic_values'][$key]);}
 		if(count($jot[$container_id]['this_characteristic_names'])==0){
-            unset($jot[$container_id]['this_characteristic_names'], $jot[$container_id]['this_characteristic_values']);}}        
+            unset($jot[$container_id]['this_characteristic_names'], $jot[$container_id]['this_characteristic_values']);}}
     if(is_array($jot[$container_id]['features'])){
         foreach($jot[$container_id]['features'] as $key=>$value)
 			if ($value == '')
@@ -117,7 +120,7 @@ foreach($boqxes as $container){
 				unset($jot[$container_id]['this_features'][$key]);
         if(count($jot[$container_id]['this_features'])==0)
            unset($jot[$container_id]['this_features']);}
-*/    if(is_array($jot[$container_id]['labels'])){
+    if(is_array($jot[$container_id]['labels'])){
         foreach($jot[$container_id]['labels'] as $key=>$value){
 			if ($value == ''){
 				unset($jot[$container_id]['labels'][$key]);}}
@@ -130,11 +133,46 @@ foreach($boqxes as $container){
             $jot[$container_id]['merchant'] = get_entity($merchant_id)->title;}
         else unset($jot[$container_id]['merchant']);}
         
-     /**M*E*A*T**/
-        // collect the first layer of content (items or boqxes)
+/**M*E*A*T**/
+// collect the first layer of content (items or boqxes)
     if ($jot[$container_id]['boqx']==$cid && $jot[$container_id]['aspect']==$contents_aspect && !empty($jot[$container_id]['title'])) 
         $contents[] = $jot[$container_id];
-}
+// collect everything
+    $aspects[$key]  = $jot[$container_id];
+}                                                                                                       //$display .= '$aspects: '.print_r($aspects,true);
+
+for ($x = 0; $x <= 1; $x++) {                                                                           $display .= 'Loop: '.$x.'<br>';
+    foreach($aspects as $key=>$element){
+        // separate the boqx attributes from the element
+        $this_boqx     = array_intersect_key($element, $boqx_attributes);
+        $this_element  = array_diff_key($element, $boqx_attributes);
+        $container     = $aspects[array_search($this_boqx['boqx'], array_column($aspects, 'cid'))];
+        $proximity     = $this_boqx['proximity']; 
+        if    (elgg_entity_exists($this_element['guid']))
+           $this_entity             = get_entity($this_element['guid']);
+        elseif(!empty($this_element['title'])){
+           $this_entity             = new ElggObject();
+           $this_entity->subtype    = $this_boqx['aspect'];
+           $this_entity->owner_guid = $owner_guid;
+           $this_entity->access_id  = 'ACCESS_LOGGED_IN';
+        }
+        else continue;
+        foreach($this_element as $element_attribute=>$element_value)
+            $this_entity->$element_attribute = $element_value;
+        $this_entity->save();
+        if($proximity =='in' && !empty($container['guid']))
+              $this_entity->container_guid = $container['guid'];
+        if($proximity =='on' && !empty($container['guid']))
+             if(!check_entity_relationship($this_entity->guid, 'on', $container['guid'])){
+                 add_entity_relationship($this_entity->guid,   'on', $container['guid']);
+        }
+        $aspects[$key]['guid'] = $this_entity->guid;                                                  $display .= '$this_entity: '.print_r($this_entity,true);//$display .= '$this_boqx: '.print_r($this_boqx,true);$display .= '$container: '.print_r($container,true);
+        
+    }
+}//                                                                                                           $display .= '$aspects: '.print_r($aspects,true);
+/*********************************************/
+goto eof;
+/*********************************************/
 
 //extract the pieces from each contents container
 if (!empty($contents)){
@@ -175,7 +213,7 @@ if (!empty($contents)){
                $boqx_entity->$key = $value;
     }
     // if the boqx does not exist
-    // test to confirm that the received boqx can be realized (has a label or has a blank label)
+    // test to confirm that the received contents can be realized (has a label or has a blank label)
     elseif(!empty($boqx->labels) || $boqx->blank_label == true){
        // create a new boqx
        $boqx_entity                 = new ElggObject();
@@ -271,11 +309,11 @@ Switch ($boqx->aspect){
                 // create a boqx to hold the piece in place
                 $piece_boqx                 = new ElggObject();
                 $piece_boqx->subtype        = 'boqx';
-                $piece_boqx->title          = '';
+                $piece_boqx->title          = 'boqx';
                 $piece_boqx->container_guid = $boqx->getGUID();
                 $piece_boqx->owner_guid     = $owner_guid;
                 $piece_boqx->access_id      = $access_id;
-                // save the piece_boqx
+                // save the new piece_boqx
                 $piece_boqx->save();
                 // capture the guid attribute
                 $boqxes[$boqxes_key]['guid'] = $piece_boqx->getGUID();
@@ -320,6 +358,8 @@ Switch ($boqx->aspect){
 goto eof;        
 
 if (!empty($containers)){
+    //initialize $aspects, unsetting previous instance of the array that was populated above
+    unset($aspects);
     foreach ($containers as $cid1){                     $display .= '187 $cid1='.$cid1.'<br>';
         if (is_array($jot[$cid1]) && !in_array($jot[$cid1]['aspect'], $aspects[$cid1]))
             $aspects[$cid1] = $jot[$cid1]['aspect'];

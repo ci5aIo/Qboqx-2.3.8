@@ -6105,24 +6105,30 @@ label {
    ========================================================================== */
 /* Style Placeholders */
 ::-webkit-input-placeholder {
-  color: #d1d1d1;
+  /*color: #d1d1d1;*/
+  color: #666666c2;
 }
 ::-moz-placeholder {
-  color: #d1d1d1;
+  /*color: #d1d1d1;*/
+  color: #666666c2;
 }
 :-ms-input-placeholder {
-  color: #d1d1d1;
+  /*color: #d1d1d1;*/
+  color: #666666c2;
 }
 ::-ms-input-placeholder {
-  color: #d1d1d1;
+  /*color: #d1d1d1;*/
+  color: #666666c2;
 }
 ::placeholder {
-  color: #d1d1d1;
+  /*color: #d1d1d1;*/
+  color: #666666c2;
 }
 
 /* Text inputs */
 input:not([type]),
 input[type=text]:not(.browser-default),
+input[type=text]:not(.filter),
 input[type=password]:not(.browser-default),
 input[type=email]:not(.browser-default),
 input[type=url]:not(.browser-default),
@@ -6225,9 +6231,10 @@ input[type=tel]:not(.browser-default):focus:not([readonly]),
 input[type=number]:not(.browser-default):focus:not([readonly]),
 input[type=search]:not(.browser-default):focus:not([readonly]),
 textarea.materialize-textarea:focus:not([readonly]) {
-  border-bottom: 1px solid #26a69a;
+  /*border-bottom: 1px solid #26a69a;
   -webkit-box-shadow: 0 1px 0 0 #26a69a;
-          box-shadow: 0 1px 0 0 #26a69a;
+          box-shadow: 0 1px 0 0 #26a69a;*/
+outline: -webkit-focus-ring-color auto 5px;outline-offset:-2px;background-color:#fff
 }
 
 input:not([type]):focus:not([readonly]) + label,

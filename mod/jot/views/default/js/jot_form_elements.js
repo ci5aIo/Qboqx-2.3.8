@@ -149,69 +149,97 @@ define(function(require) {
 			$('span.efforts-eggs[data-qid='+qid+']').attr('eggs', eggs-1);
             
 		});
-	$(document).on('click', '.replace-card, .IconButton___2y4Scyq6', function(e){
+	$(document).on('click', '.replace-card, .IconButton___2y4Scyq6, .trashEnvelope_0HziOPGx', function(e){
 		   e.preventDefault();
-	      var cid        = $(this).data('cid'),
-              ajax       = new Ajax();
-	      var envelope  = $('#'+cid);
+	      var ajax       = new Ajax(),
+	          cid        = $(this).data('cid');
+	      var envelope   = $('#'+cid);
 	      var action     = $(envelope).data('aid'),
+	          perspective= $(envelope).data('aid'), 
 		      boqx_id    = $(envelope).data('boqx'),
+		      carton_id  = $(envelope).data('carton'),
 		      guid       = $(envelope).data('guid'),
 		      aspect     = $(envelope).data('aspect'),
 		      presence   = $(envelope).data('presence'),
 		      presentation = $(envelope).data('presentation');
 	      var boqx       = $('#'+boqx_id),
 	          boqx_aspect= $('#'+boqx_id).data('aspect'),
-	          pallet     = $('.boqx-pallet[data-cid='+boqx_id+']');
-		  var cards       = 0,
+	          carton     = $('#'+carton_id);
+		  var carton_aspect= $(carton).data('aspect'),
+		      cards       = 0,
               empty_cards = 0,
               view,
-              section    = boqx_aspect+'_'+aspect,
-              snippet;
-		  $('[data-boqx='+boqx_id+']').each(function(){
+              snippet,
+              carton_total=0,
+			  envelope_cid,
+			  envelope_total;
+		  switch (carton_aspect){
+			  case 'discoveries': 
+			 	 view = 'experiences';
+			 	 section = 'issue_discovery';
+			 	 snippet = 'discovery';
+			 	 break;
+			  case 'remedies': 
+			 	 view = 'experiences';
+			 	 section = 'issue_remedy';
+			 	 snippet = 'remedy';
+			 	 break;
+			  case 'issues':
+				 view = 'experiences';
+				 section = 'issue';
+				 break;
+			  case 'parts':
+				 view = 'transfers';
+				 section = 'boqx_contents';
+				 snippet = 'single_part';
+				 break;
+			  case 'item' : 
+				 view = 'market'; 
+				 break;
+    	   }
+		  $(envelope).remove();
+			                                                                                        console.log('carton_id = '+carton_id);
+		  $('[data-carton='+carton_id+']').each(function(){
 			  cards++;
-			  if ($(this).data('fill-level') == 0)
+			  if ($(this).attr('boqx-fill-level') == 0)
 				  empty_cards++;
-		  });
+			  envelope_cid = $(this).attr('id');                                                      console.log('envelope_cid = '+envelope_cid);
+			  envelope_total = $('#'+envelope_cid+'_line_total_raw').text();                          console.log('envelope_total = '+envelope_total);
+			  if(!isNaN(envelope_total) && envelope_total.length>0)
+				  carton_total += parseFloat(envelope_total);
+			});                                                                                       console.log('carton_total = '+carton_total);
+			$('#'+boqx_id+'_total').text(moneyFormat(carton_total));
+			$('#'+boqx_id+'_total_raw').text(carton_total);
+			
 		   // add an empty card if needed
            if (empty_cards == 0){
-        	   switch (boqx_aspect){
-        	     case 'issue': 
-        	    	 view = 'experiences'; 
-        	    	 switch (aspect){
-        	    	 	case 'discovery': snippet = 'marker';break;
-        	    	 }
-        	    	 break;
-        	     case 'item' : view = 'market'; break;
-        	   }
-        	   $(this).attr('data-aid', 'saveReceiptButton');
-        	   $(this).html('Save');
-	           ajax.view('partials/jot_form_elements',{
+        	   ajax.view('partials/jot_form_elements',{
 		    	   data: {
 		    		   element: 'conveyor',
 		    		   view : view,
-		    		   action: 'add',
+		    		   action: action,
+		    		   perspective: perspective,
 		    		   section: section,
 		    		   snippet: snippet,
 		    		   parent_cid: boqx_id,
+		    		   carton_id: carton_id,
 		    		   guid: guid,
 		    		   aspect: aspect,
 		    		   presentation: presentation,
 		    		   presence: presence,
 		    	   },
 		       }).done(function(output) {
-		    	   $(pallet).append($(output));
+		    	   $(carton).append($(output));
 		       }).success(function(){
 					// remove the card
 					$(envelope).remove();
+			        $('#'+boqx_id).children('.tally').attr('boqxes', cards--);
 		       });
            }
            else {
 			// remove the card
-			$(envelope).remove();
 			$('#'+boqx_id).children('.tally').attr('boqxes', cards--);
-           }
-        	   
+           }                                                             console.log('boqx_id: '+boqx_id);console.log('carton_id: '+carton_id);console.log('action: '+action);console.log('perspective: '+perspective);console.log('aspect: '+aspect);console.log('empty_cards: '+empty_cards);
             
 		});
    $(document).on('click', '.TaskEdit__submit___3m10BkLZ', function(e){
@@ -357,7 +385,7 @@ define(function(require) {
            $add_panel   = $boqx.find('.AddSubresourceButton___2PetQjcb'),
            ajax         = new Ajax(),
            new_cid      = "c"+Math.floor((Math.random()*999)+1),
-           property_element = 'properties_service_item'
+           property_element = 'properties_service_item',
            points       = 0;
        var eggs         = parseInt($('span.receipts-count[data-cid='+parent_cid+']').attr('eggs'), 10);
        var receipt_name = $this_panel.find("textarea[data-focus-id=NameEdit--"+cid+"]").val() || '[no receipt name]',
@@ -597,7 +625,9 @@ define(function(require) {
        }
    });
    $(document).on('click', '.ThingsBundle__submit___q0kFhFBf', function(e){
-	  e.preventDefault();
+	  // block action during testing 
+	   return
+	   e.preventDefault();
 	  var ajax         = new Ajax(),
 	      cid          = $(this).data('cid'),
 	      boqx_id      = $(this).data('boqx'),
@@ -709,44 +739,97 @@ define(function(require) {
             show_service = true;
 	    var envelope     = $('#'+cid);
         var boqx_id      = $(envelope).data('boqx'),
+		    carton_id    = $(envelope).data('carton'),
 		    guid         = $(envelope).data('guid'),
 		    aspect       = $(envelope).data('aspect'),
 		    presence     = $(envelope).data('presence'),
 		    presentation = $(envelope).data('presentation'),
-            state        = $(this).attr('data-aid').replace('ItemButton','');
+            state        = $(this).attr('data-aid').replace('EffortButton','');
 		var boqx         = $('#'+boqx_id),
 		    boqx_aspect  = $('#'+boqx_id).data('aspect'),
-			pallet       = $('.boqx-pallet[data-cid='+boqx_id+']');
-		var cards        = 0,
+			carton       = $('#'+carton_id);
+		var carton_aspect= $(carton).data('aspect'),
+		    cards        = 0,
 			empty_cards  = 0,
 			view,
-			section      = boqx_aspect+'_'+aspect,
-			snippet;
+			snippet,
+            section,
+            points       = 0;
 		var service_name = $("[data-focus-id=NameEdit--"+cid+"]").val(),
 		    service_desc = $("[data-focus-id=ServiceEdit--"+cid+"]").val(),
-			add_panel   = $('[data-aid=TaskAdd][data-cid='+cid+']'),
-			show_panel  = $('[data-aid=TaskShow][data-cid='+cid+']'),
-			edit_panel  = $('[data-aid=TaskEdit][data-cid='+cid+']');
-        var state        = $(envelope).data('aid');
+		    service_qty  = $("#"+cid+"_line_qty").val(),
+		    service_cost = $("#"+cid+"_line_cost").val(),
+		    service_time = $("#"+cid+"_hours").val(),
+		    service_total= $('#'+cid+"_line_total").html(),
+		    service_total_raw = $('.'+cid+"_line_total_raw").html(),
+		    carton_total,
+		    envelope_cid,
+		    envelope_total,
+			add_panel    = $('[data-aid=TaskAdd][data-cid='+cid+']'),
+			show_panel   = $('[data-aid=TaskShow][data-cid='+cid+']'),
+			edit_panel   = $('[data-aid=TaskEdit][data-cid='+cid+']');
+        var state        = $(envelope).data('aid');                                   console.log('pallet_aspect: '+carton_aspect);console.log('state: '+state);console.log('presence: '+presence);console.log('presentation: '+presentation);
 
-		$('[data-boqx='+boqx_id+']').each(function(){
-			cards++;
-			if ($(this).data('fill-level') == 0)
-				empty_cards++;
-		});
+		if (typeof service_name  != 'undefined' && service_name.length  > 0) points++; console.log('service_name: '+service_name);
+		if (typeof service_desc  != 'undefined' && service_desc.length  > 0) points++; console.log('service_desc: '+service_desc);
+		if (typeof service_qty   != 'undefined' && service_qty.length   > 0) points++; console.log('service_qty: '+service_qty);
+		if (typeof service_cost  != 'undefined' && service_cost.length  > 0) points++; console.log('service_cost: '+service_cost);
+		if (typeof service_time  != 'undefined' && service_time.length  > 0) points++; console.log('service_time: '+service_time);
+		if (typeof service_total != 'undefined' && service_total.length > 0 && parseFloat(service_total_raw)>0) points++;
+			 
+	    switch (carton_aspect){
+		  case 'discoveries': 
+		 	 view = 'experiences';
+		 	 section = 'issue_discovery';
+		 	 snippet = 'discovery';
+		 	 break;
+		  case 'remedies': 
+		 	 view = 'experiences';
+		 	 section = 'issue_remedy';
+		 	 snippet = 'remedy';
+		 	 break;
+		  case 'issues':
+			 view = 'experiences';
+			 section = 'issue';
+			 break;
+		  case 'parts':
+			  view = 'transfers';
+			  section = 'boqx_contents';
+			  snippet = 'single_part';
+			  break;
+		  case 'efforts':
+			  view = 'transfers';
+			  section = 'boqx_contents';
+			  snippet = 'single_effort';
+			  break;
+		  case 'item' : 
+			 view = 'market'; 
+			 break;
+		  case 'receipts':
+			 break;
+	   }
         
         if (typeof service_name == 'undefined')
            show_service = false;
         else if (service_name.length==0)
                  show_service = false;
-			 
+        
+		$(envelope).attr('boqx-fill-level', points);
+    	$('input[data-focus-id = "FillLevel--'+cid+'"]').val(points);
+
+		$('[data-carton='+carton_id+']').each(function(){
+			cards++;
+			if ($(this).attr('boqx-fill-level') == 0)
+				empty_cards++;
+		});
+
         if (state == 'add' || state == 'edit'){
               if (show_service){
-                 $(show_panel).find('.TaskShow__title___O4DM7q').html('<p>'+service_name+'</p>');
-                 $(show_panel).find('.TaskShow__description___qpuz67f').html('<p>'+service_desc+'</p>');
-                 if (state == 'add'){                                       // hide delete button when state = add
-                     $(show_panel).find('button.IconButton___2y4Scyq6').hide();
-                 }
+                 $(show_panel).find('.TaskShow__qty_7lVp5tl4').html(service_qty);
+                 $(show_panel).find('.TaskShow__title___O4DM7q').html(service_name);
+                 $(show_panel).find('.TaskShow__description___qpuz67f').html(service_desc);
+                 $(show_panel).find('.TaskShow__item_total__Dgd1dOSZ').html(service_total);
+                 $(show_panel).find('.TaskShow__time___cvHQ72kV').html(service_time);
                  $(show_panel).show();
                  $(edit_panel).hide();
                  $(envelope).attr('data-aid', 'show');
@@ -758,33 +841,32 @@ define(function(require) {
              }
 		   // add an empty card if needed
            if (empty_cards == 0){
-        	   switch (boqx_aspect){
-        	     case 'issue': 
-        	    	 view = 'experiences'; 
-        	    	 switch (aspect){
-        	    	 	case 'discovery': snippet = 'discovery';break;
-						case 'remedy'   :                    break;
-        	    	 }
-        	    	 break;
-        	     case 'item' : view = 'market'; break;
-        	   }
-        	   $(this).attr('data-aid', 'saveEffortButton');
-        	   $(this).html('Save');
+        	     $(this).attr('data-aid', 'saveEffortButton');
+        	     $(this).html('Save');        	     
+        	     var del_title;
+        	     if ($('.delete[data-cid='+cid+']').length > 0){
+        	    	 $('.delete[data-cid='+cid+']').removeAttr('disabled');
+        	    	 del_title = $('.delete[data-cid='+cid+']').attr('title');
+        	    	 $('.delete[data-cid='+cid+']').attr('title',del_title.replace('(disabled)',''));
+        	     }                                             console.log('view: '+view);console.log('section: '+section);console.log('snippet: '+snippet);console.log('boqx_id: '+boqx_id);console.log('carton_aspect: '+carton_aspect);console.log('carton_id: '+carton_id);
 	           ajax.view('partials/jot_form_elements',{
 		    	   data: {
 		    		   element: 'conveyor',
 		    		   view : view,
 		    		   action: 'add',
+		    		   perspective: 'add',
 		    		   section: section,
 		    		   snippet: snippet,
 		    		   parent_cid: boqx_id,
+		    		   carton_id: carton_id,
 		    		   guid: guid,
 		    		   aspect: aspect,
 		    		   presentation: presentation,
 		    		   presence: presence,
+		    		   cards: cards,
 		    	   },
-		       }).done(function(output) {
-		    	   $(pallet).append($(output));
+		       }).done(function(output) {                          console.log('carton: ',carton);console.log('output: ',output);
+		    	   $(carton).append($(output));
 		       }).success(function(){
 					
 		       });
@@ -793,6 +875,7 @@ define(function(require) {
         else{                                        // state == 'view'
             $(show_panel).show();
             $(edit_panel).hide();
+            $(envelope).attr('boqx-fill-level', '0');
             $(envelope).attr('data-aid', 'show');
         }
     });  
@@ -1934,22 +2017,6 @@ define(function(require) {
 				});
 	         } 
 	     });
-	     // Filter the list as one types
-     	$(document).on('keyup', 'input.LabelsSearch__input___3BARDmFr', function(e) {
-		e.preventDefault(); 
-	    var cid        = $(this).data('cid');
-		var $selector = $('.BoqxLabelsPicker__Vof1oGNB[data-cid='+cid+']');
-		var $items = $selector.find('.SmartListSelector__child___zbvaMzth');
-		var q = $(this).val();
-		if (q === "") {
-			$items.removeClass('label-hidden');
-		} else {
-			$items.addClass('label-hidden');
-			$items.filter(function () {
-				return $(this).text().toUpperCase().indexOf(q.toUpperCase()) >= 0;
-			}).removeClass('label-hidden');
-		}
-	});
     $(document).on('click', '.dropdown_item.has_children', function(e){
     	var value = $(this).data('value'),
     	    cid   = $(this).parents('.dropdown').data('cid');
@@ -2210,25 +2277,80 @@ define(function(require) {
        })
        
     });
+         
+   function moneyFormat(nStr) {
+	    nStr = parseFloat(nStr).toFixed(2).toString();
+        return '$' + addCommas(nStr);
+	}
+    function percentFormat(nStr, precision){
+        nStr = parseFloat(nStr*100).toFixed(precision).toString();
+        return nStr+'%';
+    } 
+function addCommas(nStr) {
+// Source: https://www.codeproject.com/Questions/1103675/How-to-set-thousand-saprator-in-javascript-or-jque
+	    nStr += '';
+	    x = nStr.split('.');
+	    x1 = x[0];
+	    x2 = x.length > 1 ? '.' + x[1] : '';
+	    var rgx = /(\d+)(\d{3})/;
+	    while (rgx.test(x1)) {
+	            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+	    }
+	    return x1 + x2;
+	}
+
+   $(document).on('click.dropdown_menu', hide_dropdown);
 });
 
-function filterList() {
+function filterList(cid, list_id) {
 //Source: https://www.w3schools.com/howto/howto_js_filter_lists.asp
-	    // Declare variables
-	    var input, filter, ul, li, a, i;
-	    input = document.getElementById('qbox_filter');
+	    var input, filter, ul, list, label, i;
+	    input = document.getElementById('filter_'+cid);
 	    filter = input.value.toUpperCase();
-//	    ul = document.getElementsByClassName('ul.jq-dropdown-menu-option');
-	    ul = document.getElementById("selections");
-	    li = ul.getElementsByTagName('li');
+	    ul = document.getElementById(list_id);
+	    list = ul.getElementsByTagName('li');
 
-	    // Loop through all list items, and hide those who don't match the search query
-	    for (i = 0; i < li.length; i++) {
-	        a = li[i].getElementsByTagName("a")[0];
-	        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
-	            li[i].style.display = "";
+// Loop through all list items, and hide those who don't match the search query
+	    for (i = 0; i < list.length; i++) {
+	        label = list[i].getElementsByClassName('dropdown_label')[0];
+	        if (label.innerHTML.toUpperCase().indexOf(filter) > -1) {
+	            list[i].style.display = "";
 	        } else {
-	            li[i].style.display = "none";
+	            list[i].style.display = "none";
 	        }
 	    }
 	}
+
+function hide_dropdown(event) {
+
+    // In some cases we don't hide them
+    var targetGroup = event ? $(event.target).parents().addBack() : null;
+
+    // Are we clicking anywhere in a dropdown?
+    if (targetGroup && (targetGroup.is('.dropdown'))) {
+        // Is it a dropdown menu?
+        if (targetGroup.is('.pickList__NRi0PbnO')) {
+            // Did we click on an option? If so close it.
+            if (!targetGroup.is('A')) return;
+        } else {
+            // Nope, it's a panel. Leave it open.
+            return;
+        }
+    }
+
+    // Trigger the event early, so that it might be prevented on the visible popups
+    var hideEvent = jQuery.Event("hide");
+    var $property_card =  $(document).find('.dropdown section.pick-boqx:visible').parent();
+    $(document).find('.dropdown section.pick-boqx').each(function () {
+        $(this).addClass('closed');
+    });
+
+    if(!hideEvent.isDefaultPrevented()) {
+        // Hide any pick-boqxes that may be showing
+        $(document).find('.dropdown section.pick-boqx').each(function () {
+            $(this).addClass('closed');
+        });
+
+        $(document).find('.dropdown section.pick-boqx').addClass('closed');
+    }
+}

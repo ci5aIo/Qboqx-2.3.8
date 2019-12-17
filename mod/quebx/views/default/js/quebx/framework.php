@@ -34,6 +34,13 @@ $(document).ready(function(){
       
       
     });
+    $(document).on('input','.AutosizeTextarea__textarea___1LL2IPEy', function(){
+          var cid        = $(this).data('cid'),
+              characters = $(this).val().length;                                                           console.log('AutosizeTextarea__textarea___1LL2IPEy input detected');console.log('cid: '+cid);console.log('characters: '+characters);
+          if (characters > 0)
+               $('.SMkCk__Button[data-cid='+cid+']').removeClass('_3Xvsn__Button--disabled');
+          else $('.SMkCk__Button[data-cid='+cid+']').addClass('_3Xvsn__Button--disabled');
+    });
     $(document).on('click', '.SMkCk__Button', function(e){
     e.preventDefault();
      var action      = $(this).data('aid'),
@@ -585,9 +592,17 @@ $(document).ready(function(){
        $(this).addClass('restore');
        $(this).attr('title', 'Restore view');
     });
-    $(document).on('click', 'button.maximize',function(e){
+/*    $(document).on('click', 'button.maximize',function(e){
        e.preventDefault();
        var $boqx = $(this).parents('.empty-boqx');
+       $boqx.addClass('maximized');
+       $(this).removeClass('maxmize');
+       $(this).addClass('restore');
+       $(this).attr('title', 'Restore view');
+    });*/
+    $(document).on('click', 'button.maximize',function(e){
+       e.preventDefault();
+       var $boqx = $(this).parents('.pallet');
        $boqx.addClass('maximized');
        $(this).removeClass('maxmize');
        $(this).addClass('restore');
@@ -601,9 +616,17 @@ $(document).ready(function(){
        $(this).removeClass('restore');
        $(this).attr('title', 'Switch to a full view');
     });
-    $(document).on('click', 'button.restore',function(e){
+/*    $(document).on('click', 'button.restore',function(e){
        e.preventDefault();
        var $boqx = $(this).parents('.empty-boqx');
+       $boqx.removeClass('maximized');
+       $(this).addClass('maxmize');
+       $(this).removeClass('restore');
+       $(this).attr('title', 'Switch to a full view');
+    });*/
+    $(document).on('click', 'button.restore',function(e){
+       e.preventDefault();
+       var $boqx = $(this).parents('.pallet');
        $boqx.removeClass('maximized');
        $(this).addClass('maxmize');
        $(this).removeClass('restore');
@@ -717,6 +740,12 @@ $(document).ready(function(){
           $(this).removeClass('hover');
        }
     });*/
+    $(document).on('mouseenter', ".dropdown_menu .dropdown_item, .dropdown_menu .pickItem__m15wyqaE", function(e){
+          $(this).addClass('hover');
+    });
+    $(document).on('mouseleave', ".dropdown_menu .dropdown_item, .dropdown_menu .pickItem__m15wyqaE", function(e){
+          $(this).removeClass('hover');
+    });
     $(document).on("click", ".dropdown .arrow", function(e){
       e.preventDefault();
       var closed_state = $(this).next('section').hasClass('closed');
@@ -773,6 +802,37 @@ $(document).ready(function(){
        $('section.contents').children('.boqx-pallet').addClass('closed');
        $contents_section.removeClass('closed');
     });
+    
+    $(document).on("click", "li.pickItem__m15wyqaE", function(e) {
+       var this_id  = $(this).attr('id'),
+           value    = $(this).data("value"),
+           list_id  = $(this).data('boqx');
+       var label    = $("#label_"+this_id).text(),
+           initials = $("#icon_"+this_id+".dropdown_initials").text(),
+           icon     = $("#icon_"+this_id+".dropdown_icon"),
+           picklist = $("#"+list_id);
+       var boqx_id  = $(picklist).data('boqx');
+       var menu     = $('.dropdown[data-cid='+boqx_id+']');
+       var selection= $(menu).children('a.selection'),
+           avatar   = $(menu).find('.pickAvatar').children('span');
+           input    = $(menu).children('input');
+       $(input).attr('value', value);
+       $(selection).attr('id','person_'+value);
+       $(selection).find('.pickAvatarName').html(label);
+       $(selection).find('.pickAvatar').attr('data-person-id', value)
+       if (icon.length > 0){
+          var icon_url = $(icon).data('icon');
+          $(avatar).removeClass('pickAvatar__initials').addClass('pickAvatar__icon');
+          $(avatar).attr('style', 'background-image:url('+icon_url+')');
+          $(avatar).text('');
+          
+       }
+       if (initials.length > 0){
+          $(avatar).removeClass('pickAvatar__icon').addClass('pickAvatar__initials');
+          $(avatar).removeAttr('style');
+          $(avatar).text(initials);
+       }
+    });
     $(document).on("click", ".pickItem__ehybudK0", function(e) {
        var $menu = $(this).closest('.pickCategory__VRYE6ZAO');
        $menu.addClass('closed');
@@ -804,7 +864,7 @@ $(document).ready(function(){
               label = 'Select ...';
               $('.dropdown.contents').addClass('closed');
               $('.dropdown.contents').children("a.selection").children("span").text(label);
-          }
+       }
        if (is_contents){
           cid   = $(this).parents('.dropdown.contents').data('cid'),
           $contents_selector.find('section').addClass('close');
@@ -916,41 +976,47 @@ $(document).ready(function(){
             $this_panel.hide();
         }
     });
-    $(document).on("click", ".CollapseEnvelope__z7DilsLc", function(e) {
+    $(document).on("click", ".CollapseEnvelope__z7DilsLc, .closeEnvelope_1kZzzgcR", function(e) {
         e.preventDefault();
         var cid = $(this).data('cid'),
             show_service = true;
-        var service_name = $("[data-focus-id=NameEdit--"+cid+"]").val();
-        var service_desc = $("[data-focus-id=ServiceEdit--"+cid+"]").val(),
+        var service_name = $("[data-focus-id=NameEdit--"+cid+"]").val(),
+            service_desc = $("[data-focus-id=ServiceEdit--"+cid+"]").val(),
+            service_qty  = $("#"+cid+"_line_qty").val(),
+            service_cost = $("#"+cid+"_line_cost").val(),
+            service_total= $('#'+cid+"_line_total").html(),
+            service_total_raw = $('#'+cid+"_line_total_raw").html(),
             envelope     = $('#'+cid);
         var state        = $(envelope).data('aid');
         if (typeof service_name == 'undefined')
            show_service = false;
         else if (service_name.length==0)
                  show_service = false;                                                         console.log('show_service = '+show_service);
-        var $add_panel   = $('[data-aid=TaskAdd][data-cid='+cid+']');;
-        var $show_panel  = $('[data-aid=TaskShow][data-cid='+cid+']');
-        var $edit_panel  = $('[data-aid=TaskEdit][data-cid='+cid+']');                         console.log('CollapseEnvelope__z7DilsLc');console.log('state = '+state);
+        var add_panel   = $('[data-aid=TaskAdd][data-cid='+cid+']'),
+            show_panel  = $('[data-aid=TaskShow][data-cid='+cid+']'),
+            edit_panel  = $('[data-aid=TaskEdit][data-cid='+cid+']');                         console.log('CollapseEnvelope__z7DilsLc');console.log('state = '+state);
         if (state == 'add' || state == 'edit'){
               if (show_service){
-                 $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+service_name+'</p>');
-                 $show_panel.find('.TaskShow__description___qpuz67f').html('<p>'+service_desc+'</p>');
-                 if (state == 'add'){                                       // hide delete button when state = add
-                     $show_panel.find('button.IconButton___2y4Scyq6').hide();
-                 }
-                 $show_panel.show();
-                 $edit_panel.hide();
+                 if(typeof service_qty != 'undefined') $(show_panel).find('.TaskShow__qty_7lVp5tl4').html('<span>'+service_qty+'</span>');
+                 if(typeof service_name != 'undefined') $(show_panel).find('.TaskShow__title___O4DM7q').html('<span>'+service_name+'</span>');
+                 if(typeof service_desc != 'undefined') $(show_panel).find('.TaskShow__description___qpuz67f').html('<span>'+service_desc+'</span>');
+                 if(typeof service_total != 'undefined') $(show_panel).find('.TaskShow__item_total__Dgd1dOSZ').html('<span>'+service_total+'</span>');
+/*                 if (state == 'add'){                                       // hide delete button when state = add
+                     $(show_panel).find('button.IconButton___2y4Scyq6').hide();
+                 }*/
+                 $(show_panel).show();
+                 $(edit_panel).hide();
                  $(envelope).attr('data-aid', 'show');
              }
              else {
-                 $add_panel.show();
-                 $edit_panel.hide();
+                 $(add_panel).show();
+                 $(edit_panel).hide();
                  $(envelope).attr('data-aid', 'add');
              }
         }
         else{                                        // state == 'view'
-            $show_panel.show();
-            $edit_panel.hide();
+            $(show_panel).show();
+            $(edit_panel).hide();
             $(envelope).attr('data-aid', 'show');
         }
     });
@@ -1608,10 +1674,30 @@ $(document).ready(function(){
  		        $(this).parents('div.receive_item').find('input[data-name=bo_qty]').prop('readonly', false);
 		        $(this).parents('div.receive_item').find('input[data-name=bo_delivery_date]').prop('readonly', false);}
    });
+   $(document).on('blur', "input[data-name='hours']", function() {
+        this.value          = parseFloat(this.value).toFixed(2);
+        var cid             = $(this).data('cid');
+        var boqx_id         = $('#'+cid).data('boqx');
+        var $boqx           = $('#'+boqx_id);
+        var hours           = parseFloat(this.value),
+            total           = 0,
+            $total          = $("span#"+boqx_id+"_total"),
+            $total_raw      = $("span#"+boqx_id+"_total_raw");
+        $boqx.find("input[data-name='hours']").each(function(){
+           var value = $(this).val();                                      console.log('value: '+value);
+           if(!isNaN(value) && value.length>0)
+                {total += parseFloat(value);}
+         });
+        $total.text(parseFloat(total).toFixed(2)); 
+	    $total_raw.text(total);                                            console.log('total = '+total);
+   });
    /**Calculate values for receipts and service items**/
    $(document).on('change', "input[data-name='qty'], input[data-name='cost']",function(e){
 	    var cid             = $(this).data('cid');
-        var parent_cid      = $('#'+cid).data('parent-cid');
+        var parent_cid      = $('#'+cid).data('parent-cid'),
+            boqx_id         = $('#'+cid).data('boqx');
+        if (typeof parent_cid == 'undefined')
+            parent_cid      = boqx_id;
         var $boqx           = $('#'+parent_cid);
         var $line_item      = $(this).parents('.ItemLedger__KY8DM3qs');
 	    if (typeof $line_item == 'undefined') $line_item = $(this).parents('.rTableRow.receipt_item, .rTableRow.service_item');       //console.log('$line_item = ',$line_item);
@@ -1634,7 +1720,8 @@ $(document).ready(function(){
             subtotal        = 0;
 		var line_total      = parseFloat(qty*cost);                                                                     //console.log('line_total = '+line_total);
         //console.log('qty = '+qty); console.log('cost = '+cost); console.log('qid = '+qid); console.log('qid_n = '+qid_n);console.log('$qbox = ',$qbox);console.log('$line_item = ',$line_item);console.log('shipping = '+shipping);console.log('sales tax = '+sales_tax);
-    	$line_total.text(addCommas(line_total.toFixed(2)));
+    	//$line_total.text(addCommas(line_total.toFixed(2)));
+        $line_total.text(moneyFormat(line_total));
     	$line_total_raw.text(line_total);
     	$boqx.find("span.line_total_raw").each(function(){
 			var value = $(this).text();                     				console.log('value: '+value);
@@ -1827,6 +1914,22 @@ $(document).ready(function(){
 		$this.parent('span').prev(".quebx-list-boqx-viewarea").slideToggle("slow");
     });
 
+// Filter the list as one types
+    $(document).on('keyup', 'input.LabelsSearch__input___3BARDmFr', function(e) {
+          e.preventDefault(); 
+         var cid        = $(this).data('cid');
+          var $selector = $('.BoqxLabelsPicker__Vof1oGNB[data-cid='+cid+']');
+          var $items = $selector.find('.SmartListSelector__child___zbvaMzth');
+          var q = $(this).val();
+          if (q === "") {
+               $items.removeClass('label-hidden');
+          } else {
+               $items.addClass('label-hidden');
+               $items.filter(function () {
+                    return $(this).text().toUpperCase().indexOf(q.toUpperCase()) >= 0;
+               }).removeClass('label-hidden');
+          }
+     });
 /*	$(document).on('keydown', 'input.last_characteristic', function(e) { 
 	    var keyCode = e.keyCode || e.which; 
 
