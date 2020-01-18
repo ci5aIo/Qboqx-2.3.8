@@ -1,3 +1,4 @@
+<!-- Path: mod/quebx/pages/q.php -->
 <?php
 
 if (!elgg_is_logged_in()){

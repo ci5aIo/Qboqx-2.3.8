@@ -1,3 +1,4 @@
+<!-- Path: vendor/elgg/elgg/views/default/page/elements/body.php -->
 <?php
 /**
  * Elgg page body wrapper

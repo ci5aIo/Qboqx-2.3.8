@@ -10,12 +10,14 @@ $action         = elgg_extract('action'           , $vars, false);
 $parent_cid     = elgg_extract('parent_cid'       , $vars, false);  // if a parent_cid is provided, assume that: <div id=$cid data-boqx=$parent_cid
 $cid            = elgg_extract('cid'              , $vars, quebx_new_id('c'));
 $carton_id      = elgg_extract('carton_id'        , $vars);
+$show_boqx      = elgg_extract('show_boqx'        , $vars, false);
 $info_boqx      = elgg_extract('info_boqx'        , $vars);
 $hidden_fields  = elgg_extract('hidden_fields'    , $vars);
 $visible        = elgg_extract('visible'          , $vars, 'add');
 $has_collapser  = elgg_extract('has_collapser'    , $vars) =='yes' ? true : false;
 $presentation   = elgg_extract('presentation'     , $vars);
 $presence       = elgg_extract('presence'         , $vars);
+$fill_level     = elgg_extract('fill_level'       , $vars, 0);
 /**/ 
 $delete         = elgg_format_element("span",['class'=>'remove-item'], 
                       elgg_format_element('a', ['title' =>'remove item'], 
@@ -99,7 +101,7 @@ switch($task){
         break;
     case 'remedy':
         unset($class_time);
-        $add_label    = 'Add an effort';
+        $add_label    = 'Add a remedy';
         $class_boqx[] = 'Effort__CPiu2C5N';
         $class_add[]  = 'AddSubresourceButton___2PetQjcb';
         $class_show[] = 'EffortShow_haqOwGZY';
@@ -111,14 +113,14 @@ switch($task){
         $class_boqx[] = 'ServiceEffort__26XCaBQk';
         $class_add[]  = 'AddSubresourceButton___2PetQjcb';
         $class_show[] = 'TaskShow___2LNLUMGe';
-        $class_edit[] = 'TaskEdit___1Xmiy6lz';
+        $class_edit[] = 'TaskEdit___1Xmiy6lz linedEnvelope';
         break;
     case 'efforts':
         $add_label    = 'Add time';
         $class_boqx[] = 'ServiceEffort__26XCaBQk';
         $class_add[]  = 'AddSubresourceButton___2PetQjcb';
         $class_show[] = 'TaskShow___2LNLUMGe';
-        $class_edit[] = 'TaskEdit___1Xmiy6lz';
+        $class_edit[] = 'TaskEdit___1Xmiy6lz linedEnvelope';
         break;
     case 'effort':
         unset($class_qty,$class_total,$class_items);
@@ -150,7 +152,12 @@ $add =
         elgg_format_element('span',['class'=>'AddSubresourceButton__icon___h1-Z9ENT']).
         elgg_format_element('span',['class'=>'AddSubresourceButton__message___2vsNCBXi'],$add_label)
     );
-$show =
+
+$show = $show_boqx ?
+    // if true
+    elgg_format_element('div',['class'=>$class_show,'data-aid'=>'TaskShow','data-cid'=>$cid,'style'=>$show_visible,'draggable'=>true],$show_boqx)
+    :
+    // if false
     elgg_format_element('div',['class'=>$class_show,'data-aid'=>'TaskShow','data-cid'=>$cid,'style'=>$show_visible,'draggable'=>true],
         elgg_format_element('input',['class'=>'TaskShow__checkbox___2BQ9bNAA','type'=>'checkbox','title'=>'mark task complete','data-aid'=>'toggle-complete','data-focus-id'=>"TaskShow__checkbox--$cid"]).
         elgg_format_element('div',['class'=>['TaskShow__description___3R_4oT7G','tracker_markup_xxx'], 'data-aid'=>'TaskDescription','tabindex'=>'0'],
@@ -164,6 +171,7 @@ $show =
              elgg_format_element('button',['class'=>['IconButton___2y4Scyq6','IconButton--small___3D375vVd'],'data-aid'=>'delete','aria-label'=>'Delete','data-cid'=>$cid],$delete)));
 $edit = 
     elgg_format_element('div',['class'=>$class_edit,'data-aid'=>'TaskEdit','data-cid'=>$cid,'style'=>$edit_visible],
+        $hidden_fields.
         $collapser.
     	$info_boqx);
 if  ($contents_visible)
@@ -176,8 +184,7 @@ if ($parent_cid) {
 }
 
 $form_body =
-    elgg_format_element('div',['id'=>$id,'class'=>$class_boqx,'data-aspect'=>$boqx_aspect, 'data-cid'=>$cid, 'data-boqx'=>$parent_cid,'data-carton'=>$carton_id, 'data-guid'=>$guid,'data-aid'=>$action, 'boqx-fill-level'=>'0','data-presentation'=>$presentation, 'data-presence'=>$presence],
-    	$hidden_fields.
-        $contents);
+    elgg_format_element('div',['id'=>$id,'class'=>$class_boqx,'data-aspect'=>$boqx_aspect, 'data-cid'=>$cid, 'data-boqx'=>$parent_cid,'data-carton'=>$carton_id, 'data-guid'=>$guid,'data-aid'=>$action, 'boqx-fill-level'=>$fill_level,'data-presentation'=>$presentation, 'data-presence'=>$presence],
+    	$contents);
 
 echo $form_body;

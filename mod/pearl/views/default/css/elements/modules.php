@@ -126,18 +126,20 @@
 }
 
 .elgg-module-widget {
-	background-color: #dedede;
+/*    background-color: #dedede;*/
+	background-color: inherit;
 	padding: 2px;
 	margin: 0 5px 15px;
 	position: relative;
 }
 .elgg-module-widget:hover {
-	background-color: #ccc;
+/*    background-color: #ccc;*/
+	background-color: #2c2d2f;
 }
 .elgg-module-widget > .elgg-head {
-	background-color: #eeeeee;
+/*	background-color: #eeeeee;
 	height: 26px;
-	overflow: hidden;
+	overflow: hidden;*/
 }
 .elgg-module-widget > .elgg-head h3 {
 	float: left;

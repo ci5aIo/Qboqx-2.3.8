@@ -31,7 +31,7 @@ switch ($form_method){
 }
 $cancel_effort = elgg_format_element('button',['type'=>'reset' ,'id'=>"pallet_submit_cancel_{$cid}",'class'=>['autosaves',$cancel_class,'clear'],'data-cid'=>$cid,'tabindex'=>'-1', 'data-boqx'=>$parent_cid, 'data-presence'=>$presence, 'data-presentation'=>$presentation, 'title'=>'Cancel changes'],'Cancel');
 $add_effort    = elgg_format_element('button',['type'=>'submit','class'=>$submit_class,'data-aid'=>'addEffortButton','data-parent-cid'=>$parent_cid,'data-cid'=>$cid],'Add');
-$save_effort   = elgg_format_element('button',['type'=>'submit','class'=>$submit_class,'data-aid'=>'editEffortButton','data-parent-cid'=>$parent_cid,'data-cid'=>$cid,'data-guid'=>$guid],'Save');
+$close_effort  = elgg_format_element('button',['type'=>'submit','class'=>$submit_class,'data-aid'=>'editEffortButton','data-parent-cid'=>$parent_cid,'data-cid'=>$cid,'data-guid'=>$guid],'Close');
 $maximize      = elgg_format_element('button',['type'=>'button','id'=>"story_maximize_{$cid}",'class'=>['autosaves','maximize','hoverable'],'data-cid'=>$cid,'tabindex'=>'-1','title'=>'Switch to a full view']);
 $copy_link     = elgg_format_element('button',['type'=>'button','id'=>"story_copy_link_$cid",'class'=>['autosaves','clipboard_button','hoverable','link left_endcap'],'title'=>'Copy this link to the clipboard'.$disabled_label,'data-clipboard-text'=>$link,'tabindex'=>'-1','disabled'=>$disabled]);
 $copy_id       = elgg_format_element('button',['type'=>'button','id'=>"story_copy_id_$cid",'class'=>['autosaves','clipboard_button','hoverable','id','use_click_to_copy'],'title'=>'Copy this ID to the clipboard'.$disabled_label,'data-clipboard-text'=>$guid,'tabindex'=>'-1','disabled'=>$disabled]);
@@ -40,7 +40,8 @@ $import        = elgg_format_element('button',['type'=>'button','id'=>"receipt_i
 $clone         = elgg_format_element('button',['type'=>'button','id'=>"story_clone_button_$cid",'class'=>['autosaves','clone_story','hoverable','left_endcap'],'title'=>'Clone this boqx'.$disabled_label,'tabindex'=>'-1','disabled'=>$disabled]);
 $history       = elgg_format_element('button',['type'=>'button','id'=>"story_history_button_$cid",'class'=>['autosaves','history','hoverable','capped'],'title'=>'View the history of this boqx'.$disabled_label,'tabindex'=>'-1', 'disabled'=>$disabled]);
 $delete        = elgg_format_element('button',['type'=>'button','id'=>"story_delete_button_$cid",'class'=>['autosaves','delete','hoverable','right_endcap',$delete_class],'title'=>'Delete this boqx'.$disabled_label,'data-cid'=>$cid,'tabindex'=>'-1', 'disabled'=>$disabled]);
-$action_button = $action == 'add' ? $add_effort : $save_effort;
+$action_button = $action == 'add' ? $add_effort : $close_effort;
+
 
 if($buttons){
     $cancel_effort = $buttons['cancel']    ? $cancel_effort : false;

@@ -11,6 +11,7 @@ $module_type = elgg_extract('module_type', $vars);
 $cid         = elgg_extract('cid', $vars);
 $parent_cid  = elgg_extract('parent_cid', $vars);
 $target_boqx = elgg_extract('target_boqx', $vars);
+$contents_count = elgg_extract('contents_count', $vars, false);
 
 Switch($module_type){
     case 'warehouse':
@@ -23,6 +24,8 @@ Switch($module_type){
 	);
 	$return[] = elgg_format_element('li',['class'=>'tn-PanelHeader__addArea___hw7L0xB'],
 	                                     elgg_format_element('a', $add));
+	if($contents_count)
+	   $return[] = elgg_format_element('li',['class'=>'palletControls__counter'],$contents_count);
 	
 	if ($entity->canEdit()) {
 		$close = array(
@@ -51,7 +54,7 @@ Switch($module_type){
 	foreach($return as $menu_item){
 	    $menu_items .= $menu_item;
 	}
-    $controls = elgg_format_element('ul',['class'=>'elgg-menu elgg-menu-widget elgg-menu-hz elgg-menu-widget-default'],
+    $controls = elgg_format_element('ul',['class'=>'elgg-menu elgg-menu-widget elgg-menu-hz elgg-menu-widget-default palletControls'],
                                          $menu_items);    
 	echo $controls;
         break;

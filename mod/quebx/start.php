@@ -149,11 +149,12 @@ function quebx_init() {
 	add_subtype ('object', 'component', 'item_component'); 	
 	add_subtype ('object', 'accessory', 'item_accessory'); 	
 
-	// Register actions - call actions with a trailing '/' to prevent 301 redirects
+	// Register actions - call actions with a trailing '/' to prevent 301 redirects,  but store the actions without it
 	$action_url = elgg_get_plugins_path() . "quebx/actions/";
-	elgg_register_action("quebx/add/item/", "{$action_url}add/item.php");
-	elgg_register_action("quebx/edit/", "{$action_url}edit.php");
-	elgg_register_action("quebx/delete/", "{$action_url}delete.php");
+	elgg_register_action("quebx/add", "{$action_url}add.php");
+	elgg_register_action("quebx/add/item", "{$action_url}add/item.php");
+	elgg_register_action("quebx/edit", "{$action_url}edit.php");
+	elgg_register_action("quebx/delete", "{$action_url}delete.php");
 	elgg_register_action('q_widgets/save', "{$action_url}q_widgets/save.php");
 	elgg_register_action('q_widgets/add', "{$action_url}q_widgets/add.php");
 	elgg_register_action('q_widgets/move', "{$action_url}q_widgets/move.php");
@@ -244,14 +245,11 @@ function queb_page_handler($page) {
 	        break;
 	}	
 }
-function q_page_handler($page) {
+function q_page_handler($space) {
 	$base_dir  = elgg_get_plugins_path() . 'quebx/pages';
 	
-    market_register_toggle();
-    include_once("$base_dir/qboqx.php");
-    return true;	        
-    break;
-	
+    include_once("$base_dir/q.php");
+    return true;	
 }
 
 // Populates the ->getURL() method for quebx objects

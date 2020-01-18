@@ -27,7 +27,7 @@ foreach($data as $key=>$contents){
             }
         }
     }
-    if (isset($subtype) && elgg_entity_exists($guid)){
+/*    if (isset($subtype) && elgg_entity_exists($guid)){
        if ($entity->getSubtype() != $subtype)
     	continue;
     }
@@ -35,7 +35,9 @@ foreach($data as $key=>$contents){
         if (elgg_entity_exists($guid)){
             $subtype = $entity->getSubtype();
         }
-    }
+    }*/
+    if (elgg_entity_exists($guid))
+        $subtype = $entity->getSubtype();
     switch ($subtype){
         case 'market':
         case 'item':
@@ -43,6 +45,7 @@ foreach($data as $key=>$contents){
             $content_item .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
             break;
         case 'receipt':
+        case 'transfer':
             ++$n_receipts;
             $content_receipt .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
             break;

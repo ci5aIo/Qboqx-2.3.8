@@ -1,16 +1,61 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Generator: Adobe Illustrator 18.1.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
-	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="-295 387 20 20"
-	 enable-background="new -295 387 20 20" xml:space="preserve">
-<title>Rectangle 300 + Fill 1 Copy 4</title>
-<desc>Created with Sketch.</desc>
-<g id="Search-v8---clean" sketch:type="MSPage">
-	<g id="My-Work" transform="translate(-962.000000, -44.000000)" sketch:type="MSArtboardGroup">
-		<g id="Rectangle-300-_x2B_-Fill-1-Copy-4" transform="translate(962.000000, 44.000000)" sketch:type="MSLayerGroup">
-			<path id="Fill-1-Copy-4" sketch:type="MSShapeGroup" fill="#FFFFFF" d="M-285.8,392v4.2h-4.2v1.6h4.2v4.2h1.6v-4.2h4.2v-1.6h-4.2
-				V392H-285.8"/>
-		</g>
-	</g>
-</g>
+
+<svg
+   xmlns:sketch="http://www.bohemiancoding.com/sketch/ns"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   viewBox="-295 387 20 20"
+   enable-background="new -295 387 20 20"
+   xml:space="preserve"
+   sodipodi:docname="16e0db34-plus-white.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"><metadata
+   id="metadata15"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title>Rectangle 300 + Fill 1 Copy 4</dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs13">
+	
+
+		
+	
+			
+		</defs><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
+   id="namedview11"
+   showgrid="false"
+   inkscape:zoom="47.2"
+   inkscape:cx="9.4766903"
+   inkscape:cy="8.3119268"
+   inkscape:window-x="-8"
+   inkscape:window-y="-4"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1" />
+<title
+   id="title2">Rectangle 300 + Fill 1 Copy 4</title>
+<desc
+   id="desc4">Created with Sketch.</desc>
+<path
+   style="fill:#ffffff;fill-opacity:1"
+   inkscape:connector-curvature="0"
+   d="m -285.8,392 v 4.2 h -4.2 v 1.6 h 4.2 v 4.2 h 1.6 v -4.2 h 4.2 v -1.6 h -4.2 V 392 h -1.6"
+   sketch:type="MSShapeGroup"
+   id="Fill-1-Copy-4" />
 </svg>

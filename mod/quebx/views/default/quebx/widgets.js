@@ -21,13 +21,13 @@ define('quebx/widgets', ['elgg', 'jquery'], function (elgg, $) {
 	q_widgets.init = function () {
 
 		// widget layout?
-		if ($(".elgg-widgets").length === 0) {
+		if ($(".q-widgets").length === 0) {
 			return;
 		}
 
-		$(".elgg-widgets").sortable({
-			items: 'div.elgg-module-widget.elgg-state-draggable',
-			connectWith: '.elgg-widgets',
+		$(".q-widgets").sortable({
+			items: 'div.q-module-widget.elgg-state-draggable',
+			connectWith: '.q-widgets',
 			handle: '.elgg-widget-handle',
 			forcePlaceholderSize: true,
 			placeholder: 'elgg-widget-placeholder',
@@ -42,7 +42,7 @@ define('quebx/widgets', ['elgg', 'jquery'], function (elgg, $) {
 		$(document).on('submit', '.elgg-widget-edit > form ', q_widgets.saveSettings);
 		$(document).on('click', 'a.elgg-widget-collapse-button', q_widgets.collapseToggle);
 
-		q_widgets.setMinHeight(".elgg-widgets");
+		q_widgets.setMinHeight(".q-widgets");
 	};
 
 	/**

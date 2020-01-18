@@ -23,4 +23,5 @@ $body = elgg_view_layout('one_column', array(
 	'content' => $widgets
 ));
 
-echo elgg_view_page($title, $body);
+$page_shell = 'qboqx';
+echo elgg_view_page($title, $body, $page_shell,['show_site_menu'=>false]);

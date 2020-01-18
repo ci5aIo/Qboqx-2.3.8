@@ -5,13 +5,23 @@ $heading       = elgg_extract('heading', $vars, false);
 $metadata_name = elgg_extract('metadata_name', $vars, 'description');
 $guid          = elgg_extract('guid', $vars);
 $value         = elgg_extract('value', $vars, false);
+$html_tag      = elgg_extract('html_tag', $vars,'div');
+$number        = elgg_extract('number', $vars, 'singular');  //options: singular, series
 $placeholder   = $value ? elgg_format_element('span',['class'=>'tracker_markup'],elgg_format_element('p',[],$value)) : "Add a $metadata_name";
 $cid           = quebx_new_id('c');
 if($heading) 
     $show_heading = elgg_format_element('h4',[],$heading);
+switch($number){
+    case 'singular':
+        $name = "jot[$boqx_id][$input_type]";
+        break;
+    case 'series':
+        $name = "jot[$boqx_id][$input_type][]";
+        break;
+}
 
-$description  = elgg_format_element('div',['id'=>$cid, 'data-boqx'=>$boqx_id, 'class'=>'Description___3oUx83yQ','data-aid'=>$heading],
-                    elgg_format_element('input',['type'=>'hidden','name'=>"jot[$boqx_id][$input_type]",'data-focus-id'=>"Description--$cid",'value'=>$value]).
+$description  = elgg_format_element($html_tag,['id'=>$cid, 'data-boqx'=>$boqx_id, 'class'=>'Description___3oUx83yQ_xxx','data-aid'=>$heading],
+                    elgg_format_element('input',['type'=>'hidden','name'=>$name,'data-focus-id'=>"Description--$cid",'value'=>$value]).
                     $show_heading.
                     elgg_format_element('div',['class'=>['DescriptionShow___3-QsNMNj','DescriptionShow__placeholder___1NuiicbF'],'data-cid'=>$cid, 'tabindex'=>'0','data-aid'=>'renderedDescription','data-focus-id'=>"DescriptionShow--$cid"],$placeholder).
                     elgg_format_element('div',['class'=>'DescriptionEdit___1FO6wKeX','data-cid'=>$cid],
@@ -24,7 +34,7 @@ $description  = elgg_format_element('div',['id'=>$cid, 'data-boqx'=>$boqx_id, 'c
                                             elgg_format_element('div',['class'=>'DescriptionEdit__write___207LwO1n'],
                                                  elgg_format_element('div',['class'=>'AutosizeTextarea___2iWScFt6'],
                                                       elgg_format_element('div',['class'=>'AutosizeTextarea__container___31scfkZp'],
-                                                           elgg_format_element('textarea',['class'=>['AutosizeTextarea__textarea___1LL2IPEy','editor___1qKjhI5c','tracker_markup'],'aria-labeledby'=>"description$cid",'data-aid'=>'textarea', 'data-cid'=>$cid, 'data-focus-id'=>"DescriptionEdit--$cid", 'placeholder'=>"Add a $metadata_name"])
+                                                           elgg_format_element('textarea',['class'=>['AutosizeTextarea__textarea___1LL2IPEy','editor___1qKjhI5c','tracker_markup'],'aria-labeledby'=>"description$cid",'data-aid'=>'textarea', 'data-cid'=>$cid, 'data-focus-id'=>"DescriptionEdit--$cid", 'placeholder'=>"Add a $metadata_name"],$value)
                                                       )
                                                  )
                                             ).

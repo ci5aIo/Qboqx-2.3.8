@@ -17,10 +17,10 @@ $context = elgg_get_context();
 $module_type = elgg_extract('module_type', $vars);
 
 //the number of files to display
-$num = (int) $vars['entity']->num_display;
-if (!$num) {
+$num = (int) $vars['entity']->num_display;                                          
+if (!isset($num)) {
 	$num = 4;
-}		
+}		                                                                          $display .= '$num = '.$num.'<br>';
 $dbprefix = elgg_get_config('dbprefix');
 $options = array('type'=>'object',
                   'subtype'=>'market', 
@@ -34,13 +34,17 @@ $options = array('type'=>'object',
             	                        AND e.guid = md.entity_guid)"), 
         'limit'=>$num);
     
-$posts = elgg_get_entities($options);
+$posts = elgg_get_entities($options);                                              $display .= '$posts = '.count($posts).'<br>';
 echo '<!-- context: '.elgg_get_context().'-->';
 Switch ($module_type){
     case 'warehouse':
         if (is_array($posts) && sizeof($posts) > 0) {
        		foreach($posts as $post) {
-                echo elgg_view('page/components/pallet_boqx', ['entity'=>$post, 'aspect'=>'thing', 'boqx_id'=>$vars['boqx_id']]);
+       		    $issues = elgg_get_entities_from_relationship(['relationship'=>'on','relationship_guid'=>$post->getGUID(),'inverse_relationship'=>true,'types'=>'object','subtypes'=>'issue']);
+       		    $attachments = elgg_get_entities_from_relationship(['relationship'=>'on','relationship_guid'=>$post->getGUID(),'inverse_relationship'=>true,'types'=>'object','subtypes'=>'file']);
+                $icon_guid = $post->icon ?: $post->guid;
+                $icon = elgg_view('market/thumbnail', array('marketguid' => $post->guid, 'size' => 'tiny', 'class'=>'itemPreviewImage_ARIZlwto'));                
+                echo elgg_view('page/components/pallet_boqx', ['entity'=>$post,'aspect'=>'thing','boqx_id'=>$vars['boqx_id'],'has_issues'=>count($issues)>0,'icon'=>$icon,'has_description'=>isset($post->description),'has_attachments'=>count($attachments)>0]);
        		   }
           }
         break;
@@ -86,3 +90,4 @@ Switch ($module_type){
         }
 
 }
+//register_error($display);

@@ -9,7 +9,8 @@
 // rely on quebx.ui.widgets methods to be available at system init.
 // @todo: remove in 3.x and use async calls
 // @EDIT - 2019-07-22 - SAJ - Draft - Disabled
-// echo elgg_view('quebx/widgets.js');
+// @EDIT - 2019-12-31 - SAJ - Re-enabled
+//echo elgg_view('quebx/widgets.js');
 ?>
 elgg.provide('quebx.framework');
 
@@ -40,27 +41,6 @@ $(document).ready(function(){
           if (characters > 0)
                $('.SMkCk__Button[data-cid='+cid+']').removeClass('_3Xvsn__Button--disabled');
           else $('.SMkCk__Button[data-cid='+cid+']').addClass('_3Xvsn__Button--disabled');
-    });
-    $(document).on('click', '.SMkCk__Button', function(e){
-    e.preventDefault();
-     var action      = $(this).data('aid'),
-         cid         = $(this).data('cid'),
-         boqx        = $(this).parents('.ItemEdit___7asBc1YY');
-     var description = $('[data-focus-id=DescriptionEdit--'+cid+']').val();
-     console.log('boqx: ',boqx);
-     console.log('description: '+description);
-     switch(action){
-          case 'cancel':
-              //boqx.find('.AutosizeTextarea__container___31scfkZp textarea.tracker_markup').val('');
-              //boqx.find('.DescriptionShow___3-QsNMNj').html('');
-              break;
-          case 'save':
-              $('[data-focus-id=DescriptionShow--'+cid+']').html('<span class="tracker_markup"><p>'+description+'</p></span>');
-              $('[data-focus-id=Description--'+cid+']').val(description);
-              break;
-     }
-      $('.DescriptionEdit___1FO6wKeX[data-cid='+cid+']').hide();
-      $('.DescriptionShow___3-QsNMNj[data-cid='+cid+']').show();
     });
 	/* Throws "Uncaught TypeError: $(...).infiniteScroll is not a function"
 		$(".elgg-list").infiniteScroll({
@@ -785,7 +765,7 @@ $(document).ready(function(){
        if (has_children) return;
        
        $(this).parents(".dropdown").children("input").attr("value", value);
-       $(this).parents(".dropdown").children("a.selection").children("span").text(label);
+       $(this).parents(".dropdown").children(".selection").children("span").text(label);
        $('.pickItem__GaGSmQJ6').removeClass('selected');
        $(this).addClass('selected');
        $menu.addClass('closed');
@@ -1020,6 +1000,27 @@ $(document).ready(function(){
             $(envelope).attr('data-aid', 'show');
         }
     });
+     $(document).on('click', '.cartonPreviewItem__expander', function(e){
+       e.preventDefault();
+       var guid        = $(this).data('guid'),
+           cid         = $(this).data('cid');
+       var $boqx_show  = $('[data-boqx='+cid+']'),
+           $boqx_preview = $('header.preview[data-cid='+cid+']');
+       $boqx_show.removeClass('collapsed');
+       $boqx_preview.addClass('collapsed');
+      
+     });
+     $(document).on('click', '.cartonPreviewItem__collapser', function(e){
+       e.preventDefault();
+       var guid        = $(this).data('guid'),
+           cid         = $(this).data('cid');
+       var boqx_show  = $('#'+cid);
+       var boqx_id     = $(boqx_show).data('boqx'); 
+       var boqx_preview = $('header.preview[data-cid='+boqx_id+']');
+       $(boqx_show).addClass('collapsed');
+       $(boqx_preview).removeClass('collapsed');
+      
+     });
     
 /*    $(document).on("click", "a.collapser-receipt-item", function(e) {
         e.preventDefault();
@@ -1132,7 +1133,7 @@ $(document).ready(function(){
         var edit = $(this).next(".DescriptionEdit___1FO6wKeX");
         var textarea = edit.find(".AutosizeTextarea__container___31scfkZp").children('textarea');
         var cid = edit.parents('.edit.details').data('cid');
-        autosize($(textarea));
+        autosize.update($(textarea));
         $(edit).show();
         $(this).hide();
         $(textarea).focus();
@@ -1150,7 +1151,7 @@ $(document).ready(function(){
         var edit = $(this).next(".ServiceEdit___1FO6wKeX");
         var textarea = edit.find(".AutosizeTextarea__container___31scfkZp").children('textarea');
         var cid = edit.parents('.edit.details').data('cid');
-        autosize($(textarea));
+        autosize.update($(textarea));
         $(edit).show();
         $(this).hide();
         $(textarea).focus();

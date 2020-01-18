@@ -150,7 +150,7 @@ define(function(require) {
             
 		});
 	$(document).on('click', '.replace-card, .IconButton___2y4Scyq6, .trashEnvelope_0HziOPGx', function(e){
-		   e.preventDefault();
+		  e.preventDefault();
 	      var ajax       = new Ajax(),
 	          cid        = $(this).data('cid');
 	      var envelope   = $('#'+cid);
@@ -161,7 +161,7 @@ define(function(require) {
 		      guid       = $(envelope).data('guid'),
 		      aspect     = $(envelope).data('aspect'),
 		      presence   = $(envelope).data('presence'),
-		      presentation = $(envelope).data('presentation');
+		      presentation = $(envelope).data('presentation');                    console.log('164 guid = '+guid);
 	      var boqx       = $('#'+boqx_id),
 	          boqx_aspect= $('#'+boqx_id).data('aspect'),
 	          carton     = $('#'+carton_id);
@@ -198,7 +198,13 @@ define(function(require) {
 				 break;
     	   }
 		  $(envelope).remove();
-			                                                                                        console.log('carton_id = '+carton_id);
+		  ajax.action('quebx/delete', {
+			data:{
+				guid: guid
+			}
+		  }).done(function () {
+			//alert('deleted: '+guid);
+		  });                                                                                       console.log('carton_id = '+carton_id);
 		  $('[data-carton='+carton_id+']').each(function(){
 			  cards++;
 			  if ($(this).attr('boqx-fill-level') == 0)
@@ -210,8 +216,7 @@ define(function(require) {
 			});                                                                                       console.log('carton_total = '+carton_total);
 			$('#'+boqx_id+'_total').text(moneyFormat(carton_total));
 			$('#'+boqx_id+'_total_raw').text(carton_total);
-			
-		   // add an empty card if needed
+			// add an empty card if needed
            if (empty_cards == 0){
         	   ajax.view('partials/jot_form_elements',{
 		    	   data: {
@@ -635,7 +640,7 @@ define(function(require) {
 	      aspect       = $(this).data('aspect');
 	  var form         = $('#'+cid).children('form');
 	  if (typeof form != 'undefined'){
-		  var formData     = $(form).serialize(),
+		  var formData     = ajax.objectify(form),//$(form).serialize(),
 		      action       = $(form).attr('action'),
 			  method       = $(form).attr('method'),
 		      title        = $(form).find('textarea[data-focus-id="NameEdit--'+cid+'"]').val(),
@@ -865,7 +870,7 @@ define(function(require) {
 		    		   presence: presence,
 		    		   cards: cards,
 		    	   },
-		       }).done(function(output) {                          console.log('carton: ',carton);console.log('output: ',output);
+		       }).done(function(output) {                          //console.log('carton: ',carton);console.log('output: ',output);
 		    	   $(carton).append($(output));
 		       }).success(function(){
 					
@@ -885,7 +890,7 @@ define(function(require) {
 	      form         = $(this).parents('form'),
 	      cid          = $(this).data('cid'),
 	      boqx_id      = $(this).data('boqx');
-	  var formData     = $(form).serialize(),
+	  var formData     = ajax.objectify(form), //$(form).serialize(),
 	      action       = $(form).attr('action'),
 		  method       = $(form).attr('method'),
 	      title        = $('.NameEdit___Mak_'+cid).val(),
@@ -918,6 +923,28 @@ define(function(require) {
 //			alert('failed');
 		});		
    });
+    $(document).on('click', '.SMkCk__Button', function(e){
+    e.preventDefault();
+     var ajax        = new Ajax(),
+	     action      = $(this).data('aid'),
+         cid         = $(this).data('cid'),
+         boqx        = $(this).parents('.ItemEdit___7asBc1YY');
+     var description = $('[data-focus-id=DescriptionEdit--'+cid+']').val();
+     console.log('boqx: ',boqx);
+     console.log('description: '+description);
+     switch(action){
+          case 'cancel':
+              //boqx.find('.AutosizeTextarea__container___31scfkZp textarea.tracker_markup').val('');
+              //boqx.find('.DescriptionShow___3-QsNMNj').html('');
+              break;
+          case 'save':
+              $('[data-focus-id=DescriptionShow--'+cid+']').html('<span class="tracker_markup"><p>'+description+'</p></span>');
+              $('[data-focus-id=Description--'+cid+']').val(description);
+              break;
+     }
+      $('.DescriptionEdit___1FO6wKeX[data-cid='+cid+']').hide();
+      $('.DescriptionShow___3-QsNMNj[data-cid='+cid+']').show();
+    });
    $(document).on('click', 'a.jot-q', function(e) {
        e.preventDefault();
        var this_element = this;
@@ -1226,7 +1253,7 @@ define(function(require) {
 	       space       = $(this).parents('div#'+qid).data('space'),
 	       aspect       = $(this).parents('div#'+qid).data('aspect'),
 	       context      = $(this).parents('div#'+qid).data('perspective');
-	   var formData                = $(form).serialize(),
+	   var formData                = ajax.objectify(form),// $(form).serialize(),
 	       title                   = $(form).find('input[name=\'jot[title]\']').val(),
 	       total                   = $(form).find('span.'+qid+'_total').text(),
 	       to                      = $(form).find('input[name=\'jot[purchased_by]\']').val(),
@@ -1818,36 +1845,35 @@ define(function(require) {
 			   break;
 	   }
    });
-   $(document).on('click', '.StoryPreviewItem__expander, .StoryPreviewItem__title', function(e){
+   $(document).on('click', '.StoryPreviewItem__expander, .StoryPreviewItem__title', function(e){   console.log('StoryPreviewItem__expander');
 	  //alert('works');
 	  var ajax        = new Ajax();
 	  var guid        = $(this).data('guid'),
 	      cid         = $(this).data('cid');
       var item_boqx   = $('#'+cid);
-      var boqx_id     = $(item_boqx).parent().attr('id'),
-          boqx_guid   = $(item_boqx).parent().data('guid'),
-          boqx_cid    = $(item_boqx).parent().data('cid');
+      var boqx_id     = $(item_boqx).data('boqx');
+      var boqx        = $('#'+boqx_id);
 	  var $boqx_show  = $('[data-boqx='+cid+']'),
           $boqx_preview = $('header.preview[data-cid='+cid+']');
       var $boqx_exists = $boqx_show.length>0;
+      var add_panel   = $('[data-aid=TaskAdd][data-cid='+cid+']'),
+          show_panel  = $('[data-aid=TaskShow][data-cid='+cid+']'),
+          edit_panel  = $('[data-aid=TaskEdit][data-cid='+cid+']');
       if($boqx_exists){
     	  $boqx_show.removeClass('collapsed');
     	  $boqx_preview.addClass('collapsed');
       }
       else {
-		  ajax.view('partials/jot_form_elements',{
+    	  ajax.view('partials/jot_form_elements',{
 			  data: {
-				  element   : 'show_model',
-				  guid      : guid,
-				  boqx_id   : boqx_id,
-				  boqx_guid : boqx_guid,
-				  boqx_cid  : boqx_cid,
-				  cid       : cid
-			  },
-		  }).done(function(output){
-			  $(item_boqx).append($(output));
-		  }).success(function(){
-			 $boqx_preview.addClass("collapsed");
+					  element   : 'show boqx',
+					  guid      : guid,
+					  cid       : cid
+				  },
+			  }).done(function(output){
+				  $(item_boqx).append($(output));
+			  }).success(function(){
+				 $boqx_preview.addClass("collapsed");
 		  });
       }
    });
@@ -1937,29 +1963,120 @@ define(function(require) {
    });
      $(document).on('click', '.panels .items .pallet_toggle', function(e){
           e.preventDefault();
-          var cid     = $(this).data('cid'),
+          var ajax    = new Ajax(),
+              cid     = $(this).data('cid'),
               boqx    = $(this).data('boqx'),
-              visible = $(this).parent().hasClass('visible');
-          var pallet;
+              handler = $(this).parent().attr('handler'),
+              visible = $(this).parent().hasClass('visible'),
+              slots   = $('.slots'),
+              this_toggle = $(this),
+              materialized,
+              available = false;
+          var pallet,
+              last_slot = $(slots).children('.pallet').size();
+          var min_size = 1900,
+              required_size = (last_slot+1)*400;
+          var floor_size = required_size < min_size ? min_size : required_size;
           if (boqx == 'shelf') pallet = $('.tc_page_bulk_header');
           else                 pallet = $('#'+cid);
-          if (visible){ 
+          materialized = pallet.length>0;
+          if (visible && materialized){ 
               pallet.removeClass('visible');
               $(this).parent().removeClass('visible');
               if (boqx == 'shelf') {
             	  $('.tc_page_nav_header').addClass('visible');
             	  $('.tc_pull_right').addClass('visible');
               }
+              return;
           }
-          else {
+          if (!visible && materialized) {
               pallet.addClass('visible');
               $(this).parent().addClass('visible');
               if (boqx == 'shelf') {
             	  $('.tc_page_nav_header').removeClass('visible');
             	  $('.tc_pull_right').removeClass('visible');
               }
+              return;
+          }
+          if(!available){
+    		  ajax.view('partials/jot_form_elements',{
+    			  data: {
+    				  element   : 'pallet',
+    				  handler   : handler,
+    				  cid       : cid,
+    				  last_slot : last_slot
+    			  },
+    		  }).done(function(output){
+    			 $(output).addClass('visible');
+    			 slots.append($(output));
+    			 slots.attr('data-slots', last_slot+1);
+    			 slots.css('width',floor_size);
+                 this_toggle.parent().addClass('visible');
+    		  }).success(function(response){
+/*    	        var open_slots = $('.slots .pallet[data-contents=open]');
+				var slot = open_slots[0];
+				var slot_id = $(slot).attr('id');
+				console.log('slot id: '+slot_id);
+				$(slot).append(response);
+				$(slot).attr('data-contents',boqx);
+				$('li[cid='+cid+']').attr('cid',slot_id);
+				$('button[data-cid='+cid+']').attr('data-cid',slot_id);*/
+    			 
+    		  });
+        	  
+/*        	var dataString = 'add=pallet&cid='+cid+'&boqx='+boqx,
+        	    form       = $(this).parents('form');
+        	var open_slots = $('.slots .pallet[data-contents=open]');
+        	console.log('open slots: ', open_slots);
+        	ajax.action('quebx/add',{
+			    data: {add:'pallet',
+			    	   cid: cid,
+			    	   boqx: boqx,
+			    	   hander: boqx,
+			    	   context: 'warehouse',
+			    	   show_access: true,
+			    	   column: 1,
+			    	   default_widgets: 0
+			    	  }
+			  }).done(function(response) {
+			  }).success(function(response) {
+				console.log('response: ',response);
+				var slot = open_slots[0];
+				var slot_id = $(slot).attr('id');
+				console.log('slot id: '+slot_id);
+				$(slot).append(response);
+				$(slot).attr('data-contents',boqx);
+				$('li[cid='+cid+']').attr('cid',slot_id);
+				$('button[data-cid='+cid+']').attr('data-cid',slot_id);
+			  }).fail(function() {
+				 alert('failed');
+			  });*/
           }
      });
+    $(document).on('click', 'a.tn-CloseButton___2wUVKGfh', function(e){
+       e.preventDefault();
+       var pallet   = $(this).parents('.pallet'),
+           slots    = $('.slots'),
+    	   ajax     = new Ajax();
+       var cid      = pallet.attr('id'),
+           last_slot = $(slots).children('.pallet').size(),
+           handler  = pallet.data('contents');
+       var min_size = 1900,
+           required_size = ((last_slot-1)*400) + 100;
+       var floor_size = required_size < min_size ? min_size : required_size;
+       ajax.view('partials/jot_form_elements',{
+    	   data: {
+    		 element       : 'pallet',
+    		 handler       : handler,
+    		 perspective   : 'remove'
+    	   },
+		   }).done(function(){
+			   pallet.remove();
+			   slots.attr('data-slots', last_slot-1);
+			   slots.css('width',floor_size);
+		       $('li[cid='+cid+']').removeClass('visible');
+	       });
+    });
      $(document).on('click', '.tn-AddButton___hGq7Vqlr', function(e){
     	e.preventDefault();
     	var pallet  = $(this).parents('.pallet'),
@@ -1982,7 +2099,7 @@ define(function(require) {
     	else
 	    	ajax.view('partials/jot_form_elements',{
 	    	   data: {
-	    		 element       : 'pallet',
+	    		 element       : 'empty boqx',
 	    		 handler       : handler,
 	    		 perspective   : 'add',
 	    		 empty_boqx_id : target
@@ -2226,7 +2343,8 @@ define(function(require) {
     });
     $(document).on('click', '.preview .selector', function(e){
        e.preventDefault();
-       var cid              = $(this).data('cid')
+       var cid              = $(this).data('cid'),
+           shelf_selector   = $('li.shelf');
        var guid             = $('#'+cid).data('guid'),
            element,
            perspective      = 'header';
@@ -2241,41 +2359,39 @@ define(function(require) {
           $(this).removeClass('selected');
           selected_count = selected_counter - 1;
           if (selected_count <= 0){
-               $('.tc_page_bulk_header').hide();
+               $('.tc_page_bulk_header').removeClass('visible');
                $('.tc_pull_right').hide();
                $('.tc_page_nav_header').show();
           }
-          if (selected_count == 1)
-               $('.selectedStoriesControls__counterLabel').html('item selected');
-          else
-               $('.selectedStoriesControls__counterLabel').html('items selected');
-          $('.selectedStoriesControls__counter').html(selected_count);
+          $('.shelf-items-compartment .shelf-viewer#quebx-shelf-item-'+guid).remove();
        }
        else{
           $(this).addClass('selected');
           if (selected_counter <= 0){
-               $('.tc_page_bulk_header').show();
+               $('.tc_page_bulk_header').addClass('visible');
                $('.tc_pull_right').show();
                $('.tc_page_nav_header').hide();
           }
           selected_count = selected_counter + 1;
-          if (selected_count == 1)
-               $('.selectedStoriesControls__counterLabel').html('item selected');
-          else
-               $('.selectedStoriesControls__counterLabel').html('items selected');
-          $('.selectedStoriesControls__counter').html(selected_count);
-       }
-       
-       ajax.view('partials/shelf_form_elements',{
-    	   data: {
-    		 element    : element,
-    		 guid       : guid,
-    		 perspective: perspective
-    	   },
-       }).done(function(output) {
-    	   $('.shelf-items-compartment').append($(output));
-       })
-       
+	      ajax.view('partials/shelf_form_elements',{
+	    	   data: {
+	    		 element    : element,
+	    		 guid       : guid,
+	    		 perspective: perspective
+	    	   },
+	      }).done(function(output) {
+	    	   $('.shelf-items-compartment').append($(output));
+	      });
+      }
+      if (selected_count == 0)
+    	  selected_count = '';
+      if (selected_count == 1)
+          $('.selectedStoriesControls__counterLabel').html('item selected');
+      else
+          $('.selectedStoriesControls__counterLabel').html('items selected');
+      $('.selectedStoriesControls__counter').html(selected_count);
+      $(shelf_selector).attr('count', selected_count);
+      $(shelf_selector).find('.counter').html(selected_count);
     });
          
    function moneyFormat(nStr) {
@@ -2352,5 +2468,20 @@ function hide_dropdown(event) {
         });
 
         $(document).find('.dropdown section.pick-boqx').addClass('closed');
+    }
+}
+function empty( val ) {
+        if (val === undefined)
+        return true;
+    if (typeof (val) == 'function' || typeof (val) == 'number' || typeof (val) == 'boolean' || Object.prototype.toString.call(val) === '[object Date]')
+        return false;
+    if (val == null || val.length === 0)        // null or 0 length array
+        return true;
+    if (typeof (val) == "object") {
+        // empty object
+        var r = true;
+        for (var f in val)
+            r = false;
+        return r;
     }
 }

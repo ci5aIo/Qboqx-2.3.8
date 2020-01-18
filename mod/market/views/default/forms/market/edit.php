@@ -40,7 +40,7 @@ $parent_cid     = elgg_extract('parent_cid'       , $vars, false);
 $qid            = elgg_extract('qid'              , $vars, quebx_new_id('q'));
 $display_state  = elgg_extract('display_state'    , $vars, $perspective); //Options: add, edit, show
 $fill_level     = elgg_extract('fill_level'       , $vars, 0);
-$unpacked       = $guid>0;
+$unpacked       = elgg_entity_exists($guid);
 
 if ($entity){
     $tags  = elgg_extract('markettags', $vars, $entity->gettags());
@@ -88,15 +88,18 @@ Switch ($perspective){
 *add********** $section = 'main' $presentation = 'pallet' *****************************************************************
 				 ****************************************/
                     case 'pallet':
+                        if(!elgg_entity_exists($guid)) break;
                         unset($tabs, $panels);
-                    	$tabs[]=['title'=>'Family'     , 'aspect'=>'family'       , 'section'=>'us'  , 'note'=>'Common characteristics'              , 'class'=>'qbox-q3', 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'family'];
-                        $tabs[]=['title'=>'Individual' , 'aspect'=>'individual'   , 'section'=>'this', 'note'=>'Characteristics unique to this item' , 'class'=>'qbox-q3', 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'individual'];
-                        $tabs[]=['title'=>'Gallery'    , 'aspect'=>'gallery'      , 'section'=>'pics', 'note'=>'Pictures'                            , 'class'=>'qbox-q3', 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'gallery'];
-                        $tabs[]=['title'=>'Library'    , 'aspect'=>'library'      , 'section'=>'docs', 'note'=>'Documents'                           , 'class'=>'qbox-q3', 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'library'];
+                        $selected = elgg_extract('selected', $vars, 'item');
+                     	$tabs[]   = ['title'=>'Item'       , 'aspect'=>'item'         , 'section'=>'us'  , 'note'=>'Characteristics, Contents, Components, Accessories', 'class'=>['qbox-q3'], 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'family'];
+                        $tabs[]   = ['title'=>'Experiences', 'aspect'=>'experiences'  , 'section'=>'this', 'note'=>'Experiences, Issues, Instructions, Insights', 'class'=>['qbox-q3'], 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'individual'];
+                        $tabs[]   = ['title'=>'Inventory'  , 'aspect'=>'inventory'    , 'section'=>'docs', 'note'=>'Supplies, Pieces, Parts, Receipts'   , 'class'=>['qbox-q3'], 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'library'];
+                        $tabs[]   = ['title'=>'Media'      , 'aspect'=>'media'        , 'section'=>'docs', 'note'=>'Documents, Pictures, Video'          , 'class'=>['qbox-q3'], 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'library'];
                         foreach($tabs as $key=>$tab){
                             unset($content);
-                            $content = elgg_view("forms/market/edit", array_merge($vars, ['section'=>$tab['aspect'], 'parent_cid'=>$parent_cid, 'entity'=>$entity]));                                     $display.="$tab[aspect] = ".$tab['aspect'].'<br>';
+                            $content = elgg_view("forms/market/edit", array_merge($vars, ['section'=>$tab['aspect'], 'parent_cid'=>$parent_cid, 'entity'=>$entity]));
                             $panels[] = ['aspect'=>$tab['aspect'], 'id'=>$tab['data-qid']    , 'class'=>"option-panel ".$tab['aspect']."-option-panel"    , 'content'=> $content];
+                            $tabs[$key]['selected'] = $tab['aspect'] == $selected;
                         }
                         break;
                     default:
@@ -109,9 +112,9 @@ Switch ($perspective){
                 $navigation   = elgg_view('navigation/tabs_slide', $nav);
                 foreach($panels as $key=>$panel){
                 	$is_selected = $selected == $panel['aspect'];
-                	$class       = $panel['class'];
+                	$class       = (array) $panel['class'];
             	    if ($is_selected) {
-            			$class .= ' qbox-state-selected';
+            			$class[] = 'qbox-state-selected';
             		}
                 	$detail .= elgg_format_element('div',['id'=>$panel['id'], 'class'=>$class, 'parent_cid'=>$parent_cid], $panel['content']);
                 }
@@ -138,10 +141,10 @@ Switch ($perspective){
                 
                 break;
 				/****************************************
-*add********** $section = 'family'                       *****************************************************************
+*add********** $section = 'item'                       *****************************************************************
 				 ****************************************/
-            case 'family':
-                unset($hidden, $hidden_fields);
+            case 'item':
+                unset($hidden, $hidden_fields);                                                            $display .= '146 $entity->guid'.$entity->guid.'<br>146 $entity->title'.$entity->title.'<br>';
                 if (!empty($hidden)){                
                     foreach($hidden as $key=>$field){
                         $hidden_fields .= elgg_view('input/hidden', $field);}}
@@ -156,88 +159,122 @@ Switch ($perspective){
                         		'data-colorbox-opts' => '{"width":600, "height":525}',
                        			'href' => "pick_test/family_characteristics/" . $entity->guid));
                        	$pick_menu = "<span title='Select family characteristics'>$pick</span>";
-                       	
+                       	$contents = elgg_get_entities([
+                            'type' => 'object',
+            				'subtypes' => array('market', 'item', 'contents'),
+                            'joins'    => array('JOIN elgg_objects_entity e2 on e.guid = e2.guid'),
+            				'wheres' => array(
+            					"e.container_guid = $entity->guid",
+                                "NOT EXISTS (SELECT *
+                                             from elgg_entity_relationships s1
+                                             WHERE s1.relationship = 'component'
+                                               AND s1.guid_two = e.container_guid)"
+            				),
+                            'order_by' => 'e2.title',
+                            'limit' => false,
+            			]);
+                        $components = elgg_get_entities_from_relationship([
+                        	'type' => 'object',
+                        	'relationship' => 'component',
+                        	'relationship_guid' => $entity->guid,
+                            'inverse_relationship' => true,
+                        	'limit' => false,
+                        ]);
+                        $accessories = elgg_get_entities_from_relationship([
+                        	'type' => 'object',
+                        	'relationship' => 'accessory',
+                        	'relationship_guid' => $entity->guid,
+                            'inverse_relationship' => true,
+                        	'limit' => false,
+                        ]);
+	                    if ($contents) {
+	                        $contents_count = 0;
+                            $contents   = elgg_get_entities(['type'=>'object', 'subtypes'=>ELGG_ENTITIES_ANY_VALUE, 'limit' => false,]);
+		                    foreach ($contents as $content)
+                    			$elements[] = ['guid'=> $content->guid,'container_guid'=>$content->container_guid,'title'=> $content->title];
+                    		foreach ($elements as $element) {
+                    		    ++$contents_count;
+                    		    $id = $element['guid'];
+                    		    $parent_id = $element['container_guid'];
+                    		    $data[$id] = $element;
+                    		    $index[$parent_id][] = $id;
+                    		}
+                    		$display_options = ['data'=>$data,'index'=>$index,'parent_id'=>$entity->guid,'ul_class'=>'hierarchy','collapsible'=>true,'collapse_level'=>1,'level'=>0,'links'=>true];
+                    		$item_contents = quebx_display_child_nodes_II($display_options);
+	                    }
                         if($entity->characteristic_names) $characteristic_names = is_array($entity->characteristic_names) ? $entity->characteristic_names : (array) $entity->characteristic_names;
                         if($entity->characteristic_values) $characteristic_values = is_array($entity->characteristic_values) ? $entity->characteristic_values : (array) $entity->characteristic_values;
                         if($entity->features) $features = is_array($entity->features) ? $entity->features : (array) $entity->features;
-                        
-                        $family_content = "
-                        <div class='rTable' style='width:100%;margin-top:10px;'>
-                    		<div class='rTableBody'>
-                                <div class='rTableRow'>
-                    				<div class='rTableCell' style='width:20%;padding:0px 5px'><b>Manufacturer</b></div>
-                    				<div class='rTableCell' style='width:80%;padding:0px 5px'>".elgg_view('input/text', array('name' => "jot[$cid][manufacturer]", 'value' => $entity->manufacturer, 'placeholder'=>'Manufacturer'))."</div>
-                    		    </div>
-                                <div class='rTableRow'>
-                    				<div class='rTableCell' style='width:20%;padding:0px 5px'><b>Brand</b></div>
-                    				<div class='rTableCell' style='width:80%;padding:0px 5px'>".elgg_view('input/text', array('name' => "jot[$cid][brand]", 'value' => $entity->brand, 'placeholder'=>'Brand',))."</div>
-                    		    </div>
-                                <div class='rTableRow'>
-                    				<div class='rTableCell' style='width:20%;padding:0px 5px'><b>Model #</b></div>
-                    				<div class='rTableCell' style='width:80%;padding:0px 5px'>".elgg_view('input/text', array('name' => "jot[$cid][model_no]", 'value' => $entity->model_no, 'placeholder'=>'Model #',))."</div>
-                                </div>
-                    			<div class='rTableRow'>
-                                    <div class='rTableCell' style='width:20%;padding:0px 5px'><b>Part #</b></div>
-                    				<div class='rTableCell' style='width:80%;padding:0px 5px'>".elgg_view('input/text', array('name' => "jot[$cid][part_no]", 'value' => $entity->part_no, 'placeholder'=>'Part #',))."</div>
-                    			</div>
-                    		</div>
-                    	</div>";
-                        
-                        $family_content .= "<div class='rTable' style='width:100%'>
-                        		<div class='rTableBody' id='family_characteristics'>
-                        			<div class='rTableRow pin'>
-                        				<div class='rTableCell'><b>Family Characteristics</b></div>
-                        				<div class='rTableCell'>$pick_menu</div>
-                        			</div>";
+                        if($entity->this_characteristic_names) $this_characteristic_names = is_array($entity->this_characteristic_names) ? $entity->this_characteristic_names : (array) $entity->this_characteristic_names;
+                        if($entity->this_characteristic_values) $this_characteristic_values = is_array($entity->this_characteristic_values) ? $entity->this_characteristic_values : (array) $entity->this_characteristic_values;
+                        if($entity->this_features) $this_features = is_array($entity->this_features) ? $entity->this_features : (array) $entity->this_features;
+                        unset($characteristics, $last_class);
                         if($characteristic_names)
-                            foreach($characteristic_names as $key=>$name){
-                                if (($key+1) == count($characteristic_names)) $last_class = 'last_characteristic';
-                                $family_content .= elgg_format_element('div',['class'=>'rTableRow', 'style'=>'cursor:move;'],
-                                                        elgg_format_element('div',['class'=>'rTableCell', 'style'=>'width:33%'],
+                            foreach($characteristic_names as $key=>$name)
+                                $characteristics .= elgg_format_element('div',['class'=>'rTableRow', 'style'=>'cursor:move;'],
+                                                        elgg_format_element('div',['class'=>'rTableCell'],
                                                             elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][characteristic_names][]", 'value'=>$name, 'placeholder'=>'Characteristic'])).
-                                                        elgg_format_element('div',['class'=>'rTableCell', 'style'=>'width:66%'],
-                                                            elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][characteristic_values][]", 'value'=>$characteristic_values[$key], 'placeholder'=>'Value', 'class'=>$last_class])));
-                            }
-                        else
-                            $family_content .= elgg_format_element('div',['class'=>'rTableRow', 'style'=>'cursor:move;'],
-                                                        elgg_format_element('div',['class'=>'rTableCell', 'style'=>'width:33%'],
-                                                            elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][characteristic_names][]", 'placeholder'=>'Characteristic'])).
-                                                        elgg_format_element('div',['class'=>'rTableCell', 'style'=>'width:66%'],
-                                                            elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][characteristic_values][]", 'placeholder'=>'Value','class' => 'last_characteristic',])));
-                        $family_content .= '<div class="new_characteristic"></div>';
-                        $family_content .= "</div>
-                        			</div>";
-                        $family_content .="
-                        	<div class='rTable' style='width:100%'>
-                        		<div class='rTableBody' id='family_features'>
-                                    <div class='rTableRow pin'>
-                                        <div class='rTableCell'><b>Family Features</b></div>
-                                    </div>";
-                        if($features){
-                            if (($key+1) == count($features)) $last_class = 'last_feature';
+                                                        elgg_format_element('div',['class'=>'rTableCell'],
+                                                            elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][characteristic_values][]", 'value'=>$characteristic_values[$key], 'placeholder'=>'Value'])));
+                        if($this_characteristic_names)
+                            foreach($this_characteristic_names as $key=>$name)
+                                $characteristics .= elgg_format_element('div',['class'=>'rTableRow', 'style'=>'cursor:move;'],
+                                                        elgg_format_element('div',['class'=>'rTableCell'],
+                                                            elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][characteristic_names][]", 'value'=>$name, 'placeholder'=>'Characteristic'])).
+                                                        elgg_format_element('div',['class'=>'rTableCell'],
+                                                            elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][characteristic_values][]", 'value'=>$this_characteristic_values[$key], 'placeholder'=>'Value'])));
+                         
+                        $characteristics .= elgg_format_element('div',['class'=>'rTableRow', 'style'=>'cursor:move;'],
+                                                    elgg_format_element('div',['class'=>'rTableCell'],
+                                                        elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][characteristic_names][]", 'placeholder'=>'Characteristic'])).
+                                                    elgg_format_element('div',['class'=>'rTableCell'],
+                                                        elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][characteristic_values][]", 'placeholder'=>'Value','class' => 'last_characteristic',])));
+                        unset($all_features, $last_class);
+                        if($features)
                             foreach ($features as  $key=>$name)
-                                $family_content .= elgg_format_element('div',['class'=>'rTableRow', 'style'=>'cursor:move;'],
-                                                        elgg_format_element('div',['class'=>'rTableCell', 'style'=>'width:100%'],
-                                                            elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][features][]", 'value'=>$name, 'placeholder'=>'Feature', 'class'=>$last_class])));
-                            }
-                        else 
-                            $family_content .="
-                            			<div class='rTableRow' style='cursor:move'>
-                            				<div class='rTableCell' style='width:100%'>".
-                            			      elgg_view('input/text', array(
-                            						'name'       => "jot[$cid][features][]",
-                            			      		'class'      => 'last_feature',
-                            			      		'placeholder'=>'Feature',
-                            					))."
-                            		        </div>
-                            			</div>";
+                                $all_features .= elgg_format_element('div',['class'=>'rTableRow', 'style'=>'cursor:move;'],
+                                                      elgg_format_element('div',['class'=>'rTableCell', 'style'=>'width:100%'],
+                                                          elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][features][]", 'value'=>$name, 'placeholder'=>'Feature'])));
+                        if($this_features)
+                            foreach ($this_features as  $key=>$name)
+                                $all_features .= elgg_format_element('div',['class'=>'rTableRow', 'style'=>'cursor:move;'],
+                                                      elgg_format_element('div',['class'=>'rTableCell', 'style'=>'width:100%'],
+                                                          elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][features][]", 'value'=>$name, 'placeholder'=>'Feature'])));
+                        $all_features .= elgg_format_element('div',['class'=>'rTableRow','style'=>'cursor:move'],
+                                				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:100%'],
+                                		            elgg_view('input/text', ['name'=> "jot[$cid][features][]",'class'=> 'last_feature','placeholder'=>'Feature'])));
                         
-                        $family_content .= "<div class='new_feature'></div>";
-                        $family_content .= "</div>
-                        			</div>";
+                        $content =
+                            elgg_format_element('div',['class'=>'rTable','style'=>'width:100%;margin-top:10px;'],
+                                elgg_format_element('div',['id'=>$cid.'_characteristics','class'=>'rTableBody'],
+                                    elgg_format_element('div',['class'=>'rTableRow'],
+                        				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:30%;padding:0px 5px'],'<b>Manufacturer</b>').
+                        				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:70%;padding:0px 5px'],
+                        				    elgg_view('input/text', array('name' => "jot[$cid][manufacturer]", 'value' => $entity->manufacturer, 'placeholder'=>'Manufacturer')))).
+                                    elgg_format_element('div',['class'=>'rTableRow'],
+                        				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:30%;padding:0px 5px'],'<b>Brand</b>').
+                        				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:70%;padding:0px 5px'],
+                        				    elgg_view('input/text', array('name' => "jot[$cid][brand]", 'value' => $entity->brand, 'placeholder'=>'Brand')))).
+                                    elgg_format_element('div',['class'=>'rTableRow'],
+                        				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:30%;padding:0px 5px'],'<b>Model #</b>').
+                        				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:70%;padding:0px 5px'],
+                        				    elgg_view('input/text', array('name' => "jot[$cid][model_no]", 'value' => $entity->model_no, 'placeholder'=>'Model #')))).
+                        			elgg_format_element('div',['class'=>'rTableRow'],
+                                        elgg_format_element('div',['class'=>'rTableCell','style'=>'width:30%;padding:0px 5px'],'<b>Part #</b>').
+                        				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:70%;padding:0px 5px'],
+                        				    elgg_view('input/text', array('name' => "jot[$cid][part_no]", 'value' => $entity->part_no, 'placeholder'=>'Part #')))).
+                                    $characteristics.
+                                    elgg_format_element('div',['class'=>'new_characteristic']))).
+                            elgg_format_element('div',['class'=>'rTable','style'=>'width:100%'],
+        		               elgg_format_element('div',['class'=>'rTableBody','id'=>$cid.'_features'],
+                                   elgg_format_element('div',['class'=>['rTableRow','pin']],
+                                       elgg_format_element('div',['class'=>'rTableCell'],'<b>Features</b>')).
+        		                   $all_features.
+                                   elgg_format_element('div',['class'=>'new_feature']))).
+                            $item_contents;
                 }
                 
-                $form = $hidden_fields.$family_content;
+                $form = $hidden_fields.$content;
                 break;
 				/****************************************
 *add********** $section = 'individual'                   *****************************************************************
@@ -338,12 +375,20 @@ Switch ($perspective){
                 $form = $hidden_fields.$content;
                 break;
 				/****************************************
+*add********** $section = 'media'                      *****************************************************************
+				 ****************************************/
+            case 'media':
+                unset($hidden, $hidden_fields);
+                
+                $form = $hidden_fields.'Media';
+                break;
+				/****************************************
 *add********** $section = 'gallery'                      *****************************************************************
 				 ****************************************/
             case 'gallery':
                 unset($hidden, $hidden_fields);
-                
-                $form = $hidden_fields.'gallery';
+                $gallery = elgg_view('forms/market/edit/gallery',$vars);
+                $form = $hidden_fields.$gallery;
                 break;
 				/****************************************
 *add********** $section = 'library'                      *****************************************************************
@@ -352,6 +397,30 @@ Switch ($perspective){
                 unset($hidden, $hidden_fields);
                 
                 $form = $hidden_fields.'library';
+                break;
+				/****************************************
+*add********** $section = 'maintenance'                      *****************************************************************
+				 ****************************************/
+            case 'maintenance':
+                unset($hidden, $hidden_fields);
+                
+                $form = $hidden_fields.'Maintenance';
+                break;
+				/****************************************
+*add********** $section = 'inventory'                      *****************************************************************
+				 ****************************************/
+            case 'inventory':
+                unset($hidden, $hidden_fields);
+                
+                $form = $hidden_fields.'Inventory';
+                break;
+				/****************************************
+*add********** $section = 'experiences'                      *****************************************************************
+				 ****************************************/
+            case 'experiences':
+                unset($hidden, $hidden_fields);
+                
+                $form = $hidden_fields.'Experiences';
                 break;
             default:
                 $form = elgg_view('forms/market/edit',['perspective'=>$perspective, 'presentation'=>$presentation, 'section'=>'main', 'cid'=>$cid, 'entity'=>$entity]);
@@ -412,7 +481,7 @@ Switch ($perspective){
 *edit********** $section = 'item details'               *****************************************************************
                ****************************************/
             case 'item details':
-                $item_description     = elgg_view('input/description',['cid'=>$cid]);
+                $item_description     = elgg_view('input/description',['cid'=>$cid,'value'=>$entity->description]);
                 $ancestry             = hypeJunction\Categories\get_hierarchy($entity->category, true, false);
                 //$value                 = elgg_get_site_entity()->guid;
                 $value                 = end($ancestry);
@@ -437,7 +506,7 @@ Switch ($perspective){
                 $boqx_selector = "
                   <div class='dropdown category' data-selector='boqx_category' data-cid='$cid'>  
                       <input aria-hidden='true' type='hidden' name='jot[$cid][category]'>
-                      <a id='item_category_dropdown_$cid' class='selection item_0' tabindex='-1'><span>$category_name</span></a>
+                      <div id='item_category_dropdown_$cid' class='selection item_0' tabindex='-1'><span>$category_name</span></a>
                       <a id='item_category_dropdown_{$cid}_arrow' class='arrow target' tabindex='-1'></a>
                       <section class='pickCategory__VRYE6ZAO closed'>
                          $weir_menu
@@ -452,6 +521,9 @@ Switch ($perspective){
     	        $form      = $item_description;				
 				$form     .= $item_category;
 				$form     .= elgg_view('forms/market/edit', ['presentation'=>$presentation, 'perspective'=>'add', 'cid'=>$cid, 'entity'=>$entity]);
+if (elgg_action_exists('quebx/delete')) $display = 'action quebx/delete exists';
+else                                    $display = 'action quebx/delete does not exist';
+//register_error($display);
                 break;
                /****************************************
 *edit********** $section = 'item edit'                       *****************************************************************
@@ -554,22 +626,6 @@ Switch ($perspective){
                                                           $entity->title))))));
                 $line_item_properties     = elgg_view('forms/market/edit', ['presentation'=>$presentation, 'perspective'=>$perspective, 'section'=>'item details', 'cid'=>$cid, 'entity'=>$entity]);
                 $nav_controls  = elgg_view('navigation/controls',['form_method'=>'post', 'parent_cid'=>$parent_cid,'cid'=>$cid,'guid'=>$guid,'action'=>$perspective,'presentation'=>$presentation,'buttons'=>['copy_link'=>true,'copy_id'=>true,'show_guid'=>true,'import'=>false,'clone'=>false,'history'=>false,'delete'=>true,'maximize'=>true,'cancel'=>true,'action'=>true]]);
-                $item_controls = "
-                            <nav class='edit'>
-                                <section class='controls'>
-                                    <div class='persistence' style='order:1'>
-                                       $edit_item
-                                    </div>
-                                    <div class='actions'>
-                                      $unpack_button
-                                      $clone_button
-                                      $delete_button
-                                    </div>
-                                    <section class='toggleTags'>
-                                        <span class='toggleUnpackTag' style='$unpack_tag_toggle'>$unpack_label</span>
-                                    </section>
-                                  </section>
-                            </nav>";
                 $item_details = "
                         <div class='ShowItemDetails__Uc3MWjrS'>
 							<div class='ShowItemDetailsButton__qWXhMy9t' data-cid='$cid'>
@@ -608,6 +664,50 @@ Switch ($perspective){
                       </div>
         			</div>";
     	        $form = $boqx_contents_edit;
+                break;
+            /****************************************
+*edit********** $section = 'item aspect'        *****************************************************************
+             * Receives the issue guid and breaks out each individual discovery 
+             ****************************************/
+                case 'item aspect':
+                if(empty($carton_id))
+                    $carton_id = quebx_new_id('c');
+                $item_aspects = elgg_extract('item_aspects', $vars);
+                                
+                if($item_aspects){
+                    foreach($item_aspects as $item_aspect){
+                        unset($aspect_vars);
+                        $aspect_vars = $vars;
+                        $aspect_vars['action']         = 'add';
+                        $aspect_vars['perspective']    = 'save';
+                        $aspect_vars['section']        = $item_aspect->section;
+                        $aspect_vars['guid']           = $item_aspect->guid;
+                        $aspect_vars['container_guid'] = $guid;
+                        $aspect_vars['visible']        = 'show';
+                        $aspects[]                     =  elgg_view('forms/experiences/edit',$aspect_vars);
+                    }
+                }
+                // Add a blank discovery card
+                unset($aspect_vars);
+                $aspect_vars                   = $vars;
+                $aspect_vars['action']         = 'add';
+                $aspect_vars['perspective']    = 'add';
+                $aspect_vars['section']        = 'issue_discovery';
+                $aspect_vars['guid']           = 0;
+                $aspect_vars['container_guid'] = $guid;
+                $issue_discoveries[]              = elgg_view('forms/experiences/edit',$aspect_vars); 
+                $form_body                        = elgg_view_layout('carton',['cid'=>$cid,'carton_id'=>$carton_id,'aspect'=>'discoveries','pieces'=>$issue_discoveries,'title'=>'Discoveries'] );
+                
+                break;
+                
+            /****************************************
+*edit********** $section = 'issue_discovery'              *****************************************************************
+             ****************************************/
+            case 'issue_discovery':
+                $discovery_vars = $vars;
+                $discovery_vars['action']  = 'add';
+                $form_body .=  elgg_view('forms/experiences/edit',$discovery_vars);
+            
                 break;
                /****************************************
 *edit********** $section = 'xxx'                       *****************************************************************
@@ -1377,4 +1477,4 @@ Switch ($perspective){
     }
 }
 echo $form;
-//register_error($display);
+register_error($display);

@@ -1,3 +1,4 @@
+<!-- Path: mod/market/thumbnail.php -->
 <?php
 /**
  * Elgg Market Plugin

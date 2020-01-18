@@ -10,7 +10,7 @@ Switch ($element){
          ";
         $user_agent = elgg_format_element('style',['type'=>'text/css'],$style);
         break;
-    case 'experience':
+    case 'experience_xxx':
         $user_agent = "<style type='text/css'>
             .tc_scrim {
               position: fixed;

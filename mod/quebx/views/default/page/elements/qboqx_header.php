@@ -16,11 +16,13 @@
                     'attributes' => ['class'=> '']];*/
 
 
-$placeholder_logo  = elgg_get_site_url().'mod/quebx/graphics/placeholder_logo.png';
+//$logo  = elgg_get_site_url().'mod/quebx/graphics/sW7Lr82V-logo.svg';
+$show_site_menu = elgg_extract('show_site_menu', $vars, true);
+$logo  = elgg_get_site_url().'mod/quebx/graphics/placeholder_logo.png';
 $site = elgg_get_site_entity();
 $site_name = $site->name;
 $space_button = elgg_format_element('button',['aria-label'=>'Q:boqx  - Everything',
-                                              'data-qboqx-dropdown'=>"#space_menu",
+                                              'data-jq-dropdown'=>"#space_menu",
                                               'class'=>'tc_projects_dropdown_link tc_context_name'],
                                              "<span class='tc_context_name'><span class='raw_context_name'>$site_name</span></span>");
 $space_menu = elgg_view('navigation/menu/space');
@@ -106,8 +108,10 @@ $bulk_actions =
 		                elgg_format_element('div',['class'=>'shelf-viewarea'],
 		                    elgg_format_element('ul',['id'=>$shelf_id, 'class'=>['shelf-items-compartment','jq-dropdown-menu']],$shelf_items)))));
 
-$header_elements[] = ['text'     => "<a href='/dashboard' aria-label='Dashboard' class='tc_header_item tc_header_logo' style='margin-right: 8px;'><img class='headerLogo__image' src='$placeholder_logo' alt='tracker logo'></a>",
+$header_elements[] = ['text'     => "<a href='/dashboard' aria-label='Dashboard' class='tc_header_item tc_header_logo' style='margin-right: 8px;'><img class='headerLogo__image' src='$logo' alt='que logo'></a>",
                       'attributes'=>['class'=>['tc_page_nav_header','visible']]];
+/*$header_elements[] = ['text'     => "<a href='/dashboard' aria-label='Dashboard'style='margin-right: 8px;'><span class='tc_header_item tc_header_logo'>&nbsp;</span></a>",
+                      'attributes'=>['class'=>['tc_page_nav_header','visible']]];*/
 $header_elements[] = ['text'       => elgg_format_element('div',[],$space_button.$space_menu),
                       'attributes' => ['class'=> ['tc_page_nav_header','visible']]];
 $header_elements[] = ['text'       => $bulk_actions,
@@ -143,9 +147,12 @@ foreach ($header_elements as $key=>$element){
 }
 $header_list = elgg_format_element('ul'    ,[]
                                            ,$header_list_items);
-$header_menu .= elgg_view_menu('site');
-$page_header = elgg_format_element('header',['class'=>'tc_page_header tc_page_header_version-ia tc_page_header-ia tc_page_header-expanded']
-                                           ,$header_list.$header_menu);
+$header_class = ['tc_page_header','tc_page_header_version-ia','tc_page_header-ia'];
+if($show_site_menu){
+    $site_menu = elgg_view_menu('site');
+    $header_class[]= 'tc_page_header-expanded';
+}
+$page_header = elgg_format_element('header',['class'=>$header_class],$header_list.$site_menu);
 
 
 echo $page_header;

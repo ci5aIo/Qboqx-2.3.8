@@ -238,6 +238,50 @@ function quebx_display_child_nodes($options){
     }
     return $children;
 }
+function quebx_display_child_nodes_II($options){
+	$data           = $options['data'];
+	$index          = $options['index'];
+	$parent_id      = $options['parent_id'];
+	$ul_class       = $options['ul_class'];
+	$li_class       = $options['li_class'];
+	$collapsible    = $options['collapsible'];
+	$collapse_level = $options['collapse_level'];
+	$level          = $options['level'];
+	$links          = $options['links'];
+	static $children;
+	$toggle_children = elgg_view('output/url',['text'=>'+',
+	            		                           'title'=>'expand',
+	            		                           'class'=>'elgg-button-submit-element hierarchy-expand-button']);
+	if (isset($ul_class)){$list_class = "class = $ul_class";}
+	if ($collapsible && $level >= $collapse_level){
+		$state = "data-state = 'collapsed'";}
+	if (isset($li_class)){$list_item_class = "class = $li_class";}
+    if (isset($index[$parent_id])) {
+    	$children .= "<ul $list_class data-level=$level $state>";
+        foreach ($index[$parent_id] as $id) {
+        	unset($child_toggle, $has_children);
+        	$has_children = count($index[$id])>0;
+        	if ($collapsible && $has_children){
+        		$child_toggle    = $toggle_children;}
+        	if ($collapsible && !$has_children){
+        		if (isset($li_class)){
+        			$list_item_class = "class = $li_class node-no-children";}
+        		else {$list_item_class = "class = node-no-children";}
+        	}
+        	$title    = $data[$id]['title'];
+        	$item_name = $links ? 
+        	             elgg_view('output/url',['text'=>$title,'href'=>get_entity_url($id)]) : 
+        	             $title;
+            $children .= "<li $list_item_class>$child_toggle $item_name";
+            $options['parent_id'] = $id;
+            $options['level']     = ++$level;
+            quebx_display_child_nodes_II($options);
+            $level = 0;
+        }
+        $children .= "</li></ul>";
+    }
+    return $children;
+}
 function quebx_new_cid (){
     return 'c'.mt_rand(1,99999);
 }

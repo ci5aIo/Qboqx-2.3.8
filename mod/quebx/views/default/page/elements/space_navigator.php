@@ -1,6 +1,8 @@
+<!-- Path: mod/quebx/views/default/page/elements/space_navigator.php -->
 <?php
 $aspect = elgg_extract('aspect', $vars, 'agile');
 $panel_items = elgg_extract('panel_items', $vars);
+$aid = elgg_extract('aid', $vars);
 
 Switch($aspect){
     case 'qboqx':
@@ -11,11 +13,17 @@ Switch($aspect){
                                          $panel_item['attributes'],
                                          $panel_item['text'].$counter);
         }
-        $panels = elgg_format_element('div', 
-                                     ['class'=>'panels'],
-                                     elgg_format_element('ul', ['class'=>'items'],$items));
+/*        $action       = 'quebx/add';
+        $body         = elgg_format_element('div', ['class'=>'panels'],
+                             elgg_format_element('ul', ['class'=>'items'],$items));
+    	$form_vars    = ['data-action'=>$action,'body'=>$body];
+		$form_version = $action;
+	    $panels       = elgg_view_form($form_version, $form_vars);
+*/	    $panels       = elgg_format_element('div', ['class'=>'panels'],
+                             elgg_format_element('ul', ['class'=>'items'],$items));
+    	
         $sidebar = "
-                <div id='sidebar_area'>
+                <div id='$aid'>
                     <aside class='sidebar expanded Sidebar__expanded___1DIqeICS' data-aspect='$aspect'>
                        <div class='sidebar_wrapper'>
                           <div class='Sidebar__toggleContainer___34L56aTg'>

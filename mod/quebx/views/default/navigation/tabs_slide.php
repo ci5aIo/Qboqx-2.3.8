@@ -23,30 +23,25 @@ $element      = elgg_extract('element', $vars, 'qbox');
 $space        = elgg_extract('space', $vars);
 $qid          = elgg_extract('qid', $vars, false);
 
-if ($type == 'horizontal') {
-	$options['class'] = "elgg-tabs elgg-htabs";
-} else {
-	$options['class'] = "elgg-tabs elgg-vtabs";
-}
-if (isset($vars['class'])) {
-	$options['class'] = "{$options['class']} {$vars['class']}";
-}
-if (isset($vars['style'])) {
+if ($type == 'horizontal') 
+	$options['class'] = ["elgg-tabs","elgg-htabs"];
+else
+	$options['class'] = ["elgg-tabs","elgg-vtabs"];                     
+if (isset($vars['class']))
+	$options['class'] = array_merge($options['class'], (array) $vars['class']);                   foreach($options['class'] as $key=>$class){$display .= '31 $options[class] = ['.$key."]=$class".'<br>';}
+if (isset($vars['style']))
 	$options['style'] = "{$vars['style']}";
-}
 
 unset($options['tabs']);
 unset($options['type']);
 
 $attributes = elgg_format_attributes($options);
+$ul_options = $options;
 
 if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
-	?>
-	<ul <?php echo $attributes; ?>>
-		<?php
 		foreach ($vars['tabs'] as $key=>$info) {
 		    unset($count_label, $parent_cid);                                               $display .= '48 title = '.$info['title'].'<br>';
-		    $class    = $info['class'];                                                     //$display .= '49 $class = '.$class.'<br>';
+		    $class    = (array) $info['class'];                                                     //$display .= '49 $class = '.$class.'<br>';
 			$style    = elgg_extract('style'   , $info, '');
 			$id       = elgg_extract('id'      , $info, '');
 //			$parent_cid = elgg_extract('parent_cid' , $info, $options['data-cid']); //derive $parent_cid from the DOM
@@ -66,30 +61,19 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
 			if ($selected) {
 				Switch ($space){
 					case 'transfer':
-						$class  = 'elgg-state-selected';
+						$class[]  = 'elgg-state-selected';
 						break;
 /*					case 'market':
 						$class .= ' qbox-state-selected';
 						break;*/
 					default:
-						$class .= ' elgg-state-selected';// Selected plus the received class
+						$class[] = 'elgg-state-selected';// Selected plus the received class
 						break;
 				}
 			}
-
-			$class_str  = ($class)  ? " class=\"$class\""   : '';                             $display .= '79 $class_str = '.$class_str.'<br>';
-			$style_str  = ($style)  ? " style=\"$style\""   : '';
-			$id_str     = ($id)     ? " id=\"$id\""         : '';
-			$qid_str    = ($qid)    ? " data-qid=\"$qid\""  : '';
-			$cid_str    = ($cid)    ? " data-cid=\"$cid\""  : '';
-			$guid_str   = ($guid)   ? " guid=\"$guid\""     : '';
-			$panel_str  = ($panel)  ? " panel=\"$panel\""   : '';
-			$aspect_str = ($aspect) ? " aspect=\"$aspect\"" : '';
-			$action_str = ($action) ? " action=\"$action\"" : '';
 			
 			$options = $info;
-			unset(//$options['class'], 
-			      $options['id'],
+			unset($options['id'],
 			      $options['qid'],
 			      $options['cid'], 
 			      $options['selected'],
@@ -142,19 +126,10 @@ if (isset($vars['tabs']) && is_array($vars['tabs']) && !empty($vars['tabs'])) {
 			if ($panel == 'Expand'){$text = $link.$expand_tabs;}
 			else                   {$text = $link;}
 			if ($note)             {$text = elgg_view('output/span',['content'=>$text, 'options'=>['title'=>$note]]);}
-
-			echo "<li $id_str
-        			  $class_str
-        			  $aspect_str
-			          $action_str
-			          $guid_str
-			          $qid_str
-			          $cid_str
-			          $panel_str
-			          $style_str>$text</li>";
+			
+			$list_items .= elgg_format_element('li',['id'=>$id,'class'=>$class,'aspect'=>$aspect,'action'=>$action,'guid'=>$guid,'qid'=>$qid,'cid'=>$cid,'panel'=>$panel,'style'=>$style],$text);
 		}
-		?>
-	</ul>
-	<?php
+	$tabs = elgg_format_element('ul',$ul_options,$list_items);
 }
+echo $tabs;
 //register_error($display);

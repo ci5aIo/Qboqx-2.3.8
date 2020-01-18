@@ -1,3 +1,4 @@
+<!-- Path: mod/quebx/views/default/page/qboqx.php -->
 <?php
 /**
  * Forked from default Elgg pageshell
@@ -11,6 +12,8 @@
  * @uses $vars['body']        The main content of the page
  * @uses $vars['sysmessages'] A 2d array of various message registers, passed from system_messages()
  */
+
+$show_site_menu = elgg_extract('show_site_menu', $vars, true);
 
 // backward compatability support for plugins that are not using the new approach
 // of routing through admin. See reportedcontent plugin for a simple example.
@@ -31,10 +34,12 @@ $messages = elgg_view('page/elements/messages', array('object' => $vars['sysmess
 $header  = elgg_view('page/elements/qboqx_header', $vars);
 $content = elgg_view('page/elements/body', $vars);
 $footer  = elgg_view('page/elements/footer', $vars);
+if($show_site_menu)
+    $expanded_header = 'expanded_header';
 
 $body = <<<__BODY
 <div id="root" class="elgg-page elgg-page-default">
-    <div id="view01" class="normal layouts show current_header_version-ia expanded_header">
+    <div id="view01" class="normal layouts show current_header_version-ia $expanded_header">
     	<div class="elgg-page-messages">
     		$messages
     	</div>

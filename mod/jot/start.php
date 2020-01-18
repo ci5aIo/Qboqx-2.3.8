@@ -232,6 +232,7 @@ function jot_init() {
 
 	// Add a new widget
 	elgg_register_widget_type('jot',elgg_echo('jot:widget'),elgg_echo('jot:widget:description'));
+	elgg_register_widget_type('issue','Issues','Concerns about the function of an item');
 	elgg_register_widget_type('transfer','Transfers','Documents such as receipts, offers and bills of sale');
 	elgg_register_widget_type('experience','Experiences','Good and bad intereactions with things.  Includes issues, problems, reviews and tutorials linked to items.');
 	

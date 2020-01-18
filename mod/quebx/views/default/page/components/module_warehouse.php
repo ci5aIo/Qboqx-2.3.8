@@ -25,8 +25,10 @@ $header = elgg_extract('header', $vars);
 $body_class = ['elgg_body','items','panel_content'];
 $attrs = ['id' => $cid,'class' => elgg_extract_class($vars, 'elgg-module'), 'data-boqx'=>$data_boqx];
 
-if ($type)
+if ($type){
 	$attrs['class'][] = "elgg-module-$type";
+	$attrs['class'][] = "q-module-$type";
+}
 
 $user_agent_styles = elgg_view('css/quebx/user_agent',['element' => $handler]);
 

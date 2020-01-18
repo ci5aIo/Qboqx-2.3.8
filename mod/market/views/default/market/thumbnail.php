@@ -12,10 +12,14 @@
 $img_guid        = $vars['marketguid'];
 $options['guid'] = $img_guid; 
 $entity          = get_entity($img_guid);
+
 if (elgg_instanceof($entity, 'object', 'market') && !empty($entity->icon)){
     $options['guid'] = $entity->icon;
 }
-else $options['src'] = elgg_get_site_url().'mod/quebx/graphics/noimagetiny.png';
+//else $options['src'] = elgg_get_site_url().'mod/quebx/graphics/noimagetiny.png';
+else goto eof;
+
+
 $size =  $vars['size'];
 $class = $vars['class'];
 $tu = $vars['tu'];
@@ -29,3 +33,4 @@ $content = elgg_view('output/image',$options);
 //echo "<img src='" . elgg_get_site_url() . "mod/market/thumbnail.php?marketguid=$marketguid&size=$size&tu=$tu' class='elgg-photo $class'>";
 //echo "<img src='" . elgg_get_site_url() . "gallery/icon/$marketguid/$size' class='elgg-photo $class'>";
 echo $content;
+eof:

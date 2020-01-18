@@ -295,7 +295,7 @@ $accessories_add_button = "<a id='accessories_add' title='add accessories' class
 				    'collapse_level' => 1,
 				    'level'          => 0,
 				    'links'          => true];
-		echo quebx_display_child_nodes($options);
+		echo quebx_display_child_nodes_II($options);
 				
 		
 /*	    echo "<div id='show_contents_panel' class='rTableRow'>

@@ -97,28 +97,28 @@ function market_init() {
 	// Register entity type and subtypes
 	elgg_register_entity_type('object','market');
 
-	// Register actions - call actions with a trailing '/' to prevent 301 redirects
+	// Register actions - call actions with a trailing '/' to prevent 301 redirects,  but store the actions without it
 	$action_url = elgg_get_plugins_path() . "market/actions/";
-	elgg_register_action("market/add/item/", "{$action_url}add/item.php");
+	elgg_register_action("market/add/item", "{$action_url}add/item.php");
 	elgg_register_action("market/add_now", "{$action_url}add/now.php");
-	elgg_register_action("market/add/element/", "{$action_url}add/element.php");
-	elgg_register_action("market/quick/", "{$action_url}quick.php");
-	elgg_register_action("market/edit/", "{$action_url}edit.php");
-	elgg_register_action("market/edit_more/", "{$action_url}edit_more.php");
-	elgg_register_action("market/edit_old/", "{$action_url}edit_old.php");
-	elgg_register_action("market/edit/element/", "{$action_url}edit/element.php");
-	elgg_register_action("market/inventory/", "{$action_url}inventory.php");
-	elgg_register_action("market/delete/", "{$action_url}delete.php");
-	elgg_register_action("market/clone/", "{$action_url}clone.php");
-	elgg_register_action("market/pack/", "{$action_url}pack.php");
-	elgg_register_action("market/unpack/", "{$action_url}unpack.php");
-	elgg_register_action("market/materialize/", "{$action_url}materialize.php");
-	elgg_register_action("pick/", "{$action_url}pick.php");
-	elgg_register_action("pick_test/", "{$action_url}pick_test.php");
+	elgg_register_action("market/add/element", "{$action_url}add/element.php");
+	elgg_register_action("market/quick", "{$action_url}quick.php");
+	elgg_register_action("market/edit", "{$action_url}edit.php");
+	elgg_register_action("market/edit_more", "{$action_url}edit_more.php");
+	elgg_register_action("market/edit_old", "{$action_url}edit_old.php");
+	elgg_register_action("market/edit/element", "{$action_url}edit/element.php");
+	elgg_register_action("market/inventory", "{$action_url}inventory.php");
+	elgg_register_action("market/delete", "{$action_url}delete.php");
+	elgg_register_action("market/clone", "{$action_url}clone.php");
+	elgg_register_action("market/pack", "{$action_url}pack.php");
+	elgg_register_action("market/unpack", "{$action_url}unpack.php");
+	elgg_register_action("market/materialize", "{$action_url}materialize.php");
+	elgg_register_action("pick", "{$action_url}pick.php");
+	elgg_register_action("pick_test", "{$action_url}pick_test.php");
 
-	elgg_register_action("tasks/edit/", "{$action_url}tasks/edit.php");
-	elgg_register_action("comments/add/", "{$action_url}comments/add.php");
-	elgg_register_action("comment/save/", "{$action_url}comment/save.php");
+	elgg_register_action("tasks/edit", "{$action_url}tasks/edit.php");
+	elgg_register_action("comments/add", "{$action_url}comments/add.php");
+	elgg_register_action("comment/save", "{$action_url}comment/save.php");
 	elgg_register_action("create/album", elgg_get_plugins_path() . "hypegallery/edit/object/hjalbum");
 
 	// add to groups
@@ -688,11 +688,42 @@ function market_set_icon_url($hook, $type, $url, $params) {
 function market_set_icon_file($hook, $type, $icon, $params) {
 
 	$entity = elgg_extract('entity', $params);
-	$size = elgg_extract('size', $params, 'medium');
+	$size = elgg_extract('size', $params, 'large');
+
+	if (!elgg_instanceof($entity, 'object', 'market')) {
+		return;
+	}
+	
+	switch ($size) {
+		case 'small' :
+			$filename_prefix = 'thumb';
+			$metadata_name = 'thumbnail';
+			break;
+
+		case 'medium' :
+			$filename_prefix = 'smallthumb';
+			$metadata_name = 'smallthumb';
+			break;
+
+		case 'large' :
+			$filename_prefix = 'largethumb';
+			$metadata_name = 'largethumb';
+			break;
+
+		default :
+			$filename_prefix = "{$size}thumb";
+			$metadata_name = $filename_prefix;
+			break;
+	}
 
 	$icon->owner_guid = $entity->owner_guid;
-	$icon->setFilename("groups/{$entity->guid}{$size}.jpg");
-
+	if (isset($entity->$metadata_name)) {
+		$icon->setFilename($entity->$metadata_name);
+	} else {
+		$filename = pathinfo($entity->getFilenameOnFilestore(), PATHINFO_FILENAME);
+		$filename = "file/{$filename_prefix}{$filename}.jpg";
+		$icon->setFilename($filename);
+	}
 	return $icon;
 }
 

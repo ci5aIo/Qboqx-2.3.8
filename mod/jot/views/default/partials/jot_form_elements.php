@@ -74,6 +74,8 @@
                         list_boqx
                         default
         show_model
+        empty boqx
+        weir_menu
         pallet
  * 
  ******************************************/
@@ -1181,26 +1183,42 @@ register_error($display);
 	case 'conveyor':
 	    $form_body = elgg_view("forms/{$view}/edit",$vars);
 	    break;
-	case 'show_model':
-	    $params = $vars;
+	case 'show boqx':
+	    $params  = $vars;
 	    unset($params['cid']);
 	    $params['entity']      = $entity;
-	    $params['perspective'] = 'edit';
-	    $params['presentation']= 'pallet';
-	    $params['section']     = 'single_thing';
-	    $params['aspect']      = 'item';
-	    $params['display_state']='edit';
 	    $params['effort']      = $effort;
 	    $params['parent_cid']  = $cid;
-	    $params['n']           = $n;
 	    $params['fill_level']  = 'full';
 	    
-//        $experimental = elgg_view_layout('panel_boqx',$params);
-        $experimental = elgg_view('forms/market/edit',$params);
-        $form_body = $experimental;
-        	    
+	    Switch ($subtype){
+            case 'market'    : 
+            case 'item'      : $view = 'market';
+                               $params['perspective'] = 'edit';
+                        	   $params['section']     = 'single_thing';
+                        	   $params['presentation']= 'pallet';
+                        	   $params['aspect']      = 'item';
+                        	   $params['display_state']='edit';
+            break;
+            case 'receipt'   : 
+            case 'transfer'  : $view = 'transfers';
+            break;
+            case 'experience': $view = 'experiences';
+            break;
+            case 'project'   : $view = 'experiences';
+            break;
+            case 'issue'     : $view                   = 'experiences'; 
+                               $params['action']       = 'add';
+                               $params['section']      = 'issue';
+                               $params['presentation'] = 'pallet';
+                               $params['presence']     = 'issue boqx';
+                               $params['visible']      = 'show';
+            
+            break;
+	    }
+        $form_body = elgg_view("forms/{$view}/edit",$params);
 	    break;
-	case 'pallet':
+	case 'empty boqx':
         $handler = elgg_extract('handler', $vars);
         $body_vars = $vars;
         $empty_boqx_id = elgg_extract('empty_boqx_id', $vars, quebx_new_id('c'));
@@ -1268,6 +1286,37 @@ register_error($display);
                 break;
 	    }
         $form_body = elgg_view('navigation/weir_menu', $options);                     //echo register_error($display);
+	    break;
+	case 'pallet':
+        $handler   = elgg_extract('handler', $vars);
+        $cid       = elgg_extract('cid', $vars);
+        $last_slot = elgg_extract('last_slot', $vars);
+        $this_slot = $last_slot + 1;	    
+        $context   = 'dashboard';// elgg_get_context();
+	    $body_vars = $vars;                                                          $display .= '$this_slot: '.$this_slot.'<br>';
+        $pallets   = elgg_get_entities_from_private_settings([
+//	    $pallets   = elgg_get_entities([
+                        'type' => 'object',
+                        'subtype' => 'widget',
+                        'owner_guid' => elgg_get_logged_in_user_guid(),
+                        'private_setting_name' => 'context',
+                        'private_setting_value' => $context,
+                        'limit' => 0,]);
+        foreach($pallets as $pallet)
+            if ($pallet->handler == $handler)
+                break;
+        	else unset($pallet);
+        switch ($perspective){
+            case 'remove':
+                $pallet->column = 0;
+                break;
+            default:
+                if ($pallet){
+        	       $pallet->column = $this_slot;
+        	       $form_body      = elgg_view_entity($pallet, ['show_access' => $show_access, 'class'=>['boqx', 'container', 'droppable', 'tn-panelWrapper___fTILOVmk'],'module_type' =>'warehouse','widget_id'=>$space_contents,'contents_count' => $contents_count,'parent_cid'=>$cid,'slot'=>$this_slot]);
+                }
+        }                                                                            $display .= '$pallet->column = '.$pallet->column.'<br>';
+register_error($display);
 	    break;
 	default:
 	break;

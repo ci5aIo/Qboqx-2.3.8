@@ -99,7 +99,7 @@ $english = array(
 			",
 
 	// market widget
-	'market:widget'          => "My Things",
+	'market:widget'          => "Things",
 	'market:widget:description' => "Showcase your items on QuebX",
 	'market:widget:viewall'  => "View all my items",
 	'market:num_display'     => "Number of items to display",

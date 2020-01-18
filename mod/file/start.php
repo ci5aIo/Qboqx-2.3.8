@@ -94,6 +94,7 @@ function file_init() {
 
 	elgg_register_plugin_hook_handler('entity:icon:sizes', 'object', 'file_set_custom_icon_sizes');
 	elgg_register_plugin_hook_handler('entity:icon:file', 'object', 'file_set_icon_file');
+	
 }
 
 /**

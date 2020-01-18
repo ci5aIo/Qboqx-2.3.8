@@ -249,3 +249,28 @@ return elgg_view('page/components/list_select', $vars);
 	        break;
 	}*/	
 }
+
+function shelf_item_is_on_shelf($guid){
+	$file        = new ElggFile;
+    $file->owner_guid = elgg_get_logged_in_user_guid();
+    $file->setFilename("shelf.json");
+    if ($file->exists()) {
+    	$file->open('read');
+    	$json = $file->grabFile();
+    	$file->close();
+    }
+    $data = json_decode($json, true);
+    foreach($data as $key=>$contents){
+        foreach($contents as $position=>$value){
+            while (list($position, $value) = each($contents)){                                                                  
+                if ($position == 'guid'){                     
+                    $guids[] = $value;
+                    continue;             
+                }
+            }
+        }
+    }
+    if (in_array($guid, $guids))
+        return true;
+    else return false;
+}
