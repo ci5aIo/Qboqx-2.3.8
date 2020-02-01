@@ -248,6 +248,8 @@ function quebx_display_child_nodes_II($options){
 	$collapse_level = $options['collapse_level'];
 	$level          = $options['level'];
 	$links          = $options['links'];
+	$presentation   = $options['presentation'];
+	$presence       = $options['presence'];
 	static $children;
 	$toggle_children = elgg_view('output/url',['text'=>'+',
 	            		                           'title'=>'expand',
@@ -255,24 +257,30 @@ function quebx_display_child_nodes_II($options){
 	if (isset($ul_class)){$list_class = "class = $ul_class";}
 	if ($collapsible && $level >= $collapse_level){
 		$state = "data-state = 'collapsed'";}
-	if (isset($li_class)){$list_item_class = "class = $li_class";}
     if (isset($index[$parent_id])) {
     	$children .= "<ul $list_class data-level=$level $state>";
         foreach ($index[$parent_id] as $id) {
-        	unset($child_toggle, $has_children);
-        	$has_children = count($index[$id])>0;
-        	if ($collapsible && $has_children){
-        		$child_toggle    = $toggle_children;}
-        	if ($collapsible && !$has_children){
-        		if (isset($li_class)){
-        			$list_item_class = "class = $li_class node-no-children";}
-        		else {$list_item_class = "class = node-no-children";}
+        	unset($child_toggle, $has_children,$list_item_class);
+        	if (isset($li_class)){
+        	    $list_item_class[] = $li_class;
+        	    $list_item_classes = $li_class;
         	}
-        	$title    = $data[$id]['title'];
-        	$item_name = $links ? 
-        	             elgg_view('output/url',['text'=>$title,'href'=>get_entity_url($id)]) : 
-        	             $title;
-            $children .= "<li $list_item_class>$child_toggle $item_name";
+        	$has_children           = count($index[$id])>0;
+        	if ($collapsible && $has_children)
+        		$child_toggle       = $toggle_children;
+        	if ($collapsible && !$has_children){
+        		$list_item_class[] = 'node-no-children';
+        		$list_item_classes.= ' node-no-children';
+        	}
+    		else{
+    		    $list_item_class[] = "node-children";
+    		    $list_item_classes.= " node-children";
+    		}
+        	$title = $data[$id]['title'];
+        	$link  = elgg_view('output/url',['text'=>$title,'href'=>get_entity_url($id)]);
+        	$item  = $links ? $link  : $title;
+//            $children .= elgg_format_element('li',['class'=>$list_item_class],$child_toggle.$item_name);
+            $children .= "<li class=".$list_item_classes.">$child_toggle $item";
             $options['parent_id'] = $id;
             $options['level']     = ++$level;
             quebx_display_child_nodes_II($options);
@@ -281,6 +289,103 @@ function quebx_display_child_nodes_II($options){
         $children .= "</li></ul>";
     }
     return $children;
+}
+function quebx_display_child_nodes_III($options){
+	$data           = $options['data'];
+	$index          = $options['index'];
+	$parent_id      = $options['parent_id'];
+	$ul_class       = $options['ul_class'];
+	$li_class       = $options['li_class'];
+	$collapsible    = $options['collapsible'];
+	$collapse_level = $options['collapse_level'];
+	$level          = $options['level'];
+	$links          = $options['links'];
+	$presentation   = $options['presentation'];
+	$presence       = $options['presence'];
+	$boqx_id        = elgg_extract('cid', $options, quebx_new_id('c'));
+	$aspect         = elgg_extract('aspect', $options);
+	$fill_level     = elgg_extract('fill_level',$options, 0);
+	static $children;
+	if (isset($ul_class)){$list_class = "$ul_class";}
+	if ($collapsible && $level >= $collapse_level){
+		$state = "data-state = 'collapsed'";}
+    if (isset($index[$parent_id])) {
+    	$children .= "<ul id=$boqx_id class=$list_class data-level=$level $state>";
+        foreach ($index[$parent_id] as $id) {
+        	unset($child_toggle, $has_children,$list_item_class, $list_item_classes,$entity,$options['cid']);
+        	$cid = quebx_new_id('c');
+        	$child_id = quebx_new_id('c');
+        	$edit_id =  quebx_new_id('c');
+        	$essence = 'unrealized';
+        	if (isset($li_class)){
+        	    $list_item_class[] = $li_class;
+        	    $list_item_classes = $li_class;
+        	}
+        	$has_children           = count($index[$id])>0;
+        	if ($collapsible && $has_children)
+        		$child_toggle       = elgg_format_element('span',['class'=>['contentsToggle','contentsExpand_Vs2YepGp'], 'title'=>'expand','data-boqx'=>$cid, 'data-target'=>$child_id],count($index[$id]));
+        	if ($collapsible && $has_children){
+    		    $list_item_class[] = "node-children";
+    		    $list_item_classes.= " node-children";
+        	}
+//     		else{$list_item_class[] = 'node-no-children';
+//         		$list_item_classes.= ' node-no-children';
+//     		}
+        	if(elgg_entity_exists($id)){
+        	    $entity = get_entity($id);
+        	    $subtype = $entity->getSubtype();
+        	    $icon = elgg_view('market/thumbnail', ['marketguid' => $id, 'size' => 'tiny', 'class'=>'itemPreviewImage_ARIZlwto']);
+            	$link  = elgg_view('output/url',['text'=>$title,'href'=>get_entity_url($id)]);
+            	$display_options = ['entity'=>$entity,'aspect'=>$aspect,'boqx_id'=>$cid,'cid'=>$edit_id,'child_toggle'=>$child_toggle,'icon'=>$icon,'has_description'=>isset($entity->description),'has_attachments'=>count($attachments)>0,'has_contents'=>$has_children,'fill_level'=>$fill_level,'presentation'=>$presentation,'presence'=>$presence];
+            	if($has_children){
+            	    $display_options['fill_level'] = count($index[$id]);
+            	}
+            	switch($subtype){
+            	    case 'market':
+            	    case 'item':  
+            	        $display_options['task_aspect']= 'feature';
+            	        $essence = 'realized';
+            	        break;
+            	}
+            	$display_options['essence']=$essence;
+            	$display_options['edit_contents'] = elgg_view('forms/market/edit',['perspective'=>'edit', 'section'=>'contents_edit_boqx','parent_cid'=>$edit_id,'guid'=>$id,'essence'=>$essence]);
+            	$boqx  = elgg_view('page/components/pallet_boqx', $display_options);
+        	}
+        	$title = $data[$id]['title'];
+        	$title = elgg_format_element('div',['class'=>'envelope__NkIZUrK4','data-aspect'=>"contents",'data-boqx'=>$cid,'data-guid'=>$id,'data-presentation'=>"contents"],
+                    	 elgg_format_element('div',['class'=>"ContentsShow_iGfIgeuR",'data-aid'=>"TaskShow",'data-cid'=>$cid,'style'=>"display: flex;",'draggable'=>"draggable"],
+                    		 elgg_format_element('div',['class'=>"TaskShow__description___3R_4oT7G",'data-aid'=>"TaskDescription",'tabindex'=>"0"],
+                    			  elgg_format_element('span',['class'=>"TaskShow__title___O4DM7q"],
+                    				  elgg_format_element('span',[],$data[$id]['title']))).
+                             elgg_format_element('nav',['class'=>["ContentsShow__actions__UgfegvmW","undefined","ContentsShow__actions--unfocused__d6S4BCDN"]],
+                    			 elgg_format_element('button',['class'=>["IconButton___5RN0PIS5","IconButton--small___3D375vVd"],'data-aid'=>"materialize",'aria-label'=>"Materialize",'data-cid'=>$cid],
+                    				 elgg_format_element('span',['class'=>"materialize-item"],
+                    					 elgg_format_element('a',['title'=>"materialize item"],
+                    						 elgg_format_element('span',['class'=>["elgg-icon","fa","fa-external-link-square"]])))))));
+/*        	switch($subtype){
+        	    case 'market':
+        	    case 'item':
+        	        $present = $boqx;
+        	        break;
+        	    default:
+        	        $present = $links ? $link : $title;
+        	        break;
+        	}
+*/        	$item_name = $links ?  elgg_view('output/url',['text'=>$title,'href'=>get_entity_url($id)]) : $title;
+        	$present = $boqx;
+        	$item  = elgg_format_element('span',[],$present);
+//        	$item  = elgg_format_element('span',[],$child_toggle.$present);
+//        	$children .= elgg_format_element('li',['class'=>$list_item_class],$child_toggle.$item_name.$child_nodes);            
+            $children .= "<li id='$cid' data-boqx=$boqx_id class=$list_item_classes>$item";
+            $options['parent_id'] = $id;
+            $options['cid']       = $child_id;
+            $options['level']     = ++$level;
+            quebx_display_child_nodes_III($options);
+            $level = 0;
+        }
+        $children .= "</li></ul>";
+    }
+    return ['contents'=>$children, 'children'=>0];
 }
 function quebx_new_cid (){
     return 'c'.mt_rand(1,99999);

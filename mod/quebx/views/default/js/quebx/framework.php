@@ -729,10 +729,14 @@ $(document).ready(function(){
     $(document).on("click", ".dropdown .arrow", function(e){
       e.preventDefault();
       var closed_state = $(this).next('section').hasClass('closed');
-      $('.dropdown section').addClass('closed');
-      /*$(this).next(".dropdown section").removeClass('closed');*/
-      if (closed_state)                                              //allows menu toggling
+      if (closed_state){
           $(this).next(".dropdown section").removeClass('closed');
+          $(this).parent('div').addClass('above_scrim');
+      }
+      else {
+          $(this).next('.dropdown section').addClass('closed');
+          $(this).parent('div').removeClass('above_scrim');      
+      }
     });
 //    $(document).on("click", "li.pickItem__S1zeipik :not(.pickChildren__HBThno)", function(e) {
     $(document).on("click", "li.pickItem__S1zeipik", function(e) {
@@ -817,7 +821,7 @@ $(document).ready(function(){
        var $menu = $(this).closest('.pickCategory__VRYE6ZAO');
        $menu.addClass('closed');
     });
-    $(document).on("click", "li.dropdown_item", function(e) {
+    $(document).on("click", ".dropdown:not(.open-state) li.dropdown_item", function(e) {
        var value = $(this).data("value"),
            label = $(this).find(".dropdown_label").text(),
            cid   = $(this).parents('.dropdown').data('cid'),
@@ -1019,6 +1023,24 @@ $(document).ready(function(){
        var boqx_preview = $('header.preview[data-cid='+boqx_id+']');
        $(boqx_show).addClass('collapsed');
        $(boqx_preview).removeClass('collapsed');
+      
+     });
+     $(document).on('click', '.contentsPreviewItem__expander', function(e){
+       e.preventDefault();
+       var cid         = $(this).data('cid');
+       var $boqx_show  = $('[data-boqx='+cid+']');
+       $boqx_show.removeClass('collapsed');
+       $(this).removeClass('contentsPreviewItem__expander');
+       $(this).addClass('contentsPreviewItem__collapser');
+      
+     });
+     $(document).on('click', '.contentsPreviewItem__collapser', function(e){
+       e.preventDefault();
+       var cid         = $(this).data('cid');
+       var $boqx_show  =  $('[data-boqx='+cid+']');
+       $boqx_show.addClass('collapsed');
+       $(this).removeClass('contentsPreviewItem__collapser');
+       $(this).addClass('contentsPreviewItem__expander');
       
      });
     
@@ -1252,6 +1274,26 @@ $(document).ready(function(){
 		$(this).text('+');
 		$(this).attr('title','expand');
 	});
+//    $(document).on('click','span.meta .contentsExpand_Vs2YepGp',function(e){
+    $(document).on('click','.boqx.contents.has_contents .meta',function(e){
+       e.preventDefault();
+       var toggle = $(this).children('.contentsToggle');
+       var target = $(toggle).data('target'),
+           boqx   = $(toggle).data('boqx'),
+           state;                                                    console.log('target='+target);console.log('boqx='+boqx);
+       if($(toggle).hasClass('contentsExpand_Vs2YepGp')) state = 'collapsed';
+       if($(toggle).hasClass('contentsCollapse_5SEp1Xlh')) state = 'expanded';
+       if(state=='collapsed'){
+          $(toggle).removeClass('contentsExpand_Vs2YepGp').addClass('contentsCollapse_5SEp1Xlh');
+          $('#'+target).removeClass('collapsed').addClass('expanded').attr("data-state", "expanded");
+          $('#'+boqx).addClass('expanded');
+       }
+       if(state=='expanded'){
+          $(toggle).removeClass('contentsCollapse_5SEp1Xlh').addClass('contentsExpand_Vs2YepGp');
+          $('#'+target).removeClass('expanded').addClass('collapsed').attr("data-state", "collapsed");
+          $('#'+boqx).removeClass('expanded');
+       }
+    });
     $(document).on('click', '.labelBoqxClose', function(e){
         var cid = $(this).data('cid');
         $('#BoqxLabelsCard__'+cid).hide();
@@ -1468,6 +1510,14 @@ $(document).ready(function(){
           $('aside.sidebar').removeClass('expanded');
           $('aside.sidebar').removeClass('Sidebar__expanded___1DIqeICS');
         }
+    });
+    $(document).on('click','.Shelf__toggle___pGbKiuvT',function(e){
+        e.preventDefault();
+        var shelf_id = $(this).data('target');
+        $('.sidebar_content .project').toggle();
+        if(  $('#'+shelf_id).hasClass('visible'))
+             $('#'+shelf_id).removeClass('visible');
+        else $('#'+shelf_id).addClass('visible');
     });
     
     $(".qbox").resizable({

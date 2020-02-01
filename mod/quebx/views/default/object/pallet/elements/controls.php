@@ -7,6 +7,7 @@
  */
 $entity      = elgg_extract('pallet', $vars);
 $show_edit   = elgg_extract('show_edit', $vars, true);
+$show_add   = elgg_extract('show_add', $vars, true);
 $module_type = elgg_extract('module_type', $vars);
 $cid         = elgg_extract('cid', $vars);
 $parent_cid  = elgg_extract('parent_cid', $vars);
@@ -57,6 +58,36 @@ Switch($module_type){
     $controls = elgg_format_element('ul',['class'=>'elgg-menu elgg-menu-widget elgg-menu-hz elgg-menu-widget-default palletControls'],
                                          $menu_items);    
 	echo $controls;
+        break;
+    case 'space_sidebar':
+        if($contents_count) $return[] = elgg_format_element('li',['class'=>'palletControls__counter'],$contents_count);
+    	
+		$close = ['name'                  => 'close',
+    			  'title'                 => 'Close '.$entity->title,
+    			  'is_action'             => true,
+    			  'class'                 => 'elgg-menu-content elgg-widget-close-button elgg-widget-multiple tn-CloseButton___2wUVKGfh',
+    			  'id'                    => "elgg-widget-close-button-$entity->guid",
+    			  'data-elgg-widget-type' => $entity->handler];
+		$return[] = elgg_format_element('li',['class'=>'elgg-menu-item-delete tn-PanelHeader__closeArea___37E1NbRU'],
+	                                     elgg_format_element('a', $close, elgg_view_icon('delete-alt')));
+
+		if ($show_edit) {
+			$edit = array(
+				'name'               => 'settings',
+				'title'              => elgg_echo('widget:edit'),
+				'href'               => elgg_get_site_url()."ajax/view/widget_manager/widgets/settings?guid=$entity->guid",
+				'class'              => "elgg-menu-content elgg-widget-edit-button elgg-lightbox",
+				'data-color-box-opts'=>'{"width": 750, "height": 500, "trapFocus": false}',
+			);
+			$return[] = elgg_format_element('li',['class'=>'elgg-menu-item-settings'],
+	                                     elgg_format_element('a', $edit, elgg_view_icon('settings-alt')));
+		}
+    	foreach($return as $menu_item){
+    	    $menu_items .= $menu_item;
+    	}
+        $controls = elgg_format_element('ul',['class'=>'elgg-menu elgg-menu-widget elgg-menu-hz elgg-menu-widget-default palletControls'],
+                                             $menu_items);    
+    	echo $controls;
         break;
     default:
         echo elgg_view_menu('widget', array(

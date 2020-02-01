@@ -19,6 +19,7 @@
  * @uses $vars['id']          Optional id for the media element
  */
 $boqx_id        = elgg_extract('boqx_id'          , $vars);
+$guid           = elgg_extract('guid'             , $vars);
 $entity         = elgg_extract('entity'           , $vars, false);
 //$parent_cid     = elgg_extract('cid'              , $vars);
 $cid            = elgg_extract('cid'              , $vars, quebx_new_id('c'));
@@ -28,26 +29,38 @@ $blocked        = elgg_extract('has_issues'       , $vars);
 $has_description= elgg_extract('has_description'  , $vars, false);
 $has_attachments= elgg_extract('has_attachments'  , $vars, false);
 $has_comments   = elgg_extract('has_comments'     , $vars, false);
+$has_contents   = elgg_extract('has_contents'     , $vars, false);
 $issues         = elgg_extract('issues'           , $vars, 0);
 $icon           = elgg_extract('icon'             , $vars);
 $presence       = elgg_extract('presence'         , $vars);
 $edit_boqx      = elgg_extract('edit_boqx'        , $vars, false);
+$edit_contents  = elgg_extract('edit_contents'    , $vars, false);
 $hidden_fields  = elgg_extract('hidden_fields'    , $vars);
 $visible        = elgg_extract('visible'          , $vars, 'add');
 $has_collapser  = elgg_extract('has_collapser'    , $vars) =='yes' ? true : false;
 $presentation   = elgg_extract('presentation'     , $vars);
 $presence       = elgg_extract('presence'         , $vars);
+$essence        = elgg_extract('essence'          , $vars);
 $fill_level     = elgg_extract('fill_level'       , $vars, 0);
+$task_aspect    = elgg_extract('task_aspect'      , $vars, false);
+$child_toggle   = elgg_extract('child_toggle'     , $vars, false);
+$state          = elgg_extract('state'            , $vars, false);
 /*****/
 $edit_visible   = $visible == 'edit' ? false  : 'display:none';
 //$cid            = quebx_new_id('c');
-$guid           = $entity->getGUID();
+$guid           = $guid ?: $entity->getGUID();
 $title          = $entity->title;
 $owner          = $entity->getOwnerEntity();
 $owner_name     = $owner->name;
 $owner_initials = quebx_initials($owner_name);
 $has_blockers   = false;
 $context        = elgg_get_context();
+switch($fill_level){
+    case 0: break;
+    case 1:
+    case 2:  $points = $fill_level;
+    default: $points = 3;
+}
 
 $attached_labels = $entity->tags ?: $entity->labels;
 $item_labels = is_array($attached_labels) ? $attached_labels : (array) $attached_labels;
@@ -56,15 +69,68 @@ foreach ($item_labels as $item_label){
 }
 $labels = elgg_format_element('span',['class'=>['labels','post'], 'data-cid'=>$cid], $labels_post);
 $name = elgg_format_element('span',['class'=>'story_name'],
-            elgg_format_element('span',['class'=>['tracker_markup','StoryPreviewItem__title'],'data-guid'=>$guid,'data-cid'=>$cid],$title).
+            elgg_format_element('span',['class'=>['tracker_markup','StoryPreviewItem__title'],'data-guid'=>$guid,'data-cid'=>$cid,'data-presentation'=>$presentation],$title).
             elgg_format_element('span',['class'=>'parens'],
                 elgg_format_element('a',['class'=>'owner', 'tabindex'=>'-1','title'=>$owner_name],$owner_initials)));
-$expander_class = ['expander','undraggable'];
-if ($presentation == 'carton')
-     $expander_class[] = 'cartonPreviewItem__expander';
-else $expander_class[] = 'StoryPreviewItem__expander';
+//$expander_class[] = 'expander';
+$expander_class[] = 'undraggable';
+switch($presentation){
+    case 'carton'  : $expander_class[] = 'cartonPreviewItem__expander'; break;
+    case 'contents': $expander_class[] = 'contentsPreviewItem__expander'; break;
+    default        : $expander_class[] = 'StoryPreviewItem__expander'; break; 
+}
+$reveal = elgg_format_element('a',['class'=>['reveal','story','button'],'data-cid'=>$cid,'data-guid'=>$guid,'data-type'=>'item','tabindex'=>'-1'],
+              elgg_format_element('span',['class'=>'locator','title'=>'Reveal this item']));
+$selector_classes = ['selector','undraggable'];
+$selector_title   = 'Set this item on the shelf';
+if (shelf_item_is_on_shelf($guid)){
+    $open_state = shelf_item_attr_value($guid, 'open_state');
+    $selector_classes[]='selected';
+    $close_boqx_classes[]='close_item';
+    if($open_state != 'closed'){
+        $selector_classes[]='open';
+        $close_boqx_classes[]='visible';
+    }
+    $selector_title = 'Item is on the shelf';
+}
+$close_boqx     = elgg_format_element('div',['class'=>$close_boqx_classes],
+                       elgg_format_element('ul',[],
+                		    elgg_format_element('li',['class'=>["dropdown_item"], 'data-value'=>"close",'data-index'=>"1"],
+                    			    elgg_format_element('a',['id'=>"contents_open_state_dropdown_$cid",'class'=>['pick','close-boqx']],
+                    				    elgg_format_element('span',['class'=>"dropdown_label"],'close')))));
+$selector                  = elgg_format_element('a',['class'=>$selector_classes,'open-state'=>$open_state, 'title'=>$selector_title,'data-cid'=>$cid,'tabindex'=>'-1']);
+$menu_options['item']      =['contents','accessories','components'];
+$menu_options['experience']=['items'];
+$open_state_dropdown = elgg_format_element('div',['class'=>['dropdown','open-state'],'data-cid'=>$cid],
+                            $selector.
+                        	elgg_format_element('a',['id'=>"open_state_dropdown_{$cid}_arrow", 'class'=>['arrow', 'target'],'tabindex'=>'-1']).
+                        	elgg_format_element('section',['class'=>['open-state','closed']],
+                            	elgg_format_element('div',['class'=>'dropdown_menu'],
+                            	     $close_boqx.
+                            	     elgg_format_element('div',['class'=>'open_item'],'Open to pack:').
+                            	     elgg_format_element('ul',[],
+                            		    elgg_format_element('li',['class'=>["dropdown_item"], 'data-value'=>"contents",'data-index'=>"1"],
+                            		        elgg_format_element('div',['class'=>'pick-slot'],
+                                			    elgg_format_element('a',['id'=>"contents_open_state_dropdown_$cid",'class'=>['pick','open-contents']],
+                                				    elgg_format_element('span',['class'=>"dropdown_label"],'contents')))).
+                            			elgg_format_element('li',['class'=>["dropdown_item"],'data-value'=>"accessories",'data-index'=>"1"],
+                            		        elgg_format_element('div',['class'=>'pick-slot'],
+                                			    elgg_format_element('a',['id'=>"accessories_open_state_dropdown_$cid",'class'=>['pick','open-accessories']],
+                                				    elgg_format_element('span',['class'=>"dropdown_label"],'accessories')))).
+                            			elgg_format_element('li',['class'=>["dropdown_item"],'data-value'=>"components",'data-index'=>"1"],
+                            		        elgg_format_element('div',['class'=>'pick-slot'],
+                                			    elgg_format_element('a',['id'=>"components_open_state_dropdown_$cid",'class'=>['pick','open-components']],
+                                				    elgg_format_element('span',['class'=>"dropdown_label"],'components'))))))));
+if($entity->getSubtype()=='market'||$entity->getSubtype()=='item')
+     $pick_check = $open_state_dropdown;
+else $pick_check = $selector;
+if ($points  == -1 && $point_scale == 'point_scale_linear'){
+    for ($i=0; $i<=3; $i++){$buttons .= elgg_format_element('button', ['class'=>"estimate__item estimate_$i", 'tabindex'=>'-1']);}
+    $progress = elgg_format_element('span', ['class'=>'estimate'], $buttons);
+}
 Switch ($aspect){
-    case 'thing'     : $this_aspect ='item';
+    case 'thing'     : 
+    case 'item'      : $this_aspect ='item';
                        $points      = "-1";
                        $estimate    = false;
                        $meta_span   = $icon;
@@ -79,7 +145,7 @@ Switch ($aspect){
     case 'transfer'  :
     case 'experience':
     case 'project'   :
-    case 'issue'     : $this_aspect = $aspect;
+    case 'issue'     : $this_aspect     = $aspect;
                        $estimate        = 'estimate_'.$points;
                        $meta_span       = elgg_format_element('span', [], $points);
                        $schedule        = 'unscheduled';
@@ -88,22 +154,37 @@ Switch ($aspect){
                        $estimatable     = true;
                        $point_scale     = 'point_scale_linear';
     break;
+    case 'contents'  : $this_aspect     = $aspect;
+                       $estimate        = 'estimate_'.$points;
+                       if($child_toggle)
+                            $meta_span  = $child_toggle;
+                       else $meta_span  = elgg_format_element('span', [], $points);
+//                       $schedule        = 'unscheduled';
+                       $has_tasks       = false;
+                       $reveal          = false;
+                       $selector        = false;
+//                       $task_aspect     = 'feature';
+                       $estimatable     = true;
+                       $point_scale     = 'point_scale_linear';
+                       $progress        = false;
+                       if($fill_level == 1)
+                            $meta_title = "contains $fill_level item";
+                      if($fill_level > 1)
+                            $meta_title = "contains $fill_level items";
+    break;
 }
 if ($has_collapser) $collapser = elgg_format_element('a',['id'=>"collapser_$cid",'class'=>['autosaves','collapser',"collapser-$task",'CollapseEnvelope__z7DilsLc'],'data-cid'=>$cid,'tabindex'=>'-1']);
 //if ($edit_boqx)     $edit      = elgg_format_element('div',['class'=>$class_edit,'data-aid'=>'TaskEdit','data-cid'=>$cid,'style'=>$edit_visible],$hidden_fields.$collapser.$edit_boqx);
 $edit = $edit_boqx;
 
 /*****/
-$expander = elgg_format_element('button',['class'=>$expander_class,'data-guid'=> $guid,'data-cid'=> $cid,'aria-expanded' => 'false','tabindex'=> '-1','aria-label' => 'expander']);
-$metadata = elgg_format_element('span',['class' => 'meta'],$meta_span);
-if ($points  == -1 && $point_scale == 'point_scale_linear'){
-    for ($i=0; $i<=3; $i++){$buttons .= elgg_format_element('button', ['class'=>"estimate__item estimate_$i", 'tabindex'=>'-1']);}
-    $progress = elgg_format_element('span', ['class'=>'estimate'], $buttons);
-}
+$expander = elgg_format_element('button',['class'=>$expander_class,'data-guid'=> $guid,'data-cid'=> $cid,'data-presentation'=>$presentation,'aria-expanded' => 'false','tabindex'=> '-1','aria-label' => 'expander']);
+$metadata = elgg_format_element('span',['class'=>'meta','title'=>$meta_title],$meta_span);
+/*
 if ($points  >= 0 && $point_scale == 'point_scale_linear'){
     $button   = elgg_format_element('label', ['data-aid'=>"StateButton", 'data-destination-state'=>"start", 'class'=>"state button start", 'tabindex'=>"-1"],'Start');
     $progress = elgg_format_element('span', ['class'=>'state'], $button);  
-}
+}**/
 if ($blocked) {
     if ($issues > 1) $issues_title = "$issues issues";
     if ($issues <= 1) $issues_title = "1 issue";
@@ -112,37 +193,50 @@ if ($blocked) {
     $has_blockers = true;
 }
 if ($aspect == 'issue') $blocker = elgg_format_element('div', ['class'=>"blocker",'data-aid'=>"StoryPreviewBlocker"]);
-if (shelf_item_is_on_shelf($guid))
-     $selector = elgg_format_element('a',['class'=>['selector','undraggable', 'selected'],'title'=>'Item is on the shelf','data-cid'=>$cid,'tabindex'=>'-1']);
-else $selector = elgg_format_element('a',['class'=>['selector','undraggable'],'title'=>'Set this item on the shelf','data-cid'=>$cid,'tabindex'=>'-1']);
-
 $body = 
       elgg_format_element('header',['class'=>'preview','data-cid'=>$cid,'data-aid'=>'StoryPreviewItem__preview','tabindex'=>'0'],
           $expander.
-          $selector.
+          $pick_check.
           $metadata.
-          elgg_format_element('a',['class'=>['reveal','story','button'],'data-cid'=>$cid,'data-guid'=>$guid,'data-type'=>'item','tabindex'=>'-1'],
-              elgg_format_element('span',['class'=>'locator','title'=>'Reveal this item'])).
+          $reveal.
           $progress.
           elgg_format_element('span',['class'=>['name','normal'],'data-cid'=>$cid],
               $name.
               $labels.
               elgg_format_element('span',['class'=>'StoryPreviewItemReviewList___2PqmkeBu'])).
-          $blocker).
+          $blocker.
+          $edit_contents).
           $edit;
-
+                     $class[]='boqx';
+if($this_aspect)     $class[]=$this_aspect;
+if($has_tasks)       $class[]='has_tasks';
+if($has_description) $class[]='description'; 
+if($has_attachments) $class[]='attachments';
+if($has_comments)    $class[]='comments';
+                     $class[]='draggable';
+if($task_aspect)     $class[]=$task_aspect;
+if($schedule)        $class[]=$schedule;
+if($point_scale)     $class[]=$point_scale;
+if($estimate)        $class[]=$estimate; 
+if($estimatable)     $class[]='is_estimatable'; 
+                     $class[]='not_collapsed';
+if($has_blockers)    $class[]='has_blockers_or_blocking';
+if($has_contents)    $class[]='has_contents';
+if (shelf_item_is_on_shelf($guid) && $open_state != 'closed'){
+                     $class[]='open';
+                     $open_attr=$open_state;
+}
 echo elgg_format_element('div', 
-                        ['id'       => $cid,
-                         'class'    => ['boqx', 
-                                        $this_aspect, 
-                                        $has_tasks?'has_tasks':false, 
-                                        $has_description?'description':false, 
-                                        $has_attachments?'attachments':false,
-                                        $has_comments?'comments':false, 'draggable',$task_aspect, $schedule, $point_scale, $estimate, $estimatable?'is_estimatable':false, 'not_collapsed', $has_blockers?'has_blockers_or_blocking':false],
-                         'data-aid' => 'StoryPreviewItem',
-                         'data-guid' => $guid,
-                         'data-boqx' => $boqx_id,
-                         'data-issues'=> $issues,
-                         'aria-describedby'=>'reorder-help',
-                         'aria-label' => $title],
+                        ['id'               => $cid,
+                         'class'            => $class,
+                         'data-aid'         => 'StoryPreviewItem',
+                         'data-guid'        => $guid,
+                         'data-presence'    => $presence,
+                         'data-essence'     => $essence,
+                         'data-presentation'=> $presentation,
+                         'data-boqx'        => $boqx_id,
+                         'open-state'       => $open_attr,
+                         'data-issues'      => $issues,
+                         'aria-describedby' => $presentation,
+                         'aria-label'       => $title],
                         $body);

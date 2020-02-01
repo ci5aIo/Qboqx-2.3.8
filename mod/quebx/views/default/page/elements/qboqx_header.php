@@ -18,7 +18,8 @@
 
 //$logo  = elgg_get_site_url().'mod/quebx/graphics/sW7Lr82V-logo.svg';
 $show_site_menu = elgg_extract('show_site_menu', $vars, true);
-$logo  = elgg_get_site_url().'mod/quebx/graphics/placeholder_logo.png';
+//$logo  = elgg_get_site_url().'mod/quebx/graphics/placeholder_logo.png';
+$logo  = elgg_get_site_url().'mod/quebx/graphics/wIprMZlr_logo.png';
 $site = elgg_get_site_entity();
 $site_name = $site->name;
 $space_button = elgg_format_element('button',['aria-label'=>'Q:boqx  - Everything',

@@ -2,6 +2,14 @@
 $element = elgg_extract('element', $vars);
 
 Switch ($element){
+    case 'commandArea':
+        $style = ".commandArea .boqx .preview .name {margin: 2px 5px 3px 15px;}
+                  .commandArea .boqx .preview .meta,
+                  .commandArea .boqx .preview .StoryPreviewItem__expander,
+                  .commandArea .boqx .preview .reveal.button,
+                  .commandArea .boqx .preview .labels {display:none;}";
+        $user_agent = elgg_format_element('style',['type'=>'text/css'],$style);
+        break;
     case 'market':
         $style = "
         textarea:focus {outline-offset: -2px;}

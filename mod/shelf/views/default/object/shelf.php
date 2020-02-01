@@ -1,6 +1,7 @@
 <?php
 $perspective = elgg_extract('perspective', $vars, 'page');
 $parent_cid  = elgg_extract('parent_cid', $vars, false);
+$shelf_id    = elgg_extract('shelf_id', $vars, quebx_new_id('c'));
 
 $file        = new ElggFile;
 $file->owner_guid = elgg_get_logged_in_user_guid();
@@ -42,16 +43,18 @@ foreach($data as $key=>$contents){
         case 'market':
         case 'item':
             ++$n_items;
-            $content_item .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
+            $content_item .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'guid'=>$guid, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
             break;
         case 'receipt':
         case 'transfer':
             ++$n_receipts;
-            $content_receipt .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
+            $content_receipt .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'guid'=>$guid, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
             break;
         default:
-            $content_default .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
+            $content_default .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'guid'=>$guid, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
     }
+    // all items on the shelf
+    $shelf_items .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'guid'=>$guid, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
 }
 Switch ($perspective){
 	case 'page':
@@ -117,9 +120,88 @@ Switch ($perspective){
     	    </div>
 	    </div>";
 		break;
+	case 'space_sidebar':
+	    unset ($content);
+        $body_class     = elgg_extract('body_class'    , $vars, 'full-pallet__stack');
+        $parent_cid     = elgg_extract('parent_cid'    , $vars, quebx_new_id('c'));
+        $show_access    = elgg_extract('show_access'   , $vars, true);
+        $contents_count = elgg_extract('contents_count', $vars, shelf_count_items());
+        $perspective    = elgg_extract('perspective'   , $vars);
+        $module_type    = elgg_extract('module_type'   , $vars, $perspective);
+        $shelf          = elgg_extract('entity'        , $vars, false);
+        if (!$shelf){
+        	$shelf           = new ElggObject();
+        	$shelf->can_edit = true;
+	        $shelf->show_visible = false;
+        	$shelf->title    = 'Shelf';
+        	$shelf->handler  = 'shelf';
+        	$shelf->context  = 'dashboard';
+        	$shelf->column   = 0;
+        	$shelf->guid     = 0;
+        	$shelf->classes  = ['elgg-module','elgg-module-widget','elgg-state-draggable','boqx','container','droppable','tn-panelWrapper___fTILOVmk','q-module','q-module-widget'];}
+//        $shelf          = (object) $shelf;
+        $this_slot      = elgg_extract('this_slot'     , $vars, $shelf->column);                               $display = print_r($shelf->classes, true);
+        $can_edit       = $shelf->can_edit;
+        
+        $pallet_header = '';
+        $controls = elgg_view('object/pallet/elements/controls', [
+        		'pallet'         => $shelf,
+        		'show_edit'      => $can_edit,
+        		'show_add'       => false,
+        	    'module_type'    => $perspective,
+                'cid'            => $shelf_id,
+        	    'target_boqx'    => $empty_boqx_id,
+                'contents_count' => $contents_count
+        	]);
+        $handler = $shelf->handler;
+        $title = $shelf->title;
+        
+        $pallet_header = elgg_format_element('div',['class'=>['elgg-widget-handle','clearfix','tn-PanelHeader__inner___3Nt0t86w','tn-PanelHeader__inner--single___3Nq8VXGB']],
+        					   elgg_format_element('h3',['class'=>['elgg-widget-title','tn-PanelHeader__name___2UfJ8ho9']],$title).
+        					   $controls);
+        $pallet_body_vars = [
+        	'id'        => $cid,
+            'data-boqx' => $shelf_id,
+        	'class'     => ['elgg-widget-content', $body_class],
+            'data-guid' => $shelf->guid,];
+        
+        $content_vars                  = $vars;
+        $content_vars['boqx_id']       = $parent_cid;
+        $content_vars['visible']       = 'show';
+        $content_vars['has_collapser'] ='yes';
+        $content_vars['action']        = 'show';
+        $content_vars['presentation']  = $module_type;
+        unset($content_vars ['title']);
+        $pallet_body        = elgg_format_element('div', $pallet_body_vars, $shelf_items);
+        $module_vars = [
+        	'class'     => $shelf->classes,
+        	'id'        => $shelf_id,
+        	'data-boqx' => $parent_cid,
+        	'header'    => $pallet_header];
+        $pallet_class = ['elgg-widgets','q-widgets','pallet','items_draggable','ui-sortable'];
+        if ($shelf->show_visible)
+            $pallet_class[] = 'visible';
+        echo "<!-- module_type: $module_type -->";
+        //echo elgg_view_module('widget', '', $pallet_body, $widget_module_vars);
+        Switch ($module_type){
+            case 'warehouse':
+        // @EDIT - 2020-01-25 - SAJ - Make the pallet un-draggable
+//                 $rem_key = array_search('elgg-module-widget', $module_vars['class']);
+//                 unset($module_vars['class'][$rem_key]);
+                $pallet_body                = elgg_format_element('div', ['class'=>'tn-pallet__stack'], $pallet_body);
+                $module_vars['title']       = '';
+                $module_vars['body']        = $pallet_body;
+                $module_vars['module_type'] = $module_type;
+                $module_vars['handler']     = $handler;
+                $content = elgg_format_element('div',['id'=>$parent_cid,'class'=>$pallet_class,'data-contents'=>$handler, 'data-slot'=>$this_slot],
+                              elgg_view('page/components/module_warehouse', $module_vars));
+                break;
+        }
+		break;
 	case 'header':
 	    $content = $content_item.$content_receipt;
 	    break;
 }
 			
 echo $content;
+//register_error($display);

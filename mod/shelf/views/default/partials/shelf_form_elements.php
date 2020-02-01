@@ -2,6 +2,7 @@
 $element      = elgg_extract('element', $vars);
 $guid         = elgg_extract('guid', $vars);
 $perspective  = elgg_extract('perspective', $vars, 'sidebar');
+$open_state   = elgg_extract('open_state', $vars);
 
 Switch ($element){
     case 'delete':
@@ -33,16 +34,18 @@ Switch ($element){
         $file->close();
         break;
     case 'load':
-        $params = new stdClass();
-        
-        $input_keys = array_keys((array) elgg_get_config('input'));
-        $request_keys = array_keys((array) $_REQUEST);
-        $keys = array_unique(array_merge($input_keys, $request_keys));
-        foreach ($keys as $key) {
-            if ($key) {
-                $params->$key = get_input($key);
+            $params = new stdClass();
+            
+            $input_keys = array_keys((array) elgg_get_config('input'));
+            $request_keys = array_keys((array) $_REQUEST);
+            // remove housekeeping attributes
+            unset($request_keys['element'],$request_keys['perspective'],$request_keys['state']);
+            $keys = array_unique(array_merge($input_keys, $request_keys));
+            foreach ($keys as $key) {
+                if ($key) {
+                    $params->$key = get_input($key);
+                }
             }
-        }
         
         $params->quantity = (int) $params->quantity;
         
@@ -88,12 +91,65 @@ Switch ($element){
             
             $entity = get_entity($guid);
             $qty = 1;
-            $content = elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective]);
+            $content = elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'perspective'=>$perspective, 'state'=>$state]);
         }
         else {
             system_message(elgg_echo('Item is already on the shelf.  Skipping.'));
             $content = false;
         }
+        break;
+    case 'load_sidebar':
+        $entity = get_entity($guid);
+        $content = elgg_view('shelf/arrange', ['entity'=>$entity, 'perspective'=>$perspective, 'state'=>$state]);
+        break;
+    case 'open':
+        // Get current shelf data
+        $owner_guid = elgg_get_logged_in_user_guid();                  //$display .= '$guid: '.$guid.PHP_EOL;
+        $add_new    = true;
+        $file       = new ElggFile;
+        $file->owner_guid = $owner_guid;
+        $file->setFilename("shelf.json");
+        if ($file->exists()) {
+            $file->open('read');
+            $json = $file->grabFile();                                 //$display .= '15 $json:'."$json<br>";
+            $file->close();
+        }
+        
+        $data = json_decode($json, true);
+        // Update the state of an existing record
+        foreach($data as $data_key =>$line){                       //$display .= '$data_key: '."$data_key = $line<br>";
+            foreach($line as $key1=>$value1){                      //$display .= '$key1: '."$key1 = $value1<br>";
+                if ($key1 == 'guid' && $value1 == $guid){          //$display .= '22 $data_key: '."$data_key; ".'$guid: '.$guid.'; $qty: '.$qty.'<br>';
+                // record exists  
+                    $data[$data_key]['open_state']=$open_state;
+                    $add_new = false;
+                    continue(2);
+                }
+            }
+        }
+        // Add a new record if no record exists
+        if ($add_new){
+            $params = new stdClass();
+            
+            $input_keys = array_keys((array) elgg_get_config('input'));
+            $request_keys = array_keys((array) $_REQUEST);
+            // remove housekeeping attributes
+            unset($request_keys['element'],$request_keys['perspective'],$request_keys['state']);
+            $keys = array_unique(array_merge($input_keys, $request_keys));
+            foreach ($keys as $key) {
+                if ($key) {
+                    $params->$key = get_input($key);
+                }
+            }
+            $data[] = $params;
+        }
+        // Write shelf data
+        $file = new ElggFile;
+        $file->owner_guid = $owner_guid;
+        $file->setFilename("shelf.json");
+        $file->open('write');
+        $file->write(json_encode($data));
+        $file->close();
         break;
     default:
         

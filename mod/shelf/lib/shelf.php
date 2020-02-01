@@ -1,6 +1,6 @@
 <?php
 
-function shelf_count_items (){
+function shelf_count_items(){
     $owner_guid = elgg_get_logged_in_user_guid();
     $file = new ElggFile;
     $file->owner_guid = $owner_guid;
@@ -273,4 +273,25 @@ function shelf_item_is_on_shelf($guid){
     if (in_array($guid, $guids))
         return true;
     else return false;
+}
+
+function shelf_item_attr_value($guid, $attr){
+    $attr_value  = false;
+	$file        = new ElggFile;
+    $file->owner_guid = elgg_get_logged_in_user_guid();
+    $file->setFilename("shelf.json");
+    if ($file->exists()) {
+    	$file->open('read');
+    	$json = $file->grabFile();
+    	$file->close();
+    }
+    $data = json_decode($json, true);
+    foreach($data as $key=>$value){
+        foreach($value as $key1=>$value1){
+            if ($key1 == 'guid' && $value1 == $guid){
+                $attr_value = $data[$key][$attr];
+            }
+        }
+    }
+    return $attr_value;
 }

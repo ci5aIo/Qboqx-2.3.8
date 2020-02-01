@@ -11,6 +11,7 @@ $parent_cid     = elgg_extract('parent_cid'       , $vars, false);  // if a pare
 $cid            = elgg_extract('cid'              , $vars, quebx_new_id('c'));
 $carton_id      = elgg_extract('carton_id'        , $vars);
 $show_boqx      = elgg_extract('show_boqx'        , $vars, false);
+$show_title     = elgg_extract('show_title'       , $vars, false);
 $info_boqx      = elgg_extract('info_boqx'        , $vars);
 $hidden_fields  = elgg_extract('hidden_fields'    , $vars);
 $visible        = elgg_extract('visible'          , $vars, 'add');
@@ -18,10 +19,13 @@ $has_collapser  = elgg_extract('has_collapser'    , $vars) =='yes' ? true : fals
 $presentation   = elgg_extract('presentation'     , $vars);
 $presence       = elgg_extract('presence'         , $vars);
 $fill_level     = elgg_extract('fill_level'       , $vars, 0);
+$allow_delete   = elgg_extract('allow_delete'     , $vars, true);
 /**/ 
-$delete         = elgg_format_element("span",['class'=>'remove-item'], 
-                      elgg_format_element('a', ['title' =>'remove item'], 
-                          elgg_view_icon('delete-alt')));
+if($allow_delete)
+$delete         = elgg_format_element('button',['class'=>['IconButton___2y4Scyq6','IconButton--small___3D375vVd'],'data-aid'=>'delete','aria-label'=>'Delete','data-cid'=>$cid],
+                      elgg_format_element("span",['class'=>'remove-item'], 
+                          elgg_format_element('a', ['title' =>'remove item'], 
+                              elgg_view_icon('delete-alt'))));
 $class_boqx[]     = 'envelope__NkIZUrK4';
 $class_add[]      = 'envelopeWindow__3hpw9wdN';
 $class_edit[]     = 'envelopeWindow__3hpw9wdN';
@@ -122,6 +126,14 @@ switch($task){
         $class_show[] = 'TaskShow___2LNLUMGe';
         $class_edit[] = 'TaskEdit___1Xmiy6lz linedEnvelope';
         break;
+    case 'contents':
+        unset($class_time);
+        $add_label    = 'Add contents';
+        $class_boqx[] = 'ServiceEffort__26XCaBQk';
+        $class_add[]  = 'AddSubresourceButton___2PetQjcb';
+        $class_show[] = 'TaskShow___2LNLUMGe';
+        $class_edit[] = 'TaskEdit___1Xmiy6lz linedEnvelope';
+        break;
     case 'effort':
         unset($class_qty,$class_total,$class_items);
         $add_label    = 'Add time';
@@ -152,7 +164,14 @@ $add =
         elgg_format_element('span',['class'=>'AddSubresourceButton__icon___h1-Z9ENT']).
         elgg_format_element('span',['class'=>'AddSubresourceButton__message___2vsNCBXi'],$add_label)
     );
-
+if($show_title)
+     $show_title_span = elgg_format_element('span',[],$show_title);
+else $show_title_span = elgg_format_element('span',['class'=>$class_qty],$entity->qty).
+                        elgg_format_element('span',['class'=>$class_title],$entity->title).
+                        elgg_format_element('span',['class'=>$class_total],$entity->total).
+                        elgg_format_element('span',['class'=>$class_items],$entity->items).
+                        elgg_format_element('span',['class'=>$class_time], $entity->time);
+    
 $show = $show_boqx ?
     // if true
     elgg_format_element('div',['class'=>$class_show,'data-aid'=>'TaskShow','data-cid'=>$cid,'style'=>$show_visible,'draggable'=>true],$show_boqx)
@@ -160,15 +179,8 @@ $show = $show_boqx ?
     // if false
     elgg_format_element('div',['class'=>$class_show,'data-aid'=>'TaskShow','data-cid'=>$cid,'style'=>$show_visible,'draggable'=>true],
         elgg_format_element('input',['class'=>'TaskShow__checkbox___2BQ9bNAA','type'=>'checkbox','title'=>'mark task complete','data-aid'=>'toggle-complete','data-focus-id'=>"TaskShow__checkbox--$cid"]).
-        elgg_format_element('div',['class'=>['TaskShow__description___3R_4oT7G','tracker_markup_xxx'], 'data-aid'=>'TaskDescription','tabindex'=>'0'],
-            elgg_format_element('span',['class'=>$class_qty],$entity->qty).
-            elgg_format_element('span',['class'=>$class_title],$entity->title).
-            elgg_format_element('span',['class'=>$class_total],$entity->total).
-            elgg_format_element('span',['class'=>$class_items],$entity->items).
-            elgg_format_element('span',['class'=>$class_time], $entity->time)
-         ).
-         elgg_format_element('nav',['class'=>['TaskShow__actions___3dCdQMej','undefined','TaskShow__actions--unfocused___3SQSv294']],
-             elgg_format_element('button',['class'=>['IconButton___2y4Scyq6','IconButton--small___3D375vVd'],'data-aid'=>'delete','aria-label'=>'Delete','data-cid'=>$cid],$delete)));
+        elgg_format_element('div',['class'=>['TaskShow__description___3R_4oT7G','tracker_markup_xxx'], 'data-aid'=>'TaskDescription','tabindex'=>'0'],$show_title_span).
+         elgg_format_element('nav',['class'=>['TaskShow__actions___3dCdQMej','undefined','TaskShow__actions--unfocused___3SQSv294']],$delete));
 $edit = 
     elgg_format_element('div',['class'=>$class_edit,'data-aid'=>'TaskEdit','data-cid'=>$cid,'style'=>$edit_visible],
         $hidden_fields.

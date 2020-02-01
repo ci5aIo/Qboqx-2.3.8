@@ -2,8 +2,13 @@
 $inventory   = elgg_extract('inventory'  , $vars);
 $item        = elgg_extract('entity'     , $vars);
 $perspective = elgg_extract('perspective', $vars, 'page');
+$state       = elgg_extract('state'      , $vars);
+$guid        = elgg_extract('guid'       , $vars);
 $parent_cid  = elgg_extract('parent_cid' , $vars);
+if(elgg_entity_exists($guid))
+    $item = get_entity($guid);
 $cid         = quebx_new_id('c');
+$aspect      = $item->aspect ?: 'thing';                                                                     $display .= '11 $aspect = '.$aspect.'<br>';
 
 if ($item){
 	$element_type = 'receipt item';
@@ -49,6 +54,9 @@ Switch ($perspective){
 	                       elgg_format_element('span',[],
 	                           elgg_format_element('span',[],$item->title))))));
 	    break;
+	case 'space_sidebar':
+	    $content = elgg_view('page/components/pallet_boqx', ['entity'=>$item,'guid'=>$guid,'state'=>$state,'aspect'=>$aspect,'boqx_id'=>$parent_cid]);
+	    break;
 	case 'page':
 	default:
 		$content = "<div class='rTableRow'>
@@ -62,3 +70,4 @@ Switch ($perspective){
 	break;
 }
 echo $content;
+//register_error($display);

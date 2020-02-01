@@ -37,8 +37,47 @@ $footer  = elgg_view('page/elements/footer', $vars);
 if($show_site_menu)
     $expanded_header = 'expanded_header';
 
+$file        = new ElggFile;
+$file->owner_guid = elgg_get_logged_in_user_guid();
+$file->setFilename("shelf.json");
+if ($file->exists()) {
+	$file->open('read');
+	$json = $file->grabFile();
+	$file->close();
+}
+
+$data = json_decode($json, true);
+foreach($data as $key=>$contents){
+    if (array_key_exists('open-state',$contents) && $contents['open_state'] != 'closed'){
+       $root_class='boqx-open';
+       $boqx_state = $contents['open_state'];
+       $boqx_open  = $contents['guid'];
+       continue;
+    }
+}
+if (elgg_is_logged_in()) {
+	$topbar = elgg_format_element('div',['class'=>"elgg-page-topbar"],
+	              elgg_format_element('div',['class'=>"elgg-inner"],
+			          elgg_view('page/elements/topbar', $vars)));
+$body_header = elgg_format_element('header',['class'=>"page_header_container"],
+            	   elgg_format_element('div',[],
+            		   elgg_format_element('div',[],$header))).
+               elgg_format_element('section',['class'=>["main","space","project"]],$content).
+               elgg_format_element('div',['class'=>"elgg-page-footer",'style'=>"display:none;"],
+    		       elgg_format_element('div',['class'=>"elgg-inner"],$footer));
+$root = elgg_format_element('div',['id'=>'root','class'=>["elgg-page","elgg-page-default","$root_class"],'open-boqx'=>$boqx_open,'open-state'=>$boqx_state],
+            elgg_format_element('div',['id'=>"view01",'class'=>["normal","layouts","show","current_header_version-ia", $expanded_header]],
+    	         elgg_format_element('div',['class'=>"elgg-page-messages"],$messages).
+                 $topbar.
+                 $body_header));
+}
 $body = <<<__BODY
-<div id="root" class="elgg-page elgg-page-default">
+$root
+__BODY;
+
+/****@EDIT 2020-01-31 - SAJ - Replaced below with above^ ****/
+$body_xxx = <<<__BODY
+<div id="root" class="elgg-page elgg-page-default $root_class" $boqx_state1 $boqx_open1>
     <div id="view01" class="normal layouts show current_header_version-ia $expanded_header">
     	<div class="elgg-page-messages">
     		$messages
@@ -48,7 +87,7 @@ __BODY;
 if (elgg_is_logged_in()) {
 	$topbar = elgg_view('page/elements/topbar', $vars);
 
-	$body .= <<<__BODY
+	$body_xxx .= <<<__BODY
 	<div class="elgg-page-topbar">
 		<div class="elgg-inner">
 			$topbar
@@ -56,7 +95,7 @@ if (elgg_is_logged_in()) {
 	</div>
 __BODY;
 }
-$body .= <<<__BODY
+$body_xxx .= <<<__BODY
         <header class="page_header_container">
         	<div>
         		<div>
@@ -75,6 +114,7 @@ $body .= <<<__BODY
     </div>
 </div>
 __BODY;
+/**********/
 
 $body .= elgg_view('page/elements/foot');
 //$body .= elgg_view('css/quebx/user_agent', ['element'=>'experience']);

@@ -6,12 +6,20 @@ $aid = elgg_extract('aid', $vars);
 
 Switch($aspect){
     case 'qboqx':
+        $shelf_count = 0;
+        $shelf_label = ' items';
+        $count_class = 'count';
         foreach ($panel_items as $panel_item){
             unset($counter);                       $display .= print_r($panel_item, true); 
-            if ($panel_item['attributes']['count'] > 0) $counter = elgg_format_element('div',['class'=>'counter', 'aria-label'=>'count'], $panel_item['attributes']['count']);
+            if ($panel_item['attributes']['count'] > 0)       $counter     = elgg_format_element('div',['class'=>'counter', 'aria-label'=>'count'], $panel_item['attributes']['count']);
+            if ($panel_item['attributes']['name'] == 'shelf') $shelf_count = $panel_item['attributes']['count']; 
             $items .= elgg_format_element('li',
                                          $panel_item['attributes'],
                                          $panel_item['text'].$counter);
+        }
+        if ($shelf_count == 1){
+            $shelf_label = ' item';
+            $count_class .= ' single';
         }
 /*        $action       = 'quebx/add';
         $body         = elgg_format_element('div', ['class'=>'panels'],
@@ -21,15 +29,21 @@ Switch($aspect){
 	    $panels       = elgg_view_form($form_version, $form_vars);
 */	    $panels       = elgg_format_element('div', ['class'=>'panels'],
                              elgg_format_element('ul', ['class'=>'items'],$items));
-    	
+        $shelf_id    = quebx_new_id('c');
+        $shelf_items = elgg_view('object/shelf', ['perspective'=>'space_sidebar', 'parent_cid'=>$shelf_id, 'this_slot'=>0,'module_type'=>'warehouse']);
+                
         $sidebar = "
-                <div id='$aid'>
+                <div id='$aid' class='commandArea'>
                     <aside class='sidebar expanded Sidebar__expanded___1DIqeICS' data-aspect='$aspect'>
                        <div class='sidebar_wrapper'>
                           <div class='Sidebar__toggleContainer___34L56aTg'>
                               <button class='Sidebar__toggle___3X5Ypi6e toggle_sidebar' title='Toggle Sidebar'></button>
+                              <button class='Shelf__toggle___pGbKiuvT toggle_shelf' title='Show items on the shelf' data-target='$shelf_id'>
+                                   <span class='$count_class'>$shelf_count</span>
+                              </button>
                           </div>
                           <section class='sidebar_content scrollable'>
+                               $shelf_items
                                <section class='project'>
                                    <ul class='item settings_area'>
                                        <li class='ProjectSidebar__header___30T22TC6'>

@@ -197,14 +197,16 @@ define(function(require) {
 				 view = 'market'; 
 				 break;
     	   }
-		  $(envelope).remove();
-		  ajax.action('quebx/delete', {
-			data:{
-				guid: guid
-			}
-		  }).done(function () {
-			//alert('deleted: '+guid);
-		  });                                                                                       console.log('carton_id = '+carton_id);
+		  if (action == 'delete'){
+			  $(envelope).remove();
+			  ajax.action('quebx/delete', {
+				data:{
+					guid: guid
+				}
+			  }).done(function () {
+				//alert('deleted: '+guid);
+			  });
+		  }                                                                                       console.log('carton_id = '+carton_id);
 		  $('[data-carton='+carton_id+']').each(function(){
 			  cards++;
 			  if ($(this).attr('boqx-fill-level') == 0)
@@ -1847,6 +1849,7 @@ define(function(require) {
    });
    $(document).on('click', '.StoryPreviewItem__expander, .StoryPreviewItem__title', function(e){   console.log('StoryPreviewItem__expander');
 	  //alert('works');
+      e.preventDefault();
 	  var ajax        = new Ajax();
 	  var guid        = $(this).data('guid'),
 	      cid         = $(this).data('cid');
@@ -2356,14 +2359,28 @@ define(function(require) {
        element = selected ? 'delete' : 'load';
        
        if (selected){
-          $(this).removeClass('selected');
+          $('.boqx[data-guid='+guid+'] .preview .selector').removeClass('selected').removeClass('open').attr('open-state', 'closed');
           selected_count = selected_counter - 1;
+          $('.boqx[data-guid='+guid+'] .dropdown .close_item').removeClass('visible');
+    	  open_state = 'closed';
+    	  $('.boqx[data-guid='+guid+']').removeClass('open');
+          $('.boqx[data-guid='+guid+'] .selector').removeClass('open');
+	      $('#root').removeClass('boqx-open').removeAttr('open-boqx').removeAttr('open-state');
           if (selected_count <= 0){
                $('.tc_page_bulk_header').removeClass('visible');
                $('.tc_pull_right').hide();
                $('.tc_page_nav_header').show();
           }
-          $('.shelf-items-compartment .shelf-viewer#quebx-shelf-item-'+guid).remove();
+	      ajax.view('partials/shelf_form_elements',{
+	    	   data: {
+	    		 element    : element,
+	    		 guid       : guid,
+	    		 perspective: perspective
+	    	   },
+	      }).done(function() {
+	    	   $('.commandArea .boqx[data-guid='+guid+']').remove();
+	    	   $('.shelf-items-compartment .shelf-viewer#quebx-shelf-item-'+guid).remove();
+	      });
        }
        else{
           $(this).addClass('selected');
@@ -2373,6 +2390,7 @@ define(function(require) {
                $('.tc_page_nav_header').hide();
           }
           selected_count = selected_counter + 1;
+          // add to JSON shelf
 	      ajax.view('partials/shelf_form_elements',{
 	    	   data: {
 	    		 element    : element,
@@ -2382,6 +2400,16 @@ define(function(require) {
 	      }).done(function(output) {
 	    	   $('.shelf-items-compartment').append($(output));
 	      });
+	      // show in sidebar
+	      ajax.view('partials/shelf_form_elements',{
+	    	   data: {
+	    		 element    : 'load_sidebar',
+	    		 guid       : guid,
+	    		 perspective: 'space_sidebar'
+	    	   },
+	      }).done(function(output) {
+	    	   $('.commandArea .pallet .full-pallet__stack').append($(output));
+	      });
       }
       if (selected_count == 0)
     	  selected_count = '';
@@ -2390,6 +2418,81 @@ define(function(require) {
       else
           $('.selectedStoriesControls__counterLabel').html('items selected');
       $('.selectedStoriesControls__counter').html(selected_count);
+      $('.Shelf__toggle___pGbKiuvT .count').html(selected_count);
+      $(shelf_selector).attr('count', selected_count);
+      $(shelf_selector).find('.counter').html(selected_count);
+    });
+    $(document).on('click', ".dropdown.open-state li.dropdown_item", function(e){
+       e.preventDefault();
+       var cid              = $(this).parents('.dropdown').data('cid'),
+           shelf_selector   = $('li.shelf');
+       var guid             = $('#'+cid).data('guid'),
+           element,
+           perspective      = 'header',
+           pick_state       = $(this).closest('li.dropdown_item').data('value');
+       var open_state       = pick_state,
+           selected         = $('.selector[data-cid='+cid+']').hasClass('selected'),
+           selected_count   = 0,
+           selected_counter = parseFloat($('.selectedStoriesControls__counter').text()),
+           ajax             = new Ajax();
+       console.log('cid = '+cid);
+       console.log('pick_state = '+pick_state);
+       element = 'open';
+/*
+.boqx.open.open-contents .preview {border: 2px solid #2dde8e;}
+.boqx.open.open-accessories .preview {border: 2px solid #cebd24;}
+.boqx.open.open-components .preview {border: 2px solid #9163db;}
+*/
+       switch (pick_state){
+	       case 'close': 
+	    	   $('.boqx[data-guid='+guid+'] .dropdown .close_item').removeClass('visible');
+	    	   open_state = 'closed';
+	    	   $('.boqx[data-guid='+guid+']').removeClass('open').removeAttr('open-state');
+	           $('.boqx[data-guid='+guid+'] .selector').removeClass('open');
+	           $('#root').removeClass('boqx-open').removeAttr('open-boqx').removeAttr('open-state');
+	    	   break;
+	       default:
+	    	   $('.boqx[data-guid='+guid+']').addClass('open').attr('open-state',pick_state);
+	    	   $('.boqx[data-guid='+guid+'] .dropdown .close_item').addClass('visible');
+	           $('.boqx[data-guid='+guid+'] .selector').addClass('open');
+	           $('#root').addClass('boqx-open').attr('open-boqx', guid).attr('open-state', pick_state);
+	    	   break;
+       }
+    	$('.boqx[data-guid='+guid+'] .selector').attr('open-state', open_state).addClass('selected');
+       // add to JSON shelf
+       ajax.view('partials/shelf_form_elements',{
+    	   data: {
+    		 element    : element,
+    		 guid       : guid,
+    		 perspective: perspective,
+    		 open_state : open_state
+    	   },
+       }).done(function(output) {
+	       $('.shelf-items-compartment').append($(output));
+	   });
+	   // show in sidebar
+	   ajax.view('partials/shelf_form_elements',{
+	      data: {
+	    	 element    : 'load_sidebar',
+	    	 guid       : guid,
+	    	 perspective: 'space_sidebar'
+	       },
+	    }).done(function(output) {
+	       $('.commandArea .pallet .full-pallet__stack').append($(output));
+	    });
+       
+       $('.dropdown[data-cid='+cid+']').removeClass('above_scrim');
+       $('.dropdown[data-cid='+cid+'] section.open-state').addClass('closed');
+       selected_count = selected_counter + 1;
+       
+      if (selected_count == 0)
+    	  selected_count = '';
+      if (selected_count == 1)
+          $('.selectedStoriesControls__counterLabel').html('item selected');
+      else
+          $('.selectedStoriesControls__counterLabel').html('items selected');
+      $('.selectedStoriesControls__counter').html(selected_count);
+      $('.Shelf__toggle___pGbKiuvT .count').html(selected_count);
       $(shelf_selector).attr('count', selected_count);
       $(shelf_selector).find('.counter').html(selected_count);
     });

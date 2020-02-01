@@ -156,7 +156,7 @@ if (elgg_is_logged_in()) {
     $sidebar_vars['panel_items'] = $panel_items;
     $sidebar_vars['aspect']      = 'qboqx';
     $sidebar_vars['aid']         = $aid;
-	$space_navigator = elgg_view('page/elements/space_navigator', $sidebar_vars);
+	$space_navigator             = elgg_view('page/elements/space_navigator', $sidebar_vars);
 }
 
 
