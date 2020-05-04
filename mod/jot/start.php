@@ -12,6 +12,7 @@
 elgg_register_event_handler('init','system','jot_init');
 
 function jot_init() {
+	elgg_register_ajax_view('forms/market/edit');
 	elgg_register_ajax_view('forms/experiences/edit');
 	elgg_register_ajax_view('partials/jot_form_elements');
 //	elgg_register_js('panels', elgg_get_plugins_path() . 'jot/views/default/js/panels.js');

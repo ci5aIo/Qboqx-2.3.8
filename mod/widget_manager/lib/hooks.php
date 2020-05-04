@@ -268,7 +268,8 @@ function widget_manager_index_manager_setting_plugin_hook_handler($hook_name, $e
  * @return void
  */
 function widget_manager_widgets_action_hook_handler($hook_name, $entity_type, $return_value, $params) {
-	if ($entity_type == 'widgets/move') {
+
+    if ($entity_type == 'widgets/move') {
 		$widget_guid = (int) get_input('widget_guid');
 		if (empty($widget_guid)) {
 			return;

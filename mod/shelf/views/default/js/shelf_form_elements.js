@@ -7,7 +7,102 @@ define(function(require) {
    var $      = require('jquery');
    var moment = require('moment_js');           //require Moment.js
    var Ajax   = require('elgg/Ajax');
+	
+	$(document).ready(function() {
+	  var boqx  = $(".pallet"),
+	      slot  = $('.slot'),
+	      slots = $(".slots");
+	
+	  boqx.draggable({
+	    containment: slots,
+	    helper: "clone",
+	    handle: '.tn-PanelHeader__inner___3Nt0t86w',
+	    axis: "x",
+	    stack: ".pallet",
+	    zIndex: 100,
+	    start: function() {
+	       $(this).css({
+	         opacity: .5
+	       });
+	    },
+	    stop: function() {
+	      $(this).css({
+	        opacity: 1
+	      });
+	    }
+	  });
+	
+	  slot.droppable({
+	    accept: boqx,
+	    tolerance: "pointer",
+	    over: function(event, ui) {
+	      $(this).addClass('ui-droppable-hover');
+	    },
+	    out: function() {
+	      $(this).removeClass('ui-droppable-hover');
+	    },
+	    drop: function() {
+	      $(this).removeClass('ui-droppable-hover');
+	    }
+	  });
 
+	  $(document).on('dropover', '.slot', function(e, ui){
+	      var moving_boqx    = ui.draggable;                                    //the dragged boqx
+	      var moving_boqx_id = moving_boqx.attr('data-boqx'),                   //the cid of the slot that the moving_box is leaving
+		      slot_id        = $(this).attr('id');                              //the cid of the slot_boqx
+		          
+	      if (moving_boqx.hasClass('pallet') && moving_boqx_id != slot_id){         //the dragged boqx is a pallet and it is over a new slot
+		      var slot_boqx      = $(this).children('.pallet'),                     //the displaced pallet
+		          to_slot_no     = $(this).data('slot');                            //the number of this slot 
+		      var moving_boqx_guid= moving_boqx.data('guid'),                       //the guid of the dragged pallet
+		          slot_boqx_guid = slot_boqx.data('guid');                          //the guid of the displaced pallet.  stored in the database
+		      var from_slot      = $('#'+moving_boqx_id);                           //the slot that the moving_boqx is leaving
+		      var from_slot_no   = $(from_slot).data('slot'),                       //the number of the slot the the moving_boqx is leaving.  stored in the database
+		          moving_boqx_is_pallet = $(moving_boqx).hasClass('pallet');
+		      $(slot_boqx).attr('data-boqx',moving_boqx_id);                        //give the displaced pallet the boqx cid of the slot that the moving_boqx is leaving
+		      $(moving_boqx).attr('data-boqx',slot_id);                             //give the dragged pallet the boqx cid of this slot
+		      $(from_slot).prepend(slot_boqx);                                      //move the pallet in the this slot to the slot that the moving_boqx is leaving
+		      elgg.action('pallets/move', {                                         //store the new slot number for the displaced pallet in the database
+		    	 data: {
+		    		 column: from_slot_no,
+		    		 guid: slot_boqx_guid
+		    	 } 
+		      });
+	      }
+	  });
+
+	$(document).on('drop', '.slot', function(e,ui){
+	      var moving_boqx           = ui.draggable;                                 //the dragged pallet
+	      if (moving_boqx.hasClass('pallet')){
+	          var slot_boqx      = $(this).children('.pallet'),                     //the displaced pallet
+		          slot_id        = $(this).attr('id'),                              //the cid of the slot_boqx
+		          to_slot_no     = $(this).data('slot');                            //the number of this slot 
+		      var moving_boqx_id = moving_boqx.attr('data-boqx'),                   //the cid of the slot that the moving_box is leaving
+		          moving_boqx_guid= moving_boqx.data('guid'),                       //the guid of the dragged pallet
+		          slot_boqx_guid = slot_boqx.data('guid');                          //the guid of the displaced pallet.  stored in the database
+		      var from_slot      = $('#'+moving_boqx_id);                           //the slot that the moving_boqx is leaving
+		      var from_slot_no   = $(from_slot).data('slot');                       //the number of the slot the the moving_boqx is leaving.  stored in the database
+		      $(moving_boqx).attr('data-boqx',slot_id);
+		      $(moving_boqx).removeAttr('style');
+		      $(slot_boqx).removeAttr('style');
+		      $(this).prepend(moving_boqx);
+		      elgg.action('pallets/move', {
+		    	 data: {
+		    		 column: to_slot_no,                                            //store the new slot number for the dragged pallet in the database
+		    		 guid: moving_boqx_guid
+		    	 } 
+		      });
+//		      elgg.action('pallets/move', {                                         //store the new slot number for the displaced pallet in the database
+//		    	 data: {
+//		    		 column: from_slot_no,
+//		    		 guid: slot_boqx_guid,
+//		    		 action: 'move displaced pallet',
+//		    		 moving_boqx_id: moving_boqx_id
+//		    	 } 
+//		      });
+	      }
+	  });
+	});
    $(document).on('click', '.IconButton___0po345dx', function(e) {
        e.preventDefault();
 

@@ -55,7 +55,7 @@ Switch ($perspective){
 	                           elgg_format_element('span',[],$item->title))))));
 	    break;
 	case 'space_sidebar':
-	    $content = elgg_view('page/components/pallet_boqx', ['entity'=>$item,'guid'=>$guid,'state'=>$state,'aspect'=>$aspect,'boqx_id'=>$parent_cid]);
+	    $content = elgg_view('page/components/pallet_boqx', ['entity'=>$item,'guid'=>$guid,'state'=>$state,'aspect'=>$aspect,'boqx_id'=>$parent_cid, 'boqx_class'=>'quebx-shelf-item']);
 	    break;
 	case 'page':
 	default:

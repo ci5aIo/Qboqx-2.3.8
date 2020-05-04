@@ -294,6 +294,7 @@ function quebx_display_child_nodes_III($options){
 	$data           = $options['data'];
 	$index          = $options['index'];
 	$parent_id      = $options['parent_id'];
+	$parent_cid     = $options['parent_cid'];
 	$ul_class       = $options['ul_class'];
 	$li_class       = $options['li_class'];
 	$collapsible    = $options['collapsible'];
@@ -302,6 +303,7 @@ function quebx_display_child_nodes_III($options){
 	$links          = $options['links'];
 	$presentation   = $options['presentation'];
 	$presence       = $options['presence'];
+	$display        = (array) $options['display'];
 	$boqx_id        = elgg_extract('cid', $options, quebx_new_id('c'));
 	$aspect         = elgg_extract('aspect', $options);
 	$fill_level     = elgg_extract('fill_level',$options, 0);
@@ -310,7 +312,7 @@ function quebx_display_child_nodes_III($options){
 	if ($collapsible && $level >= $collapse_level){
 		$state = "data-state = 'collapsed'";}
     if (isset($index[$parent_id])) {
-    	$children .= "<ul id=$boqx_id class=$list_class data-level=$level $state>";
+    	$children .= "<ul id=$boqx_id class=$list_class data-boqx=$parent_cid data-level=$level $state>";
         foreach ($index[$parent_id] as $id) {
         	unset($child_toggle, $has_children,$list_item_class, $list_item_classes,$entity,$options['cid']);
         	$cid = quebx_new_id('c');
@@ -336,7 +338,7 @@ function quebx_display_child_nodes_III($options){
         	    $subtype = $entity->getSubtype();
         	    $icon = elgg_view('market/thumbnail', ['marketguid' => $id, 'size' => 'tiny', 'class'=>'itemPreviewImage_ARIZlwto']);
             	$link  = elgg_view('output/url',['text'=>$title,'href'=>get_entity_url($id)]);
-            	$display_options = ['entity'=>$entity,'aspect'=>$aspect,'boqx_id'=>$cid,'cid'=>$edit_id,'child_toggle'=>$child_toggle,'icon'=>$icon,'has_description'=>isset($entity->description),'has_attachments'=>count($attachments)>0,'has_contents'=>$has_children,'fill_level'=>$fill_level,'presentation'=>$presentation,'presence'=>$presence];
+            	$display_options = array_merge($display,['entity'=>$entity,'aspect'=>$aspect,'boqx_id'=>$cid,'cid'=>$edit_id,'child_toggle'=>$child_toggle,'icon'=>$icon,'has_description'=>isset($entity->description),'has_attachments'=>count($attachments)>0,'has_contents'=>$has_children,'fill_level'=>$fill_level,'presentation'=>$presentation,'presence'=>$presence]);
             	if($has_children){
             	    $display_options['fill_level'] = count($index[$id]);
             	}
@@ -353,7 +355,7 @@ function quebx_display_child_nodes_III($options){
         	}
         	$title = $data[$id]['title'];
         	$title = elgg_format_element('div',['class'=>'envelope__NkIZUrK4','data-aspect'=>"contents",'data-boqx'=>$cid,'data-guid'=>$id,'data-presentation'=>"contents"],
-                    	 elgg_format_element('div',['class'=>"ContentsShow_iGfIgeuR",'data-aid'=>"TaskShow",'data-cid'=>$cid,'style'=>"display: flex;",'draggable'=>"draggable"],
+                    	 elgg_format_element('div',['class'=>"ContentsShow_iGfIgeuR",'data-aid'=>"TaskShow",'data-cid'=>$cid,'style'=>"display: flex;"],
                     		 elgg_format_element('div',['class'=>"TaskShow__description___3R_4oT7G",'data-aid'=>"TaskDescription",'tabindex'=>"0"],
                     			  elgg_format_element('span',['class'=>"TaskShow__title___O4DM7q"],
                     				  elgg_format_element('span',[],$data[$id]['title']))).
@@ -378,6 +380,7 @@ function quebx_display_child_nodes_III($options){
 //        	$children .= elgg_format_element('li',['class'=>$list_item_class],$child_toggle.$item_name.$child_nodes);            
             $children .= "<li id='$cid' data-boqx=$boqx_id class=$list_item_classes>$item";
             $options['parent_id'] = $id;
+            $options['parent_cid'] = $cid;
             $options['cid']       = $child_id;
             $options['level']     = ++$level;
             quebx_display_child_nodes_III($options);
@@ -399,4 +402,112 @@ function quebx_initials ($string){
         $initials .= $word[0];
     }
     return $initials;
+}
+/**
+ * Format a series of HTML elements
+ * @receives         A series of identical tags identified as a single $tag_name and a series of attribute arrays 
+ *
+ * @param string     $tag_name   The common element tag name, e.g. "div".  Provides special treatment for "hidden" tags. 
+ *                         
+ * @param array      $attributes A series of element attribute arrays. Each array is passed individually to elgg_format_element().
+ * 
+ * @return string
+ * @throws InvalidArgumentException
+ */
+function quebx_format_elements($tag_name, array $attributes = []){
+    if (!is_string($tag_name) || $tag_name === '') {
+		throw new \InvalidArgumentException('$tag_name is required');
+	}
+	if($tag_name == 'hidden'){
+	    $tag_name = 'input';
+	    $tag_type = 'hidden';
+	}
+    if(is_array($attributes))
+        foreach($attributes as $key=>$attrs){
+            $attrs['#tag_name'] = $tag_name;
+            $attrs['type']      = $tag_type;
+            $elements .= elgg_format_element($attrs);
+        }
+    else throw new \InvalidArgumentException('$attributes must be an array');
+    return $elements;
+}
+function quebx_count_pieces($guid=false, $aspect){
+    if($guid==false)
+        return false;
+    $page_owner     = elgg_get_page_owner_entity();
+    $dbprefix       = elgg_get_config('dbprefix');
+    $options = ['type'       => 'object',
+                'owner_guid' => $page_owner->guid, 
+                'order_by_metadata' => ['name'=>'moment',
+                		                'direction'=>DESC,
+                                        'as'=>date],
+                'order_by'=>'time_updated',
+                'limit'      => 0,];
+    
+    switch ($aspect){
+        case 'things':
+            $jot_options = $options;
+            unset($jot_options['order_by_metadata']);
+            $jot_options['subtype']='market';
+            $jot_options['wheres'] = ["NOT EXISTS (SELECT *
+                                                   FROM {$dbprefix}metadata md
+                        	                       JOIN {$dbprefix}metastrings ms1 ON ms1.id = md.name_id
+                        	                       JOIN {$dbprefix}metastrings ms2 ON ms2.id = md.value_id
+                        	                       WHERE ms1.string = 'visibility_choices'
+                        	                         AND ms2.string = 'hide_in_catalog'
+                        	                         AND e.guid = md.entity_guid)"];
+            return count(elgg_get_entities($jot_options));
+            break;
+        case 'experiences':
+            $jot_options = $options;
+            $jot_options['subtype'] = 'experience';
+            $jot_options['wheres']  = $guid ? ["e.container_guid = $guid"] : '';
+            unset($jot_options['order_by_metadata']);
+            return count(elgg_get_entities_from_metadata($jot_options));
+            break;
+        case 'issues':
+            $jot_options = ['type' => 'object',
+                            'subtypes'=>'issue',
+                        	'relationship' => 'on',
+                        	'relationship_guid' => $guid,
+                            'inverse_relationship' => true,
+                        	'limit' => false,];
+            return count(elgg_get_entities_from_relationship($jot_options));
+            break;
+        case 'transfers':
+            $jot_options = $options;
+            $jot_options['subtype'] = 'transfer';
+            return count(elgg_get_entities_from_metadata($jot_options));
+            break;
+        case 'contents':
+            $jot_options = $options;
+            unset($jot_options['order_by_metadata']);
+            $jot_options['subtypes'] = ['market', 'item', 'contents'];
+            $jot_options['joins']    = ["JOIN {$dbprefix}objects_entity e2 on e.guid = e2.guid"];
+            $jot_options['wheres'][] = $guid ? "e.container_guid = $guid" :'';
+            $jot_options['wheres'][] = "NOT EXISTS (SELECT *
+                                                     from {$dbprefix}entity_relationships s1
+                                                     WHERE s1.relationship = 'component'
+                                                       AND s1.guid_two = e.container_guid)";
+            $jot_options['order_by']= 'e2.title';
+            return count(elgg_get_entities($jot_options));
+            break;
+        case 'accessories':
+            $jot_options = ['type' => 'object',
+                        	'relationship' => 'accessory',
+                        	'relationship_guid' => $guid,
+                            'inverse_relationship' => true,
+                        	'limit' => false,];
+            return count(elgg_get_entities_from_relationship($jot_options));
+            break;
+        case 'components':
+            $jot_options = ['type' => 'object',
+                        	'relationship' => 'component',
+                        	'relationship_guid' => $guid,
+                            'inverse_relationship' => true,
+                        	'limit' => false,];
+            return count(elgg_get_entities_from_relationship($jot_options));
+            break;
+    }
+    return false;
 }

@@ -19,6 +19,7 @@ $parent_cid  = elgg_extract('parent_cid', $vars, quebx_new_id('c'));
 $show_access = elgg_extract('show_access', $vars, true);
 $this_slot   = elgg_extract('this_slot', $vars, $widget->column);
 $contents_count = elgg_extract('contents_count', $vars, false);
+$presentation = elgg_extract('presentation', $vars, 'pallet');
 
 if (!($widget instanceof WidgetManagerWidget)) {
 	// need this for newly created widgets (elgg_create_widget returns ElggWidget)
@@ -70,13 +71,16 @@ if (($widget->widget_manager_hide_header !== 'yes') || $can_edit) {
 		
 //@EDIT 2019-06-22 - SAJ
 	//$widget_header = "<div class='elgg-widget-handle clearfix'><h3 class='elgg-widget-title'>$title</h3>$controls</div>";
-	$widget_header = elgg_format_element('div',['class'=>['elgg-widget-handle','clearfix','tn-PanelHeader__inner___3Nt0t86w','tn-PanelHeader__inner--single___3Nq8VXGB']],
-                           elgg_format_element('h3',['class'=>['elgg-widget-title','tn-PanelHeader__name___2UfJ8ho9']],
+	$widget_header = elgg_format_element('div',['class'=>['tn-PanelHeader__inner___3Nt0t86w','tn-PanelHeader__inner--single___3Nq8VXGB']],
+//@EDIT - 2020-03-25 - SAJ - remove elgg classes
+//	$widget_header = elgg_format_element('div',['class'=>['elgg-widget-handle','clearfix','tn-PanelHeader__inner___3Nt0t86w','tn-PanelHeader__inner--single___3Nq8VXGB']],
+                           elgg_format_element('h3',['class'=>['tn-PanelHeader__name___2UfJ8ho9']],
+//	                       elgg_format_element('h3',['class'=>['elgg-widget-title','tn-PanelHeader__name___2UfJ8ho9']],
                                 $title).
                            $controls);
 	$widget_header .= elgg_format_element('div',['class'=>'tn-PanelHeader__input__xCdUunkH'],
 	                      elgg_format_element('div',['id'=>$empty_boqx_id,'class'=>'empty-boqx', 'data-boqx'=>$module_id],
-	                          elgg_view('partials/jot_form_elements',['element'=>'empty boqx','handler'=>$handler,'perspective'=>'add','empty_boqx_id'=>$empty_boqx_id,'parent_cid'=>$module_id])));
+	                          elgg_view('partials/jot_form_elements',['element'=>'empty boqx','handler'=>$handler,'perspective'=>'add','empty_boqx_id'=>$empty_boqx_id,'parent_cid'=>$module_id, 'presence'=>'empty boqx'])));
 }
 $widget_body_vars = [
 	'id'        => $cid,
@@ -98,10 +102,13 @@ $content_vars['boqx_id']       = $cid;
 $content_vars['visible']       = 'show';
 $content_vars['has_collapser'] ='yes';
 $content_vars['action']        = 'show';
-$content_vars['presentation']  = $module_type;
+$content_vars['presentation']  = $module_type;// $presentation;
 unset($content_vars ['title']);
-$widget_body        = elgg_format_element('div', $widget_body_vars, elgg_view('object/widget/elements/content', $content_vars ));
-$widget_class       = array_merge($widget->getClasses(), $class);                         //$display .= '$widget_class:'.print_r($widget_class,true);
+$widget_body                   = elgg_format_element('div', $widget_body_vars, elgg_view('object/widget/elements/content', $content_vars ));
+$class[]                       = 'pallet';
+$widget_class                  = $class;
+//@EDIT - 2020-03-20 - SAJ - Replacing elgg-module-widget behaviors with pallet behaviors
+//$widget_class       = array_merge($widget->getClasses(), $class);                         //$display .= '$widget_class:'.print_r($widget_class,true);
 $widget_module_vars = [
 	'class'     => $widget_class,
 	'id'        => $module_id,
@@ -120,7 +127,11 @@ Switch ($module_type){
         $widget_module_vars['body']        = $widget_body;
         $widget_module_vars['module_type'] = $module_type;
         $widget_module_vars['handler']     = $handler;
-        $module = elgg_format_element('div',['id'=>$parent_cid,'class'=>['elgg-widgets','q-widgets','pallet','items_draggable','visible','ui-sortable'],'data-contents'=>$handler, 'data-slot'=>$this_slot],
+        $widget_module_vars['guid']        = $widget->getGUID();
+        $module_classes                    = ['slot','items_draggable','visible'];
+//@EDIT - 2020-03-20 - SAJ - Remove widget behaviors.  Replacing with slot and pallet behaviors
+//        $module_classes                    = ['elgg-widgets','q-widgets','pallet','items_draggable','visible'];
+        $module = elgg_format_element('div',['id'=>$parent_cid,'class'=>$module_classes,'data-contents'=>$handler, 'data-slot'=>$this_slot],
                       elgg_view('page/components/module_warehouse', $widget_module_vars));
         break;
     default:

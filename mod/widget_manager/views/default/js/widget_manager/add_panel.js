@@ -29,7 +29,9 @@ define(['elgg', 'jquery', 'elgg/widgets'], function(elgg, $, widgets) {
 				var guidString = $widget.attr('id');
 				guidString = guidString.substr(guidString.indexOf('elgg-widget-') + "elgg-widget-".length);
 
-				elgg.action('widgets/move', {
+//@EDIT - 03-16-2020 - SAJ
+//				elgg.action('widgets/move', {
+				elgg.action('widgets/move_xxx', {
 					data: {
 						widget_guid: guidString,
 						column: 1,

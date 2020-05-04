@@ -21,7 +21,8 @@ echo elgg_view('sprintf.js');
 // to wait for the module to load. This is necessary to ensure BC for plugins that
 // rely on elgg.ui.widgets methods to be available at system init.
 // @todo: remove in 3.x and use async calls
-echo elgg_view('elgg/widgets.js');
+//@EDIT - 03/15/2020 - SAJ - Moved to js/quebx/framework.php for testing
+//echo elgg_view('elgg/widgets.js');
 
 // In 3.0 this will be required by elgg/lightbox, but in 2.x we have to worry about
 // legacy code that expects $.colorbox to be ready synchronously. To avoid inlining

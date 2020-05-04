@@ -180,7 +180,8 @@ function _elgg_widgets_set_ajax_title($hook, $type, $results, $params) {
 function _elgg_widgets_init() {
 	elgg_register_action('widgets/save');
 	elgg_register_action('widgets/add');
-	elgg_register_action('widgets/move');
+//@EDIT - 2020-03-16 - SAJ - Moved to quebx/lib/pallets.php
+//	elgg_register_action('widgets/move');
 	elgg_register_action('widgets/delete');
 
 	elgg_register_plugin_hook_handler('output', 'ajax', '_elgg_widgets_set_ajax_title');

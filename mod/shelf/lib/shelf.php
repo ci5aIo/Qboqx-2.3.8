@@ -295,3 +295,61 @@ function shelf_item_attr_value($guid, $attr){
     }
     return $attr_value;
 }
+function shelf_close_boqx($guid=0){
+    // Get current shelf data
+    $owner_guid = elgg_get_logged_in_user_guid();
+    $add_new    = true;
+	$file        = new ElggFile;
+    $file->owner_guid = elgg_get_logged_in_user_guid();
+    $file->setFilename("shelf.json");
+    if ($file->exists()) {
+    	$file->open('read');
+    	$json = $file->grabFile();
+    	$file->close();
+    }
+    $data = json_decode($json, true);
+    if($guid == 0)
+        // Update the state of all records
+        foreach($data as $data_key =>$line){
+            $data[$data_key]['open_state']= 'closed';
+            $message .= $data_key.' closed<br>'; 
+        }
+    else 
+        // Update the state of an existing record
+        foreach($data as $data_key =>$line){
+            foreach($line as $key1=>$value1){
+                if ($key1 == 'guid' && $value1 == $guid){
+                    $data[$data_key]['open_state']='closed';
+                    $message = $guid.' closed';}}}
+    // Write shelf data
+    $file = new ElggFile;
+    $file->owner_guid = $owner_guid;
+    $file->setFilename("shelf.json");
+    $file->open('write');
+    $file->write(json_encode($data));
+    $file->close();
+    return $message;
+}
+function shelf_remove_boqx($guid){
+	$file        = new ElggFile;
+    $file->owner_guid = elgg_get_logged_in_user_guid();
+    $file->setFilename("shelf.json");
+    if ($file->exists()) {
+    	$file->open('read');
+    	$json = $file->grabFile();
+    	$file->close();}
+    $data = json_decode($json, true);
+    foreach($data as $data_key =>$line){
+        foreach($line as $key1=>$value1){
+            if ($key1 == 'guid' && $value1 == $guid){
+                unset($data[$data_key]);
+                continue;}}}
+    // Write shelf data
+    $file = new ElggFile;
+    $file->owner_guid = $owner_guid;
+    $file->setFilename("shelf.json");
+    $file->open('write');
+    $file->write(json_encode($data));
+    $file->close();
+    return shelf_count_items();
+}

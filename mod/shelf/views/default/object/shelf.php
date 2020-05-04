@@ -37,24 +37,24 @@ foreach($data as $key=>$contents){
             $subtype = $entity->getSubtype();
         }
     }*/
-    if (elgg_entity_exists($guid))
+    if ($entity && elgg_entity_exists($guid))
         $subtype = $entity->getSubtype();
     switch ($subtype){
         case 'market':
         case 'item':
             ++$n_items;
-            $content_item .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'guid'=>$guid, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
+            $content_item .= elgg_view('shelf/arrange', ['state'=>'selected','quantity'=>$qty, 'entity'=>$entity, 'guid'=>$guid, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
             break;
         case 'receipt':
         case 'transfer':
             ++$n_receipts;
-            $content_receipt .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'guid'=>$guid, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
+            $content_receipt .= elgg_view('shelf/arrange', ['state'=>'selected','quantity'=>$qty, 'entity'=>$entity, 'guid'=>$guid, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
             break;
         default:
-            $content_default .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'guid'=>$guid, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
+            $content_default .= elgg_view('shelf/arrange', ['state'=>'selected','quantity'=>$qty, 'entity'=>$entity, 'guid'=>$guid, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
     }
     // all items on the shelf
-    $shelf_items .= elgg_view('shelf/arrange', ['quantity'=>$qty, 'entity'=>$entity, 'guid'=>$guid, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
+    $shelf_items .= elgg_view('shelf/arrange', ['state'=>'selected','quantity'=>$qty, 'entity'=>$entity, 'guid'=>$guid, 'perspective'=>$perspective, 'parent_cid'=>$parent_cid]);
 }
 Switch ($perspective){
 	case 'page':

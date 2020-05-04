@@ -34,6 +34,7 @@ $messages = elgg_view('page/elements/messages', array('object' => $vars['sysmess
 $header  = elgg_view('page/elements/qboqx_header', $vars);
 $content = elgg_view('page/elements/body', $vars);
 $footer  = elgg_view('page/elements/footer', $vars);
+$header_class = '';
 if($show_site_menu)
     $expanded_header = 'expanded_header';
 
@@ -48,20 +49,24 @@ if ($file->exists()) {
 
 $data = json_decode($json, true);
 foreach($data as $key=>$contents){
-    if (array_key_exists('open-state',$contents) && $contents['open_state'] != 'closed'){
+    if (array_key_exists('open_state',$contents) && $contents['open_state'] != 'closed'){
        $root_class='boqx-open';
+       $header_class = 'compressed';
        $boqx_state = $contents['open_state'];
        $boqx_open  = $contents['guid'];
        continue;
     }
 }
+if ($boqx_open)
+    $open_boqx = elgg_view_resource('shelf/open_boqx',['guid'=>$boqx_open,'open_state'=>$boqx_state]);
 if (elgg_is_logged_in()) {
 	$topbar = elgg_format_element('div',['class'=>"elgg-page-topbar"],
 	              elgg_format_element('div',['class'=>"elgg-inner"],
 			          elgg_view('page/elements/topbar', $vars)));
 $body_header = elgg_format_element('header',['class'=>"page_header_container"],
-            	   elgg_format_element('div',[],
-            		   elgg_format_element('div',[],$header))).
+            	   elgg_format_element('div',['class'=>['closed-boqx',$header_class]],
+            		   elgg_format_element('div',[],$header)).
+                    $open_boqx).
                elgg_format_element('section',['class'=>["main","space","project"]],$content).
                elgg_format_element('div',['class'=>"elgg-page-footer",'style'=>"display:none;"],
     		       elgg_format_element('div',['class'=>"elgg-inner"],$footer));

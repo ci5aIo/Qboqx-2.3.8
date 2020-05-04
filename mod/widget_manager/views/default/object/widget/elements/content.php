@@ -12,6 +12,7 @@ if (!elgg_instanceof($widget, 'object', 'widget')) {
 }
 
 $handler = $widget->handler;                                                                    $display .= '$handler: '.$handler.'<br>';
+$vars['handler']=$handler;
 $cacheable = widget_manager_is_cacheable_widget($widget);
 
 if ($cacheable) {
@@ -22,7 +23,7 @@ if ($cacheable) {
 	}
 }
 
-if (elgg_view_exists("widgets/$handler/content")) {                                            $display .= "widgets/$handler/content exists<br>";
+if (elgg_view_exists("widgets/$handler/content")) {                                            $display .= "presence: ".$vars['presence'];
 	$content = elgg_view("widgets/$handler/content", $vars);
 } else {
 	$content = elgg_view_deprecated("widgets/$handler/view", $vars, "Widgets use content as the display view", '1.8');

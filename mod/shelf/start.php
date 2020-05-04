@@ -34,6 +34,7 @@ function shelf_init() {
 	elgg_register_action('shelf/empty', __DIR__ . '/actions/shelf/empty.php', 'public');
 	elgg_register_action('shelf/pack', __DIR__ . '/actions/shelf/pack.php', 'public');
 	elgg_register_action('shelf/pick', __DIR__ . '/actions/shelf/pack.php', 'public');
+	elgg_register_action('shelf/do', __DIR__ . '/actions/shelf/do.php', 'public');
 	elgg_register_action('shelf/packable', __DIR__ . '/actions/shelf/packable.php', 'public');
 
 	elgg_register_plugin_hook_handler('public_pages', 'walled_garden', 'shelf_set_public_pages');

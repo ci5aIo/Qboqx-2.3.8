@@ -21,9 +21,12 @@ $handler = elgg_extract('handler', $vars);                                      
 $data_boqx = elgg_extract('data-boqx', $vars);
 $cid     = elgg_extract('id', $vars);
 $header = elgg_extract('header', $vars);
+$guid  = elgg_extract('guid', $vars);
 
 $body_class = ['elgg_body','items','panel_content'];
-$attrs = ['id' => $cid,'class' => elgg_extract_class($vars, 'elgg-module'), 'data-boqx'=>$data_boqx];
+$attrs = ['id' => $cid,'class' => elgg_extract_class($vars),'data-guid'=>$guid, 'data-boqx'=>$data_boqx];
+//@EDIT - 2020-03-25 - SAJ - Removed the elgg-module class
+//$attrs = ['id' => $cid,'class' => elgg_extract_class($vars, 'elgg-module'),'data-guid'=>$guid, 'data-boqx'=>$data_boqx];
 
 if ($type){
 	$attrs['class'][] = "elgg-module-$type";
@@ -36,7 +39,7 @@ if ($title)
 	$header = elgg_format_element('h3', [], $title);
 
 if ($header !== null) 
-	$header = elgg_format_element('header', ['class' => ['elgg-head tn-PanelHeader___c0XQCVI7','tn-PanelHeader--single___2ns28dRL','draggable'],'cid'=>$cid], $header);
+	$header = elgg_format_element('header', ['class' => ['tn-PanelHeader___c0XQCVI7','tn-PanelHeader--single___2ns28dRL'],'cid'=>$cid], $header);
 
 $body = elgg_format_element('section', ['class'=>['items_container','tn-panel-items-container___1Fk42hjC'],'cid'=>$cid,'data-scrollable' => 'true'], 
             elgg_format_element('div', ['class' => $body_class],$body));

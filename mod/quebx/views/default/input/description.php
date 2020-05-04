@@ -7,8 +7,10 @@ $guid          = elgg_extract('guid', $vars);
 $value         = elgg_extract('value', $vars, false);
 $html_tag      = elgg_extract('html_tag', $vars,'div');
 $number        = elgg_extract('number', $vars, 'singular');  //options: singular, series
-$placeholder   = $value ? elgg_format_element('span',['class'=>'tracker_markup'],elgg_format_element('p',[],$value)) : "Add a $metadata_name";
+$display_state = elgg_extract('display_state', $vars);
+$placeholder   = $value ? elgg_format_element('span',['class'=>'tracker_markup'],elgg_format_element('p',[],$value)) : ($display_state == 'view' ? '(No description)' : "Add a $metadata_name");
 $cid           = quebx_new_id('c');
+$disabled      = $display_state == 'view';
 if($heading) 
     $show_heading = elgg_format_element('h4',[],$heading);
 switch($number){
@@ -19,11 +21,14 @@ switch($number){
         $name = "jot[$boqx_id][$input_type][]";
         break;
 }
+$show_class =  ['DescriptionShow__placeholder___1NuiicbF'];
+if($display_state != 'view')
+    $show_class[] = 'DescriptionShow___3-QsNMNj';
 
 $description  = elgg_format_element($html_tag,['id'=>$cid, 'data-boqx'=>$boqx_id, 'class'=>'Description___3oUx83yQ_xxx','data-aid'=>$heading],
                     elgg_format_element('input',['type'=>'hidden','name'=>$name,'data-focus-id'=>"Description--$cid",'value'=>$value]).
                     $show_heading.
-                    elgg_format_element('div',['class'=>['DescriptionShow___3-QsNMNj','DescriptionShow__placeholder___1NuiicbF'],'data-cid'=>$cid, 'tabindex'=>'0','data-aid'=>'renderedDescription','data-focus-id'=>"DescriptionShow--$cid"],$placeholder).
+                    elgg_format_element('div',['class'=>$show_class,'data-cid'=>$cid, 'tabindex'=>'0','data-aid'=>'renderedDescription','data-focus-id'=>"DescriptionShow--$cid"],$placeholder).
                     elgg_format_element('div',['class'=>'DescriptionEdit___1FO6wKeX','data-cid'=>$cid],
                         elgg_format_element('div',['class'=>'markdownHelpContainer___32_mTqNL'],
                             elgg_format_element('div',[],

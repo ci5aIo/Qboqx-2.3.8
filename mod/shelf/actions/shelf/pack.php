@@ -3,13 +3,12 @@ $jot      =       get_input('jot');
 $items    =       get_input('item');                     $display .= '$items: '.$items.PHP_EOL;
 $guid     = (int) get_input('guid');                     $display .= '$guid: '.$guid.'<br>';
 $container_guid = get_input('container_guid');           $display .= '$container_guid: '.$container_guid.PHP_EOL;
-$boqx_guid=       get_input('boqx_guid');
+$boqx_guid= (int) get_input('boqx_guid');
 $origin   =       get_input('origin');
 $aspect   =       get_input('aspect', $jot['aspect']);
+$section  =       get_input('section');
+$action   =       get_input('action', 'add');
 
-$container = get_entity($container_guid);
-$action    = $jot['do'];                                  //$display.='05 $action:'.$action.PHP_EOL;
-														 $display .= '$aspect: '.$aspect.'<br>';
 Switch ($aspect){
 	case 'item':
 		$relationship  = 'contents';
@@ -290,6 +289,19 @@ if ($guid){                                           $display .= 'Packing a sin
 			}
 			elgg_create_river_item($options);*/
     		break;
+    	case 'experience':
+// swaps guid_one and guid_two
+// uses default $relationship
+    	    switch ($action){
+    	        case 'add':
+                    if (!check_entity_relationship($boqx_guid, $relationship, $guid))
+            			add_entity_relationship($boqx_guid, $relationship, $guid);
+        		break;
+    	        case 'remove':
+                    if (check_entity_relationship($boqx_guid, $relationship, $guid))
+            			remove_entity_relationship($boqx_guid, $relationship, $guid);
+    	            break;
+    	    }
     }
 }
 eof:

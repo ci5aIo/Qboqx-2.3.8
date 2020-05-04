@@ -4,19 +4,19 @@ $guid         = elgg_extract('guid', $vars);
 $perspective  = elgg_extract('perspective', $vars, 'sidebar');
 $open_state   = elgg_extract('open_state', $vars);
 
+// Get current shelf data
+$owner_guid = elgg_get_logged_in_user_guid();                  //$display .= '$guid: '.$guid.PHP_EOL;
+$file = new ElggFile;
+$file->owner_guid = $owner_guid;
+$file->setFilename("shelf.json");
+if ($file->exists()) {
+    $file->open('read');
+    $json = $file->grabFile();                                 //$display .= '15 $json:'."$json<br>";
+    $file->close();
+}
+
 Switch ($element){
     case 'delete':
-        // Get current shelf data
-        $owner_guid = elgg_get_logged_in_user_guid();                  //$display .= '$guid: '.$guid.PHP_EOL;
-        $file = new ElggFile;
-        $file->owner_guid = $owner_guid;
-        $file->setFilename("shelf.json");
-        if ($file->exists()) {
-            $file->open('read');
-            $json = $file->grabFile();                                 //$display .= '15 $json:'."$json<br>";
-            $file->close();
-        }
-        
         $data = json_decode($json, true);
             foreach($data as $data_key =>$line){                       //$display .= '$data_key: '."$data_key = $line<br>";
                 foreach($line as $key1=>$value1){                      //$display .= '$key1: '."$key1 = $value1<br>";
@@ -57,15 +57,6 @@ Switch ($element){
             $params->quantity = 1;
         }
         
-        $owner_guid = elgg_get_logged_in_user_guid();                  //$display .= '$guid: '.$guid.PHP_EOL;
-        $file = new ElggFile;
-        $file->owner_guid = $owner_guid;
-        $file->setFilename("shelf.json");
-        if ($file->exists()) {
-            $file->open('read');
-            $json = $file->grabFile();                                 //$display .= '15 $json:'."$json<br>";
-            $file->close();
-        }
         $data = json_decode($json, true);                         //$display .= '$data: '.$data.PHP_EOL;
         foreach($data as $key=>$value){                           $display .= '39 $data->$key: '.$key.'=>'.$value.PHP_EOL;
             foreach($value as $key1=>$value1){                    //$display .= '40 $value->$key1: '.$key1.'=>'.$value1.PHP_EOL;
@@ -99,34 +90,33 @@ Switch ($element){
         }
         break;
     case 'load_sidebar':
-        $entity = get_entity($guid);
-        $content = elgg_view('shelf/arrange', ['entity'=>$entity, 'perspective'=>$perspective, 'state'=>$state]);
+        $data = json_decode($json, true);                         //$display .= '$data: '.$data.PHP_EOL;
+        foreach($data as $key=>$value){                           $display .= '39 $data->$key: '.$key.'=>'.$value.PHP_EOL;
+            foreach($value as $key1=>$value1){                    //$display .= '40 $value->$key1: '.$key1.'=>'.$value1.PHP_EOL;
+                if ($key1 == 'guid'){
+                    $guids[] = $value1;}}}
+        if (in_array($guid, $guids))
+            $skip = true;
+        if (!$skip){
+            $entity = get_entity($guid);
+            $content = elgg_view('shelf/arrange', ['entity'=>$entity, 'perspective'=>$perspective, 'state'=>$state]);}
+        break;
+    case 'load_shelf':
+        $content = elgg_view_resource('shelf/open_boqx',['guid'=>$guid,'open_state'=>$open_state]);
         break;
     case 'open':
         // Get current shelf data
         $owner_guid = elgg_get_logged_in_user_guid();                  //$display .= '$guid: '.$guid.PHP_EOL;
         $add_new    = true;
-        $file       = new ElggFile;
-        $file->owner_guid = $owner_guid;
-        $file->setFilename("shelf.json");
-        if ($file->exists()) {
-            $file->open('read');
-            $json = $file->grabFile();                                 //$display .= '15 $json:'."$json<br>";
-            $file->close();
-        }
-        
         $data = json_decode($json, true);
-        // Update the state of an existing record
+        // Update the state of existing records
         foreach($data as $data_key =>$line){                       //$display .= '$data_key: '."$data_key = $line<br>";
+            $data[$data_key]['open_state']= 'closed';
             foreach($line as $key1=>$value1){                      //$display .= '$key1: '."$key1 = $value1<br>";
                 if ($key1 == 'guid' && $value1 == $guid){          //$display .= '22 $data_key: '."$data_key; ".'$guid: '.$guid.'; $qty: '.$qty.'<br>';
                 // record exists  
                     $data[$data_key]['open_state']=$open_state;
-                    $add_new = false;
-                    continue(2);
-                }
-            }
-        }
+                    $add_new = false;}}}
         // Add a new record if no record exists
         if ($add_new){
             $params = new stdClass();
@@ -138,11 +128,8 @@ Switch ($element){
             $keys = array_unique(array_merge($input_keys, $request_keys));
             foreach ($keys as $key) {
                 if ($key) {
-                    $params->$key = get_input($key);
-                }
-            }
-            $data[] = $params;
-        }
+                    $params->$key = get_input($key);}}
+            $data[] = $params;}
         // Write shelf data
         $file = new ElggFile;
         $file->owner_guid = $owner_guid;
@@ -151,9 +138,5 @@ Switch ($element){
         $file->write(json_encode($data));
         $file->close();
         break;
-    default:
-        
-        
-    
 }
 echo $content;

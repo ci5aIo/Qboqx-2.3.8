@@ -51,6 +51,8 @@ define(function(require) {
 	    var ajax = new Ajax();
 	    var field_type ='new_item_characteristic',
 	        cid        = $(this).parents('.Item__nhjb4ONn').attr('id');
+	    if(typeof cid == 'undefined')
+	    	cid        = $(this).closest('.itemCharacteristics_Dcl702bW').data('cid');
 	    
 	    if (keyCode == 9) { 
 	      e.preventDefault(); 
@@ -61,15 +63,33 @@ define(function(require) {
 	    		 cid: cid
 	    	   },
 	       }).done(function(output) {
-	    	   $('.new_characteristic').before($(output));
+	    	   $('.new_characteristic[data-cid='+cid+']').before($(output));
 	       });
 	    } 
+	});
+	$(document).on('click', '.AddSubresourceButton___xI4azKNIW', function(e) { 
+	    e.preventDefault(); 
+	    var ajax = new Ajax();
+	    var field_type ='new_item_characteristic',
+	        cid        = $(this).data('cid');
+	    
+	      $(this).removeClass("last_characteristic");
+		  ajax.view('partials/form_elements',{
+	    	   data: {
+	    		 element: field_type,
+	    		 cid: cid
+	    	   },
+	       }).done(function(output) {
+	    	   $('.new_characteristic[data-cid='+cid+']').before($(output));
+	       }); 
 	});
 	$(document).on('keydown', 'input.last_feature', function(e) { 
 	    var keyCode = e.keyCode || e.which;
 	    var ajax = new Ajax();
 	    var field_type ='new_item_feature',
 	        cid        = $(this).parents('.Item__nhjb4ONn').attr('id');
+	    if(typeof cid == 'undefined')
+	    	cid        = $(this).closest('.itemFeatures_LU71nPs4').data('cid');
 	    
 	    if (keyCode == 9) { 
 	      e.preventDefault(); 
@@ -80,9 +100,24 @@ define(function(require) {
 	    		 cid: cid
 	    	   },
 	       }).done(function(output) {
-	    	   $('.new_feature').before($(output));
+	    	   $('.new_feature[data-cid='+cid+']').before($(output));
 	       });
 	    } 
+	});
+	$(document).on('click', '.AddSubresourceButton___cWgofWCr', function(e) { 
+	    e.preventDefault();
+	    var ajax = new Ajax();
+	    var field_type ='new_item_feature',
+	        cid        = $(this).data('cid');
+	      $(this).removeClass("last_feature");
+		  ajax.view('partials/form_elements',{
+	    	   data: {
+	    		 element: field_type,
+	    		 cid: cid
+	    	   },
+	       }).done(function(output) {
+	    	   $('.new_feature[data-cid='+cid+']').before($(output));
+	       }); 
 	});
 	
 	$(document).on('click', "#Gallery_tab", function(e){

@@ -191,6 +191,7 @@ class Application {
 
 			// include library files, capturing setup functions
 			foreach ($lib_files as $file) {
+			    if(elgg_)
 				$setup = (require_once $lib_dir->getPath($file));
 
 				if ($setup instanceof \Closure) {

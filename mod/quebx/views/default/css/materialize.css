@@ -2439,9 +2439,10 @@ button:-moz-focusring,
 
 /**
  * Correct the padding in Firefox.
+ * @EDIT - 2020-02-19 - SAJ - Removed condition to restore layout to original design
  */
 fieldset {
-  padding: 0.35em 0.75em 0.625em;
+/*  padding: 0.35em 0.75em 0.625em;*/
 }
 
 /**
@@ -7143,11 +7144,11 @@ input[type=checkbox]:not(:disabled).tabbed:focus ~ .lever::before {
 }
 
 /* Select Field
-   ========================================================================== */
+   ========================================================================== 
 select {
   display: none;
 }
-
+*/
 select.browser-default {
   display: block;
 }

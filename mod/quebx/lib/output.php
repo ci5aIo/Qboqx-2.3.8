@@ -64,3 +64,13 @@ function quebx_list_attributes($options){
 	$attributes = elgg_get_entities_from_metadata($options);
 	return $attributes;
 }
+function quebx_get_pallet($options){
+    $name    = $options['name'];
+    $view    = 'pallets/'.$name.'/content';
+    if (elgg_view_exists($view)){
+        $pallet  = elgg_view($view,$options);
+        return $pallet;
+    }
+    else return false;
+
+}

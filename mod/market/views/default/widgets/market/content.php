@@ -15,6 +15,8 @@ $owner = get_user($vars['entity']->owner_guid);
 $class = elgg_extract('class', $vars);
 $context = elgg_get_context();
 $module_type = elgg_extract('module_type', $vars);
+$presentation = elgg_extract('presentation', $vars);
+$presence = elgg_extract('presence', $vars);
 
 //the number of files to display
 $num = (int) $vars['entity']->num_display;                                          
@@ -43,8 +45,8 @@ Switch ($module_type){
        		    $issues = elgg_get_entities_from_relationship(['relationship'=>'on','relationship_guid'=>$post->getGUID(),'inverse_relationship'=>true,'types'=>'object','subtypes'=>'issue']);
        		    $attachments = elgg_get_entities_from_relationship(['relationship'=>'on','relationship_guid'=>$post->getGUID(),'inverse_relationship'=>true,'types'=>'object','subtypes'=>'file']);
                 $icon_guid = $post->icon ?: $post->guid;
-                $icon = elgg_view('market/thumbnail', array('marketguid' => $post->guid, 'size' => 'tiny', 'class'=>'itemPreviewImage_ARIZlwto'));                
-                echo elgg_view('page/components/pallet_boqx', ['entity'=>$post,'aspect'=>'thing','boqx_id'=>$vars['boqx_id'],'has_issues'=>count($issues)>0,'icon'=>$icon,'has_description'=>isset($post->description),'has_attachments'=>count($attachments)>0]);
+                $icon = elgg_view('market/thumbnail', array('marketguid' => $post->guid, 'size' => 'tiny', 'class'=>'itemPreviewImage_ARIZlwto'));
+                echo elgg_view('page/components/pallet_boqx', ['entity'=>$post,'aspect'=>'thing','boqx_id'=>$vars['boqx_id'],'has_issues'=>count($issues)>0,'icon'=>$icon,'has_description'=>isset($post->description),'has_attachments'=>count($attachments)>0, 'handler'=>$handler]);
        		   }
           }
         break;

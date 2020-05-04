@@ -105,3 +105,4 @@ a.shelf-menu-page:hover {
     border-left: 3px solid #999;
 }
 span.hoverhelp {background: #F0F0EE;}
+.pallet[data-contents='shelf'] .preview .name{cursor:pointer;}

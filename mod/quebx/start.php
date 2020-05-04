@@ -23,6 +23,7 @@ function quebx_init() {
      elgg_register_library('elgg:quebx:navigation', elgg_get_plugins_path() . 'quebx/lib/navigation.php');
      elgg_register_library('elgg:quebx:views', elgg_get_plugins_path() . 'quebx/lib/views.php');
      elgg_register_library('elgg:quebx:output', elgg_get_plugins_path() . 'quebx/lib/output.php');
+//     elgg_register_library('qboqx:pallets', elgg_get_plugins_path() . 'quebx/lib/pallets.php');
 	// Add a site navigation items
 	$item = new ElggMenuItem('quebx', elgg_echo('quebx:title'), 'quebx/queb');
 	elgg_register_menu_item('site', $item);
@@ -64,8 +65,10 @@ function quebx_init() {
      elgg_define_js('moment_js', ['src' => $moment_src,'exports' => 'moment',]);
 // @EDIT - 2019-07-22 - SAJ - Draft - Disabled
 //      $quebx_widgets_js       = elgg_get_simplecache_url('js' , 'quebx/space.q_widgets.js');
+//@EDIT - 2020-03-16 - SAJ
+     $pallets_js             = elgg_get_simplecache_url('js' , 'pallets.js');
      $jquery_dropdown_js     = 'mod/quebx/vendors/jquery/dropdown/jquery.dropdown.js';
-     $qboqx_dropdown_js     = 'mod/quebx/views/default/js/quebx/qboqx.dropdown.js';
+     $qboqx_dropdown_js      = 'mod/quebx/views/default/js/quebx/qboqx.dropdown.js';
      $jquery_inputmask       = 'https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js';
      //$infinite_scroll        = 'https://unpkg.com/infinite-scroll@3/dist/infinite-scroll.pkgd.js';
      $materialize_js         = elgg_get_simplecache_url('js', 'materialize.js');
@@ -90,6 +93,8 @@ function quebx_init() {
      elgg_register_js('materialize.js'      , $materialize_js);     
 //     elgg_register_js('pivotal.js'          , $pivotal_js_framework);
 //     elgg_register_js('infinite_scroll.js'  , $infinite_scroll, 'head', 500);
+//@EDIT - 2020-03-16 - SAJ
+     elgg_register_js('pallets.js'          , $pallets_js);
      //css 
      elgg_register_css('quebx.framework.css'    , $quebx_css_framework, 8);
      elgg_register_css('quebx.slide_menu.css'   , $quebx_css_slide_menu);
@@ -110,6 +115,8 @@ function quebx_init() {
      elgg_load_js('inputmask.js');
      elgg_load_js('materialize.js');
 //     elgg_load_js('pivotal.js');
+//@EDIT - 2020-03-16 - SAJ
+     elgg_load_js('pallets.js');
      //css
      elgg_load_css('quebx.framework.css');
      elgg_load_css('quebx.slide_menu.css');
@@ -159,11 +166,13 @@ function quebx_init() {
 	elgg_register_action('q_widgets/add', "{$action_url}q_widgets/add.php");
 	elgg_register_action('q_widgets/move', "{$action_url}q_widgets/move.php");
 	elgg_register_action('q_widgets/delete', "{$action_url}q_widgets/delete.php");
+	elgg_register_action('pallets/move', "{$action_url}pallets/move.php");
 	
 	elgg_load_library('elgg:quebx');
     elgg_load_library('elgg:quebx:navigation');
     elgg_load_library('elgg:quebx:views');
     elgg_load_library('elgg:quebx:output');
+//    elgg_load_library('qboqx:pallets');
 //    elgg_load_library('elgg:quebx:picker');
     
 }

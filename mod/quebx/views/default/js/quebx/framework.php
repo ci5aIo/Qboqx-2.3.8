@@ -10,7 +10,7 @@
 // @todo: remove in 3.x and use async calls
 // @EDIT - 2019-07-22 - SAJ - Draft - Disabled
 // @EDIT - 2019-12-31 - SAJ - Re-enabled
-//echo elgg_view('quebx/widgets.js');
+echo elgg_view('elgg/widgets.js');
 ?>
 elgg.provide('quebx.framework');
 
@@ -543,6 +543,10 @@ $(document).ready(function(){
     });
     $(document).on("click", "button.close", function(e) {
         e.preventDefault();
+/* @EDIT - 2020-05-03 - SAJ - Cancelling function to avoid conflict with on("click", ".StuffEnvelope_6MIxIKaV" ...  
+                            * Presuming that this function is obsolete.  Not confirmed. 
+ */
+        return;
         var cid  = $(this).attr("data-cid"),
             qid  = $(this).attr('data-qid'),
             egg  = $(this).hasClass('egg');
@@ -582,7 +586,9 @@ $(document).ready(function(){
     });*/
     $(document).on('click', 'button.maximize',function(e){
        e.preventDefault();
-       var $boqx = $(this).parents('.pallet');
+       var $boqx = $(this).closest('.slot');
+/*@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors*/
+/*       var $boqx = $(this).closest('.pallet');*/
        $boqx.addClass('maximized');
        $(this).removeClass('maxmize');
        $(this).addClass('restore');
@@ -606,7 +612,9 @@ $(document).ready(function(){
     });*/
     $(document).on('click', 'button.restore',function(e){
        e.preventDefault();
-       var $boqx = $(this).parents('.pallet');
+       var $boqx = $(this).closest('.slot');
+/*@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors*/
+/*       var $boqx = $(this).closest('.pallet');*/
        $boqx.removeClass('maximized');
        $(this).addClass('maxmize');
        $(this).removeClass('restore');
@@ -656,11 +664,13 @@ $(document).ready(function(){
 */    $(document).on("click", "a.collapser-effort", function(e) {
         e.preventDefault();
         var cid    = $(this).attr("data-cid"),
-            show   = true
-            pallet = $(this).parents('.pallet');
+            show   = true;
+        var slot = $(this).parents('.slot');
+//@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
+//        var pallet = $(this).parents('.pallet');
         var name   = $(this).parent().find("textarea[data-focus-id=NameEdit--"+cid+"]").val(),
             state  = $(this).parents('.Effort__CPiu2C5N').attr('data-aid')
-    	    stack  = pallet.find('.tn-pallet__stack')
+    	    stack  = slot.find('.tn-pallet__stack')
             ;
         var $this_panel = $('.EffortEdit_fZJyC62e[data-cid='+cid+']');
         var $show_panel = $('.EffortShow_haqOwGZY[data-cid='+cid+']');
@@ -972,20 +982,35 @@ $(document).ready(function(){
             service_total_raw = $('#'+cid+"_line_total_raw").html(),
             envelope     = $('#'+cid);
         var state        = $(envelope).data('aid');
+        var pallet      = $(this).closest('.slot');
+//@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
+//      var pallet      = $(this).closest('.pallet');
+        var open_boqx   = pallet.attr('open-boqx');
+        console.log('state: '+state);
+        console.log('cid: '+cid);
         if (typeof service_name == 'undefined')
            show_service = false;
         else if (service_name.length==0)
-                 show_service = false;                                                         console.log('show_service = '+show_service);
+                 show_service = false;
+        if($('.liner[data-cid='+cid+']').length>0)
+          show_service=true;                                                                    console.log('show_service= '+show_service);
+        if($(envelope).attr('boqx-fill-level') == 0)
+           show_service=false;
         var add_panel   = $('[data-aid=TaskAdd][data-cid='+cid+']'),
             show_panel  = $('[data-aid=TaskShow][data-cid='+cid+']'),
-            edit_panel  = $('[data-aid=TaskEdit][data-cid='+cid+']');                         console.log('CollapseEnvelope__z7DilsLc');console.log('state = '+state);
-        if (state == 'add' || state == 'edit'){
+            edit_panel  = $('[data-aid=TaskEdit][data-cid='+cid+']');
+        if($(this).parents('.open-boqx').length>0 && pallet.hasClass('maximized') && pallet.attr('open-boqx')==cid){
+           pallet.removeClass('maximized').removeAttr('open-boqx');
+           $(envelope).find('button.maximize').addClass('maxmize').removeClass('restore').attr('title', 'Expand view');  
+       }
+       
+       if (state == 'add' || state == 'edit'){
               if (show_service){
-                 if(typeof service_qty != 'undefined') $(show_panel).find('.TaskShow__qty_7lVp5tl4').html('<span>'+service_qty+'</span>');
+/*                 if(typeof service_qty != 'undefined') $(show_panel).find('.TaskShow__qty_7lVp5tl4').html('<span>'+service_qty+'</span>');
                  if(typeof service_name != 'undefined') $(show_panel).find('.TaskShow__title___O4DM7q').html('<span>'+service_name+'</span>');
                  if(typeof service_desc != 'undefined') $(show_panel).find('.TaskShow__description___qpuz67f').html('<span>'+service_desc+'</span>');
                  if(typeof service_total != 'undefined') $(show_panel).find('.TaskShow__item_total__Dgd1dOSZ').html('<span>'+service_total+'</span>');
-/*                 if (state == 'add'){                                       // hide delete button when state = add
+                 if (state == 'add'){                                       // hide delete button when state = add
                      $(show_panel).find('button.IconButton___2y4Scyq6').hide();
                  }*/
                  $(show_panel).show();
@@ -1018,12 +1043,23 @@ $(document).ready(function(){
        e.preventDefault();
        var guid        = $(this).data('guid'),
            cid         = $(this).data('cid');
-       var boqx_show  = $('#'+cid);
-       var boqx_id     = $(boqx_show).data('boqx'); 
-       var boqx_preview = $('header.preview[data-cid='+boqx_id+']');
+       var slot      = $(this).closest('.slot');
+//@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
+//       var pallet      = $(this).closest('.pallet');
+       var boqx_show   = $('#'+cid);
+       var boqx_id     = $(boqx_show).data('boqx');
+       var item_boqx   = $('#'+boqx_id),
+           boqx_preview = $('header.preview[data-cid='+boqx_id+']'),
+           open_boqx   = slot.attr('open-boqx');
+       var stationary  = $(item_boqx).data('mobility') == 'stationary';
+       if($(this).parents('.open-boqx').length>0 && slot.hasClass('maximized') && slot.attr('open-boqx')==boqx_id){
+         slot.removeClass('maximized').removeAttr('open-boqx');
+         $(boqx_show).find('button.maximize').addClass('maxmize').removeClass('restore').attr('title', 'Expand view');  
+       }
+       if(!stationary)
+          item_boqx.draggable("enable");
        $(boqx_show).addClass('collapsed');
-       $(boqx_preview).removeClass('collapsed');
-      
+       $(boqx_preview).removeClass('collapsed');      
      });
      $(document).on('click', '.contentsPreviewItem__expander', function(e){
        e.preventDefault();
@@ -1115,34 +1151,60 @@ $(document).ready(function(){
         
     });
     $(document).on("click", "a.collapser-item", function(e) {
+/**Note: In the case of cloned and dropped boqxes, the 'cid' will not be unique until a page refresh.  This necessitates a careful identification of the target.*/
         e.preventDefault();
+        console.log('a.collapser-item');
+        if ($(this).parents('.empty-boqx').length == 0){     //item is not in an empty-boqx
+            var cid           = $(this).data("cid");
+            var $boqx         = $('#'+cid);
+            var fill_level    = $boqx.attr('boqx-fill-level'),
+                $this_panel   = $boqx.children('.ItemEdit___7asBc1YY'),
+                parent_cid    = $boqx.attr('data-boqx');
+            var $parent_boqx  = $('#'+parent_cid);  
+            var $show_panel   = $boqx.children('.ItemShow_Btc471up');
+            var $add_panel    = $boqx.children('.AddSubresourceButton___oKRbUbg6');
+            var $preview_panel= $('.preview[data-cid='+parent_cid+']');
+            if ($boqx.parent().hasClass('boqx-pallet')){    
+                if (fill_level == 'full' || fill_level >= 1){
+                   $show_panel.show();
+                   $this_panel.hide();
+                }
+                else {
+                   $add_panel.show();
+                   $this_panel.hide();
+                 }
+            }
+            else{
+              $preview_panel.removeClass('collapsed');
+              $boqx.addClass('collapsed');
+            }
+        }
+    });    
+    $(document).on("click", ".empty-boqx a.collapser-item", function(e) {
+        e.preventDefault();
+        console.log('empty-boqx a.collapser-item');
         var cid           = $(this).data("cid");
         var $boqx         = $('#'+cid);
         var fill_level    = $boqx.attr('boqx-fill-level'),
             $this_panel   = $boqx.children('.ItemEdit___7asBc1YY'),
+            $show_panel   = $boqx.children('.ItemShow_Btc471up'),
+            $add_panel    = $boqx.children('.AddSubresourceButton___oKRbUbg6'),
             parent_cid    = $boqx.attr('data-boqx');
-        var $show_panel   = $boqx.children('.ItemShow_Btc471up');
-        var $add_panel    = $boqx.children('.AddSubresourceButton___oKRbUbg6');
-        var $preview_panel= $('.preview[data-cid='+parent_cid+']');
-        if ($boqx.parent().hasClass('boqx-pallet')){    
-            if (fill_level == 'full' || fill_level >= 1){
-               $show_panel.show();
-               $this_panel.hide();
-            }
-            else {
-               $add_panel.show();
-               $this_panel.hide();
-             }
+        if (fill_level == 'full' || fill_level >= 1){
+           $show_panel.show();
+           $this_panel.hide();
         }
-        else{
-          $preview_panel.removeClass('collapsed');
-          $boqx.addClass('collapsed');
-        }
-        
+        else {
+           $add_panel.show();
+           $this_panel.hide();
+         }
     });
     $(document).on('click', '.ShowItemDetailsButton__qWXhMy9t', function(e){
           var cid = $(this).data('cid');
-          $('.ItemEdit__descriptionContainer___Mr67pXjd.ItemEditContainer__'+cid).toggle();
+          if($('.ItemEdit__descriptionContainer___Mr67pXjd.ItemEditContainer__'+cid).hasClass('open'))
+               $('.ItemEdit__descriptionContainer___Mr67pXjd.ItemEditContainer__'+cid).removeClass('open');
+          else $('.ItemEdit__descriptionContainer___Mr67pXjd.ItemEditContainer__'+cid).addClass('open');
+//          $('.ItemEdit__descriptionContainer___Mr67pXjd.ItemEditContainer__'+cid).toggle();
     });
     $(document).on('focus', '.textContainer___2EcYJKlD', function(e){
           $(this).addClass('textContainer--focused___3O2vB2yM');
@@ -1180,6 +1242,7 @@ $(document).ready(function(){
     });
     $(document).on("click", ".TaskShow___2LNLUMGe", function(e) {
         e.preventDefault();
+        if($(this).hasClass('disabled')) return;
         var cid  = $(this).data('cid');
         var edit = $("[data-aid=TaskEdit][data-cid="+cid+"]"),
             envelope = $('#'+cid);
@@ -1206,6 +1269,13 @@ $(document).ready(function(){
     });
     $(document).on('click', '.AddSubresourceButton___2PetQjcb', function(){
         var cid = $(this).data('cid');
+        var slot      = $(this).closest('.slot');
+//@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
+//        var pallet      = $(this).closest('.pallet');
+        if($(this).parents('.open-boqx').length>0 && !slot.hasClass('maximized')){
+           slot.addClass('maximized').attr('open-boqx',cid);
+           $('#'+cid).find('button.maximize').removeClass('maxmize').addClass('restore').attr('title', 'Restore view');  
+        }
         $(this).hide();
         $('[data-aid=TaskEdit][data-cid='+cid+']').show();
         $('#'+cid).attr('data-aid', 'edit');
@@ -1229,8 +1299,9 @@ $(document).ready(function(){
        var liner = $('#'+cid);
        var boqx_id = liner.data('boqx');
        var boqx = $('#'+boqx_id);
-       var form_liner = $(boqx).children('form');
+       var form_liner = $(boqx).find('form');
        $(form_liner).remove();
+//       $(boqx).remove();
        $(stack).removeClass('open');
        
     });
@@ -1246,7 +1317,18 @@ $(document).ready(function(){
        console.log('cid = '+cid);
        $this_panel.remove();
        $header.removeClass('collapsed');
+      $('#'+parent_cid).draggable("enable");
     });
+    $(document).on('click', '.reveal', function(e){
+          var cid  = $(this).data('cid'),
+              guid = $(this).data('guid'),
+              type = $(this).data('type');
+          var target = $('.boqx.'+type+'[data-guid='+guid+']:not(#'+cid+')');
+          var visible = $(target).children(':not(.collapsed)');
+          $(visible).addClass('highlight');
+          $(visible).focus();
+    });
+    
     $(document).on("click", "a.done", function(e){
         e.preventDefault();
         // Do nothing else.
@@ -1491,6 +1573,30 @@ $(document).ready(function(){
 	    $("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").attr('data-count', --item_count);
 	    if (item_count > 0){$("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").html(" ("+item_count+")");}
 	    else               {$("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").html("");}
+    });
+    $(document).on('click','.IconButton__a3w2LGYY',function(e){
+//remove contents from an experience
+        e.preventDefault();
+    	var action      = $(this).data('aid'),
+            item_id     = $(this).data('cid');
+        var item        = $('#'+item_id),
+            envelope_id = $('#'+item_id).data('boqx');
+        var envelope    = $('#'+envelope_id);
+        var boqx_id     = $(envelope).data('boqx');
+        var boqx        = $('#'+boqx_id);
+        var item_guid   = $(item).data('guid'),
+            boqx_guid   = $(boqx).data('guid'),
+            aspect      = $(boqx).data('aspect');
+        elgg.action("shelf/pack", {
+           data: {guid     : item_guid,
+                  boqx_guid: boqx_guid,
+                  aspect   : aspect,
+                  action   : action
+           },
+           success: function(e){
+              $(item).remove();
+           }
+        });
     });
     $(document).on('click', '.Sidebar__toggle___3X5Ypi6e', function(e){
         var state = 'collapsed';
@@ -1756,13 +1862,13 @@ $(document).ready(function(){
 	    var $qty            = $("input[data-name='qty'][data-cid="+cid+"]"),
             $cost           = $("input[data-name='cost'][data-cid="+cid+"]"),
             $line_total     = $("span#"+cid+"_line_total"),
-            $line_total_raw = $("span."+cid+"_line_total_raw"),
+            $line_total_raw = $("span#"+cid+"_line_total_raw"),
             $sales_tax      = $("input[data-name='sales_tax'][data-cid="+parent_cid+"]"),
             $shipping       = $("input[data-name='shipping_cost'][data-cid="+parent_cid+"]"),
             $subtotal       = $("span#"+parent_cid+"_subtotal"),
-            $subtotal_raw   = $("span."+parent_cid+"_subtotal_raw"),
+            $subtotal_raw   = $("span#"+parent_cid+"_subtotal_raw"),
             $total          = $("span#"+parent_cid+"_total"),
-            $total_raw      = $("span."+parent_cid+"_total_raw");                                                        //console.log('$qty = ',$qty); console.log('$cost = ',$cost);
+            $total_raw      = $("span#"+parent_cid+"_total_raw");                                                        //console.log('$qty = ',$qty); console.log('$cost = ',$cost);
 	    var qty             = parseFloat($qty.val()),
             cost            = parseFloat($cost.val()),
             shipping        = parseFloat($shipping.val()),
@@ -1793,16 +1899,16 @@ $(document).ready(function(){
              var salesTax   = $("input[data-name='sales_tax'][data-cid="+cid+"]").val();
              $boqx.find("[data-name='taxable']:checked").each(function(e){
                    cid   = $(this).data('cid');
-                   cost  = $(this).parents('.rTableRow').find("span."+cid+"_line_total").html();
+                   cost  = $("span#"+cid+"_line_total").html();
                    taxableSum += parseFloat(cost);
                    taxableItems ++;
              });
              if (parseFloat(salesTax) > 0 && taxableSum > 0){
                    var taxRate = parseFloat(salesTax)/taxableSum
                    var taxRateLabel = percentFormat(taxRate, 2);
-                   $boqx.find('span.'+cid+'_sales_tax_rate').text(' (' + taxRateLabel + ')');
+                   $('span.'+cid+'_sales_tax_rate').text(' (' + taxRateLabel + ')');
              }
-             else $boqx.find('span.'+cid+'_sales_tax_rate').text('');
+             else $('span.'+cid+'_sales_tax_rate').text('');
          }
 	});
    $(document).on('change', "input[data-name='shipping_cost'], input[data-name='sales_tax']",function(e){
@@ -1810,16 +1916,16 @@ $(document).ready(function(){
 	    var $sales_tax = $("input[data-name='sales_tax'][data-cid="+cid+"]");
 	    var $shipping  = $("input[data-name='shipping_cost'][data-cid="+cid+"]");
 	    var $subtotal  = $("span#"+cid+"_subtotal");
-	    var $subtotal_raw  = $("span."+cid+"_subtotal_raw");
+	    var $subtotal_raw  = $("span#"+cid+"_subtotal_raw");
 	    var $total     = $("span#"+cid+"_total");
-	    var $total_raw = $("span."+cid+"_total_raw");
+	    var $total_raw = $("span#"+cid+"_total_raw");
 	    var sales_tax  = parseFloat($sales_tax.val());
 	    var shipping   = parseFloat($shipping.val());
 	    var subtotal   = parseFloat($subtotal_raw.text());
 		if(isNaN(subtotal)  || subtotal.length  == 0){subtotal  = 0;}
 		if(isNaN(shipping)  || shipping.length  == 0){shipping  = 0;}
 		if(isNaN(sales_tax) || sales_tax.length == 0){sales_tax = 0;}
-		$total.text(moneyFormat(subtotal+shipping+sales_tax)); 
+		$total.text(moneyFormat(subtotal+shipping+sales_tax));
 		$total_raw.text(subtotal+shipping+sales_tax);
    });
    $(document).on('change', "input[data-name='shipping_cost'], input[data-name='sales_tax']",function(e){
@@ -1841,9 +1947,9 @@ $(document).ready(function(){
          var $sales_tax = $qbox.find("input[data-name='sales_tax'][data-qid="+qid+"]"),
              $shipping  = $qbox.find("input[data-name='shipping_cost'][data-qid="+qid+"]"),
              $subtotal  = $qbox.find("span#"+qid+"_subtotal"),
-             $subtotal_raw  = $qbox.find("span."+qid+"_subtotal"),
+             $subtotal_raw  = $qbox.find("span#"+qid+"_subtotal"),
              $total     = $qbox.find("span#"+qid+"_total"),
-             $total_raw = $qbox.find("span."+qid+"_total");
+             $total_raw = $qbox.find("span#"+qid+"_total");
          var sales_tax  = parseFloat($sales_tax.val()),
              shipping   = parseFloat($shipping.val()),
              subtotal   = parseFloat($subtotal_raw.text());
@@ -1867,7 +1973,7 @@ $(document).ready(function(){
                taxableSum += parseFloat(cost);
                taxableItems ++;
          });
-          if ($line_item.find("input[data-name='taxable']").prop("checked")){
+          if ($this_form.find("input[data-name='taxable']").prop("checked")){
              var taxableSum = 0;
              var taxableItems = 0;
              var salesTax   = $this_form.find("input[data-name='sales_tax'][data-qid="+qid+"]").val();
@@ -2518,18 +2624,46 @@ $(document).ready(function(){
         revert: true,
         connectToSortable: "#instruction_step_image",
       });
-    $('.quebx-shelf-item').draggable({
+    $('.boqx').draggable({
    	    refreshPositions: true,
-        revert:false,
-        cursor: "move",
-        cursorAt: { left: 50, top: 15 },
+        revert:"invalid",
+        snap:true,
+        disabled: false, // enabled when a dropboqx is opened
+        cursor: "default", // set when a dropboqx is opened
+        cursorAt: { left: 160, top: 28 },
         zIndex: 1050,
+        appendTo: "#root",
+        snap:'.dropboqx',
+        snapMode: 'inner',
+       classes: {'ui-draggable':'dragging'},
         helper: function(event){
-        	item       = $(this);
-        	item_guid  = item.find('div.elgg-image').data('item-guid');
-        	item_title = item.find('div.elgg-body').html(); 
-            icon       = item.find('div.elgg-image').html();
-        	return $("<div class='elgg-image' data-item-guid='"+item_guid+"'>"+icon+"</div>");
+//           item         = $(this);
+//           item_guid    = $(this).closest('.boqx').data('guid');
+//           aspect       = $(this).closest('.boqx').data('aspect');
+          icon         = $(this).closest('.boqx').clone().addClass('dragging_item');
+//          icon         = $(item).closest('.boqx').html();
+//          boqx_classes = $(item).closest('.boqx').attr('class');
+          avatar       = icon;
+//          avatar       = "<div class='"+boqx_classes+" dragging_item' data-guid='"+item_guid+"'>"+icon+"</div>";
+//          console.log(avatar);
+          return avatar;
+       }
+    });
+    $('.boqx.item').draggable({
+       scope: 'things',
+    });
+    $('.quebx-shelf-item').draggable({
+         refreshPositions: true,
+         revert:false,
+         cursor: "move",
+         cursorAt: { left: 50, top: 15 },
+         zIndex: 1050,
+         helper: function(event){
+          item       = $(this);
+          item_guid  = item.find('div.elgg-image').data('item-guid');
+          item_title = item.find('div.elgg-body').html();
+          icon       = item.find('div.elgg-image').html();
+          return $("<div class='elgg-image' data-item-guid='"+item_guid+"'>"+icon+"</div>");
         }
     });
     $('.qbox-open').droppable({
@@ -2541,8 +2675,17 @@ $(document).ready(function(){
     	greedy: true,
     	accept: '.quebx-shelf-item',
     	tolerance: "touch",
-     	hoverClass: "box-state-highlight",
+	    classes:{
+           'ui-droppable-active': "box-state-highlight"}
 	});
+     $('.dropboqx.things').droppable({
+         greedy: true,
+         accept: '.boqx',
+         tolerance: "touch",
+         scope: 'things',
+         classes:{
+               'ui-droppable-active': "box-state-highlight"} 
+         });
 /*    $('.dropboqx').droppable({
     	accept: '.quebx-shelf-item',
     	tolerance: "touch",
@@ -2559,19 +2702,20 @@ $(document).ready(function(){
     });
 */    $(document).on('dropactivate','.dropboqx', function( event, ui ) {
     	console.log('+framework.dropboqx.on(dropactivate)');
-    	  	//boqx = $(this);
-        	boqx_div = $('.dropboqx');
+    	  	var boqx = $(this);
+        	var boqx_div = $('.dropboqx');
 //        	item = ui.draggable;
-//        	boqx_div.addClass( "box-state-highlight" );
 //             boqx_div.css('border-bottom','thin dashed red;');
   	     });
     $(document).on('dropdeactivate', '.dropboqx',function( event, ui ) {
     	console.log('+framework.dropboqx.on(dropdeactivate)');
+          var boqx_div = $('.dropboqx');
+          boqx_div.removeClass( "box-state-highlight" );
     	  $( this )
           .find( ".dropboqx-dropspot" )
           .html( "Add something from the shelf " );
 	     });
-/*    $('.qbox-open').on('dropactivate',function( event, ui ) {
+    $('.qbox-open').on('dropactivate',function( event, ui ) {
     	console.log('+framework.qbox-open.on(dropactivate)');
     	  $( this )
   	        .find( ".dropboqx-dropspot" )
@@ -2583,37 +2727,69 @@ $(document).ready(function(){
 	        .find( ".dropboqx-dropspot" )
 	        .html( "stopped " );
 	     });
-*/    $(document).on('click', 'a.elgg-after', function(e){
+    $(document).on('click', 'a.elgg-after', function(e){
         $('.qbox-open').droppable({
         	accept: '.quebx-shelf-item',
         	tolerance: "touch",
         });
     });
-    $(document).on( "dropover", '.dropboqx', function( event, ui ) {
+    $(document).on("dropover", '.dropboqx', function( event, ui ) {
     	console.log('+framework.dropboqx.on(dropover)');
     	var boqx = $(this),
         	boqx_div = boqx.parents('.things_add_pallet_boqx'),
         	item = ui.draggable;
-    	var item_title = item.find('.elgg-body').html();
+    	var item_title = item.find('.elgg-body, .StoryPreviewItem__title').html();
+        boqx.addClass('ready');     
 //    	item_title = item.attr('id');
-        $( boqx )
-          .find( ".dropboqx-dropspot" )
-          .html( "Add: <br>"+item_title );
+//         $( boqx )
+//           .find( ".dropboqx-dropspot" )
+//           .html( "Add: <br>"+item_title );
+//         boqx.addClass("ready");
 //     	boqx_div.addClass( "box-state-highlight" );
 //         boqx_div.css('border-bottom','thin dashed red;');
     });
-    $(document).on( "dropover", '.dropboqx', function( event, ui ) {
-    	console.log('+framework.dropboqx.on(dropover)');
-    	var boqx = $(this),
-        	boqx_div = boqx.parents('.things_add_pallet_boqx'),
-        	item = ui.draggable;
-    	var item_title = item.find('.elgg-body').html();
-//    	item_title = item.attr('id');
-        $( boqx )
-          .find( ".dropboqx-dropspot" )
-          .html( "Add: <br>"+item_title );
-//     	boqx_div.addClass( "box-state-highlight" );
-//         boqx_div.css('border-bottom','thin dashed red;');
+/*    $(document).on('drop', '.dropboqx',function(event,ui){
+        console.log('+framework.dropboqx.on(drop)');
+        var boqx = $(this),
+            opening = $(this).closest('.window-opening'),
+            liner  = $(this).closest('.liner'),
+            dropped_item = ui.helper,
+            boqx_guid = $(this).parents('.boqx').data('guid');
+        var item_guid = dropped_item.data("guid"),
+            item_id   = dropped_item.attr('id'),
+            aspect    = boqx.data('aspect'),
+            section   = boqx.data('section');
+        var envelope_id = $(liner).data('cid');
+        var envelope  = $('#'+envelope_id),
+            carton_id = $('#'+envelope_id).data('carton');
+        var carton    = $('#'+carton_id);
+        var tally     = parseInt($(carton).children('.tally').attr('boqxes'));
+        var new_id    = "c"+Math.floor((Math.random()*200)+1);
+        var item      = $('#'+item_id).clone();
+        var isConnected = liner.children('.boqx[data-guid='+item_guid+']').length > 0;
+        elgg.action("shelf/pack", {
+           data: {guid     : item_guid,
+                  boqx_guid: boqx_guid,
+                  aspect   : aspect,
+                  section  : section
+           },
+           success: function(e){
+              if(!isConnected){
+                  item.insertAfter(opening);
+                  $('.boqx.item').draggable({
+                     scope: 'things',
+                  });
+                  tally = $(liner).find('.boqx').length;
+                  $(carton).find('.tally').attr('boqxes', tally);
+                  $(envelope).find('.TaskShow__qty_7lVp5tl4').text(tally);
+               }
+           }
+        });
+//        quebx.shelf_tools.pack_item(item_guid, boqx_guid, boqx, item, aspect, container_guid);
+    });
+*/    $(document).on('dropout','.dropboqx',function(event,ui){
+        var boqx = $(this);
+        boqx.removeClass('ready');
     });
     $( '.qbox-open').on( "dropover", function( event, ui ) {
     	boqx = $(this);
@@ -2640,10 +2816,10 @@ $(document).ready(function(){
     	}
     });
     $( '.qbox-open').on( "drop", function( event, ui ) {
-    	boqx = $(this);
-    	boqx_li = boqx.parent('li');
-    	dropbox = boqx.find('.dropbox');
-        boqx_guid = boqx.data('guid');
+    	var boqx = $(this);
+    	var boqx_li = boqx.parent('li'),
+    	    dropbox = boqx.find('.dropbox'),
+            boqx_guid = boqx.data('guid');
         boqx_li.removeClass( "box-state-highlight");
         boqx_li.css('border-bottom','');
 	});
@@ -2692,9 +2868,10 @@ $(document).ready(function(){
            * Content of an item
            * Accessory for an item
            * Component of an item
-           * Thing for an experience (proposed)
         **/
         boqx = $(this);
+        if ($(boqx).hasClass('thing')) return;
+        boqx_li = boqx.parent('li');
         item = ui.draggable;
         boqx_guid = boqx.parent('.qbox-pallet').data('boqx-guid');
 //    	item_guid = item.data("item-guid");
@@ -2708,7 +2885,7 @@ $(document).ready(function(){
     	console.log('container_guid: '+container_guid);
     	console.log('boqx_guid: '+boqx_guid);
     	console.log('aspect: '+aspect);
-    	quebx.shelf_tools.pack_item(item_guid, boqx_guid, boqx, item, aspect, container_guid);
+        quebx.shelf_tools.pack_item(item_guid, boqx_guid, boqx, item, aspect, container_guid);
     });
     $('.qbox-drop_xxx').on('dropout', function (event, ui){
         boqx = $(this);
@@ -2765,7 +2942,30 @@ $(document).ready(function(){
 		var html = $('.individual_features1').html();
 		$(html).insertBefore('.new_individual_feature1');
 	});
-
+     
+/* ***************************************
+     open-boqx
+*************************************** */
+     $(document).on('click','.controlbar-footer .open_close', function(e){
+          var open_boqx = $('.open-boqx'),
+              closed_boqx = $('.page_header_container .closed-boqx');
+          if(open_boqx.hasClass('expanded')){
+             open_boqx.removeClass('expanded');
+             $('section.main').removeClass('compressed');
+          }
+          else {
+             open_boqx.addClass('expanded');
+             closed_boqx.addClass('compressed');
+             $('section.main').addClass('compressed');
+          }
+     });
+     $(document).on('click','.open-boqx:not(.expanded) .panelHeader_inner___cNPfuQmy',function(e){
+          var open_boqx = $('.open-boqx'),
+              closed_boqx = $('.page_header_container .closed-boqx');
+         open_boqx.addClass('expanded');
+         closed_boqx.addClass('compressed');
+         $('section.main').addClass('compressed');
+     });
 };	
 
 /*  @TODO Figure out how to set this up correctly.

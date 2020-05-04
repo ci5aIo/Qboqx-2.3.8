@@ -133,6 +133,135 @@ define(function(require) {
 	       });
        }
     });
+    $(document).on('click', 'section.controls .cancelReplace__mw0ODp0p', function(e){
+/* used in:
+ 	* forms/market/edit>edit>item edit>empty boqx
+ 	* forms/experiences/edit>add>issue_discovery
+ 	* forms/experiences/edit>add>issue_remedy>marker
+ * functions related to:
+ 	*  on("click", ".packBoqx_QQFvJSIR" ...
+ */
+    	e.preventDefault();
+        var $this             = $(this),
+            ajax              = new Ajax(),
+            cid               = $(this).data('cid'),
+            show_service      = true;
+	    var boqx              = $('#'+cid),
+            parent_cid        = $('#'+cid).data('boqx');
+    	var carton_id         = $(boqx).data('carton'),
+		    guid              = $(boqx).data('guid'),
+		    aspect            = $(boqx).data('aspect'),
+		    presence          = $(boqx).data('presence'),
+		    presentation      = $(boqx).data('presentation'),
+		    perspective       = 'add',
+		    action            = 'add',
+            state             = $(boqx).data('aid'),
+            display_state     = 'add';
+		var carton            = $('#'+carton_id);
+		var carton_aspect     = $(carton).data('aspect'),
+		    boqxes            = 0,
+		    filled_boqxes     = 0,
+			empty_boqxes      = 0,
+			filled_fields     = 0,
+			handler,
+			snippet,
+            section,
+            points            = 0;
+       console.log('on click .cancelReplace__mw0ODp0p');
+       console.log('parent_cid = '+parent_cid);
+       console.log('carton_id = '+carton_id);
+       $(boqx).remove();
+       $('[data-carton='+carton_id+']').each(function(){
+		    boqxes++;
+			if ($(this).attr('boqx-fill-level') == 0){                                                console.log('boqx: '+$(this).attr('id'));
+				empty_boqxes++;}
+			if ($(this).attr('boqx-fill-level')>0)
+				filled_boqxes++;
+		});	                                                                                         console.log('empty_boqxes: '+empty_boqxes);console.log('filled_boqxes: '+filled_boqxes);console.log('state: '+state);
+		switch (carton_aspect){
+		  case 'discoveries':  handler = 'experiences'; section = 'issue_discovery'; snippet = 'discovery';     if(filled_boqxes==1) carton_show_title = 'discovery'; else carton_show_title = 'discoveries'; break;
+		  case 'remedies':     handler = 'experiences'; section = 'issue_remedy';    snippet = 'remedy';        if(filled_boqxes==1) carton_show_title = 'remedy';    else carton_show_title = 'remedies';    break;
+		  case 'issues':       handler = 'experiences'; section = 'issue';                                      if(filled_boqxes==1) carton_show_title = 'issue';     else carton_show_title = 'issues';      break;
+		  case 'parts':        handler = 'transfers';   section = 'boqx_contents';   snippet = 'single_part';   if(filled_boqxes==1) carton_show_title = 'part';      else carton_show_title = 'parts';       break;
+		  case 'efforts':      handler = 'transfers';   section = 'boqx_contents';   snippet = 'single_effort'; if(filled_boqxes==1) carton_show_title = 'effort';    else carton_show_title = 'efforts';     break;
+		  case 'item' :        handler = 'market';      section = 'single_thing';    perspective = 'edit';      if(filled_boqxes==1) carton_show_title = 'item';      else carton_show_title = 'items';       break;
+		  case 'receipt_item': handler = 'transfers';   section = 'boqx_contents';   snippet = 'single_item';   if(filled_boqxes==1) carton_show_title = 'item';      else carton_show_title = 'items';       break;
+		  case 'receipts':     handler = 'transfers';   section = 'thing_receipt';   snippet = 'receipt';       if(filled_boqxes==1) carton_show_title = 'receipt';   else carton_show_title = 'receipts';    break;
+	   }
+		// add an empty card if needed
+	   if (empty_boqxes == 0){
+			if ($('.delete[data-cid='+cid+']').length > 0){
+			    $('.delete[data-cid='+cid+']').removeAttr('disabled');
+			    del_title = $('.delete[data-cid='+cid+']').attr('title');
+				$('.delete[data-cid='+cid+']').attr('title',del_title.replace('(disabled)',''));
+			}                                                                             console.log('handler: '+handler);console.log('section: '+section);console.log('snippet: '+snippet);console.log('parent_cid: '+parent_cid);console.log('carton_aspect: '+carton_aspect);console.log('carton_id: '+carton_id);
+		   ajax.view('partials/jot_form_elements',{
+			   data: {
+				   element: 'conveyor',
+				   view         : handler,
+				   action       : action,
+				   perspective  : perspective,
+				   display_state: display_state,
+				   section      : section,
+				   snippet      : snippet,
+				   form_method  : 'pack',
+                   parent_cid   : parent_cid,
+				   carton_id    : carton_id,
+				   guid         : guid,
+				   aspect       : aspect,
+				   presentation : presentation,
+				   presence     : presence,
+				   boqxes       : boqxes,
+			   },
+		   }).done(function(output) {
+			   $(carton).append($(output));
+		   }).success(function(){
+				
+		   });
+	   }
+    });
+    $(document).on('click', 'section.controls .cancelReplace__TFF3oQiV', function(e){
+/* used in 
+ 	* forms/experiences/edit>add>issue 
+ */    	
+    	e.preventDefault();
+       var cid               = $(this).data('cid'),
+           boqx_id           = $(this).data('boqx'),
+           presentation      = $(this).data('presentation'),
+           presence          = $(this).data('presence'),
+           ajax              = new Ajax();
+       var envelope          = $("#"+cid),
+           handler           = $("#"+cid).data('aspect');
+       var carton_id         = $(envelope).data('carton');
+       var carton            = $("#"+carton_id);
+       var outer_envelope_id = $(carton).data('envelope');
+       var tally             = $(".envelope__NkIZUrK4[data-boqx="+carton_id+"]").length
+//       var $this_panel = $('.envelopeWindow__3hpw9wdN.EffortEdit_fZJyC62e[data-cid='+cid+']');
+//       var $add_panel  = $('.envelopeWindow__3hpw9wdN.AddSubresourceButton___2PetQjcb[data-cid='+cid+']')
+       console.log('on click .cancelReplace__TFF3oQiV');
+       console.log('handler = '+handler);
+       console.log('boqx_id = '+boqx_id);
+       console.log('carton_id = '+carton_id);
+       console.log('tally = '+tally);
+//       $this_panel.toggle();
+//       $add_panel.toggle();
+    	ajax.view('partials/jot_form_elements',{
+    	   data: {
+    		 element       : 'empty boqx',
+    		 handler       : handler,
+    		 perspective   : 'add',
+    		 presentation  : presentation,
+    		 presence      : presence,
+    		 parent_cid    : boqx_id,
+    		 carton_id     : carton_id
+    	   },
+	       }).done(function(output) {
+               $(envelope).remove();
+	    	   carton.append($(output));
+		       tally   = $(".envelope__NkIZUrK4[data-boqx="+carton_id+"]").length;
+		       $(carton).children('.tally').attr('boqxes', tally);
+	       });
+    });
 	$(document).on('click', '.remove-card', function(e){
 		   e.preventDefault();
 	      var cid        = $(this).data('cid');
@@ -151,75 +280,102 @@ define(function(require) {
 		});
 	$(document).on('click', '.replace-card, .IconButton___2y4Scyq6, .trashEnvelope_0HziOPGx', function(e){
 		  e.preventDefault();
-	      var ajax       = new Ajax(),
-	          cid        = $(this).data('cid');
-	      var envelope   = $('#'+cid);
-	      var action     = $(envelope).data('aid'),
-	          perspective= $(envelope).data('aid'), 
-		      boqx_id    = $(envelope).data('boqx'),
-		      carton_id  = $(envelope).data('carton'),
-		      guid       = $(envelope).data('guid'),
-		      aspect     = $(envelope).data('aspect'),
-		      presence   = $(envelope).data('presence'),
-		      presentation = $(envelope).data('presentation');                    console.log('164 guid = '+guid);
-	      var boqx       = $('#'+boqx_id),
-	          boqx_aspect= $('#'+boqx_id).data('aspect'),
-	          carton     = $('#'+carton_id);
-		  var carton_aspect= $(carton).data('aspect'),
-		      cards       = 0,
-              empty_cards = 0,
+	      var ajax          = new Ajax(),
+	          cid           = $(this).data('cid'),
+	          button_action = $(this).data('aid'),
+              show_service  = true;
+	      var envelope      = $('#'+cid);
+	      var action        = $(envelope).data('aid'),
+	          perspective   = $(envelope).data('aid'), 
+		      boqx_id       = $(envelope).data('boqx'),
+		      carton_id     = $(envelope).data('carton'),
+		      guid          = $(envelope).data('guid'),
+		      aspect        = $(envelope).data('aspect'),
+		      presence      = $(envelope).data('presence'),
+		      presentation  = $(envelope).data('presentation');                    console.log('guid = '+guid);
+	      var boqx          = $('#'+boqx_id),
+	          boqx_aspect   = $('#'+boqx_id).data('aspect'),
+	          carton        = $('#'+carton_id);
+		  var carton_aspect = $(carton).data('aspect'),
+		      carton_envelope_id = $(carton).data('envelope'),
+		      boqxes        = 0,
+		      filled_boqxes = 0,
+              empty_boqxes  = 0,
+              carton_total  = 0,
               view,
               snippet,
-              carton_total=0,
 			  envelope_cid,
 			  envelope_total;
-		  switch (carton_aspect){
-			  case 'discoveries': 
-			 	 view = 'experiences';
-			 	 section = 'issue_discovery';
-			 	 snippet = 'discovery';
-			 	 break;
-			  case 'remedies': 
-			 	 view = 'experiences';
-			 	 section = 'issue_remedy';
-			 	 snippet = 'remedy';
-			 	 break;
-			  case 'issues':
-				 view = 'experiences';
-				 section = 'issue';
-				 break;
-			  case 'parts':
-				 view = 'transfers';
-				 section = 'boqx_contents';
-				 snippet = 'single_part';
-				 break;
-			  case 'item' : 
-				 view = 'market'; 
-				 break;
-    	   }
-		  if (action == 'delete'){
+		  var carton_envelope     = $('#'+carton_envelope_id),
+			  add_panel           = $('[data-aid=TaskAdd][data-cid='+cid+']'),
+			  show_panel          = $('[data-aid=TaskShow][data-cid='+cid+']'),
+			  edit_panel          = $('[data-aid=TaskEdit][data-cid='+cid+']'),
+			  carton_add_panel    = $('[data-aid=TaskAdd][data-cid='+carton_envelope_id+']'),
+			  carton_show_panel   = $('[data-aid=TaskShow][data-cid='+carton_envelope_id+']'),
+			  carton_edit_panel   = $('[data-aid=TaskEdit][data-cid='+carton_envelope_id+']');
+		  var service_qty         = $('input#'+cid+'_line_qty').val(),
+		      service_name        = $('input#'+cid+'_line_title').val(),
+		      service_desc        = $('input#'+cid+'_line_description').val(),
+		      service_cost        = $('input#'+cid+'_line_cost').val(),
+		      service_total       = $('input#'+cid+'_line_total').val(),
+		      service_total_raw   = $('input#'+cid+'_line_total_raw').val();
+		  var $sales_tax      = $("input[data-name='sales_tax'][data-cid="+boqx_id+"]"),
+              $shipping       = $("input[data-name='shipping_cost'][data-cid="+boqx_id+"]"),
+              $subtotal       = $("span#"+boqx_id+"_subtotal"),
+              $subtotal_raw   = $("span#"+boqx_id+"_subtotal_raw"),
+              $total          = $("span#"+boqx_id+"_total"),
+              $total_raw      = $("span#"+boqx_id+"_total_raw");
+	      var sales_tax       = parseFloat($sales_tax.val()),
+              shipping        = parseFloat($shipping.val()),
+              subtotal        = 0,
+		      total;
+            if (button_action == 'delete'){
 			  $(envelope).remove();
-			  ajax.action('quebx/delete', {
-				data:{
-					guid: guid
-				}
-			  }).done(function () {
-				//alert('deleted: '+guid);
-			  });
-		  }                                                                                       console.log('carton_id = '+carton_id);
-		  $('[data-carton='+carton_id+']').each(function(){
-			  cards++;
+			  if(typeof(guid) != 'undefined')
+				  ajax.action('quebx/delete', {
+					data:{
+						guid: guid
+					}
+				  }).done(function () {
+				  });
+		    }                                                                                          console.log('carton_id = '+carton_id);
+		  switch (carton_aspect){
+		  case 'discoveries':  view = 'experiences'; section = 'issue_discovery'; snippet = 'discovery';     if(filled_boqxes==1) carton_show_title = 'discovery'; else carton_show_title = 'discoveries'; break;
+		  case 'remedies':     view = 'experiences'; section = 'issue_remedy';    snippet = 'remedy';        if(filled_boqxes==1) carton_show_title = 'remedy';    else carton_show_title = 'remedies';    break;
+		  case 'issues':       view = 'experiences'; section = 'issue';                                      if(filled_boqxes==1) carton_show_title = 'issue';     else carton_show_title = 'issues';      break;
+		  case 'parts':        view = 'transfers';   section = 'boqx_contents';   snippet = 'single_part';   if(filled_boqxes==1) carton_show_title = 'part';      else carton_show_title = 'parts';       break;
+		  case 'efforts':      view = 'transfers';   section = 'boqx_contents';   snippet = 'single_effort'; if(filled_boqxes==1) carton_show_title = 'effort';    else carton_show_title = 'efforts';     break;
+		  case 'item' :        view = 'market';                                                              if(filled_boqxes==1) carton_show_title = 'item';      else carton_show_title = 'items';       break;
+		  case 'receipt_item': view = 'transfers';   section = 'boqx_contents';   snippet = 'single_item';   if(filled_boqxes==1) carton_show_title = 'item';      else carton_show_title = 'items';       break;
+		  case 'receipts':     view = 'transfers';   section = 'thing_receipt';   snippet = 'receipt';       if(filled_boqxes==1) carton_show_title = 'receipt';   else carton_show_title = 'receipts';    break;
+	   }			
+		    $('[data-carton='+carton_id+']').each(function(){
+			  boqxes++;
 			  if ($(this).attr('boqx-fill-level') == 0)
-				  empty_cards++;
+				  empty_boqxes++;
+			  if ($(this).attr('boqx-fill-level')>0)
+				  filled_boqxes++;
 			  envelope_cid = $(this).attr('id');                                                      console.log('envelope_cid = '+envelope_cid);
 			  envelope_total = $('#'+envelope_cid+'_line_total_raw').text();                          console.log('envelope_total = '+envelope_total);
 			  if(!isNaN(envelope_total) && envelope_total.length>0)
 				  carton_total += parseFloat(envelope_total);
 			});                                                                                       console.log('carton_total = '+carton_total);
+            $(carton).attr('boqxes',filled_boqxes);
+			$(carton_envelope).attr('boqx-fill-level', filled_boqxes);
 			$('#'+boqx_id+'_total').text(moneyFormat(carton_total));
 			$('#'+boqx_id+'_total_raw').text(carton_total);
+			
+	        $(show_panel).find('.TaskShow__qty_7lVp5tl4').html(service_qty);
+	        $(show_panel).find('.TaskShow__title___O4DM7q').html(service_name);
+	        $(show_panel).find('.TaskShow__description___qpuz67f').html(service_desc);
+	        $(show_panel).find('.TaskShow__item_total__Dgd1dOSZ').html(service_total);
+		
+			$(carton_show_panel).find('.TaskShow__qty_7lVp5tl4').html(filled_boqxes);
+			$(carton_show_panel).find('.TaskShow__title___O4DM7q').html(carton_show_title);
+			$(carton_show_panel).find('.TaskShow__item_total__Dgd1dOSZ').html(moneyFormat(carton_total));
+
+			if (empty_boqxes == 0){
 			// add an empty card if needed
-           if (empty_cards == 0){
         	   ajax.view('partials/jot_form_elements',{
 		    	   data: {
 		    		   element: 'conveyor',
@@ -240,14 +396,147 @@ define(function(require) {
 		       }).success(function(){
 					// remove the card
 					$(envelope).remove();
-			        $('#'+boqx_id).children('.tally').attr('boqxes', cards--);
+			        $('#'+boqx_id).children('.tally').attr('boqxes', boqxes--);
 		       });
            }
            else {
 			// remove the card
-			$('#'+boqx_id).children('.tally').attr('boqxes', cards--);
-           }                                                             console.log('boqx_id: '+boqx_id);console.log('carton_id: '+carton_id);console.log('action: '+action);console.log('perspective: '+perspective);console.log('aspect: '+aspect);console.log('empty_cards: '+empty_cards);
-            
+			$('#'+boqx_id).children('.tally').attr('boqxes', boqxes--);
+           }                                                             console.log('boqx_id: '+boqx_id);console.log('carton_id: '+carton_id);console.log('action: '+action);console.log('perspective: '+perspective);console.log('aspect: '+aspect);console.log('empty_boqxes: '+empty_boqxes);
+		   //Recalculate
+			$(boqx).find("span.line_total_raw").each(function(){
+				var value = $(this).text();                     				console.log('value: '+value);
+				if(!isNaN(value) && value.length>0)
+					{subtotal += parseFloat(value);}
+			   });
+		   $subtotal.text(moneyFormat(subtotal));
+		   $subtotal_raw.text(subtotal);
+		   if(isNaN(shipping)  || shipping.length  == 0){shipping  = 0;}
+		   if(isNaN(sales_tax) || sales_tax.length == 0){sales_tax = 0;}
+		   total = subtotal+shipping+sales_tax;
+		   $total.text(moneyFormat(total)); 
+		   $total_raw.text(total);                                            console.log('total = '+total);            
+		});	
+	$(document).on('click', '.IconButton___SUFDHCSY', function(e){
+		/**
+		 * Used in:
+		 	* Receipts 
+		 **/
+		  e.preventDefault();
+	      var ajax          = new Ajax(),
+	          cid           = $(this).data('cid'),
+	          button_action = $(this).data('aid');
+	      var envelope      = $('#'+cid);
+	      var action        = $(envelope).data('aid'),
+	          perspective   = $(envelope).data('aid'), 
+		      boqx_id       = $(envelope).data('boqx'),
+		      carton_id     = $(envelope).data('carton'),
+		      guid          = $(envelope).data('guid'),
+		      aspect        = $(envelope).data('aspect'),
+		      presence      = $(envelope).data('presence'),
+		      presentation  = $(envelope).data('presentation');                    console.log('guid = '+guid);
+	      var boqx         = $('#'+boqx_id),
+		      add_panel     = $('[data-aid=TaskAdd][data-cid='+cid+']'),
+			  show_panel    = $('[data-aid=TaskShow][data-cid='+cid+']'),
+			  edit_panel    = $('[data-aid=TaskEdit][data-cid='+cid+']'),
+			  carton        = $('#'+carton_id);
+		  var carton_aspect = $(carton).data('aspect'),
+		      boqxes        = 0,
+		      filled_boqxes = 0,
+              empty_boqxes  = 0,
+              view,
+              snippet;
+		  var service_name = $("[data-focus-id=NameEdit--"+cid+"]").val(),
+		      service_desc = $("[data-focus-id=ServiceEdit--"+cid+"]").val(),
+		      service_qty  = $("#"+cid+"_line_qty").val(),
+		      service_cost = $("#"+cid+"_line_cost").val(),
+		      service_time = $("#"+cid+"_hours").val(),
+		      service_total= $('#'+cid+"_line_total").html(),
+		      service_total_raw = $('.'+cid+"_line_total_raw").html(),
+		      carton_total = 0,
+		  	  carton_show_title,
+		      envelope_cid,
+		      envelope_total;
+		  var $sales_tax      = $("input[data-name='sales_tax'][data-cid="+boqx_id+"]"),
+              $shipping       = $("input[data-name='shipping_cost'][data-cid="+boqx_id+"]"),
+              $subtotal       = $("span#"+boqx_id+"_subtotal"),
+              $subtotal_raw   = $("span#"+boqx_id+"_subtotal_raw"),
+              $total          = $("span#"+boqx_id+"_total"),
+              $total_raw      = $("span#"+boqx_id+"_total_raw");
+	      var sales_tax       = parseFloat($sales_tax.val()),
+              shipping        = parseFloat($shipping.val()),
+              subtotal        = 0,
+		      total;
+              
+
+		  switch (carton_aspect){
+			  case 'receipts':      view = 'transfers';   section = 'thing_receipt';   snippet = 'receipt';     break;
+    	   }
+		  if (button_action == 'delete'){
+			  $(envelope).remove();
+			  if(typeof(guid) != 'undefined')
+				  ajax.action('quebx/delete', {
+					data:{
+						guid: guid
+					}
+				  }).done(function () {
+				  });
+		  }
+		  
+			if (typeof service_name  != 'undefined' && service_name.length  > 0) points++; console.log('service_name: '+service_name);
+			if (typeof service_desc  != 'undefined' && service_desc.length  > 0) points++; console.log('service_desc: '+service_desc);
+			if (typeof service_qty   != 'undefined' && service_qty.length   > 0) points++; console.log('service_qty: '+service_qty);
+			if (typeof service_cost  != 'undefined' && service_cost.length  > 0) points++; console.log('service_cost: '+service_cost);
+			if (typeof service_time  != 'undefined' && service_time.length  > 0) points++; console.log('service_time: '+service_time);
+			if (typeof service_total != 'undefined' && service_total.length > 0 && parseFloat(service_total_raw)>0) points++; console.log('service_total: '+service_total);
+		  $('[data-carton='+carton_id+']').each(function(){
+			  boqxes++;
+			  if ($(this).attr('boqx-fill-level') == 0)
+				  empty_boqxes++;
+			  if ($(this).attr('boqx-fill-level')>0)
+				  filled_boqxes++;
+			});
+            $(carton).attr('boqxes',filled_boqxes);
+			$(show_panel).find('.TaskShow__qty_7lVp5tl4').html(service_qty);
+			$(show_panel).find('.TaskShow__title___O4DM7q').html(service_name);
+			$(show_panel).find('.TaskShow__description___qpuz67f').html(service_desc);
+			$(show_panel).find('.TaskShow__item_total__Dgd1dOSZ').html(service_total);
+			$(show_panel).find('.TaskShow__time___cvHQ72kV').html(service_time);
+			
+			// add an empty boqx if needed
+           if (empty_boqxes == 0){
+        	   ajax.view('partials/jot_form_elements',{
+		    	   data: {
+		    		   element: 'conveyor',
+		    		   view : view,
+		    		   action: action,
+		    		   perspective: perspective,
+		    		   section: section,
+		    		   snippet: snippet,
+		    		   parent_cid: boqx_id,
+		    		   carton_id: carton_id,
+		    		   guid: guid,
+		    		   aspect: aspect,
+		    		   presentation: presentation,
+		    		   presence: presence,
+		    	   },
+		       }).done(function(output) {
+		    	   $(carton).append($(output));
+		       });
+           }                                                             console.log('boqx_id: '+boqx_id);console.log('carton_id: '+carton_id);console.log('action: '+action);console.log('perspective: '+perspective);console.log('aspect: '+aspect);console.log('empty_boqxes: '+empty_boqxes);
+		   //Recalculate
+			$(boqx).find("span.line_total_raw").each(function(){
+				var value = $(this).text();                     				console.log('value: '+value);
+				if(!isNaN(value) && value.length>0)
+					{subtotal += parseFloat(value);}
+			   });
+		   $subtotal.text(moneyFormat(subtotal));
+		   $subtotal_raw.text(subtotal);
+		   if(isNaN(shipping)  || shipping.length  == 0){shipping  = 0;}
+		   if(isNaN(sales_tax) || sales_tax.length == 0){sales_tax = 0;}
+		   total = subtotal+shipping+sales_tax;
+		   $total.text(moneyFormat(total)); 
+		   $total_raw.text(total);                                            console.log('total = '+total);            
 		});
    $(document).on('click', '.TaskEdit__submit___3m10BkLZ', function(e){
        e.preventDefault();
@@ -631,117 +920,87 @@ define(function(require) {
            $this_panel.hide();
        }
    });
-   $(document).on('click', '.ThingsBundle__submit___q0kFhFBf', function(e){
-	  // block action during testing 
-	   return
-	   e.preventDefault();
+   $(document).on('click', '.submitBundle_q0kFhFBf', function(e){
+	   e.preventDefault(); 
 	  var ajax         = new Ajax(),
 	      cid          = $(this).data('cid'),
-	      boqx_id      = $(this).data('boqx'),
+	      boqx_id      = $(this).data('parent-cid'),
+	      form_id      = $(this).attr('form'),
 	      guid         = $(this).data('guid'),
 	      aspect       = $(this).data('aspect');
-	  var form         = $('#'+cid).children('form');
+	  var this_boqx    = $('#'+cid),
+	      boqx         = $('#'+boqx_id),
+	      form         = $('#'+form_id);
+	  var processed    = [],
+	      update       = [],
+	      create       = [];
+	  var title        = $('[data-focus-id="NameEdit--'+cid+'"]').val(),
+		  edit_boqx    = $('.EffortEdit_fZJyC62e[data-cid='+cid+']'),
+		  add_boqx     = $('.AddSubresourceButton___S1LFUcMd[data-cid='+cid+']'),
+		  show_boqx    = $('.EffortShow_haqOwGZY[data-cid='+cid+'], .BoqxShow__lsk3jlWE[data-cid='+cid+']'),
+		  header_preview = $('header.preview[data-cid='+boqx_id+']'), 
+		  boqx_exists  = $(boqx).length > 0;                               console.log('$(boqx).length: '+$(boqx).length);console.log('boqx_exists: '+boqx_exists);console.log('action: '+action);console.log('method: '+method);
+//		  $(form).trigger('reset');
+	  $(edit_boqx).remove();
+	  if (boqx_exists){
+		$(show_boqx).show();
+	    $(this_boqx).remove();
+		$(header_preview).removeClass('collapsed');
+    	$(show_boqx).find('span.TaskShow__title___O4DM7q').text(title);
+    	$('span.StoryPreviewItem__title[data-cid='+boqx_id+']').text(title);
+	  }
+	  else
+		$(add_boqx).show();
+	  
 	  if (typeof form != 'undefined'){
-		  var formData     = ajax.objectify(form),//$(form).serialize(),
+		  var formData     = $(form).serialize(),//ajax.objectify(form),//From elgg documentation: When setting data, use ajax.objectify($form) instead of $form.serialize(). Doing so allows the ajax_request_data plugin hook to fire and other plugins to alter/piggyback on the request.
 		      action       = $(form).attr('action'),
-			  method       = $(form).attr('method'),
-		      title        = $(form).find('textarea[data-focus-id="NameEdit--'+cid+'"]').val(),
-			  edit_boqx    = $('.EffortEdit_fZJyC62e[data-cid='+cid+']'),
-			  add_boqx     = $('.AddSubresourceButton___S1LFUcMd[data-cid='+cid+']'),
-			  show_boqx    = $('.BoqxShow__lsk3jlWE[data-cid='+cid+']'),
-			  boqx_exists  = guid > 0;
-		  console.log('action: '+action);
-		  console.log('method: '+method);
-		  console.log('formData: ',formData);
-		  $(form).trigger('reset');
-		  $.ajax({
-			    type: 'POST',
+			  method       = $(form).attr('method');
+//		  return;
+	  	  $.ajax({
+			    method: method,
 			    url: action,
 			    data: formData
-			}).done(function(response) {
-	//			alert('done');
-			}).success(function() {
-		      $(edit_boqx).remove();
-			  if (boqx_exists){
-				$(show_boqx).find('span.TaskShow__title___O4DM7q').text(title);
-				$(show_boqx).show();}
-			  else
-				$(add_boqx).show();
+			}).done(function(json) {
+//				console.log(JSON.stringify( json ));
+//				alert(json.output['this_guid']);      // works:  "123456"
+//				alert(json.output[0]);                // works:  "2647"
+				$.each(json.output, function(index,value){
+					processed.push(value);
+					if(value['ui_response'] == 'update' && ('guid' in value))
+						update.push(value);
+					if(value['ui_response'] == 'create' && ('guid' in value))
+						create.push(value);
+				});
+				$.each(create, function(index,value){
+					$.each(value, function(index1, value1){
+						console.log('update.'+index1 + ": " + value1 );
+					});
+					var contents  = value['contents'],
+					    guid      = value['guid'],
+					    aspect    = value['aspect'];
+					var stack  = $('.slot[data-contents='+contents+']').children('.pallet');
+					ajax.view('partials/jot_form_elements',{
+			    	   data: {
+			    		   element : 'create boqx',
+			    		   guid    : guid,
+			    		   handler : contents
+			    	   },
+					}).done(function(output,slot){
+						$(stack).prepend($(output));
+					});
+				});
+			}).success(function(result) {
+
 			}).fail(function() {
-	//			alert('failed');
+				alert('failed');
 			});
 	  }
    });
-/*   $(document).on('click', '.StuffEnvelope_6MIxIKaV', function(e){
-       e.preventDefault();
-       var ajax          = new Ajax(),
-           cid           = $(this).data('cid'),
-           show_service = true;
-       var envelope      = $('#'+cid);
-       var parent_cid    = $(envelope).data('boqx'),
-       	   aspect        = $(envelope).data('aspect'),
-           qid           = $(this).attr("data-qid"),
-           state         = $(this).attr('data-aid').replace('ItemButton','');
-       var show_receipt  = true;
-       var this_element  = $(this),
-   	       $panel        = $('[data-aid=TaskEdit][data-cid='+cid+']');
-       var pallet       = $('.boqx-pallet[data-cid='+parent_cid+']'),
-           $show_panel   = $('[data-aid=TaskShow][data-cid='+cid+']'),
-           $add_panel    = $('[data-aid=TaskAdd][data-cid='+cid+']'),
-           fill_level,
-           points        = 0;
-       var bom           = $(pallet).children('span.tally');
-       var boqxes        = parseInt($(bom).attr('boqxes'), 10);
-       var item_name     = $("input[data-focus-id=NameEdit--"+cid+"]").val() || '[no item name]',
-           item_total    = $('#'+cid+'_line_total').text() || '$0.00';
-           item_total_raw= $('.'+cid+'_line_total_raw').text();
-           
-       if (typeof service_name == 'undefined')
-           show_service = false;
-        else if (service_name.length==0)
-                 show_service = false;                                                         console.log('show_service = '+show_service);
-        
-       if (typeof item_name  != 'undefined' && item_name.length  > 0) points++;
-       if (typeof item_total != 'undefined' && item_total.length > 0 && parseFloat(item_total_raw)>0) points++;
-       if (aspect == 'item' && points>= 1) fill_level = 'full'; // an item only needs a title to be complete
-       else                                fill_level = points;
-       if (isNaN(boqxes)){boqxes = 0;}                                                                                 console.log('aspect: '+aspect);console.log('cid: '+cid);console.log('parent_cid: '+parent_cid);console.log('receipt_name: '+item_name);console.log('state: '+state);console.log('item_total: '+item_total);console.log('points: '+points);console.log('$boqx: ',$boqx);console.log('$pallet: ',$pallet);
-       if (show_service){
-    	   $show_panel.find('.TaskShow__title___O4DM7q').html('<p>'+item_name+'</p>');
-           if (aspect == 'receipt_item')
-        	   $show_panel.find('.TaskShow__item_total__Dgd1dOSZ').html('<p>'+item_total+'</p>');
-           $show_panel.show();
-           $show_panel.find('button.IconButton___2y4Scyq6').show();
-    	   $(envelope).attr('boqx-fill-level', fill_level);
-    	   $(envelope).find('input[data-focus-id="FillLevel--'+cid+'"]').val(fill_level);
-           $panel.hide();
-           if (state=='add'){
-        	   $(this).attr('data-aid', 'saveItemButton');
-        	   $(this).html('Save');
-	           ajax.view('partials/jot_form_elements',{
-		    	   data: {
-		    		   element: 'conveyor',
-		    		   parent_cid: parent_cid,
-		    		   aspect: aspect,
-		    		   presence: 'panel',
-		    		   presentation: 'pallet'
-		    	   },
-		       }).done(function(output) {
-		    	   $(pallet).append($(output));
-		       }).success(function(){
-		    	   $(bom).attr('boqxes', ++boqxes);
-		       });
-           }
-       }
-       else {
-           $add_panel.show();
-           $panel.hide();
-           $(envelope).attr('boqx-fill-level', fill_level);
-       }
-   });*/
     $(document).on("click", ".StuffEnvelope_6MIxIKaV", function(e) {
         e.preventDefault();
-        var ajax         = new Ajax(),
+        var $this        = $(this),
+            ajax         = new Ajax(),
             cid          = $(this).data('cid'),
             show_service = true;
 	    var envelope     = $('#'+cid);
@@ -751,13 +1010,18 @@ define(function(require) {
 		    aspect       = $(envelope).data('aspect'),
 		    presence     = $(envelope).data('presence'),
 		    presentation = $(envelope).data('presentation'),
-            state        = $(this).attr('data-aid').replace('EffortButton','');
+		    perspective       = 'add',
+		    action            = 'add',
+//            state        = $(this).attr('data-aid').replace('EffortButton',''),
+            state        = $(envelope).data('aid');
 		var boqx         = $('#'+boqx_id),
 		    boqx_aspect  = $('#'+boqx_id).data('aspect'),
 			carton       = $('#'+carton_id);
 		var carton_aspect= $(carton).data('aspect'),
-		    cards        = 0,
-			empty_cards  = 0,
+		    carton_envelope_id = $(carton).data('envelope') || $(carton).data('boqx'),
+		    boqxes        = 0,
+		    filled_boqxes = 0,
+			empty_boqxes  = 0,
 			view,
 			snippet,
             section,
@@ -769,74 +1033,69 @@ define(function(require) {
 		    service_time = $("#"+cid+"_hours").val(),
 		    service_total= $('#'+cid+"_line_total").html(),
 		    service_total_raw = $('.'+cid+"_line_total_raw").html(),
-		    carton_total,
+		    carton_total = 0,
+			carton_show_title,
 		    envelope_cid,
-		    envelope_total,
-			add_panel    = $('[data-aid=TaskAdd][data-cid='+cid+']'),
-			show_panel   = $('[data-aid=TaskShow][data-cid='+cid+']'),
-			edit_panel   = $('[data-aid=TaskEdit][data-cid='+cid+']');
-        var state        = $(envelope).data('aid');                                   console.log('pallet_aspect: '+carton_aspect);console.log('state: '+state);console.log('presence: '+presence);console.log('presentation: '+presentation);
+		    envelope_total;
+		var carton_envelope     = $('#'+carton_envelope_id),
+			add_panel           = $('[data-aid=TaskAdd][data-cid='+cid+']'),
+			show_panel          = $('[data-aid=TaskShow][data-cid='+cid+']'),
+			edit_panel          = $('[data-aid=TaskEdit][data-cid='+cid+']'),
+			carton_add_panel    = $('[data-aid=TaskAdd][data-cid='+carton_envelope_id+']'),
+			carton_show_panel   = $('[data-aid=TaskShow][data-cid='+carton_envelope_id+']'),
+			carton_edit_panel   = $('[data-aid=TaskEdit][data-cid='+carton_envelope_id+']');                                   console.log('carton_id: '+carton_id);console.log('carton_envelope_id: '+carton_envelope_id);console.log('carton_aspect: '+carton_aspect);console.log('state: '+state);console.log('presence: '+presence);console.log('presentation: '+presentation);
 
 		if (typeof service_name  != 'undefined' && service_name.length  > 0) points++; console.log('service_name: '+service_name);
 		if (typeof service_desc  != 'undefined' && service_desc.length  > 0) points++; console.log('service_desc: '+service_desc);
 		if (typeof service_qty   != 'undefined' && service_qty.length   > 0) points++; console.log('service_qty: '+service_qty);
 		if (typeof service_cost  != 'undefined' && service_cost.length  > 0) points++; console.log('service_cost: '+service_cost);
 		if (typeof service_time  != 'undefined' && service_time.length  > 0) points++; console.log('service_time: '+service_time);
-		if (typeof service_total != 'undefined' && service_total.length > 0 && parseFloat(service_total_raw)>0) points++;
-			 
-	    switch (carton_aspect){
-		  case 'discoveries': 
-		 	 view = 'experiences';
-		 	 section = 'issue_discovery';
-		 	 snippet = 'discovery';
-		 	 break;
-		  case 'remedies': 
-		 	 view = 'experiences';
-		 	 section = 'issue_remedy';
-		 	 snippet = 'remedy';
-		 	 break;
-		  case 'issues':
-			 view = 'experiences';
-			 section = 'issue';
-			 break;
-		  case 'parts':
-			  view = 'transfers';
-			  section = 'boqx_contents';
-			  snippet = 'single_part';
-			  break;
-		  case 'efforts':
-			  view = 'transfers';
-			  section = 'boqx_contents';
-			  snippet = 'single_effort';
-			  break;
-		  case 'item' : 
-			 view = 'market'; 
-			 break;
-		  case 'receipts':
-			 break;
-	   }
+		if (typeof service_total != 'undefined' && service_total.length > 0 && parseFloat(service_total_raw)>0) points++;      console.log('service_total: '+service_total);
         
-        if (typeof service_name == 'undefined')
-           show_service = false;
-        else if (service_name.length==0)
-                 show_service = false;
+        if (typeof service_name == 'undefined')                  show_service = false;
+        else if (service_name.length==0)         if (points > 0) service_name = '(missing name)';
+                                                 else         	 show_service = false;
         
 		$(envelope).attr('boqx-fill-level', points);
+		
     	$('input[data-focus-id = "FillLevel--'+cid+'"]').val(points);
 
 		$('[data-carton='+carton_id+']').each(function(){
-			cards++;
-			if ($(this).attr('boqx-fill-level') == 0)
-				empty_cards++;
-		});
-
+			boqxes++;
+			if ($(this).attr('boqx-fill-level') == 0){                                                console.log('boqx: '+$(this).attr('data-cid'));
+				empty_boqxes++;}
+			if ($(this).attr('boqx-fill-level')>0)
+				filled_boqxes++;
+			  envelope_cid = $(this).attr('id');                                                      console.log('envelope_cid = '+envelope_cid);
+			  envelope_total = $('#'+envelope_cid+'_line_total_raw').text();                          console.log('envelope_total = '+envelope_total);
+			  if(!isNaN(envelope_total) && envelope_total.length>0)
+				  carton_total += parseFloat(envelope_total);                                         
+		});                                                                                           console.log('empty_boqxes: '+empty_boqxes);console.log('filled_boqxes: '+filled_boqxes);
+		switch (carton_aspect){
+		  case 'discoveries':  view = 'experiences'; section = 'issue_discovery'; snippet = 'discovery';     if(filled_boqxes==1) carton_show_title = 'discovery'; else carton_show_title = 'discoveries'; break;
+		  case 'remedies':     view = 'experiences'; section = 'issue_remedy';    snippet = 'remedy';        if(filled_boqxes==1) carton_show_title = 'remedy';    else carton_show_title = 'remedies';    break;
+		  case 'issues':       view = 'experiences'; section = 'issue';                                      if(filled_boqxes==1) carton_show_title = 'issue';     else carton_show_title = 'issues';      break;
+		  case 'parts':        view = 'transfers';   section = 'boqx_contents';   snippet = 'single_part';   if(filled_boqxes==1) carton_show_title = 'part';      else carton_show_title = 'parts';       break;
+		  case 'efforts':      view = 'transfers';   section = 'boqx_contents';   snippet = 'single_effort'; if(filled_boqxes==1) carton_show_title = 'effort';    else carton_show_title = 'efforts';     break;
+		  case 'item' :        view = 'market';                                                              if(filled_boqxes==1) carton_show_title = 'item';      else carton_show_title = 'items';       break;
+		  case 'receipt_item': view = 'transfers';   section = 'boqx_contents';   snippet = 'single_item';   if(filled_boqxes==1) carton_show_title = 'item';      else carton_show_title = 'items';       break;
+		  case 'receipts':     view = 'transfers';   section = 'thing_receipt';   snippet = 'receipt';       if(filled_boqxes==1) carton_show_title = 'receipt';   else carton_show_title = 'receipts';    break;
+	   }
+        $(carton).attr('boqxes',filled_boqxes);
+        $(carton_envelope).attr('boqx-fill-level', filled_boqxes);
+	    $(show_panel).find('.TaskShow__qty_7lVp5tl4').html(service_qty);
+        $(show_panel).find('.TaskShow__title___O4DM7q').html(service_name);
+        $(show_panel).find('.TaskShow__description___qpuz67f').html(service_desc);
+        $(show_panel).find('.TaskShow__item_total__Dgd1dOSZ').html(service_total);
+        $(show_panel).find('.TaskShow__time___cvHQ72kV').html(service_time);
+		
+		$(carton_show_panel).find('.TaskShow__qty_7lVp5tl4').html(filled_boqxes);
+		$(carton_show_panel).find('.TaskShow__title___O4DM7q').html(carton_show_title);
+		$(carton_show_panel).find('.TaskShow__item_total__Dgd1dOSZ').html(moneyFormat(carton_total));
+		$(carton_show_panel).find('.TaskShow__time___cvHQ72kV').html(service_time);
+		
         if (state == 'add' || state == 'edit'){
               if (show_service){
-                 $(show_panel).find('.TaskShow__qty_7lVp5tl4').html(service_qty);
-                 $(show_panel).find('.TaskShow__title___O4DM7q').html(service_name);
-                 $(show_panel).find('.TaskShow__description___qpuz67f').html(service_desc);
-                 $(show_panel).find('.TaskShow__item_total__Dgd1dOSZ').html(service_total);
-                 $(show_panel).find('.TaskShow__time___cvHQ72kV').html(service_time);
                  $(show_panel).show();
                  $(edit_panel).hide();
                  $(envelope).attr('data-aid', 'show');
@@ -846,33 +1105,40 @@ define(function(require) {
                  $(edit_panel).hide();
                  $(envelope).attr('data-aid', 'add');
              }
+             if(points > 0){
+	    	     $this.attr('data-aid', 'saveEffortButton');
+	    	     $this.html('Close').removeClass('add').addClass('close');
+	    	     $('nav .controls .cancelReplace__TFF3oQiV[data-cid='+cid+']').remove();
+	    	     $('nav .controls .cancelReplace__mw0ODp0p[data-cid='+cid+']').remove();
+	    	     $('nav .controls .closeEnvelope_1kZzzgcR[data-cid='+cid+']').remove();
+	    	     $this.closest('nav').attr('class','edit');
+	    	     var del_title;
+	    	     if ($('.delete[data-cid='+cid+']').length > 0){
+	    	    	 $('.delete[data-cid='+cid+']').removeAttr('disabled');
+	    	    	 del_title = $('.delete[data-cid='+cid+']').attr('title');
+	    	    	 $('.delete[data-cid='+cid+']').attr('title',del_title.replace('(disabled)',''));
+	    	     }
+             }
 		   // add an empty card if needed
-           if (empty_cards == 0){
-        	     $(this).attr('data-aid', 'saveEffortButton');
-        	     $(this).html('Save');        	     
-        	     var del_title;
-        	     if ($('.delete[data-cid='+cid+']').length > 0){
-        	    	 $('.delete[data-cid='+cid+']').removeAttr('disabled');
-        	    	 del_title = $('.delete[data-cid='+cid+']').attr('title');
-        	    	 $('.delete[data-cid='+cid+']').attr('title',del_title.replace('(disabled)',''));
-        	     }                                             console.log('view: '+view);console.log('section: '+section);console.log('snippet: '+snippet);console.log('boqx_id: '+boqx_id);console.log('carton_aspect: '+carton_aspect);console.log('carton_id: '+carton_id);
+           if (empty_boqxes == 0){                                                                                   console.log('view: '+view);console.log('section: '+section);console.log('snippet: '+snippet);console.log('boqx_id: '+boqx_id);console.log('carton_aspect: '+carton_aspect);console.log('carton_id: '+carton_id);
 	           ajax.view('partials/jot_form_elements',{
 		    	   data: {
 		    		   element: 'conveyor',
-		    		   view : view,
-		    		   action: 'add',
-		    		   perspective: 'add',
-		    		   section: section,
-		    		   snippet: snippet,
-		    		   parent_cid: boqx_id,
-		    		   carton_id: carton_id,
-		    		   guid: guid,
-		    		   aspect: aspect,
-		    		   presentation: presentation,
-		    		   presence: presence,
-		    		   cards: cards,
+		    		   view         : view,
+		    		   action       : action,
+		    		   perspective  : perspective,
+		    		   section      : section,
+		    		   snippet      : snippet,
+					   form_method  : 'stuff',
+		    		   parent_cid   : boqx_id,
+		    		   carton_id    : carton_id,
+		    		   guid         : guid,
+		    		   aspect       : aspect,
+		    		   presentation : presentation,
+		    		   presence     : presence,
+		    		   boqxes       : boqxes,
 		    	   },
-		       }).done(function(output) {                          //console.log('carton: ',carton);console.log('output: ',output);
+		       }).done(function(output) {
 		    	   $(carton).append($(output));
 		       }).success(function(){
 					
@@ -885,6 +1151,174 @@ define(function(require) {
             $(envelope).attr('boqx-fill-level', '0');
             $(envelope).attr('data-aid', 'show');
         }
+    });
+    $(document).on("click", ".packBoqx_QQFvJSIR", function(e) {
+        e.preventDefault();
+        var $this             = $(this),
+            ajax              = new Ajax(),
+            cid               = $(this).data('cid'),
+            show_service      = true;
+	    var boqx              = $('#'+cid),
+            parent_cid        = $('#'+cid).data('boqx');
+    	var carton_id         = $(boqx).data('carton'),
+		    guid              = $(boqx).data('guid'),
+		    aspect            = $(boqx).data('aspect'),
+		    presence          = $(boqx).data('presence'),
+		    presentation      = $(boqx).data('presentation'),
+		    perspective       = 'add',
+		    action            = 'add',
+//            state        = $(this).attr('data-aid').replace('EffortButton',''),
+            state             = $(boqx).data('aid');
+		var carton            = $('#'+carton_id);
+		var carton_aspect     = $(carton).data('aspect'),
+		    boqxes            = 0,
+		    filled_boqxes     = 0,
+			empty_boqxes      = 0,
+			handler,
+			snippet,
+            section,
+            points            = 0;
+		var service_name      = $("[data-focus-id=NameEdit--"+cid+"]").val(),
+		    service_desc      = $("[data-focus-id=ServiceEdit--"+cid+"]").val(),
+		    service_qty       = $("#"+cid+"_line_qty").val(),
+		    service_cost      = $("#"+cid+"_line_cost").val(),
+		    service_time      = $("#"+cid+"_hours").val(),
+		    service_total     = $('#'+cid+"_line_total").html(),
+		    service_total_raw = $('.'+cid+"_line_total_raw").html(),
+		    carton_total      = 0,
+			carton_show_title;
+		var add_panel         = $('[data-aid=TaskAdd][data-cid='+cid+']'),
+			show_panel        = $('[data-aid=TaskShow][data-cid='+cid+']'),
+			edit_panel        = $('[data-aid=TaskEdit][data-cid='+cid+']');
+		if (edit_panel.length == 0)
+			edit_panel        = $('[data-aid=ItemEdit][data-cid='+cid+']');                   		console.log('cid: '+cid);console.log('carton_id: '+carton_id);console.log('carton_aspect: '+carton_aspect);console.log('state: '+state);console.log('presence: '+presence);console.log('presentation: '+presentation);
+
+		if (typeof service_name  != 'undefined' && service_name.length  > 0)                                    points++; console.log('service_name: '+service_name);
+		if (typeof service_desc  != 'undefined' && service_desc.length  > 0)                                    points++; console.log('service_desc: '+service_desc);
+		if (typeof service_qty   != 'undefined' && service_qty.length   > 0)                                    points++; console.log('service_qty: '+service_qty);
+		if (typeof service_cost  != 'undefined' && service_cost.length  > 0)                                    points++; console.log('service_cost: '+service_cost);
+		if (typeof service_time  != 'undefined' && service_time.length  > 0)                                    points++; console.log('service_time: '+service_time);
+		if (typeof service_total != 'undefined' && service_total.length > 0 && parseFloat(service_total_raw)>0) points++; console.log('service_total: '+service_total);
+        
+        if (typeof service_name == 'undefined')                  show_service = false;
+        else if (service_name.length==0)         if (points > 0) service_name = '(missing name)';
+                                                 else         	 show_service = false;
+    	$('#'+cid).attr('boqx-fill-level',points);                                                  console.log('points: '+points);
+        $('[data-carton='+carton_id+']').each(function(){
+			boqxes++;
+			if ($(this).attr('boqx-fill-level') == 0){                                              console.log('boqx: '+$(this).attr('id'));
+				empty_boqxes++;}
+			if ($(this).attr('boqx-fill-level')>0)
+				filled_boqxes++;
+		});	                                                                                        console.log('empty_boqxes: '+empty_boqxes);console.log('filled_boqxes: '+filled_boqxes);console.log('state: '+state);
+		switch (carton_aspect){
+		  case 'discoveries':  handler = 'experiences'; section = 'issue_discovery'; snippet = 'discovery';     if(filled_boqxes==1) carton_show_title = 'discovery'; else carton_show_title = 'discoveries'; break;
+		  case 'remedies':     handler = 'experiences'; section = 'issue_remedy';    snippet = 'remedy';        if(filled_boqxes==1) carton_show_title = 'remedy';    else carton_show_title = 'remedies';    break;
+		  case 'issues':       handler = 'experiences'; section = 'issue';                                      if(filled_boqxes==1) carton_show_title = 'issue';     else carton_show_title = 'issues';      break;
+		  case 'parts':        handler = 'transfers';   section = 'boqx_contents';   snippet = 'single_part';   if(filled_boqxes==1) carton_show_title = 'part';      else carton_show_title = 'parts';       break;
+		  case 'efforts':      handler = 'transfers';   section = 'boqx_contents';   snippet = 'single_effort'; if(filled_boqxes==1) carton_show_title = 'effort';    else carton_show_title = 'efforts';     break;
+		  case 'item' :        handler = 'market';      section = 'single_thing';    perspective = 'edit';      if(filled_boqxes==1) carton_show_title = 'item';      else carton_show_title = 'items';       break;
+		  case 'receipt_item': handler = 'transfers';   section = 'boqx_contents';   snippet = 'single_item';   if(filled_boqxes==1) carton_show_title = 'item';      else carton_show_title = 'items';       break;
+		  case 'receipts':     handler = 'transfers';   section = 'thing_receipt';   snippet = 'receipt';       if(filled_boqxes==1) carton_show_title = 'receipt';   else carton_show_title = 'receipts';    break;
+	   }
+        $(show_panel).find('.ItemShow__title__8tlRYJcP').html(service_name);
+        $(show_panel).find('.ItemShow__item_total__Dgd1dOSZ').html(service_total);
+
+		if (state == 'add' || state == 'edit'){
+			  if (show_service){
+				 $(show_panel).show();
+				 $(edit_panel).hide();
+			 }
+			 else {
+				 $(add_panel).show();
+				 $(edit_panel).hide();
+			 }
+		   // add an empty card if needed
+		   if (empty_boqxes == 0){
+				 $this.attr('data-aid', 'saveEffortButton');
+				 $this.html('Close').removeClass('add').addClass('close');
+				 $('nav .controls .cancelReplace__mw0ODp0p[data-cid='+cid+']').remove();
+				 $this.closest('nav').attr('class','edit');
+				 var del_title;
+				 if ($('.delete[data-cid='+cid+']').length > 0){
+					 $('.delete[data-cid='+cid+']').removeAttr('disabled');
+					 del_title = $('.delete[data-cid='+cid+']').attr('title');
+					 $('.delete[data-cid='+cid+']').attr('title',del_title.replace('(disabled)',''));
+				 }                                                                                     console.log('handler: '+handler);console.log('section: '+section);console.log('snippet: '+snippet);console.log('parent_cid: '+parent_cid);console.log('carton_aspect: '+carton_aspect);console.log('carton_id: '+carton_id);
+			   ajax.view('partials/jot_form_elements',{
+				   data: {
+					   element      : 'conveyor',
+					   view         : handler,
+					   action       : action,
+					   perspective  : perspective,
+					   section      : section,
+					   snippet      : snippet,
+					   form_method  : 'pack',
+					   parent_cid   : parent_cid,
+					   carton_id    : carton_id,
+					   guid         : guid,
+					   aspect       : aspect,
+					   presentation : presentation,
+					   presence     : presence,
+					   boqxes       : boqxes,
+				   },
+			   }).done(function(output) {                          console.log('carton: ',carton);
+				   $(carton).append($(output));
+			   }).success(function(){
+					
+			   });
+		   }
+		}
+		else{                                        // state == 'view'
+			$(show_panel).show();
+			$(edit_panel).hide();
+		}			
+       /****************************************
+* packBoqx_QQFvJSIR . boqx is envelope *****************************************************************
+       ****************************************/
+	    if ($(boqx).hasClass('envelope__NkIZUrK4')){
+			var envelope        = boqx,
+		    	carton_envelope_id = $(carton).data('envelope');
+			var carton_envelope = $('#'+carton_envelope_id),
+			    envelope_cid,
+			    envelope_total;
+			var edit_panel          = $('[data-aid=TaskEdit][data-cid='+cid+']'),
+			    carton_add_panel    = $('[data-aid=TaskAdd][data-cid='+carton_envelope_id+']'),
+				carton_show_panel   = $('[data-aid=TaskShow][data-cid='+carton_envelope_id+']'),
+				carton_edit_panel   = $('[data-aid=TaskEdit][data-cid='+carton_envelope_id+']');        console.log('carton_envelope_id: '+carton_envelope_id);
+			$(envelope).attr('boqx-fill-level', points);			
+			$('[data-carton='+carton_id+']').each(function(){
+				envelope_cid = $(this).attr('id');                                                      console.log('envelope_cid = '+envelope_cid);
+				envelope_total = $('#'+envelope_cid+'_line_total_raw').text();                          console.log('envelope_total = '+envelope_total);
+				if(!isNaN(envelope_total) && envelope_total.length>0)
+				   carton_total += parseFloat(envelope_total);                                          console.log('carton_total =' +carton_total);
+			});                                                                                         console.log('empty_boqxes: '+empty_boqxes);console.log('filled_boqxes: '+filled_boqxes);
+	        $(carton_envelope).attr('boqx-fill-level', filled_boqxes);
+
+	        $(show_panel).find('.TaskShow__qty_7lVp5tl4').html(service_qty);
+	        $(show_panel).find('.TaskShow__title___O4DM7q').html(service_name);
+	        $(show_panel).find('.TaskShow__description___qpuz67f').html(service_desc);
+	        $(show_panel).find('.TaskShow__item_total__Dgd1dOSZ').html(service_total);
+	        $(show_panel).find('.TaskShow__time___cvHQ72kV').html(service_time);
+
+			$(carton_show_panel).find('.TaskShow__qty_7lVp5tl4').html(filled_boqxes);
+			$(carton_show_panel).find('.TaskShow__title___O4DM7q').html(carton_show_title);
+			$(carton_show_panel).find('.TaskShow__item_total__Dgd1dOSZ').html(moneyFormat(carton_total));
+			$(carton_show_panel).find('.TaskShow__time___cvHQ72kV').html(service_time);
+			
+	        if (state == 'add' || state == 'edit'){
+	              if (show_service){
+	                 $(envelope).attr('data-aid', 'show');
+	             }
+	             else {
+	                 $(envelope).attr('data-aid', 'add');
+	             }
+	        }
+	        else{                                        // state == 'view'
+	            $(envelope).attr('boqx-fill-level', '0');
+	            $(envelope).attr('data-aid', 'show');
+	        }
+	    }
     });  
    $(document).on('click', '.CloseItem__submit__oz8vFV9a', function(e){
 	  e.preventDefault();
@@ -1849,19 +2283,34 @@ define(function(require) {
    });
    $(document).on('click', '.StoryPreviewItem__expander, .StoryPreviewItem__title', function(e){   console.log('StoryPreviewItem__expander');
 	  //alert('works');
+/**Note: In the case of cloned and dropped boqxes, the 'cid' will not be unique until a page refresh.  This necessitates a more careful identification of the target.*/
       e.preventDefault();
 	  var ajax        = new Ajax();
 	  var guid        = $(this).data('guid'),
-	      cid         = $(this).data('cid');
-      var item_boqx   = $('#'+cid);
-      var boqx_id     = $(item_boqx).data('boqx');
-      var boqx        = $('#'+boqx_id);
-	  var $boqx_show  = $('[data-boqx='+cid+']'),
-          $boqx_preview = $('header.preview[data-cid='+cid+']');
+	      cid         = $(this).data('cid'),
+          presentation= $(this).data('presentation'),
+          slot        = $(this).closest('.slot'),
+          presence;
+//@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
+//	  var pallet      = $(this).closest('.pallet');
+      var item_boqx   = $(this).closest('#'+cid);
+      var boqx_id     = $(item_boqx).data('boqx'),
+          isDraggable = $(item_boqx).is(".ui-draggable");
+      var boqx        = $(this).closest('#'+boqx_id);
+	  var $boqx_show  = $(item_boqx).children('.Item__nhjb4ONn[data-boqx='+cid+']'),
+          $boqx_preview = $(this).closest('header.preview[data-cid='+cid+']');
       var $boqx_exists = $boqx_show.length>0;
-      var add_panel   = $('[data-aid=TaskAdd][data-cid='+cid+']'),
-          show_panel  = $('[data-aid=TaskShow][data-cid='+cid+']'),
-          edit_panel  = $('[data-aid=TaskEdit][data-cid='+cid+']');
+      if($(this).parents('.open-boqx').length>0)
+    	  presence    = 'open_boqx';
+      if(presence=='open_boqx' && !slot.hasClass('maximized')){
+    	  slot.addClass('maximized').attr('open-boqx',cid);
+    	  item_boqx.find('button.maximize').removeClass('maxmize').addClass('restore').attr('title', 'Restore view');  
+      }
+      if($(this).parents('boqx-carton').length>0)
+    	  presence = 'carton';
+      if(isDraggable)
+    	  item_boqx.draggable("disable");
+//      $('.boqx .preview').draggable('enable').draggable('option',{cursor:'move'});
       if($boqx_exists){
     	  $boqx_show.removeClass('collapsed');
     	  $boqx_preview.addClass('collapsed');
@@ -1869,15 +2318,27 @@ define(function(require) {
       else {
     	  ajax.view('partials/jot_form_elements',{
 			  data: {
-					  element   : 'show boqx',
-					  guid      : guid,
-					  cid       : cid
+					  element      : 'show boqx',
+					  guid         : guid,
+					  cid          : cid,
+					  presentation : presentation
+// when presence == 'carton', cancel/close buttons are not available
+//					  presence  : presence
 				  },
 			  }).done(function(output){
 				  $(item_boqx).append($(output));
+				   
+				  $('.dropboqx.things').droppable({
+				    	greedy: true,
+				        accept: '.boqx',
+				    	tolerance: "touch",
+				        scope: 'things',
+					    classes:{
+				           'ui-droppable-active': "box-state-highlight"} 
+					});
 			  }).success(function(){
 				 $boqx_preview.addClass("collapsed");
-		  });
+              });
       }
    });
    $(document).on('click', 'button.estimate__item', function(e){
@@ -1926,7 +2387,7 @@ define(function(require) {
     	   $(this).parents('ul').find('input[value="create"]').parent('label').removeClass('new-item-details-visible');
        }
    });
-   $(document).on('drop', '.dropboqx', function(e, ui) {
+/*   $(document).on('drop', '.dropboqx', function(e, ui) {
        e.preventDefault();
 
        var ajax        = new Ajax(),
@@ -1964,22 +2425,103 @@ define(function(require) {
 		   $("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").attr('data-count', ++item_count);
 		   $("."+aspect+"-"+section+"-count[data-qid='"+qid+"']").html(" ("+item_count+")");
    });
-     $(document).on('click', '.panels .items .pallet_toggle', function(e){
+*/     
+    $(document).on('drop', '.dropboqx',function(event,ui){
+        console.log('+framework.dropboqx.on(drop)');
+        var ajax      = new Ajax(),
+            boqx      = $(this),
+            cid       = $(this).data('cid'),
+            opening   = $(this).closest('.window-opening'),
+            liner     = $(this).closest('.liner'),
+            dropped_item = ui.helper,
+            boqx_guid = $(this).parents('.boqx').data('guid'),
+            dropboqx  = this;
+        var item_guid = dropped_item.data("guid"),
+            item_id   = dropped_item.attr('id'),
+            boqx_id   = $('#'+cid).data('boqx'),
+            aspect    = boqx.data('aspect'),
+            section   = boqx.data('section');
+        var envelope_id = $(liner).data('cid');
+        var envelope  = $('#'+envelope_id),
+            carton_id = $('#'+envelope_id).data('carton');
+        var carton    = $('#'+carton_id);
+        var tally     = parseInt($(carton).children('.tally').attr('boqxes'));
+        var new_id    = "c"+Math.floor((Math.random()*200)+1);
+        var item      = $('#'+item_id).clone();
+        var isConnected = liner.children('.boqx[data-guid='+item_guid+']').length > 0;
+        var presence  = $(envelope).data('presence');
+        if (boqx_guid)                                    //there is a boqx (that's not empty).  pack the dropped thing into it.
+	        elgg.action("shelf/pack", {
+	           data: {guid     : item_guid,
+	                  boqx_guid: boqx_guid,
+	                  aspect   : aspect,
+	                  section  : section
+	           		},
+           success: function(e){
+              if(!isConnected){
+            	  ajax.view('forms/experiences/edit',{              //build the item boqx 
+            		  data: {
+            			  guid        : item_guid,
+            			  parent_cid  : envelope_id,
+            			  boqx_id     : boqx_id,
+            			  action      : 'add',
+            			  section     : 'thing',
+            			  presentation: 'carton',
+            			  presence    : 'pallet'
+            		  }
+            	  }).done(function(output) {
+            		 $(opening).after($(output));                 //set the item boqx into the window-opening 
+	                 $('.boqx.item').draggable({                 //make the item boqx draggable
+	                    scope: 'things',
+	                 });
+	                 tally = $(dropboqx).closest('.liner').children('.boqx').length;              //increment the tally
+	                 $(carton).find('.tally').attr('boqxes', tally);
+	                 $(envelope).find('.TaskShow__qty_7lVp5tl4').text(tally);
+            	  });
+               }
+           }
+	    });
+        else 
+        	ajax.view('forms/experiences/edit',{              //build the item boqx 
+    		  data: {
+    			  guid        : item_guid,
+    			  parent_cid  : envelope_id,
+            	  boqx_id     : boqx_id,
+    			  action      : 'add',
+    			  section     : 'thing',
+    			  presentation: 'nested',
+    			  presence    : 'pallet'
+    		  }
+    	  }).done(function(output) {
+    		 $(opening).after($(output));                //set the item boqx into the window-opening 
+             $('.boqx.item').draggable({                 //make the item boqx draggable
+                scope: 'things',
+             });
+             tally = $(dropboqx).closest('.liner').children('.boqx').length;              //increment the tally
+             $(carton).find('.tally').attr('boqxes', tally);
+             $(envelope).find('.TaskShow__qty_7lVp5tl4').text(tally);
+             $(dropped_item).remove();
+    	  });
+//        quebx.shelf_tools.pack_item(item_guid, boqx_guid, boqx, item, aspect, container_guid);
+    });
+    $(document).on('click', '.panels .items .pallet_toggle', function(e){
           e.preventDefault();
           var ajax    = new Ajax(),
               cid     = $(this).data('cid'),
               boqx    = $(this).data('boqx'),
               handler = $(this).parent().attr('handler'),
               visible = $(this).parent().hasClass('visible'),
-              slots   = $('.slots'),
+              slots,
               this_toggle = $(this),
               materialized,
               available = false;
-          var pallet,
-              last_slot = $(slots).children('.pallet').size();
           var min_size = 1900,
-              required_size = (last_slot+1)*400;
-          var floor_size = required_size < min_size ? min_size : required_size;
+              required_size,
+              floor_size;
+          var pallet;
+          var last_slot = $('.slots').children('.slot').size();
+//@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
+//          var last_slot = $('.slots').children('.pallet').size();
           if (boqx == 'shelf') pallet = $('.tc_page_bulk_header');
           else                 pallet = $('#'+cid);
           materialized = pallet.length>0;
@@ -1990,7 +2532,14 @@ define(function(require) {
             	  $('.tc_page_nav_header').addClass('visible');
             	  $('.tc_pull_right').addClass('visible');
               }
-              return;
+	    	  slots         = $('.slots').children('.slot').size();
+//@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
+//	    	  slots         = $('.slots').children('.pallet').size();
+	          required_size = (slots*400) + 100;
+	          floor_size    = required_size < min_size ? min_size : required_size;
+			  $('.slots').attr('data-slots', slots);
+			  $('.slots').css('width',floor_size);
+			  return;
           }
           if (!visible && materialized) {
               pallet.addClass('visible');
@@ -1999,7 +2548,14 @@ define(function(require) {
             	  $('.tc_page_nav_header').removeClass('visible');
             	  $('.tc_pull_right').removeClass('visible');
               }
-              return;
+	    	  slots         = $('.slots').children('.slot').size();
+//@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
+//	    	  slots         = $('.slots').children('.pallet').size();
+	          required_size = (slots*400) + 100;
+	          floor_size    = required_size < min_size ? min_size : required_size;
+			  $('.slots').attr('data-slots', slots);
+			  $('.slots').css('width',floor_size);
+			  return;
           }
           if(!available){
     		  ajax.view('partials/jot_form_elements',{
@@ -2011,22 +2567,16 @@ define(function(require) {
     			  },
     		  }).done(function(output){
     			 $(output).addClass('visible');
-    			 slots.append($(output));
-    			 slots.attr('data-slots', last_slot+1);
-    			 slots.css('width',floor_size);
                  this_toggle.parent().addClass('visible');
-    		  }).success(function(response){
-/*    	        var open_slots = $('.slots .pallet[data-contents=open]');
-				var slot = open_slots[0];
-				var slot_id = $(slot).attr('id');
-				console.log('slot id: '+slot_id);
-				$(slot).append(response);
-				$(slot).attr('data-contents',boqx);
-				$('li[cid='+cid+']').attr('cid',slot_id);
-				$('button[data-cid='+cid+']').attr('data-cid',slot_id);*/
-    			 
+		         $('.slots').append($(output));
+	      	     slots         = $('.slots').children('.slot').size();
+//@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
+//		    	 slots         = $('.slots').children('.pallet').size();
+		         required_size = (slots*400) + 100;
+		         floor_size    = required_size < min_size ? min_size : required_size;
+				 $('.slots').attr('data-slots', slots);
+				 $('.slots').css('width',floor_size);
     		  });
-        	  
 /*        	var dataString = 'add=pallet&cid='+cid+'&boqx='+boqx,
         	    form       = $(this).parents('form');
         	var open_slots = $('.slots .pallet[data-contents=open]');
@@ -2058,12 +2608,15 @@ define(function(require) {
      });
     $(document).on('click', 'a.tn-CloseButton___2wUVKGfh', function(e){
        e.preventDefault();
-       var pallet   = $(this).parents('.pallet'),
-           slots    = $('.slots'),
+       var slot   = $(this).parents('.slot');
+//@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
+//       var pallet   = $(this).parents('.pallet');
+       var slots    = $('.slots'),
     	   ajax     = new Ajax();
-       var cid      = pallet.attr('id'),
-           last_slot = $(slots).children('.pallet').size(),
-           handler  = pallet.data('contents');
+       var cid      = slot.attr('id');
+//       var last_slot = $(slots).children('.pallet').size();
+       var last_slot = $(slots).children('.slot').size(),
+           handler  = slot.data('contents');
        var min_size = 1900,
            required_size = ((last_slot-1)*400) + 100;
        var floor_size = required_size < min_size ? min_size : required_size;
@@ -2074,7 +2627,7 @@ define(function(require) {
     		 perspective   : 'remove'
     	   },
 		   }).done(function(){
-			   pallet.remove();
+			   slot.remove();
 			   slots.attr('data-slots', last_slot-1);
 			   slots.css('width',floor_size);
 		       $('li[cid='+cid+']').removeClass('visible');
@@ -2082,11 +2635,13 @@ define(function(require) {
     });
      $(document).on('click', '.tn-AddButton___hGq7Vqlr', function(e){
     	e.preventDefault();
-    	var pallet  = $(this).parents('.pallet'),
-    	    target  = $(this).data('target-boqx'),
+    	var slot  = $(this).parents('.slot');
+//@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
+//  	var pallet  = $(this).parents('.pallet');
+    	var target  = $(this).data('target-boqx'),
     	    ajax    = new Ajax();
-    	var handler = pallet.data('contents'),
-    	    cid     = pallet.data('cid'),
+    	var handler = slot.data('contents'),
+    	    cid     = slot.data('cid'),
     	    stack   = $(this).parents('.tn-PanelHeader___c0XQCVI7')//pallet.find('.tn-PanelHeader__input__xCdUunkH')//pallet.find('.tn-pallet__stack')
     	    ;
     	var empty_boqx = $('#'+target),
@@ -2095,7 +2650,7 @@ define(function(require) {
     	//console.log('items_container: ',items_container);
     	if (liner_exists){
     		//empty_boqx.show();
-    		liner.addClass('open');
+    		liner.addClass('open').removeClass('collapsed');
     		//stack.closest('header.tn-PanelHeader___c0XQCVI7').addClass('open');
     		stack.addClass('open');
     	}
@@ -2105,6 +2660,8 @@ define(function(require) {
 	    		 element       : 'empty boqx',
 	    		 handler       : handler,
 	    		 perspective   : 'add',
+	    		 presentation  : 'pallet',
+	    		 presence      : 'empty boqx',
 	    		 empty_boqx_id : target
 	    	   },
 		       }).done(function(output) {
@@ -2112,8 +2669,17 @@ define(function(require) {
 		    	   //stack.find('.empty-boqx').show();
 		    	   //stack.closest('header.tn-PanelHeader___c0XQCVI7').addClass('open');
 		    	   empty_boqx.append($(output));
-		    	   $('[data-boqx='+target+']').addClass('open');
+		    	   $('[data-boqx='+target+']').addClass('open').removeClass('collapsed');
     		       stack.addClass('open');
+    		       				   
+				  $('.dropboqx.things').droppable({
+				    	greedy: true,
+				        accept: '.boqx',
+				    	tolerance: "touch",
+				        scope: 'things',
+					    classes:{
+				           'ui-droppable-active': "box-state-highlight"} 
+					});
 		       });
      });
 	   //Add a new label when one presses the 'comma' key
@@ -2365,7 +2931,12 @@ define(function(require) {
     	  open_state = 'closed';
     	  $('.boqx[data-guid='+guid+']').removeClass('open');
           $('.boqx[data-guid='+guid+'] .selector').removeClass('open');
-	      $('#root').removeClass('boqx-open').removeAttr('open-boqx').removeAttr('open-state');
+          if($('#root').attr('open-boqx') == guid){
+        	  $('#root').removeClass('boqx-open').removeAttr('open-boqx').removeAttr('open-state');
+        	  $('#root .closed-boqx').removeClass('compressed');
+        	  $('#root .open-boqx').remove();
+        	  $('#root .main.space').removeClass('compressed');
+          }
           if (selected_count <= 0){
                $('.tc_page_bulk_header').removeClass('visible');
                $('.tc_pull_right').hide();
@@ -2450,52 +3021,139 @@ define(function(require) {
 	    	   $('.boqx[data-guid='+guid+']').removeClass('open').removeAttr('open-state');
 	           $('.boqx[data-guid='+guid+'] .selector').removeClass('open');
 	           $('#root').removeClass('boqx-open').removeAttr('open-boqx').removeAttr('open-state');
+	           $('#root .closed-boqx').removeClass('compressed');
+	           $('#root .open-boqx').remove();
 	    	   break;
 	       default:
-	    	   $('.boqx[data-guid='+guid+']').addClass('open').attr('open-state',pick_state);
-	    	   $('.boqx[data-guid='+guid+'] .dropdown .close_item').addClass('visible');
-	           $('.boqx[data-guid='+guid+'] .selector').addClass('open');
-	           $('#root').addClass('boqx-open').attr('open-boqx', guid).attr('open-state', pick_state);
-	    	   break;
-       }
-    	$('.boqx[data-guid='+guid+'] .selector').attr('open-state', open_state).addClass('selected');
+		       // add to JSON shelf
+		       ajax.view('partials/shelf_form_elements',{
+		    	   data: {
+		    		 element    : element,
+		    		 guid       : guid,
+		    		 perspective: perspective,
+		    		 open_state : open_state
+		    	   },
+		       }).done(function(output) {
+			       $('.shelf-items-compartment').append($(output));
+			   }).success(function() {
+		           selected_count = selected_counter + 1;
+		           if (selected_count == 0)
+			    	   selected_count = '';
+			       if (selected_count == 1)
+			           $('.selectedStoriesControls__counterLabel').html('item selected');
+			       else
+			           $('.selectedStoriesControls__counterLabel').html('items selected');
+			       $('.selectedStoriesControls__counter').html(selected_count);
+			       $('.Shelf__toggle___pGbKiuvT .count').html(selected_count);
+			       $('.palletControls__counter').html(selected_count);
+			       $(shelf_selector).attr('count', selected_count);
+			       $(shelf_selector).find('.counter').html(selected_count);		   
+		       });
+			   // show in sidebar
+			   ajax.view('partials/shelf_form_elements',{
+			      data: {
+			    	 element    : 'load_sidebar',
+			    	 guid       : guid,
+			    	 perspective: 'space_sidebar'
+			       },
+			    }).done(function(output) {
+			       $('.commandArea .pallet .full-pallet__stack').append($(output));
+			    });
+			   // open on shelf
+			   ajax.view('partials/shelf_form_elements',{
+			      data: {
+			    	 element    : 'load_shelf',
+			    	 guid       : guid,
+		    		 open_state : open_state
+			       },
+			    }).done(function(output) {
+		    	   $('.boqx').removeClass('open').removeAttr('open-state');
+		    	   $('.boqx[data-guid='+guid+']').addClass('open').attr('open-state',pick_state);
+		    	   $('.boqx[data-guid='+guid+'] .dropdown .close_item').addClass('visible');
+		           $('.boqx[data-guid='+guid+'] .selector').addClass('open');
+		           $('#root').addClass('boqx-open').attr('open-boqx', guid).attr('open-state', pick_state);
+		           $('#root .closed-boqx').addClass('compressed');
+			    	$('.boqx[data-guid='+guid+'] .selector').attr('open-state', open_state).addClass('selected');
+				    $('.page_header_container section.open-boqx').remove();
+			       $('.page_header_container').append($(output));
+			    });		       
+		  	   break;
+		       $('.dropdown[data-cid='+cid+']').removeClass('above_scrim');
+		       $('.dropdown[data-cid='+cid+'] section.open-state').addClass('closed');
+		  }
+
+       
+      
+    });
+    $(document).on('click',".slot[data-contents='shelf'] .preview .name",function(e){
+//@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
+//    $(document).on('click',".pallet[data-contents='shelf'] .preview .name",function(e){
+	    e.preventDefault();
+       var cid              = $(this).data('cid');
+       var guid             = $('#'+cid).data('guid'),
+           perspective      = 'header';
+       var open_state       = 'boqx',
+           ajax             = new Ajax();
+       console.log('cid = '+cid);
        // add to JSON shelf
        ajax.view('partials/shelf_form_elements',{
     	   data: {
-    		 element    : element,
+    		 element    : 'open',
     		 guid       : guid,
     		 perspective: perspective,
     		 open_state : open_state
     	   },
-       }).done(function(output) {
-	       $('.shelf-items-compartment').append($(output));
-	   });
-	   // show in sidebar
+       });
+	   // open on shelf
 	   ajax.view('partials/shelf_form_elements',{
 	      data: {
-	    	 element    : 'load_sidebar',
+	    	 element    : 'load_shelf',
 	    	 guid       : guid,
-	    	 perspective: 'space_sidebar'
+    		 open_state : open_state
 	       },
 	    }).done(function(output) {
-	       $('.commandArea .pallet .full-pallet__stack').append($(output));
+    	   $('.boqx').removeClass('open').removeAttr('open-state');
+    	   $('.boqx[data-guid='+guid+']').addClass('open').attr('open-state',open_state);
+    	   $('.boqx[data-guid='+guid+'] .dropdown .close_item').addClass('visible');
+           $('.boqx[data-guid='+guid+'] .selector').addClass('open');
+           $('#root').addClass('boqx-open').attr('open-boqx', guid).attr('open-state', open_state);
+           $('#root .closed-boqx').addClass('compressed');
+	    	$('.boqx[data-guid='+guid+'] .selector').attr('open-state', open_state).addClass('selected');
+		    $('.page_header_container section.open-boqx').remove();
+	       $('.page_header_container').append($(output));
 	    });
        
        $('.dropdown[data-cid='+cid+']').removeClass('above_scrim');
        $('.dropdown[data-cid='+cid+'] section.open-state').addClass('closed');
-       selected_count = selected_counter + 1;
-       
-      if (selected_count == 0)
-    	  selected_count = '';
-      if (selected_count == 1)
-          $('.selectedStoriesControls__counterLabel').html('item selected');
-      else
-          $('.selectedStoriesControls__counterLabel').html('items selected');
-      $('.selectedStoriesControls__counter').html(selected_count);
-      $('.Shelf__toggle___pGbKiuvT .count').html(selected_count);
-      $(shelf_selector).attr('count', selected_count);
-      $(shelf_selector).find('.counter').html(selected_count);
     });
+     $(document).on('click','.controlbar-header .controls .button',function(e){
+    	 var action = $(this).data('action'),
+    	     guid = $('#root').attr('open-boqx'),
+    	     ajax = new Ajax(),
+    	     message,
+    	     count;
+         $(document).find('#root.boqx-open .open-boqx').fadeOut('fast',function(){
+              $(this).remove();
+              $(document).find('.page_header_container .closed-boqx.compressed').removeClass('compressed');
+              $(document).find('section.main.compressed').removeClass('compressed');
+	          if(action == 'remove'){
+		     	   $('.commandArea .boqx[data-guid='+guid+']').remove();
+		    	   $('.shelf-items-compartment .shelf-viewer#quebx-shelf-item-'+guid).remove();
+		    	   $('.boqx[data-guid='+guid+'] .selector').removeClass('selected');
+		      }});
+         ajax.action('shelf/do', {
+			data:{
+				guid: guid,
+				action: action
+			},success: function (result) {
+				if(result.output){
+					message = result.output.message;
+					count   = result.output.count;
+				}
+	        }
+         });
+         console.log('count: '+count);
+   });
          
    function moneyFormat(nStr) {
 	    nStr = parseFloat(nStr).toFixed(2).toString();

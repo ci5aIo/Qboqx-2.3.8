@@ -56,4 +56,4 @@ $breadcrumb = elgg_format_element('div', ['class'=>'weir_selections'],
 if ($menu_count == 1) $menu = elgg_format_element('div', ['class'=>$menu_class,'id'=>"selector_{$cid}"],$breadcrumb.$menu);
 
 echo $menu;
-register_error($display);
+//register_error($display);

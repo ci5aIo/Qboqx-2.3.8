@@ -435,7 +435,7 @@ Switch ($perspective){
                 $delete = elgg_view("output/span", ["class"=>"remove-card", "content"=>$delete_button]);
                 $collapser = "<a class='autosaves collapser-effort' id='effort_collapser_$cid' data-cid='$cid' tabindex='-1'></a>";
             	
-            	$add_effort = "<button data-aid='addEffortButton' class='ThingsBundle__submit___q0kFhFBf autosaves button std egg' type='submit' tabindex='-1' data-parent-cid='$parent_cid' data-cid='$cid' data-qid='$qid'>Add</button>";
+            	$add_effort = "<button data-aid='addEffortButton' class='submitBundle_q0kFhFBf autosaves button std egg' type='submit' tabindex='-1' data-parent-cid='$parent_cid' data-cid='$cid' data-qid='$qid'>Add</button>";
             	$cancel_effort = "<button class='autosaves cancel clear' type='reset' id='epic_submit_cancel_$cid' data-parent-cid='$parent_cid' data-cid='$cid' data-qid='$qid' tabindex='-1'>Cancel</button>";
            	
             	$url = elgg_get_site_url().'jot';
@@ -1028,7 +1028,7 @@ Switch ($perspective){
                 				<div class='rTableCell'></div>
                 				<div class='rTableCell'></div>
                 				<div class='rTableCell'>Subtotal</div>
-                				<div class='rTableCell'><span id={$cid}_subtotal>$subtotal</span><span class='{$cid}_subtotal_raw subtotal_raw'>$transfer->subtotal</span></div>
+                				<div class='rTableCell'><span id={$cid}_subtotal>$subtotal</span><span id='{$cid}_subtotal_raw' class='subtotal_raw'>$transfer->subtotal</span></div>
                 			</div>
                 			<div class='rTableRow pin'>
                 				<div class='rTableCell'></div>
@@ -1055,7 +1055,7 @@ Switch ($perspective){
                 				<div class='rTableCell'></div>
                 				<div class='rTableCell'></div>
                 				<div class='rTableCell'>Total</div>
-                				<div class='rTableCell'><span id={$cid}_total>$total</span><span class='{$cid}_total_raw total_raw'></span></div>
+                				<div class='rTableCell'><span id={$cid}_total>$total</span><span id='{$cid}_total_raw' class='total_raw'></span></div>
                 			</div>";
 //Note: $qid receives the value of $cid
                 		$first_line = elgg_view('forms/transfers/edit',['perspective'=>$perspective, 'presentation'=>$presentation, 'section'=>'boqx_contents_receipt', 'snippet'=>'receipt_item', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$cid, 'qid_n'=>$cid.'_'.$n, 'n'=>$n]);
@@ -1591,7 +1591,7 @@ Switch ($perspective){
                 $delete = elgg_view("output/span", ["class"=>"remove-card", "content"=>$delete_button]);
                 $collapser = elgg_extract('collapser', $vars, "<a class='autosaves collapser-effort' id='effort_collapser_$cid' data-cid='$cid' tabindex='-1'></a>");
             	
-            	$edit_boqx = "<button data-aid='editEffortButton' class='ThingsBundle__submit___q0kFhFBf autosaves button std egg' type='submit' tabindex='-1' data-parent-cid='$parent_cid' data-cid='$cid' data-qid='$qid' data-guid='$guid'>Save</button>";
+            	$edit_boqx = "<button data-aid='editEffortButton' class='submitBundle_q0kFhFBf autosaves button std egg' type='submit' tabindex='-1' data-parent-cid='$parent_cid' data-cid='$cid' data-qid='$qid' data-guid='$guid'>Save</button>";
             	$cancel_effort = "<button class='autosaves cancel clear' type='reset' id='boqx_submit_cancel_$cid' data-parent-cid='$parent_cid' data-cid='$cid' data-qid='$qid' data-guid='$guid' tabindex='-1'>Cancel</button>";
             	$url = elgg_get_site_url().'jot';
             	$marker_title         = "<textarea data-aid='name' tabindex='0' data-focus-id='NameEdit--$cid' class='AutosizeTextarea__textarea___1LL2IPEy2 NameEdit___2W_xAa_R' style='margin: 8px;' name='jot[$cid][title]' value='$title' data-name='title' placeholder='Boqx name'>$title</textarea>";
@@ -1979,7 +1979,7 @@ Switch ($perspective){
                 				<div class='rTableCell'></div>
                 				<div class='rTableCell'></div>
                 				<div class='rTableCell'>Subtotal</div>
-                				<div class='rTableCell'><span id={$cid}_subtotal>$subtotal</span><span class='{$cid}_subtotal_raw subtotal_raw'>$transfer->subtotal</span></div>
+                				<div class='rTableCell'><span id={$cid}_subtotal>$subtotal</span><span id='{$cid}_subtotal_raw' class='subtotal_raw'>$transfer->subtotal</span></div>
                 			</div>
                 			<div class='rTableRow pin'>
                 				<div class='rTableCell'></div>
@@ -2006,7 +2006,7 @@ Switch ($perspective){
                 				<div class='rTableCell'></div>
                 				<div class='rTableCell'></div>
                 				<div class='rTableCell'>Total</div>
-                				<div class='rTableCell'><span id={$cid}_total>$total</span><span class='{$cid}_total_raw total_raw'></span></div>
+                				<div class='rTableCell'><span id={$cid}_total>$total</span><span id='{$cid}_total_raw' class='total_raw'></span></div>
                 			</div>";
 //Note: $qid receives the value of $cid
                 		$first_line = elgg_view('forms/transfers/edit',['section'=>'boqx_contents_receipt', 'perspective'=>$perspective, 'snippet'=>'receipt_item', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$cid, 'qid_n'=>$cid.'_'.$n, 'n'=>$n]);
@@ -2403,7 +2403,7 @@ Switch ($perspective){
                 $delete = elgg_view("output/span", ["class"=>"remove-card", "content"=>$delete_button]);
                 $collapser = "<a class='autosaves collapser-boqx' id='boqx_collapser_$cid' data-cid='$cid' tabindex='-1'></a>";
             	
-            	$edit_boqx     = "<button data-aid='addEffortButton' class='ThingsBundle__submit___q0kFhFBf autosaves button std egg' type='submit' tabindex='-1' data-parent-cid='$parent_cid' data-cid='$cid' data-qid='$qid'>Edit</button>";
+            	$edit_boqx     = "<button data-aid='addEffortButton' class='submitBundle_q0kFhFBf autosaves button std egg' type='submit' tabindex='-1' data-parent-cid='$parent_cid' data-cid='$cid' data-qid='$qid'>Edit</button>";
             	$cancel_effort = "<button class='autosaves cancel clear' type='reset' id='epic_submit_cancel_$cid' data-parent-cid='$parent_cid' data-cid='$cid' data-qid='$qid' tabindex='-1'>Cancel</button>";
            	
             	$url = elgg_get_site_url().'jot';
@@ -2716,7 +2716,7 @@ Switch ($perspective){
                 				<div class='rTableCell'></div>
                 				<div class='rTableCell'></div>
                 				<div class='rTableCell'>Subtotal</div>
-                				<div class='rTableCell'><span id={$cid}_subtotal>$subtotal</span><span class='{$cid}_subtotal_raw subtotal_raw'>$transfer->subtotal</span></div>
+                				<div class='rTableCell'><span id={$cid}_subtotal>$subtotal</span><span id='{$cid}_subtotal_raw' class='subtotal_raw'>$transfer->subtotal</span></div>
                 			</div>
                 			<div class='rTableRow pin'>
                 				<div class='rTableCell'></div>
@@ -2743,7 +2743,7 @@ Switch ($perspective){
                 				<div class='rTableCell'></div>
                 				<div class='rTableCell'></div>
                 				<div class='rTableCell'>Total</div>
-                				<div class='rTableCell'><span id={$cid}_total>$total</span><span class='{$cid}_total_raw total_raw'></span></div>
+                				<div class='rTableCell'><span id={$cid}_total>$total</span><span id='{$cid}_total_raw' class='total_raw'></span></div>
                 			</div>";
 //Note: $qid receives the value of $cid
                 		$first_line = elgg_view('forms/transfers/edit',['section'=>'boqx_contents_receipt', 'perspective'=>'add', 'snippet'=>'receipt_item', 'parent_cid'=>$parent_cid, 'cid'=>$cid, 'qid'=>$cid, 'qid_n'=>$cid.'_'.$n, 'n'=>$n]);

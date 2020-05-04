@@ -101,7 +101,10 @@ define('elgg/widgets', ['elgg', 'jquery'], function (elgg, $) {
 		var col = ui.item.parent().attr('id');
 		col = col.substr(col.indexOf('elgg-widget-col-') + "elgg-widget-col-".length);
 
-		elgg.action('widgets/move', {
+//@EDIT - 03/15/2020 - SAJ
+/*		elgg.action('pallets/move', {*/
+//		elgg.action('widgets/move', {
+		elgg.action('widgets/move_xxx', {
 			data: {
 				widget_guid: guidString,
 				column: col,
