@@ -21,7 +21,7 @@ $object_link = elgg_view('output/url', array(
 		));
 
 $key = "river:update:object:hjalbum";
-$image_count = $object->countImages();
+$image_count = $object->countImages();  //[27-May-2020 15:27:33 UTC] PHP Fatal error:  Call to undefined method ElggObject::countImages() in /home/mupy4c83/public_html/qboqx_test_elgg_2_3_8/mod/hypeGallery/views/default/river/object/hjalbum/update.php on line 24
 $image_guids_new = unserialize($object->$river_time);
 
 foreach ($image_guids_new as $guid) {

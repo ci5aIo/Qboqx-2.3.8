@@ -53,7 +53,8 @@ if (elgg_entity_exists($guid)){
    $items  = $entity->items;
    $time   = $entity->time;
 }
-elseif ($jot){
+// $jot supercedes $entity
+if ($jot){
 //    $show_title = elgg_format_element('div',[],
 //                      elgg_format_element('span',['class'=>$class_qty]  , $jot->qty).
 //                      elgg_format_element('span',['class'=>$class_title], $jot->label));
@@ -66,7 +67,7 @@ elseif ($jot){
 $add_label = 'Add something';
 $boqx_aspect= $task;
 
-echo "<!--origin=$origin, task=$task, action=$action, has_collapser=>$has_collapser, guid=$guid, presentation=$presentation, presence=$presence, parent_cid=$parent_cid, carton_id=$carton_id, cid=$cid, visible=$visible-->";
+echo "<!--origin=$origin, task=$task, action=$action, has_collapser=>$has_collapser, guid=$guid, presentation=$presentation, presence=$presence, parent_cid=$parent_cid, carton_id=$carton_id, cid=$cid, visible=$visible, fill_level=$fill_level -->";
 
 switch($task){
     case 'item':
@@ -114,6 +115,24 @@ switch($task){
         $class_show[] = 'TaskShow___2LNLUMGe';
         $class_edit[] = 'TaskEdit___1Xmiy6lz';
         $class_delete = 'IconButton___SUFDHCSY';
+        break;
+    case 'experiences':
+        unset($class_time);
+        $add_label    = 'Add experiences';
+        $class_boqx[] = 'ServiceEffort__26XCaBQk';
+        $class_add[]  = 'AddSubresourceButton___2PetQjcb';
+        $class_show[] = 'TaskShow___2LNLUMGe';
+        $class_edit[] = 'TaskEdit___1Xmiy6lz';
+        $class_edit[] = 'linedEnvelope';
+        $liner        = true;
+        break;
+    case 'experience':
+        unset($class_time);
+        $add_label    = 'Add an experience';
+        $class_boqx[] = 'ServiceEffort__26XCaBQk';
+        $class_add[]  = 'AddSubresourceButton___2PetQjcb';
+        $class_show[] = 'TaskShow___2LNLUMGe';
+        $class_edit[] = 'TaskEdit___1Xmiy6lz';
         break;
     case 'issue':
         unset($class_time);
@@ -294,6 +313,19 @@ $show = $show_boqx ?
         elgg_format_element('input',['class'=>'TaskShow__checkbox___2BQ9bNAA','type'=>'checkbox','title'=>'mark task complete','data-aid'=>'toggle-complete','data-focus-id'=>"TaskShow__checkbox--$cid"]).
         elgg_format_element('div',['class'=>['TaskShow__description___3R_4oT7G','tracker_markup_xxx'], 'data-aid'=>'TaskDescription','tabindex'=>'0'],$show_title_span).
          elgg_format_element('nav',['class'=>['TaskShow__actions___3dCdQMej','undefined','TaskShow__actions--unfocused___3SQSv294']],$delete));
+
+// if (strlen($show_boqx)>0)
+//     $show = elgg_format_element('div',['class'=>$class_show,'data-aid'=>'TaskShow','data-cid'=>$cid,'style'=>$show_visible],$show_boqx);
+// else 
+//     $show = elgg_format_element('div',['class'=>$class_show,'data-aid'=>'TaskShow','data-cid'=>$cid,'style'=>$show_visible],
+//                 elgg_format_element('input',['class'=>'TaskShow__checkbox___2BQ9bNAA','type'=>'checkbox','title'=>'mark task complete','data-aid'=>'toggle-complete','data-focus-id'=>"TaskShow__checkbox--$cid"]).
+//                 elgg_format_element('div',['class'=>['TaskShow__description___3R_4oT7G','tracker_markup_xxx'], 'data-aid'=>'TaskDescription','tabindex'=>'0'],$show_title_span).
+//                 elgg_format_element('nav',['class'=>['TaskShow__actions___3dCdQMej','undefined','TaskShow__actions--unfocused___3SQSv294']],$delete));
+
+// $show = elgg_format_element('div',['class'=>$class_show,'data-aid'=>'TaskShow','data-cid'=>$cid,'style'=>$show_visible], $show_boqx);
+// $show = $show_boqx;
+// $show = elgg_format_element('div',['class'=>$class_show,'data-aid'=>'TaskShow','data-cid'=>$cid,'style'=>$show_visible], $show);
+
 /*if ($form_wrapper){
     $form_wrapper['form_vars']['body']= $hidden_fields.$collapser.$info_boqx;
     $edit_boqx = elgg_view_form($form_wrapper['action'],$form_wrapper['form_vars'],$form_wrapper['body_vars']); 
@@ -304,7 +336,8 @@ $edit = elgg_format_element('div',['class'=>$class_edit,'data-aid'=>'TaskEdit','
 if($liner)
     $info_boqx = elgg_format_element('div',['class'=>'liner','data-cid'=>$cid],$info_boqx);
 if ($form_wrapper){
-    $form_wrapper['form_vars']['body']= $hidden_fields.$collapser.$info_boqx;
+    $submit_button = $form_wrapper['body_vars']['submit_button'];
+    $form_wrapper['form_vars']['body']= $hidden_fields.$collapser.$info_boqx.$submit_button;
     $edit = elgg_format_element('div',['class'=>$class_edit,'data-aid'=>'TaskEdit','data-cid'=>$cid,'style'=>$edit_visible],
                 elgg_view_form($form_wrapper['action'],$form_wrapper['form_vars'],$form_wrapper['body_vars'])); 
 }

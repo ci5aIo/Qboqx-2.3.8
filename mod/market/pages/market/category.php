@@ -232,7 +232,7 @@ if (!empty($selected_queb)){
     $options['joins'][]  =  "JOIN {$dbprefix}metastrings t3 on t1.name_id     = t3.id";
     $options['wheres'][] =  "t3.string in ('tags')";
     $options['wheres'][] =  "t2.string = '{$selected_queb}'";
-    $options['wheres'][] =  "e.subtype in (11, 47)";
+    $options['wheres'][] =  "e.subtype in (11, 47, 87)";
 }
 if (!empty($selected_owner)){
     elgg_push_breadcrumb(get_entity($selected_owner)->name." Things", $url."z=$selected_owner".$list_type_filter_2);

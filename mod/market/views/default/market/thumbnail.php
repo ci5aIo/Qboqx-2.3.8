@@ -9,28 +9,41 @@
  * @version 1.8
  */
 
-$img_guid        = $vars['marketguid'];
-$options['guid'] = $img_guid; 
-$entity          = get_entity($img_guid);
+$img_guid           = elgg_extract('marketguid', $vars, false);
+if(!$img_guid) goto eof;
+$size               = elgg_strtolower(elgg_extract('size',$vars, 'master'));
+$class              = elgg_extract('class', $vars);
+$tu                 = elgg_extract('tu'   , $vars);
 
-if (elgg_instanceof($entity, 'object', 'market') && !empty($entity->icon)){
-    $options['guid'] = $entity->icon;
+$entity             = get_entity($img_guid);
+
+$options['guid']    = $img_guid; 
+$options['size']    = $size;
+$options['class'][] = "elgg-photo";
+$options['tu']      = $tu;
+if($class)
+     $options['class'][] = $class;
+
+//Confirm that the image exists
+if      ($entity->mimetype == 'image/png')  $filename = "icons/" . $entity->guid . $size . ".png";
+else if ($entity->mimetype == 'image/gif') 	$filename = "icons/" . $entity->guid . $size . ".gif";
+else                                        $filename = "icons/" . $entity->guid . $size . ".jpg";
+
+$filehandler             = new ElggFile();
+$filehandler->owner_guid = $entity->owner_guid;
+$filehandler->setFilename($filename);
+$filehandler->open('read');
+$etag                    = md5($filehandler->icontime . $size);
+$contents                = $filehandler->grabFile();
+$filehandler->close();
+
+// The image exists ...
+if ($contents){
+//@EDIT 21020-05-13 - SAJ - make the image it's own icon
+    $entity->icon = $img_guid;
+    echo elgg_view('output/image',$options);
 }
-//else $options['src'] = elgg_get_site_url().'mod/quebx/graphics/noimagetiny.png';
-else goto eof;
+else 
+    return false;
 
-
-$size =  $vars['size'];
-$class = $vars['class'];
-$tu = $vars['tu'];
-
-$options['size']  = $size;
-$options['class'] = "elgg-photo $class";
-$content = elgg_view('output/image',$options);
-//$content = elgg_view('output/image',['guid'=>$img_guid, 'size'=>$size,'class'=>"elgg-photo $class"]);
-//$content = elgg_view('output/image',['src'=>elgg_get_site_url() . "gallery/icon/$marketguid/$size",'class'=>"elgg-photo $class"]);
-
-//echo "<img src='" . elgg_get_site_url() . "mod/market/thumbnail.php?marketguid=$marketguid&size=$size&tu=$tu' class='elgg-photo $class'>";
-//echo "<img src='" . elgg_get_site_url() . "gallery/icon/$marketguid/$size' class='elgg-photo $class'>";
-echo $content;
 eof:

@@ -162,6 +162,7 @@ function quebx_init() {
 	elgg_register_action("quebx/add/item", "{$action_url}add/item.php");
 	elgg_register_action("quebx/edit", "{$action_url}edit.php");
 	elgg_register_action("quebx/delete", "{$action_url}delete.php");
+	elgg_register_action("quebx/disable", "{$action_url}disable.php");
 	elgg_register_action('q_widgets/save', "{$action_url}q_widgets/save.php");
 	elgg_register_action('q_widgets/add', "{$action_url}q_widgets/add.php");
 	elgg_register_action('q_widgets/move', "{$action_url}q_widgets/move.php");

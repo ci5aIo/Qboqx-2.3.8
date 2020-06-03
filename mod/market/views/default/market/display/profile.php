@@ -23,7 +23,8 @@ $num_tasks = count(elgg_get_entities_from_relationship(array(
 	)));
 $num_contents = count(elgg_get_entities(array(
                 'type' => 'object',
-				'subtypes' => array('market', 'item', 'contents'),
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
+    			'subtypes' => ['market', 'item', 'q_item', 'contents'],
 				'wheres' => array(
 					"e.container_guid = $item_guid",
 				),
@@ -117,7 +118,8 @@ $tasks = elgg_get_entities_from_relationship(array(
 ));*/
 $contents = elgg_get_entities(array(
                 'type' => 'object',
-				'subtypes' => array('market', 'item', 'contents'),
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
+    			'subtypes' => ['market', 'item', 'q_item', 'contents'],
                 'joins'    => array('JOIN elgg_objects_entity e2 on e.guid = e2.guid'),
 				'wheres' => array(
 					"e.container_guid = $item_guid",

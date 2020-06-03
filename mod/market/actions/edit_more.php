@@ -28,7 +28,7 @@ elgg_make_sticky_form('market');
 
 $entity = get_entity($guid);
 
-if (elgg_instanceof($entity,'object','market') && $entity->canEdit()) {
+if ((elgg_instanceof($entity,'object','market') || elgg_instanceof($entity,'object','q_item')) && $entity->canEdit()) {
 	
   // process custom actions first
   // allows for error checking, relationships etc.

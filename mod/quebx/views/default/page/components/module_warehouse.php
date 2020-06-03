@@ -24,7 +24,7 @@ $header = elgg_extract('header', $vars);
 $guid  = elgg_extract('guid', $vars);
 
 $body_class = ['elgg_body','items','panel_content'];
-$attrs = ['id' => $cid,'class' => elgg_extract_class($vars),'data-guid'=>$guid, 'data-boqx'=>$data_boqx];
+$attrs = ['id' => $cid,'class' => elgg_extract_class($vars),'data-guid'=>$guid, 'data-boqx'=>$data_boqx, 'data-contents'=>$handler];
 //@EDIT - 2020-03-25 - SAJ - Removed the elgg-module class
 //$attrs = ['id' => $cid,'class' => elgg_extract_class($vars, 'elgg-module'),'data-guid'=>$guid, 'data-boqx'=>$data_boqx];
 

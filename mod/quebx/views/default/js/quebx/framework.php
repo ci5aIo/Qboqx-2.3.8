@@ -981,7 +981,8 @@ $(document).ready(function(){
             service_total= $('#'+cid+"_line_total").html(),
             service_total_raw = $('#'+cid+"_line_total_raw").html(),
             envelope     = $('#'+cid);
-        var state        = $(envelope).data('aid');
+        var state        = $(envelope).data('aid'),
+            fill_level   = $(envelope).attr('boqx-fill-level');
         var pallet      = $(this).closest('.slot');
 //@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
 //      var pallet      = $(this).closest('.pallet');
@@ -992,10 +993,10 @@ $(document).ready(function(){
            show_service = false;
         else if (service_name.length==0)
                  show_service = false;
-        if($('.liner[data-cid='+cid+']').length>0)
-          show_service=true;                                                                    console.log('show_service= '+show_service);
-        if($(envelope).attr('boqx-fill-level') == 0)
-           show_service=false;
+//         if($('.liner[data-cid='+cid+']').length>0)
+//           show_service=true;
+        if(fill_level > 0 || fill_level == 'full')
+           show_service=true;                                                                    console.log('show_service= '+show_service);
         var add_panel   = $('[data-aid=TaskAdd][data-cid='+cid+']'),
             show_panel  = $('[data-aid=TaskShow][data-cid='+cid+']'),
             edit_panel  = $('[data-aid=TaskEdit][data-cid='+cid+']');
@@ -1199,6 +1200,22 @@ $(document).ready(function(){
            $this_panel.hide();
          }
     });
+     $(document).on('click', '.remove-card', function(e){
+         e.preventDefault();
+       var cid        = $(this).data('cid');
+       var container  = $('#'+cid);
+       var action     = $(container).data('aid'),
+            boqx_id    = $(container).data('boqx'),
+            guid       = $(container).data('guid'),
+            aspect     = $(container).data('aspect');
+       var boqx       = $('#'+boqx_id),
+           boqx_aspect= $('#'+boqx_id).data('aspect');
+        var eggs       = 0;
+           // remove the card
+           $(container).remove();
+           $('span.efforts-eggs[data-qid='+qid+']').attr('eggs', eggs-1);
+        
+      });
     $(document).on('click', '.ShowItemDetailsButton__qWXhMy9t', function(e){
           var cid = $(this).data('cid');
           if($('.ItemEdit__descriptionContainer___Mr67pXjd.ItemEditContainer__'+cid).hasClass('open'))
@@ -1293,6 +1310,10 @@ $(document).ready(function(){
     $(document).on("click", "button[data-aid=cancel]", function (e) {
         e.preventDefault();
     });
+	/* used in 
+	 * forms/transfers/edit>add>things_bundle>marker
+	 * forms/market/edit>edit>item edit	 
+	*/
     $(document).on('click', 'button.cancel-pallet', function(e){
        var stack = $(this).parents('.tn-PanelHeader___c0XQCVI7'),
            cid   = $(this).data('cid');
@@ -1301,6 +1322,7 @@ $(document).ready(function(){
        var boqx = $('#'+boqx_id);
        var form_liner = $(boqx).find('form');
        $(form_liner).remove();
+	   $(liner).remove();
 //       $(boqx).remove();
        $(stack).removeClass('open');
        

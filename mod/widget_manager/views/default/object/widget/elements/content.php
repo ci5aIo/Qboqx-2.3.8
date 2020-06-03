@@ -10,7 +10,7 @@ $widget = elgg_extract('entity', $vars);
 if (!elgg_instanceof($widget, 'object', 'widget')) {
 	return;
 }
-
+                                                                                                $display .= 'item_class: '.$vars['item_class'].'<br>';
 $handler = $widget->handler;                                                                    $display .= '$handler: '.$handler.'<br>';
 $vars['handler']=$handler;
 $cacheable = widget_manager_is_cacheable_widget($widget);

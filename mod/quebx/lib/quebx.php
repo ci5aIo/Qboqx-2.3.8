@@ -415,21 +415,33 @@ function quebx_initials ($string){
  * @throws InvalidArgumentException
  */
 function quebx_format_elements($tag_name, array $attributes = []){
-    if (!is_string($tag_name) || $tag_name === '') {
+     if(empty($attributes)){
+        return false;
+     }
+     if (!is_string($tag_name) || $tag_name === '') {
 		throw new \InvalidArgumentException('$tag_name is required');
+        return false;
 	}
+	if(!is_array($attributes)){
+//	    throw new \InvalidArgumentException('$attributes must be an array');
+        return false;
+     }
+    
 	if($tag_name == 'hidden'){
 	    $tag_name = 'input';
 	    $tag_type = 'hidden';
 	}
-    if(is_array($attributes))
+    if(is_array($attributes)){
         foreach($attributes as $key=>$attrs){
             $attrs['#tag_name'] = $tag_name;
             $attrs['type']      = $tag_type;
             $elements .= elgg_format_element($attrs);
         }
-    else throw new \InvalidArgumentException('$attributes must be an array');
-    return $elements;
+        return $elements;
+    }
+//     else { throw new \InvalidArgumentException('$attributes must be an array');
+//           return false;
+//     }
 }
 function quebx_count_pieces($guid=false, $aspect){
     if($guid==false)
@@ -459,11 +471,11 @@ function quebx_count_pieces($guid=false, $aspect){
             return count(elgg_get_entities($jot_options));
             break;
         case 'experiences':
-            $jot_options = $options;
-            $jot_options['subtype'] = 'experience';
-            $jot_options['wheres']  = $guid ? ["e.container_guid = $guid"] : '';
-            unset($jot_options['order_by_metadata']);
-            return count(elgg_get_entities_from_metadata($jot_options));
+             $jot_options = ['relationship'=>'experience','relationship_guid'=>$guid,'inverse_relationship'=>true,'types'=>'object','subtypes'=>'experience','limit'=>0];
+//             $jot_options['subtype'] = 'experience';
+//             $jot_options['wheres']  = $guid ? ["e.container_guid = $guid"] : '';
+//             unset($jot_options['order_by_metadata']);
+            return count(elgg_get_entities_from_relationship($jot_options));
             break;
         case 'issues':
             $jot_options = ['type' => 'object',

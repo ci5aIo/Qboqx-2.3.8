@@ -1,8 +1,8 @@
 <?php
 
 namespace hypeJunction\Gallery;
-
-$entity = elgg_extract('entity', $vars);
+                                                                                         $display .= 'hypeGallery/views/default/widgets/photostream/content.php<br>';
+$entity = elgg_extract('entity', $vars);                                                 $display .= '$vars[item_class] = '.print_r($vars['item_class'], true).'<br>'; //$display .= '05 $entity->guid = '.$entity->guid.'<br>';
 $owner = $entity->getOwnerEntity();
 if (elgg_in_context('dashboard')) {
 	$owner_guids = ELGG_ENTITIES_ANY_VALUE;
@@ -11,14 +11,14 @@ if (elgg_in_context('dashboard')) {
 } else if ($owner instanceof ElggUser) {
 	$owner_guids = $owner->guid;
 	$container_guids = ELGG_ENTITIES_ANY_VALUE;
-	$more_url = "/gallery/dahsboard/owner/$owner->username?display=photostream";
+	$more_url = "/gallery/dashboard/owner/$owner->username?display=photostream";
 } else {
 	$owner_guids = ELGG_ENTITIES_ANY_VALUE;
 	$container_guids = $owner->guid;
 	$more_url = "/gallery/group/$owner->guid";
 }
-
-$options = array(
+//@EDIT - 2020-05-20 - SAJ - Added merge with $vars
+$options = array_merge($vars,[
 	'types' => 'object',
 	'subtypes' => array(hjAlbumImage::SUBTYPE),
 	'owner_guids' => $owner_guids,
@@ -29,9 +29,9 @@ $options = array(
 	'gallery_class' => 'gallery-photostream',
 	'full_view' => false,
 	'pagination' => false,
-	'size' => '125',
+	'size' => 'medium',
 	//'item_class' => 'elgg-photo mas',
-);
+]);                                                                                     $display .= '$options[item_class] = '.print_r($options['item_class'], true).'<br>';
 
 elgg_push_context('activity');
 $content = elgg_list_entities($options);
@@ -49,3 +49,4 @@ if ($content) {
 } else {
 	echo elgg_echo('gallery:widget:none');
 }
+//register_error($display);

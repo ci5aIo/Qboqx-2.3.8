@@ -2,12 +2,14 @@
 $jot      =       get_input('jot');                        
 $items    =       get_input('item');                     $display .= '$items: '.$items.PHP_EOL;
 $guid     = (int) get_input('guid');                     $display .= '$guid: '.$guid.'<br>';
+$cid      =       get_input('cid');
 $container_guid = get_input('container_guid');           $display .= '$container_guid: '.$container_guid.PHP_EOL;
 $boqx_guid= (int) get_input('boqx_guid');
 $origin   =       get_input('origin');
 $aspect   =       get_input('aspect', $jot['aspect']);
 $section  =       get_input('section');
 $action   =       get_input('action', 'add');
+$presence =       get_input('presence');
 
 Switch ($aspect){
 	case 'item':
@@ -289,6 +291,33 @@ if ($guid){                                           $display .= 'Packing a sin
 			}
 			elgg_create_river_item($options);*/
     		break;
+    	case 'media':
+    	    $item_image_guids     = $boqx->images;
+            if (!is_array($item_image_guids))
+                $item_image_guids = (array)$item_image_guids;
+    	    switch ($action){
+    	        case 'add':
+    	            if(!in_array($guid, $item_image_guids)){
+        	            $item_image_guids[]=$guid;
+                        $content['guid'] = $guid;
+//                        if($presence && $presence == 'empty boqx'){
+                        $hidden[] = ['name'=>"jot[$cid][images][]",'value'=>$guid,'data-guid'=>$guid];
+                        $content['hidden_fields'] = json_encode(quebx_format_elements('hidden',$hidden));//}
+                        $boqx->images = array_unique($item_image_guids);
+                        return elgg_ok_response(json_encode($content, JSON_HEX_QUOT | JSON_HEX_TAG), '');
+    	            }
+    	            else
+    	                system_message('Media is not new.  Skipping.');
+    	            break;
+    	        case 'remove':
+	            	if (($key = array_search($guid, $item_image_guids))) {
+                        unset($item_image_guids[$key]);
+    	                $boqx->images = $item_image_guids;
+                    }
+    	            break;
+    	    }
+    	    
+    	    break;
     	case 'experience':
 // swaps guid_one and guid_two
 // uses default $relationship

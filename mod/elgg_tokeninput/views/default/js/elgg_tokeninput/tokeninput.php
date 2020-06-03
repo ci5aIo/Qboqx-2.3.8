@@ -23,8 +23,9 @@
 //		tokenFormatter: elgg.tokeninput.tokenFormatter,
 			tokenValue: 'value'
 		}
-
-		$('.elgg-input-tokeninput').live('initialize', elgg.tokeninput.initInput);
+//@EDIT - 2020-05-11 - SAJ - .live() replaced with .on() in jQuery 1.9
+        $('.elgg-input-tokeninput').on('initialize', elgg.tokeninput.initInput);
+//		$('.elgg-input-tokeninput').live('initialize', elgg.tokeninput.initInput);
 
 		$('.elgg-input-tokeninput')
 				.each(function() {

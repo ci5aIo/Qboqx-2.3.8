@@ -2,11 +2,11 @@
 elgg_gatekeeper();
 elgg_group_gatekeeper();
 
-$imageguid = (int) get_input('guid');
-$element_type = get_input('element_type');
+$imageguid    =      (int) get_input('guid');
+$element_type =            get_input('element_type');
+$item         = get_entity(get_input('container_guid'));
 
-$marketpost = get_entity($marketguid);
-$item = get_entity(get_input('container_guid'));
+$marketpost = get_entity($imageguid);
 $owner = elgg_get_page_owner_entity();
 
 $title = $marketpost->title;
@@ -15,6 +15,7 @@ $content = elgg_view('output/url', array(
 		    'text' => elgg_view('market/thumbnail', array(
 								'marketguid' => $imageguid,
 								'size' => 'master',
+								'class' => 'market-image-popup',
 						        )),
 			));
  

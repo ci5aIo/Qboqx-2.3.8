@@ -242,11 +242,7 @@
 /* ***************************************
 	Image-related
 *************************************** */
-.elgg-photo {
-/* border: 1px solid #ccc; */
-	padding: 3px;
-	background-color: white;
-}
+.elgg-photo {border: 1px solid #ccc;padding: 3px;background-color: white;}
 
 /* ***************************************
 	Tags

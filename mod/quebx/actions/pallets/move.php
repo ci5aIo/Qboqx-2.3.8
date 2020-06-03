@@ -42,11 +42,11 @@ forward(REFERER);
  * @package Qboqx.Core
  * @subpackage Pallets.Management
  */
-$action = get_input('action');
-$boqx   = get_input('moving_boqx_id');
+// $action = get_input('action');
+// $boqx   = get_input('moving_boqx_id');
 $column = get_input('column', 1);
 $guid     = get_input('guid');
-elgg_dump('mod/quebx/actions/pallets/move.php boqx:'.$boqx.' action:'.$action.' column:'.$column.' guid:'.$guid, false);
+//elgg_dump('mod/quebx/actions/pallets/move.php boqx:'.$boqx.' action:'.$action.' column:'.$column.' guid:'.$guid, false);
 $pallet = get_entity($guid);
 if ($pallet) {
 	$layout_owner_guid = $pallet->getContainerGUID();

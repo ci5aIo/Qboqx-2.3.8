@@ -9,31 +9,35 @@
  * @version 1.8
  */
 
-$wwwroot = elgg_get_config('wwwroot');
-//the page owner
-$owner = get_user($vars['entity']->owner_guid);
-$class = elgg_extract('class', $vars);
-$context = elgg_get_context();
-$module_type = elgg_extract('module_type', $vars);
-$presentation = elgg_extract('presentation', $vars);
-$presence = elgg_extract('presence', $vars);
+$wwwroot      = elgg_get_config('wwwroot');
+$dbprefix     = elgg_get_config('dbprefix');
 
-//the number of files to display
-$num = (int) $vars['entity']->num_display;                                          
-if (!isset($num)) {
+$entity       = elgg_extract('entity', $vars);
+$class        = elgg_extract('class', $vars);
+$module_type  = elgg_extract('module_type', $vars);
+$presentation = elgg_extract('presentation', $vars);
+$presence     = elgg_extract('presence', $vars);
+
+$owner        = get_user($entity->owner_guid);
+
+$context      = elgg_get_context();
+
+$num          = (int) $entity->num_display;                                          
+if (!isset($num)) 
 	$num = 4;
-}		                                                                          $display .= '$num = '.$num.'<br>';
-$dbprefix = elgg_get_config('dbprefix');
+		                                                                          $display .= '$num = '.$num.'<br>';
 $options = array('type'=>'object',
-                  'subtype'=>'market', 
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
+                  'subtypes'   =>['q_item'], 
+//                  'subtypes'   =>['market'], 
                   'owner_guid' => $owner->guid,
-                  'wheres'    => array("NOT EXISTS (SELECT *
-	                                  FROM {$dbprefix}metadata md
-            	                      JOIN {$dbprefix}metastrings ms1 ON ms1.id = md.name_id
-            	                      JOIN {$dbprefix}metastrings ms2 ON ms2.id = md.value_id
-            	                      WHERE ms1.string = 'visibility_choices'
-            	                        AND ms2.string = 'hide_in_catalog'
-            	                        AND e.guid = md.entity_guid)"), 
+                  'wheres'     => ["NOT EXISTS (SELECT *
+        	                                    FROM {$dbprefix}metadata md
+                    	                        JOIN {$dbprefix}metastrings ms1 ON ms1.id = md.name_id
+                    	                        JOIN {$dbprefix}metastrings ms2 ON ms2.id = md.value_id
+                    	                        WHERE ms1.string = 'visibility_choices'
+                    	                          AND ms2.string = 'hide_in_catalog'
+                    	                          AND e.guid = md.entity_guid)"], 
         'limit'=>$num);
     
 $posts = elgg_get_entities($options);                                              $display .= '$posts = '.count($posts).'<br>';
@@ -45,8 +49,8 @@ Switch ($module_type){
        		    $issues = elgg_get_entities_from_relationship(['relationship'=>'on','relationship_guid'=>$post->getGUID(),'inverse_relationship'=>true,'types'=>'object','subtypes'=>'issue']);
        		    $attachments = elgg_get_entities_from_relationship(['relationship'=>'on','relationship_guid'=>$post->getGUID(),'inverse_relationship'=>true,'types'=>'object','subtypes'=>'file']);
                 $icon_guid = $post->icon ?: $post->guid;
-                $icon = elgg_view('market/thumbnail', array('marketguid' => $post->guid, 'size' => 'tiny', 'class'=>'itemPreviewImage_ARIZlwto'));
-                echo elgg_view('page/components/pallet_boqx', ['entity'=>$post,'aspect'=>'thing','boqx_id'=>$vars['boqx_id'],'has_issues'=>count($issues)>0,'icon'=>$icon,'has_description'=>isset($post->description),'has_attachments'=>count($attachments)>0, 'handler'=>$handler]);
+                $icon = elgg_view('market/thumbnail', array('marketguid' => $icon_guid, 'size' => 'tiny', 'class'=>'itemPreviewImage_ARIZlwto'));
+                echo elgg_view('page/components/pallet_boqx', ['entity'=>$post,'aspect'=>'thing','boqx_id'=>$vars['boqx_id'],'issues'=>count($issues),'has_issues'=>count($issues)>0,'icon'=>$icon,'has_description'=>isset($post->description),'has_attachments'=>count($attachments)>0, 'handler'=>$handler,'presence'=>'pallet']);
        		   }
           }
         break;

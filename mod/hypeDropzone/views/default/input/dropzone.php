@@ -11,8 +11,12 @@
  * @uses $vars['action'] Alternative elgg action to handle temporary file uploads. Defaults to 'action/dropzone/upload'
  * @uses $vars['container_guid'] GUID of the container entity to which new files should be uploaded
  * @uses $vars['subtype'] Subtype of the file to be created
+ * @EDIT 2020-05-08 - Added capacity to accept more options
+ * @uses @vars['options'] (array) Options in the form of 'option'=>'value'
  */
 $uid = substr(md5(microtime() . rand()), 0, 10);
+if(isset($vars['options']))
+    $options = $vars['options'];
 $options['id'] = "dropzone-$uid";
 $fallback_input_id = "dropzone-fallback-$uid";
 $vars['id'] = $options['data-fallback-id'] = $fallback_input_id;
@@ -93,6 +97,23 @@ if (isset($vars['default-message'])) {
 $options = array_merge($language, $options);
 
 $dropzone_attributes = elgg_format_attributes($options);
+
+//@EDIT - 2020-05-18 - SAJ - Refomatted to update.  Did not prevent the unnecessary appending of three (3) hidden file input fields to the <body object 
+$return = elgg_format_element('div',['class'=>'elgg-dropzone'],
+               elgg_view('input/hidden', ['name' => 'dropzone_fields[]','value' => $vars['name']]).
+               elgg_format_element('div',$options,
+                   elgg_format_element('span',['class'=>['elgg-dropzone-instructions','dz-default','dz-message']],
+            			elgg_view_icon('cloud-upload').
+                        $language['data-dict-default-message'])).
+               elgg_format_element('div',['data-template'=>''],
+                   elgg_view('dropzone/template'))).
+           elgg_view('input/file', $vars).
+           elgg_format_element('script',[],
+            	"require(['dropzone/dropzone'], function (dropzone) {
+            		dropzone.init();
+            	});");
+echo $return;
+/*
 ?>
 <div class="elgg-dropzone">
 	<?=
@@ -116,3 +137,4 @@ $dropzone_attributes = elgg_format_attributes($options);
 		dropzone.init();
 	});
 </script>
+*/

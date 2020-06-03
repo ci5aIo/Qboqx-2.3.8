@@ -23,13 +23,13 @@ $action         =       get_input('action');
 $this_section   =       get_input('this_section');
 // Receive jot data
 $jot_input      =      get_input('jot');
-$jot            =      get_input('jot');
+$jot            =      get_input('jot');                                               //elgg_dump($jot);
 $jot_snapshot   =      $jot['snapshot'];      unset($jot['snapshot']); 
 $subtype        =      $jot['subtype'];
 $guid           =      $guid   ?: $jot['guid'];                                         $display .= '28 $guid: '.$guid.'<br>';
 $aspect         =      $aspect ?: $jot['aspect'];                                       $display .= '29 $aspect: '.$aspect.'<br>';
 $now            =      new DateTime(null, new DateTimeZone('America/Chicago'));
-$title          =      $jot['title']          ?: $subtype.'_'.$now;
+$title          =      $jot['title']          ?: $subtype.'_'.$now->format('Y-m-d_H:i:s');;
 $description    =      $jot['description'];
 $container_guid =      $jot['container_guid'] ?: elgg_get_logged_in_user_guid();        $display.='33 $container_guid = '.$container_guid.'<br>';
 $owner_guid     =      $jot['owner_guid']     ?: elgg_get_logged_in_user_guid();        $display.='34 $owner_guid = '.$owner_guid.'<br>';
@@ -37,7 +37,7 @@ $access_id      =      get_default_access();
 $exists         =      elgg_entity_exists($guid);
 // Set defaults
 $moment         =      $jot['moment']         ?: $now;                                  $display .= '39 $moment = '.$moment->format('Y-m-d').'<br>';
-$cid            =      $jot['cid'];                                                     $display .= '40 $cid = '.$cid.'<br>';
+$cid            =      $jot['cid'];                                                     $display .= '40 $cid = '.$cid.'<br>';                            //the root cid
 $boqx_has_title =      false;
 
 $containers        = array();
@@ -51,7 +51,7 @@ $access_controls   = ['ACCESS_PRIVATE'=>0,'ACCESS_LOGGED_IN'=>1,'ACCESS_PUBLIC'=
 if (is_array($jot))
     foreach($jot as $key=>$value)
         if (is_array($value) && !empty($value['cid']) && !in_array($value['cid'],$boqxes))
-            $boqxes[] = array_intersect_key($value, $boqx_attributes);                
+            $boqxes[] = array_intersect_key($value, $boqx_attributes);                  
 // Display boqx contents
 foreach($jot as $key=>$value){
 	if (empty($value)) continue;                                                        $display .= '57 jot['.$key.'] = '.$value.'<br>';
@@ -83,11 +83,13 @@ foreach($jot as $key=>$value){
 $boqx = (object) $jot[$cid];
     
 Switch ($boqx->aspect){
-    case 'things'    : $contents_aspect ='item'       ; break;
-    case 'receipts'  : $contents_aspect ='receipt'    ; break;
+    case 'things'    : $contents_aspect ='q_item'     ; break;
+    case 'receipts'  : $contents_aspect ='receipt'    ; break; 
+    case 'receipt'   :
     case 'experience':
     case 'project'   :
     case 'issue'     : $contents_aspect =$boqx->aspect; break;
+    default          : $contents_aspect =$boqx->aspect; break;
 }
 
 foreach($boqxes as $key=>$element){
@@ -125,7 +127,14 @@ foreach($boqxes as $key=>$element){
 			if ($value == ''){
 				unset($jot[$container_id]['labels'][$key1]);}}
         if(count($jot[$container_id]['labels'])==0)
-           unset($jot[$container_id]['actions']);}
+           unset($jot[$container_id]['labels']);}
+    if(is_array($jot[$container_id]['images'])){
+        $jot[$container_id]['images'] = array_unique($jot[$container_id]['images']);
+        foreach($jot[$container_id]['images'] as $key1=>$value){
+			if ($value == ''){
+				unset($jot[$container_id]['images'][$key1]);}}
+        if(count($jot[$container_id]['images'])==0)
+           unset($jot[$container_id]['images']);}
     if(is_array($jot[$container_id]['actions'])){
         foreach($jot[$container_id]['actions'] as $key1=>$value){
 			if ($value == ''){
@@ -142,11 +151,12 @@ foreach($boqxes as $key=>$element){
 /**M*E*A*T**/
     $aspects[$key]  = $jot[$container_id];
 }                                                                                                       $display .= '144 $aspects: '.print_r($aspects,true);
-//goto eof;        
+goto eof;        
 
 // Iterate over $aspects to provide guid values to new relationships and entity containers
 for ($x = 0; $x <= 3; $x++) {                                                                           $display .= 'Loop: '.$x.'<br>';
     foreach($aspects as $key=>$element){
+        unset($container);
         // separate the boqx attributes from the element
         $this_boqx     = array_intersect_key($element, $boqx_attributes);                              // boqx attributes
         $this_element  = array_diff_key($element, $boqx_attributes);                                   // boqx contents
@@ -161,8 +171,6 @@ for ($x = 0; $x <= 3; $x++) {                                                   
            $this_entity->subtype    = $this_boqx['aspect'];                                            // entity subtype = boqx aspect
            $this_entity->owner_guid = $owner_guid;                                                     // entity owner
            $this_entity->access_id  = 'ACCESS_LOGGED_IN';
-//for testing only
-//$this_entity->guid       = rand(1,999999);
            $aspects[$key]['ui_response'] = 'create';
         }
         else continue;                                                                                 // return to the top of the loop if there is neither an existing entity nor a title value.  This means that the boqx is invisible.
@@ -170,18 +178,17 @@ for ($x = 0; $x <= 3; $x++) {                                                   
             $this_entity->$element_attribute = $element_value;                                         // store values for each attribute.  Saves automagically if the entity exists.
         if($proximity =='in' && !empty($container['guid']))
               $this_entity->container_guid = $container['guid'];                                       // assign the container to the entity if the proximity is 'in'
-//for testing
-//        $this_entity->save();                                                                          // save explicitly 
-        $aspects[$key][$element]['guid']=$this_entity->guid;                                           // store the entity guid in the current aspect array
+        $this_entity->save();                                                                          // save explicitly 
+        $aspects[$key][$element]['guid'] = $this_entity->getGUID();                                    // store the entity guid in the current aspect array
         if(($proximity =='on' || $proximity =='with') && !empty($container['guid']))                   // test for proximity and the existence of the container
-             if(!check_entity_relationship($this_entity->guid, $proximity, $container['guid'])){       // test for an existing relationship
-                 add_entity_relationship($this_entity->guid,   $proximity, $container['guid']);        // associate the boqx with the container if the container exists and the relationship does not exist
+             if(!check_entity_relationship($this_entity->getGUID(), $proximity, $container['guid'])){       // test for an existing relationship
+                 add_entity_relationship($this_entity->getGUID(),   $proximity, $container['guid']);        // associate the boqx with the container if the container exists and the relationship does not exist
         }
-        $aspects[$key]['guid'] = $this_entity->guid;                                                   // store the entity guid in the 
-                                                                                                       // $display .= '$this_entity: '.print_r($this_entity,true);//$display .= '$this_boqx: '.print_r($this_boqx,true);$display .= '$container: '.print_r($container,true);
+        $aspects[$key]['guid'] = $this_entity->getGUID();                                                   // store the entity guid in the 
     }
+    $response = $aspects;
 }                                                                                                      // $display .= '$aspects: '.print_r($aspects,true);
-return elgg_ok_response(json_encode($aspects), '');
+//return elgg_ok_response(json_encode($response), '');
 /*********************************************/
 goto eof;
 // The above^ replaces the below ...
@@ -457,4 +464,4 @@ if (!empty($items)){
 }
 
 eof:
-register_error($display);
+//register_error($display);

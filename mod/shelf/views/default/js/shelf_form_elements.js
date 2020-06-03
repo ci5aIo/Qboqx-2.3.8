@@ -7,8 +7,10 @@ define(function(require) {
    var $      = require('jquery');
    var moment = require('moment_js');           //require Moment.js
    var Ajax   = require('elgg/Ajax');
-	
-	$(document).ready(function() {
+
+//@EDIT - 2020-05-08 - SAJ - recommended syntax as of JQuery 3.0. See https://api.jquery.com/ready/
+	$(function() {                              // recommended syntax
+//	$(document).ready(function() {              // depricated syntax
 	  var boqx  = $(".pallet"),
 	      slot  = $('.slot'),
 	      slots = $(".slots");
@@ -20,6 +22,7 @@ define(function(require) {
 	    axis: "x",
 	    stack: ".pallet",
 	    zIndex: 100,
+	    scroll: true,
 	    start: function() {
 	       $(this).css({
 	         opacity: .5
@@ -45,43 +48,48 @@ define(function(require) {
 	      $(this).removeClass('ui-droppable-hover');
 	    }
 	  });
-
 	  $(document).on('dropover', '.slot', function(e, ui){
 	      var moving_boqx    = ui.draggable;                                    //the dragged boqx
-	      var moving_boqx_id = moving_boqx.attr('data-boqx'),                   //the cid of the slot that the moving_box is leaving
-		      slot_id        = $(this).attr('id');                              //the cid of the slot_boqx
+	      var moving_boqx_id = moving_boqx.attr('data-boqx'),                   //the cid of the slot that the moving_box is leaving (variable)
+		      slot_id        = $(this).attr('id'),                              //the cid of the slot_boqx (constant)
+		      to_slot_no     = $(this).data('slot'),                            //the number of this slot (constant)
+		      slot_contents  = $(this).attr('data-contents'),                   //the contents of this slot (variable)
+		      boqx_contents  = moving_boqx.data('contents');                    //the contents of the moving boqx (variable)
 		          
 	      if (moving_boqx.hasClass('pallet') && moving_boqx_id != slot_id){         //the dragged boqx is a pallet and it is over a new slot
-		      var slot_boqx      = $(this).children('.pallet'),                     //the displaced pallet
-		          to_slot_no     = $(this).data('slot');                            //the number of this slot 
-		      var moving_boqx_guid= moving_boqx.data('guid'),                       //the guid of the dragged pallet
-		          slot_boqx_guid = slot_boqx.data('guid');                          //the guid of the displaced pallet.  stored in the database
-		      var from_slot      = $('#'+moving_boqx_id);                           //the slot that the moving_boqx is leaving
-		      var from_slot_no   = $(from_slot).data('slot'),                       //the number of the slot the the moving_boqx is leaving.  stored in the database
+		      var slot_boqx        = $('.pallet[data-boqx='+slot_id+']');           //the displaced pallet
+		      var moving_boqx_guid = moving_boqx.data('guid'),                      //the guid of the dragged pallet
+		          slot_boqx_guid   = slot_boqx.data('guid'),                        //the guid of the displaced pallet.  stored in the database
+		          slot_boqx_contents = slot_boqx.data('contents');                  //the contents of the displaced pallet
+		      var from_slot        = $('#'+moving_boqx_id);                         //the slot that the moving_boqx is leaving
+		      var from_slot_no     = $(from_slot).data('slot'),                     //the number of the slot the the moving_boqx is leaving.  stored in the database
 		          moving_boqx_is_pallet = $(moving_boqx).hasClass('pallet');
+		      $(this).attr('data-contents', boqx_contents);                         //give this slot the contents value of the moving_boqx
 		      $(slot_boqx).attr('data-boqx',moving_boqx_id);                        //give the displaced pallet the boqx cid of the slot that the moving_boqx is leaving
 		      $(moving_boqx).attr('data-boqx',slot_id);                             //give the dragged pallet the boqx cid of this slot
-		      $(from_slot).prepend(slot_boqx);                                      //move the pallet in the this slot to the slot that the moving_boqx is leaving
+		      $(from_slot).attr('data-contents', slot_boqx_contents);               //give the empty slot the contents value of the displaced pallet
+		      $(from_slot).prepend(slot_boqx);                                      //move the displaced pallet to the slot that the moving_boqx is leaving
 		      elgg.action('pallets/move', {                                         //store the new slot number for the displaced pallet in the database
 		    	 data: {
 		    		 column: from_slot_no,
-		    		 guid: slot_boqx_guid
+		    		 guid: slot_boqx_guid,
 		    	 } 
 		      });
 	      }
 	  });
 
 	$(document).on('drop', '.slot', function(e,ui){
-	      var moving_boqx           = ui.draggable;                                 //the dragged pallet
+	      var moving_boqx          = ui.draggable,                                 //the dragged pallet
+	          slot_id              = $(this).attr('id'),                           //the cid of the slot_boqx
+		      to_slot_no           = $(this).data('slot');                         //the number of this slot
+	    	  
 	      if (moving_boqx.hasClass('pallet')){
-	          var slot_boqx      = $(this).children('.pallet'),                     //the displaced pallet
-		          slot_id        = $(this).attr('id'),                              //the cid of the slot_boqx
-		          to_slot_no     = $(this).data('slot');                            //the number of this slot 
-		      var moving_boqx_id = moving_boqx.attr('data-boqx'),                   //the cid of the slot that the moving_box is leaving
-		          moving_boqx_guid= moving_boqx.data('guid'),                       //the guid of the dragged pallet
-		          slot_boqx_guid = slot_boqx.data('guid');                          //the guid of the displaced pallet.  stored in the database
-		      var from_slot      = $('#'+moving_boqx_id);                           //the slot that the moving_boqx is leaving
-		      var from_slot_no   = $(from_slot).data('slot');                       //the number of the slot the the moving_boqx is leaving.  stored in the database
+	          var slot_boqx        = $('.pallet[data-boqx='+slot_id+']'),          //the displaced pallet 
+		          moving_boqx_id   = moving_boqx.attr('data-boqx'),                //the cid of the slot that the moving_box is leaving
+		          moving_boqx_guid = moving_boqx.data('guid'),                     //the guid of the dragged pallet
+		          slot_boqx_guid   = slot_boqx.data('guid');                       //the guid of the displaced pallet.  stored in the database
+		      var from_slot        = $('#'+moving_boqx_id);                        //the slot that the moving_boqx is leaving
+		      var from_slot_no     = $(from_slot).data('slot');                    //the number of the slot the the moving_boqx is leaving.  stored in the database
 		      $(moving_boqx).attr('data-boqx',slot_id);
 		      $(moving_boqx).removeAttr('style');
 		      $(slot_boqx).removeAttr('style');

@@ -95,6 +95,8 @@ function market_init() {
 	elgg_register_page_handler('groupicon', 'groups_icon_handler');
 	
 	// Register entity type and subtypes
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
+    elgg_register_entity_type('object','q_item');
 	elgg_register_entity_type('object','market');
 
 	// Register actions - call actions with a trailing '/' to prevent 301 redirects,  but store the actions without it
@@ -273,7 +275,8 @@ function market_url_handler($hook, $type, $url, $params) {
     $entity = $params['entity'];
 
     // Check that the entity is a market object
-    if ($entity->getSubtype() !== 'market' && $entity->getSubtype() !== 'item') {
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
+    if ($entity->getSubtype() !== 'market' && $entity->getSubtype() !== 'item' && $entity->getSubtype() !== 'q_item') {
         // This is not a market object, so there's no need to go further
         return;
     }
@@ -401,7 +404,8 @@ function cars_shoe_picker_callback($query, $options = array()) {
 	$dbprefix = elgg_get_config('dbprefix');
 	return elgg_get_entities(array(
 		'type' => 'object',
-		'subtypes' => array('market'),
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
+	    'subtypes' => ['market','q_item'],
 		'joins' => array(
 			"JOIN {$dbprefix}objects_entity oe ON oe.guid = e.guid",
 			"JOIN {$dbprefix}metadata md ON md.entity_guid = e.guid AND md.name_id = {$marketcat_id} AND md.value_id = {$shoes_id}"
@@ -427,7 +431,8 @@ function accessory_picker_callback($query, $options = array()) {
 	$dbprefix = elgg_get_config('dbprefix');
 	return elgg_get_entities(array(
 		'type' => 'object',
-		'subtypes' => array('market'),
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
+	    'subtypes' => ['market','q_item'],
 		'joins' => array(
 			"JOIN {$dbprefix}objects_entity oe ON oe.guid = e.guid",
 			"JOIN {$dbprefix}metadata md ON md.entity_guid = e.guid AND md.name_id = {$marketcat_id}"
@@ -510,7 +515,9 @@ function market_register_toggle() {
 function market_entity_menu($hook, $type, $return, $params) {
 	if (
 		(!elgg_instanceof($params['entity'], 'object', 'market') 
-      && !elgg_instanceof($params['entity'], 'object', 'item')
+      && !elgg_instanceof($params['entity'], 'object', 'item') 
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
+	  && !elgg_instanceof($params['entity'], 'object', 'q_item')
 		)){
 		return $return;
 	}
@@ -556,6 +563,8 @@ function market_entity_menu2($hook, $type, $return, $params) {
 	if (
 		(!elgg_instanceof($params['entity'], 'object', 'market') 
       && !elgg_instanceof($params['entity'], 'object', 'item')
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
+      && !elgg_instanceof($params['entity'], 'object', 'q_item')
 		) 
 	  || !$params['entity']->canEdit()
 	   ) {
@@ -689,8 +698,8 @@ function market_set_icon_file($hook, $type, $icon, $params) {
 
 	$entity = elgg_extract('entity', $params);
 	$size = elgg_extract('size', $params, 'large');
-
-	if (!elgg_instanceof($entity, 'object', 'market')) {
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
+	if (!elgg_instanceof($entity, 'object', 'market') && !elgg_instanceof($entity, 'object', 'q_item')) {
 		return;
 	}
 	
@@ -736,7 +745,8 @@ function market_set_icon_file($hook, $type, $icon, $params) {
  * @access private
  */
 function pages_is_market($value) {
-	return ($value instanceof ElggObject) && in_array($value->getSubtype(), array('market', 'item'));
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
+    return ($value instanceof ElggObject) && in_array($value->getSubtype(), ['market', 'item','q_item']);
 }
 
 elgg_register_event_handler('login', 'user', 'login_init');

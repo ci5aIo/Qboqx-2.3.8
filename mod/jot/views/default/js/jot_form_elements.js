@@ -262,22 +262,26 @@ define(function(require) {
 		       $(carton).children('.tally').attr('boqxes', tally);
 	       });
     });
-	$(document).on('click', '.remove-card', function(e){
-		   e.preventDefault();
-	      var cid        = $(this).data('cid');
-	      var container  = $('#'+cid);
-	      var action     = $(container).data('aid'),
-		      boqx_id    = $(container).data('boqx'),
-		      guid       = $(container).data('guid'),
-		      aspect     = $(container).data('aspect');
-	      var boqx       = $('#'+boqx_id),
-	          boqx_aspect= $('#'+boqx_id).data('aspect');
-		  var eggs       = 0;
-			// remove the card
-			$(container).remove();
-			$('span.efforts-eggs[data-qid='+qid+']').attr('eggs', eggs-1);
-            
-		});
+	$(document).on('click', '.disableItem_WCeQcYKQ', function(e){
+	   e.preventDefault();
+       var ajax          = new Ajax(),
+	       cid           = $(this).data('cid'),
+           boqx_id       = $(this).data('parent-cid')
+           button_action = $(this).data('aid');
+       var envelope      = $('#'+cid),
+           boqx          = $('#'+boqx_id);
+       var  guid         = $(boqx).data('guid');                    console.log('guid = '+guid);
+       if (button_action == 'disable'){
+         $(boqx).remove();
+         if(typeof(guid) != 'undefined')
+              ajax.action('quebx/disable', {
+                 data:{
+                      guid: guid
+                 }
+               }).done(function () {
+               });
+       }  
+    });
 	$(document).on('click', '.replace-card, .IconButton___2y4Scyq6, .trashEnvelope_0HziOPGx', function(e){
 		  e.preventDefault();
 	      var ajax          = new Ajax(),
@@ -920,51 +924,85 @@ define(function(require) {
            $this_panel.hide();
        }
    });
-   $(document).on('click', '.submitBundle_q0kFhFBf', function(e){
+   $(document).on('click', '.submitBundle_q0kFhFBf, .packCarton_GAz9q0NX', function(e){
+/* submitBundle_q0kFhFBf used in:
+ 	* forms/transfers/edit  > add  > things_bundle
+ 	* forms/transfers/edit  > edit > things_bundle
+ 	* forms/transfers/edit  > view > things_bundle
+ 	* forms/transfers/edit  > add  > thing_receipts  > (not) empty boqx
+ 	* forms/transfers/edit  > edit > thing_receipts  > (not) empty boqx
+ * packCarton_GAz9q0NX used in:
+ 	* forms/experiences/edit  > add  > single_experience
+ 	* forms/experiences/edit  > add  > issue
+ */
 	   e.preventDefault(); 
 	  var ajax         = new Ajax(),
+	      $this        = $(this),
 	      cid          = $(this).data('cid'),
-	      boqx_id      = $(this).data('parent-cid'),
+	      boqx_id      = $(this).data('parent-cid'),                          // where presentation == 'pallet'
+	      pallet_id    = $(this).data('parent-cid'),                          // where presentation == 'empty boqx'
 	      form_id      = $(this).attr('form'),
 	      guid         = $(this).data('guid'),
-	      aspect       = $(this).data('aspect');
+	      response;
 	  var this_boqx    = $('#'+cid),
 	      boqx         = $('#'+boqx_id),
 	      form         = $('#'+form_id);
-	  var processed    = [],
+	  var carton_id    = $(boqx).data('carton'),
+	      cache,
+		  processed    = [],
 	      update       = [],
 	      create       = [];
-	  var title        = $('[data-focus-id="NameEdit--'+cid+'"]').val(),
+	  var carton       = $('#'+carton_id);
+	  var carton_aspect= $(carton).data('aspect'),
+		  title        = $('[data-focus-id="NameEdit--'+cid+'"]').val(),
 		  edit_boqx    = $('.EffortEdit_fZJyC62e[data-cid='+cid+']'),
 		  add_boqx     = $('.AddSubresourceButton___S1LFUcMd[data-cid='+cid+']'),
 		  show_boqx    = $('.EffortShow_haqOwGZY[data-cid='+cid+'], .BoqxShow__lsk3jlWE[data-cid='+cid+']'),
 		  header_preview = $('header.preview[data-cid='+boqx_id+']'), 
-		  boqx_exists  = $(boqx).length > 0;                               console.log('$(boqx).length: '+$(boqx).length);console.log('boqx_exists: '+boqx_exists);console.log('action: '+action);console.log('method: '+method);
+		  preview_titles = $(document).find('.StoryPreviewItem__title[data-guid='+guid+']'),
+		  boqx_exists  = $(boqx).length > 0; 
+	  var header       = $('header[cid='+pallet_id+']');
 //		  $(form).trigger('reset');
-	  $(edit_boqx).remove();
-	  if (boqx_exists){
-		$(show_boqx).show();
-	    $(this_boqx).remove();
-		$(header_preview).removeClass('collapsed');
-    	$(show_boqx).find('span.TaskShow__title___O4DM7q').text(title);
-    	$('span.StoryPreviewItem__title[data-cid='+boqx_id+']').text(title);
+	  if($(this).hasClass('submitBundle_q0kFhFBf'))
+		  response = 'submit bundle';
+	  if ($(this).hasClass('packCarton_GAz9q0NX'))
+		  response = 'pack carton';
+	  if (boqx_exists && response == 'submit bundle'){
+		  $(show_boqx).show();
+	      $(this_boqx).remove();
+		  $(header_preview).removeClass('collapsed');
+    	  $(show_boqx).find('span.TaskShow__title___O4DM7q').text(title);
+    	  $('span.StoryPreviewItem__title[data-cid='+boqx_id+']').text(title);
 	  }
-	  else
+	  else if (response == 'submit bundle')
 		$(add_boqx).show();
 	  
-	  if (typeof form != 'undefined'){
-		  var formData     = $(form).serialize(),//ajax.objectify(form),//From elgg documentation: When setting data, use ajax.objectify($form) instead of $form.serialize(). Doing so allows the ajax_request_data plugin hook to fire and other plugins to alter/piggyback on the request.
+	  if (boqx_exists && response == 'pack carton'){
+		  $(this_boqx).addClass('collapsed');
+	      $(header_preview).removeClass('collapsed');
+	      $(preview_titles).text(title);
+	  }
+	  switch(carton_aspect){
+	  case 'q_item':
+		  cache = $('.BoqxThings__Ei7CMCSo.cache[data-cid='+boqx_id+']');
+		  break;
+	  case 'receipts':
+		  cache = $('.BoqxReceipts__PPI3dHHq.cache[data-cid='+boqx_id+']');
+		  break;	  
+	  }
+	  
+	  $(header).removeClass('open');
+      if (typeof form != 'undefined'){
+		  var formData     = $(form).serialize(),   //ajax.objectify(form),//From elgg documentation: When setting data, use ajax.objectify($form) instead of $form.serialize(). Doing so allows the ajax_request_data plugin hook to fire and other plugins to alter/piggyback on the request.
 		      action       = $(form).attr('action'),
-			  method       = $(form).attr('method');
+			  method       = $(form).attr('method');                                           console.log('action: '+action);console.log('method: '+method);
+		  $('body>input[type=file]').remove();      //hidden input fields added (inexplicably) by dropzone
 //		  return;
 	  	  $.ajax({
 			    method: method,
 			    url: action,
 			    data: formData
 			}).done(function(json) {
-//				console.log(JSON.stringify( json ));
-//				alert(json.output['this_guid']);      // works:  "123456"
-//				alert(json.output[0]);                // works:  "2647"
 				$.each(json.output, function(index,value){
 					processed.push(value);
 					if(value['ui_response'] == 'update' && ('guid' in value))
@@ -972,9 +1010,8 @@ define(function(require) {
 					if(value['ui_response'] == 'create' && ('guid' in value))
 						create.push(value);
 				});
-				$.each(create, function(index,value){
-					$.each(value, function(index1, value1){
-						console.log('update.'+index1 + ": " + value1 );
+				$.each(create, function(index,value){                                           console.log('create.'+index + ": " + value );
+					$.each(value, function(index1, value1){                 					console.log('create.'+index1 + ": " + value1 );
 					});
 					var contents  = value['contents'],
 					    guid      = value['guid'],
@@ -986,18 +1023,43 @@ define(function(require) {
 			    		   guid    : guid,
 			    		   handler : contents
 			    	   },
-					}).done(function(output,slot){
+					}).done(function(output){
 						$(stack).prepend($(output));
+					});
+					// 
+					ajax.view('partials/jot_form_elements',{
+			    	   data: {
+			    		   element : 'pack boqx',
+			    		   guid    : guid,
+			    		   boqx_id : boqx_id,
+			    		   cid     : cid,
+			    		   aspect  : carton_aspect
+			    	   },
+					}).done(function(output){
+						$(cache).append($(output));
 					});
 				});
 			}).success(function(result) {
-
 			}).fail(function() {
 				alert('failed');
 			});
+	  	  if (response == 'submit bundle'){
+	  		  $(form).remove();
+	  		  $(this_boqx).remove();
+	  	  }
 	  }
    });
     $(document).on("click", ".StuffEnvelope_6MIxIKaV", function(e) {
+/* used in:
+ 	* forms/experiences/edit> add  > issue_discovery
+ 	* forms/experiences/edit> add  > issue_remedy    > marker
+ 	* forms/transfers/edit  > add  > thing_receipt   > marker
+ 	* forms/transfers/edit  > add  > thing_receipts  > empty boqx
+ 	* forms/transfers/edit  > add  > boqx_contents   > single_part
+ 	* forms/transfers/edit  > add  > boqx_contents   > single_effort
+ 	* forms/transfers/edit  > add  > boqx_contents   > single_item
+ 	* forms/transfers/edit  > edit > thing_receipts  > empty boqx
+ 	*/ 
         e.preventDefault();
         var $this        = $(this),
             ajax         = new Ajax(),
@@ -1319,7 +1381,58 @@ define(function(require) {
 	            $(envelope).attr('data-aid', 'show');
 	        }
 	    }
-    });  
+    });
+    $(document).on('click', '.dropZone__uNpSdLP4', function(e){
+/* used in:
+ 	* forms/market/edit  > edit  > single_thing
+ */
+	   e.preventDefault(); 
+	  var ajax         = new Ajax(),
+	      $this        = $(this),
+	      cid          = $(this).data('cid'),
+	      boqx_id      = $(this).data('parent-cid'),                          // where presentation == 'pallet'
+	      form_id      = $(this).attr('form'),
+	      guid         = $(this).data('guid'),
+	      aspect       = $(this).data('aspect');
+	  var envelope     = $('#'+cid),
+	      boqx         = $('#'+boqx_id),                                     
+	      form         = $('#'+form_id),
+		  carton_id    = $('#'+cid).data('carton');                          
+	  var carton       = $('#'+carton_id),
+	      media_boqx   = $('.mediaBoqx_fnBMgIOE[data-carton='+carton_id+']')
+	      processed    = [];
+	  var contents     = $(carton).data('aspect');                         console.log('contents: '+contents);console.log('boqx_id: '+boqx_id);console.log('carton_id: '+carton_id);
+      if (typeof form != 'undefined'){
+		  var formData = $(form).serialize(),
+		      action   = $(form).attr('action'),
+			  method   = $(form).attr('method');                             console.log('action: '+action);console.log('method: '+method);
+//		  return;
+	  	  $.ajax({                                                //process the form data
+			    method: method,                                   //method used to process the form data
+			    url: action,                                      //url provided as the form action
+			    data: formData                                    //data provided as the form data
+			}).done(function(json) {                              //receive the data returned by the action
+				$.each(json.output, function(index,value){        //process the data returned by the action
+					processed.push(value);                 console.log('processed['+index+']='+value);                        //push each value onto the end of the array 'processed'
+				});
+				ajax.view('partials/jot_form_elements',{          //send the processed data to the view 'jot_form_elements'
+		    	   data: {
+		    		   element    : 'show images',                   //send the element 'show images' to identify the element needed for the switch
+		    		   guids      : processed,                       //send the processed data as 'guids'
+		    		   handler    : contents,                         //send the carton contents tag as 'handler'
+		    		   boqx_id    : boqx_id,
+		    		   carton_id  : carton_id
+		    	   },
+				}).done(function(output){                         //receive the output from the view
+					$(media_boqx).append($(output));              //append the output from the view to the end of the media_boqx
+				});
+			}).success(function(result) {
+			}).fail(function() {
+				alert('failed');
+			});
+          $(form).remove();
+	  }
+   });
    $(document).on('click', '.CloseItem__submit__oz8vFV9a', function(e){
 	  e.preventDefault();
 	  var ajax         = new Ajax(),
@@ -1381,6 +1494,77 @@ define(function(require) {
       $('.DescriptionEdit___1FO6wKeX[data-cid='+cid+']').hide();
       $('.DescriptionShow___3-QsNMNj[data-cid='+cid+']').show();
     });
+   $(document).on('click', '.action-item', function(e){
+	  e.preventDefault();
+	  var ajax         = new Ajax(),
+//	      boqx_id      = $(this).data('boqx'),
+	      cid          = $(this).data('cid'),
+	      action       = $(this).data('aid'),
+	      action_item  = $(this);
+	  var item         = $('#'+cid),
+	      item_guid    = $('#'+cid).data('guid'),
+	      boqx_id      = $('#'+cid).data('cid'),
+	      carton_id    = $('#'+cid).data('carton');
+	  var boqx         = $('#'+boqx_id),               //$('.boqx#'+boqx_id),
+	      guid         = $('#'+boqx_id).data('guid');  //$('.boqx#'+boqx_id).data('guid');                             	  console.log('carton_id: '+carton_id);console.log('boqx_id: '+boqx_id);console.log('item_guid: '+item_guid);console.log('guid: '+guid);
+	  var carton       = $('#'+carton_id),
+		  media_envelope = $('.envelope__NkIZUrK4[data-carton='+carton_id+']');
+	  var media_cache  = $('.ItemMedia__Nyaa0xmV.cache[data-cid='+boqx_id+']');
+	  var pieces       = $('.media-item[data-carton='+carton_id+']').length,
+		  show_label   = $(media_envelope).find('.TaskShow__title___O4DM7q').text();
+	  
+	  switch(action){
+	  	case 'set_default':
+	  		var selected = $(item).hasClass('selected'),
+	  		    meta     = $('.boqx#'+boqx_id+' .meta'),
+	  		    icon     = $('.boqx#'+boqx_id+' .itemPreviewImage_ARIZlwto'),
+	  		    size     = 'tiny';
+	  			
+	  		if(!selected){
+	  			$('#'+carton_id+' .media-item').removeClass('selected');
+	  			ajax.action("jot/action", {
+		           data: {guid_one : item_guid,
+		                  guid_two : guid,
+		                  action   : action
+		           },
+	  			}).done(function(json){
+	  				$(item).addClass('selected');
+	  				if(icon.length == 0){                                           // icon does not exist
+			  			ajax.view('partials/jot_form_elements',{                    // create single image
+				    	   data: {
+				    		 element: 'show thumbnail image',
+				    		 guid: item_guid,
+				    		 size: size
+				    	   },
+				       }).done(function(output) {             console.log('output: '+output);
+				    	   $(meta).append($(output));
+					   });   
+			  		}
+			  		else {                                                         // icon exists
+			  			$(icon).attr('guid',item_guid).attr('src',"http://qboqx.smarternetwork.com/gallery/icon/"+item_guid+"/"+size);    //replace icon
+			  		}
+		        });
+	  		}
+	  		break;
+	  	case 'detach':
+	  		ajax.action("jot/action", {
+	           data: {guid_one : item_guid,
+	                  guid_two : guid,
+	                  action   : action
+	           },
+	  		}).done(function(output, statusText, jqXHR){
+	              $(item).remove();
+ 				  pieces     = $('.media-item[data-carton='+carton_id+']').length;
+				  if(pieces == 1) show_label = 'piece'; else show_label = 'pieces';
+				  $(media_envelope).attr('boqx-fill-level',pieces);
+				  $(media_envelope).find('.TaskShow__qty_7lVp5tl4').text(pieces);
+				  $(media_envelope).find('.TaskShow__title___O4DM7q').text(show_label);
+				  $(media_cache).find('input[data-guid='+item_guid+']').remove();
+	        });
+	  		break;
+	  }
+	  
+   });
    $(document).on('click', 'a.jot-q', function(e) {
        e.preventDefault();
        var this_element = this;
@@ -1494,6 +1678,16 @@ define(function(require) {
 	    	   }
 	       });
 	    };
+   });
+   $(document).on('click', '.pallet .elgg-item-object-hjalbum a, .pallet .gallery-photostream a', function(e){  //interrupt all link behaviors related to the Gallery and Photostream pallets
+	  e.preventDefault();
+	  var href = $(this).attr('href');                     console.log('href = '+href);
+	  var link_segments = href.split("/");
+	  var segments = link_segments.length;
+	  if($(this).hasClass('gallery-album-icon') || $(this).parent().hasClass('elgg-listing-summary-title')){          console.log('album = '+link_segments[segments-1]);console.log('album_guid = '+link_segments[segments-2]);
+	  }
+	  else {                                                console.log('album_guid = '+link_segments[segments-1]);console.log('action = '+link_segments[segments-2]);
+	  }
    });
    $(document).on('click', 'a.qbox-q', function(e) {
        e.preventDefault();
@@ -2282,15 +2476,13 @@ define(function(require) {
 	   }
    });
    $(document).on('click', '.StoryPreviewItem__expander, .StoryPreviewItem__title', function(e){   console.log('StoryPreviewItem__expander');
-	  //alert('works');
-/**Note: In the case of cloned and dropped boqxes, the 'cid' will not be unique until a page refresh.  This necessitates a more careful identification of the target.*/
       e.preventDefault();
 	  var ajax        = new Ajax();
 	  var guid        = $(this).data('guid'),
 	      cid         = $(this).data('cid'),
           presentation= $(this).data('presentation'),
-          slot        = $(this).closest('.slot'),
-          presence;
+          presence    = $(this).data('presence'),
+          slot        = $(this).closest('.slot');
 //@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
 //	  var pallet      = $(this).closest('.pallet');
       var item_boqx   = $(this).closest('#'+cid);
@@ -2321,9 +2513,9 @@ define(function(require) {
 					  element      : 'show boqx',
 					  guid         : guid,
 					  cid          : cid,
-					  presentation : presentation
+					  presentation : presentation,
 // when presence == 'carton', cancel/close buttons are not available
-//					  presence  : presence
+					  presence  : presence
 				  },
 			  }).done(function(output){
 				  $(item_boqx).append($(output));
@@ -2336,6 +2528,19 @@ define(function(require) {
 					    classes:{
 				           'ui-droppable-active': "box-state-highlight"} 
 					});
+				  $('.media_drop').droppable({
+					    accept: $('.boqx.file, .boqx.media'),
+					    tolerance: "touch",
+					    over: function(event, ui) {
+					      $(this).addClass('ui-droppable-hover');
+					    },
+					    out: function() {
+					      $(this).removeClass('ui-droppable-hover');
+					    },
+					    drop: function() {
+					      $(this).removeClass('ui-droppable-hover');
+					    }
+				  });
 			  }).success(function(){
 				 $boqx_preview.addClass("collapsed");
               });
@@ -2503,7 +2708,89 @@ define(function(require) {
              $(dropped_item).remove();
     	  });
 //        quebx.shelf_tools.pack_item(item_guid, boqx_guid, boqx, item, aspect, container_guid);
-    });
+    });    
+	$(function() {
+	  var ajax         = new Ajax(),
+          media        = $('.boqx.file, .boqx.media'),
+	      media_drop   = $('.media_drop');
+
+	  media_drop.droppable({
+	    accept: media,
+	    tolerance: "touch",
+	    over: function(event, ui) {
+	      $(this).addClass('ui-droppable-hover');
+	    },
+	    out: function() {
+	      $(this).removeClass('ui-droppable-hover');
+	    },
+	    drop: function() {
+	      $(this).removeClass('ui-droppable-hover');
+	    }
+	  });
+	  $(document).on('dropover', '.media_drop', function(e, ui){
+	      $(media_drop).addClass('ready-to-receive');
+	  });
+	  $(document).on('dropout', '.media_drop', function(e, ui){
+	      $(media_drop).removeClass('ready-to-receive');
+	  });
+
+	  $(document).on('drop', '.media_drop', function(e,ui){
+	      var media      = ui.draggable,                                //the dragged boqx
+	          boqx_id    = $(this).data('boqx'),                        //the cid of the drop boqx
+	          cid        = $(this).data('cid'),
+	          presence   = $(this).data('presence');
+	      var boqx       = $('#'+boqx_id);
+		  var boqx_guid  = $(boqx).data('guid');                        //the guid of the receiving object
+	      var guid       = $(media).children('a.gallery-popup').data('guid'),
+	          hidden_fields;       
+	      var carton_id  = $(this).closest('.boqx-carton').attr('id');
+		  var carton     = $('#'+carton_id),
+		      media_boqx = $('.mediaBoqx_fnBMgIOE[data-carton="'+carton_id+'"]'),
+		      media_envelope = $('.envelope__NkIZUrK4[data-carton="'+carton_id+'"]'),
+		      media_cache= $('.ItemMedia__Nyaa0xmV.cache[data-cid='+cid+']');
+		  var contents   = $(carton).data('aspect'),
+		      pieces     = $('.media-item[data-carton="'+carton_id+'"]').length,
+		      show_label = $(media_envelope).find('.TaskShow__title___O4DM7q').text();                               console.log('guid: '+guid);console.log('boqx_guid: '+boqx_guid);console.log('boqx_id: '+boqx_id);console.log('carton_id: '+carton_id);
+
+	      if (media.hasClass('media')){
+	    	  ajax.action('shelf/pack',{
+			      data: {boqx_guid: boqx_guid,
+			      	     guid     : guid,
+			      	     cid      : cid,
+			    	     aspect   : 'media',
+			    	     action   : 'add',
+			    	     presence : presence
+			    	    }	    		  
+	    	  }).done(function(content, message, forward_url, status_code){
+		    		if(typeof content != 'undefined' && typeof content != 'string'){  
+	    		      guid = $.parseJSON(content['guid']);                   console.log('guid: '+guid);
+	    		      hidden_fields = $.parseJSON(content['hidden_fields']); console.log('hidden_fields: '+hidden_fields);
+//	    		      guid = $.parseJSON(content);                   console.log('guid: '+guid);
+		    		  ajax.view('partials/jot_form_elements',{          //send the processed data to the view 'jot_form_elements'
+				         data: {element    : 'show single image',       //identify the element needed for the switch
+				        	 	guid       : guid,                      //the guid
+				        	 	cid        : cid,
+				        	 	boqx_id    : boqx_id,
+				        	 	carton_id  : carton_id,
+				        	 	presence   : presence,
+				        	 	size       : 'medium'
+				    	      	},
+						}).done(function(output){
+							$(media_boqx).append($(output));            //append the output from the view to the end of the media_boqx
+							pieces     = $('.media-item[data-carton="'+carton_id+'"]').length;
+							if(pieces == 1) show_label = 'piece'; else show_label = 'pieces';
+							$(media_envelope).attr('boqx-fill-level',pieces);
+							$(media_envelope).find('.TaskShow__qty_7lVp5tl4').text(pieces);
+							$(media_envelope).find('.TaskShow__title___O4DM7q').text(show_label);
+							$(media_cache).append(hidden_fields);
+						});
+		    		}
+	    	  });
+	      }
+		  if (media.hasClass('file')){
+	      }
+	  });
+	});
     $(document).on('click', '.panels .items .pallet_toggle', function(e){
           e.preventDefault();
           var ajax    = new Ajax(),
@@ -2568,7 +2855,7 @@ define(function(require) {
     		  }).done(function(output){
     			 $(output).addClass('visible');
                  this_toggle.parent().addClass('visible');
-		         $('.slots').append($(output));
+		         $('.slots').append($(output)).focus();
 	      	     slots         = $('.slots').children('.slot').size();
 //@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
 //		    	 slots         = $('.slots').children('.pallet').size();
@@ -2576,6 +2863,26 @@ define(function(require) {
 		         floor_size    = required_size < min_size ? min_size : required_size;
 				 $('.slots').attr('data-slots', slots);
 				 $('.slots').css('width',floor_size);
+//@EDIT - 2020-05-18 - SAJ - Make the new pallet draggable
+				 $(".pallet").draggable({
+				    containment: slots,
+				    helper: "clone",
+				    handle: '.tn-PanelHeader__inner___3Nt0t86w',
+				    axis: "x",
+				    stack: ".pallet",
+				    zIndex: 100,
+	                scroll: true,
+				    start: function() {
+				       $(this).css({
+				         opacity: .5
+				       });
+				    },
+				    stop: function() {
+				      $(this).css({
+				        opacity: 1
+				      });
+				    }
+				  });
     		  });
 /*        	var dataString = 'add=pallet&cid='+cid+'&boqx='+boqx,
         	    form       = $(this).parents('form');
@@ -2680,6 +2987,19 @@ define(function(require) {
 					    classes:{
 				           'ui-droppable-active': "box-state-highlight"} 
 					});
+				  $('.media_drop').droppable({
+					    accept: $('.boqx.file, .boqx.media'),
+					    tolerance: "touch",
+					    over: function(event, ui) {
+					      $(this).addClass('ui-droppable-hover');
+					    },
+					    out: function() {
+					      $(this).removeClass('ui-droppable-hover');
+					    },
+					    drop: function() {
+					      $(this).removeClass('ui-droppable-hover');
+					    }
+				  });
 		       });
      });
 	   //Add a new label when one presses the 'comma' key

@@ -13,8 +13,12 @@
  * @uses $vars['container_guid'] GUID of the container entity to which new files should be uploaded
  * @uses $vars['subtype'] Subtype of the file to be created
  * @uses $vars['compact'] (boolean) Flag to use the compact template
+ * @EDIT 2020-05-08 - Added capacity to accept more options
+ * @uses @vars['options'] (array) Options in the form of 'option'=>'value'
  */
 $uid = substr(md5(microtime() . rand()), 0, 10);
+if(isset($vars['options']))
+    $options = $vars['options'];
 $options['id'] = "dropzone-$uid";
 $fallback_input_id = "dropzone-fallback-$uid";
 $vars['id'] = $options['data-fallback-id'] = $fallback_input_id;
@@ -113,6 +117,7 @@ else {
 	$template = elgg_view('elgg_dropzone/template');
 }
 
+
 echo <<<HTML
 <div class="elgg-dropzone">
 	<div $dropzone_attributes>
@@ -124,4 +129,3 @@ echo <<<HTML
 </div>
 {$file_input}
 HTML;
-

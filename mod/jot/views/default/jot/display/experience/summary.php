@@ -6,7 +6,7 @@ $subtype      = $experience->getSubtype();
 
 elgg_load_library('elgg:market');
 	
-echo market_render_section(array('section'    => 'experience', 
+echo market_render_section(array('section'    => 'single_experience', 
                                  'action'     => 'view',
                                  'owner_guid' => elgg_get_logged_in_user_guid(),
                                  'entities'   => $experiences, 

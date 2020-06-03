@@ -62,7 +62,7 @@ Switch ($list_type){
 //  			$list_body = elgg_view('output/url', array('text' => $i->title,'href' =>  "jot/view/{$i->guid}"));
  			elgg_load_library('elgg:market');
  			$content =  market_render_section(array(
-                                 'section'    => 'experience',
+                                 'section'    => 'single_experience',
                                  'selected'   => $selected,
                                  'action'     => 'view',
                                  'entity'     => $experience,));
