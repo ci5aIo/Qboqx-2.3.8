@@ -350,7 +350,7 @@ function quebx_display_child_nodes_III($options){
             	        break;
             	}
             	$display_options['essence']=$essence;
-            	$display_options['edit_contents'] = elgg_view('forms/market/edit',['perspective'=>'edit', 'section'=>'contents_edit_boqx','parent_cid'=>$edit_id,'guid'=>$id,'essence'=>$essence]);
+            	$display_options['edit_contents'] = elgg_view('forms/market/edit',['perspective'=>'edit', 'section'=>'contents_single_piece','parent_cid'=>$edit_id,'guid'=>$id,'essence'=>$essence]);
             	$boqx  = elgg_view('page/components/pallet_boqx', $display_options);
         	}
         	$title = $data[$id]['title'];
@@ -443,7 +443,7 @@ function quebx_format_elements($tag_name, array $attributes = []){
 //           return false;
 //     }
 }
-function quebx_count_pieces($guid=false, $aspect){
+function quebx_count_pieces($guid=false, $aspect, $return='count'){
     if($guid==false)
         return false;
     $page_owner     = elgg_get_page_owner_entity();
@@ -454,7 +454,7 @@ function quebx_count_pieces($guid=false, $aspect){
                 		                'direction'=>DESC,
                                         'as'=>date],
                 'order_by'=>'time_updated',
-                'limit'      => 0,];
+                'limit'      => false,];
     
     switch ($aspect){
         case 'things':
@@ -492,17 +492,22 @@ function quebx_count_pieces($guid=false, $aspect){
             return count(elgg_get_entities_from_metadata($jot_options));
             break;
         case 'contents':
-            $jot_options = $options;
+            $jot_options = array_merge($options,['subtypes'=>ELGG_ENTITIES_ANY_VALUE,
+                                                 'joins'   =>"JOIN {$dbprefix}objects_entity e2 on e.guid = e2.guid",
+                                                 'wheres'  => [$guid ? "e.container_guid = $guid" :'',
+                                                               "NOT EXISTS (SELECT *
+                                                                            from {$dbprefix}entity_relationships s1
+                                                                            WHERE s1.relationship = 'component'
+                                                                              AND s1.guid_two = e.container_guid)"],
+                                                 'order_by' => 'e2.title']);
             unset($jot_options['order_by_metadata']);
-            $jot_options['subtypes'] = ['market', 'item', 'contents'];
-            $jot_options['joins']    = ["JOIN {$dbprefix}objects_entity e2 on e.guid = e2.guid"];
-            $jot_options['wheres'][] = $guid ? "e.container_guid = $guid" :'';
-            $jot_options['wheres'][] = "NOT EXISTS (SELECT *
-                                                     from {$dbprefix}entity_relationships s1
-                                                     WHERE s1.relationship = 'component'
-                                                       AND s1.guid_two = e.container_guid)";
-            $jot_options['order_by']= 'e2.title';
-            return count(elgg_get_entities($jot_options));
+            switch($return){
+                case 'contents':
+                    return elgg_get_entities($jot_options);
+                    break;
+                default:
+                    return count(elgg_get_entities($jot_options));
+            }
             break;
         case 'accessories':
             $jot_options = ['type' => 'object',
@@ -521,5 +526,11 @@ function quebx_count_pieces($guid=false, $aspect){
             return count(elgg_get_entities_from_relationship($jot_options));
             break;
     }
-    return false;
+    return 0;
+}
+function in_array_recursive($needle, $haystack, $strict = false) {
+	foreach ($haystack as $item)
+		if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_recursive($needle, $item, $strict)))
+			return true;
+	return false;
 }

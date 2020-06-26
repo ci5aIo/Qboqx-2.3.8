@@ -27,8 +27,8 @@ if (!isset($num))
 	$num = 4;
 		                                                                          $display .= '$num = '.$num.'<br>';
 $options = array('type'=>'object',
-//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
-                  'subtypes'   =>['q_item'], 
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'qim'
+                  'subtypes'   =>['qim'], 
 //                  'subtypes'   =>['market'], 
                   'owner_guid' => $owner->guid,
                   'wheres'     => ["NOT EXISTS (SELECT *

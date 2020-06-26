@@ -11,11 +11,11 @@ define(function(require) {
 //@EDIT - 2020-05-08 - SAJ - recommended syntax as of JQuery 3.0. See https://api.jquery.com/ready/
 	$(function() {                              // recommended syntax
 //	$(document).ready(function() {              // depricated syntax
-	  var boqx  = $(".pallet"),
+	  var pallet  = $(".pallet"),
 	      slot  = $('.slot'),
 	      slots = $(".slots");
 	
-	  boqx.draggable({
+	  pallet.draggable({
 	    containment: slots,
 	    helper: "clone",
 	    handle: '.tn-PanelHeader__inner___3Nt0t86w',
@@ -36,7 +36,7 @@ define(function(require) {
 	  });
 	
 	  slot.droppable({
-	    accept: boqx,
+	    accept: pallet,
 	    tolerance: "pointer",
 	    over: function(event, ui) {
 	      $(this).addClass('ui-droppable-hover');

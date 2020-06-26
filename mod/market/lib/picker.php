@@ -40,8 +40,8 @@ function cars_shoe_picker_callback($query, $options = array()) {
 	$dbprefix = elgg_get_config('dbprefix');
 	return elgg_get_entities(array(
 		'type' => 'object',
-//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
-	    'subtypes' => ['market','q_item'],
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'qim'
+	    'subtypes' => ['market','qim'],
 		'joins' => array(
 			"JOIN {$dbprefix}objects_entity oe ON oe.guid = e.guid",
 			"JOIN {$dbprefix}metadata md ON md.entity_guid = e.guid AND md.name_id = {$marketcat_id} AND md.value_id = {$shoes_id}"
@@ -74,8 +74,8 @@ function get_family_characteristics_collections($owner_guid, $site_guid = 0) {
 	$wheres[] = "s1.string   = 'characteristic_names'";
 	$wheres[] = "s4.type     = 'object'";
 	$wheres[] = "s4.owner_guid = $owner_guid";
-//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
-	$wheres[] = "s5.subtype  in ('market', 'q_item)";
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'qim'
+	$wheres[] = "s5.subtype  in ('market', 'qim)";
 //	$wheres[] = "s5.subtype  = 'market'";
 	if ($category)	$wheres[] = "s7.string   = '$category'";
 	$wheres[] = "s2.value_id = t1.id)";

@@ -1010,6 +1010,41 @@ Switch ($perspective){
             	                        elgg_view('navigation/controls',['form_method'=>'stuff','aspect'=>$aspect, 'parent_cid'=>$parent_cid,'cid'=>$cid,'guid'=>$guid,'action'=>$perspective,'presentation'=>$presentation,'presence'=>$presence, 'buttons'=>['copy_link'=>false,'copy_id'=>false,'show_guid'=>false,'import'=>false,'clone'=>false,'history'=>false,'delete'=>true,'delete_action'=>'replace','delete_class'=>'trashEnvelope_0HziOPGx','maximize'=>false,'cancel'=>true,'cancel_class'=>'closeEnvelope_1kZzzgcR','action'=>true]]));
 	                        $info_boqx = elgg_format_element('div',[],$hidden_fields.$info_box.$utility_details);
                             break;
+                            
+                /****************************************
+*add********** $section = 'boqx_contents' $snippet= 'inventory'  *****************************************************************
+				 ****************************************/
+                    case 'inventory':
+                        /*Show:
+                         *   Quantity
+                         *   Replenish
+                         *   Remove
+                         *   Materialize
+                         *   Move
+                         *   Transfer
+                         */
+                        if($jot)
+                            $pieces = elgg_get_entities_from_metadata(['type'=>'object', 'subtypes'=>['market','item','qim'],'owner_guid'=>$owner->guid,'limit'=>false,'metadata_name_value_pairs'=>['model_no'=>$jot->model_no,'sku'=>$jot->sku],'metadata_name_value_pairs_operator' => 'OR']);
+                        if ($pieces && count($pieces)>0)
+                            $qty    = count($pieces);
+                        if ($jot->qty)
+                            $qty    = $jot->qty;
+        				$fields[] = ['title'=>'Quantity on hand'   , 'name'=>'qty'      , 'type'=>'number','value'=>$qty];
+        				$fields[] = ['title'=>'Replenish quantity' , 'name'=>'replenish', 'type'=>'number','value'=>$jot->replenish];
+        				
+        				foreach($fields as $field){
+        				    $placeholder = $field['type'] != 'number' ? $field['title'] : false;
+        					$rows[] = elgg_format_element('div',['class'=>'row'],
+        							 	  elgg_format_element('em',['class'=>'row_label'],$field['title']).
+        								  elgg_format_element('div',['class'=>'row_value'],
+        									  elgg_format_element('input', ['type'=>$field['type'], 'name' => "jot[$cid][{$field['name']}]", 'value' => $field['value'], 'placeholder'=>$placeholder,'disabled'=>$disabled])));
+        				}
+        				$content = elgg_format_element('div',['class'=>'info_box_wrapper'],
+										 elgg_format_element('div',['class'=>'info_box'],
+											elgg_format_element('div',['class'=>'info','data-cid'=>$cid],
+												implode('',$rows))));
+        		
+                        break;
                /****************************************
 *add********** $section = 'boqx_contents' $snippet='single_thing' *****************************************************************
                ****************************************/
@@ -1024,13 +1059,15 @@ Switch ($perspective){
                             $hidden_fields         = quebx_format_elements('hidden', $hidden);
                             $task                  = 'thing';
                             
-                            $params = array_merge($vars,['guid'         => $guid,
-                                                         'boqx_id'     => $parent_cid,
-                                                         'parent_cid'   => $cid ?: quebx_new_id('c'),
+                            $params = array_merge($vars,['perspective'  => 'edit',
+                                                         'section'      => $snippet,
+                                                         'action'       => $perspective,
+                                                         'guid'         => $guid,
+                                                         'envelope_id'  => $cid,
+                                                         'boqx_cid'     => $parent_cid,
+//                                                          'parent_cid'   => $cid ?: quebx_new_id('c'),
+//                                                         'carton_id'    => $carton_id,
                                                          'fill_level'   => 'full',
-                                                         'perspective'  => 'edit',
-                                                         'action'       => 'add',
-                                                         'section'      => 'single_thing',
                                                          'form_method'  => 'pack',
                                                          //'presentation' => $presentation,//'pallet',
                                                          //'presence'     => $presence,
@@ -1279,7 +1316,7 @@ Switch ($perspective){
 	                    					]);
 			    $view = 'forms/transfers/edit';
 			    $pieces = 0;
-			    $aspect = 'q_item';
+			    $aspect = 'qim';
 			    $add_things_vars = array_merge($vars, ['section'=>'boqx_contents','snippet'=>'single_thing','aspect'=>$aspect,'display_state'=>'edit','effort'=>$effort,'parent_cid'=>$parent_cid,'carton_id'=> $carton_id,'n'=>$n,]);
 			    unset($add_things_vars['cid']);
 				$add_things = elgg_view($view,$add_things_vars);
@@ -4439,6 +4476,8 @@ $section = 'boqx_contents'                **************************************
             						     </div>
                                       </div>";   
 					    break;
+					case 'inventory':
+					    $form_body = $content;
 					default:
 						$form_body .= "<div data-aid='Efforts' class='boqx_contents-default' action ='$action'>
                 							$hidden_fields

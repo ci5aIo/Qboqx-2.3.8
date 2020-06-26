@@ -8,7 +8,7 @@ $limit = 0;
 $entity = get_entity($guid);
 $options = ['type'     => $entity->getType(),
 		    'joins'    => ['JOIN elgg_objects_entity e2 on e.guid = e2.guid'],
-			'wheres'   => ["e.container_guid = $item_guid"],
+			'wheres'   => ["e.container_guid = $guid"],
             'order_by' => 'e2.title',
             'limit'    => $limit,];
 

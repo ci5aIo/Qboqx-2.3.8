@@ -24,12 +24,12 @@ $parts = elgg_get_entities_from_relationship(array(
 	'limit' => false,
 ));
 $pieces = elgg_get_entities(array(
-				'type' => 'object',
-				'subtypes' => array('market', 'item'),
-				'wheres' => array(
-					"e.container_guid = $item_guid",
-				),
-			));
+	'type' => 'object',
+	'subtypes' => array('market', 'item'),
+	'wheres' => array(
+		"e.container_guid = $item_guid",
+	),
+));
 $components = elgg_get_entities_from_relationship(array(
 	'type' => 'object',
 	'relationship' => 'component',

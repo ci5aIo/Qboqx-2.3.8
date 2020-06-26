@@ -55,8 +55,8 @@ function market_prepare_brief_view_vars($item = null) {
 	if (is_numeric($location)){ // assume guid
 		$place    = get_entity($location);
 		switch($place->getSubtype()){
-//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
-		    case 'q_item':
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'qim'
+		    case 'qim':
 			case 'market':
 				$stem = 'market/view';
 				break;
@@ -155,8 +155,8 @@ function market_prepare_detailed_view_vars($item = null) {
 	if (is_numeric($location)){ // assume guid
 		$place    = get_entity($location);
 		switch($place->getSubtype()){
-//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
-		    case 'q_item':
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'qim'
+		    case 'qim':
 			case 'market':
 				$stem = 'market/view';
 				break;
@@ -175,8 +175,8 @@ function market_prepare_detailed_view_vars($item = null) {
 	if (!is_numeric($location)){ // assume label
 		$location_link = $location;
 	}
-//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
-	if (($subtype == 'market' || $subtype == 'item' || $subtype == 'q_item') && !$location){
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'qim'
+	if (($subtype == 'market' || $subtype == 'item' || $subtype == 'qim') && !$location){
 		$location_link = elgg_view('output/url', array(
 			'href' => "market/view/$container->guid",
 			'text' => $container->title,

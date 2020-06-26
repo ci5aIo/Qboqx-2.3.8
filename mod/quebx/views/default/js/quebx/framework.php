@@ -1064,20 +1064,26 @@ $(document).ready(function(){
      });
      $(document).on('click', '.contentsPreviewItem__expander', function(e){
        e.preventDefault();
-       var cid         = $(this).data('cid');
-       var $boqx_show  = $('[data-boqx='+cid+']');
-       $boqx_show.removeClass('collapsed');
-       $(this).removeClass('contentsPreviewItem__expander');
-       $(this).addClass('contentsPreviewItem__collapser');
+       var cid       = $(this).data('cid');
+       var boqx      = $('#'+cid);
+       var boqx_edit = $('[data-boqx='+cid+']');
+       var boqx_id   = $(boqx).data('boqx');
+       if(boqx.hasClass('has_contents'))
+          $('.hierarchy[data-boqx='+boqx_id+']').attr('data-state','expanded');
+       $(boqx_edit).removeClass('collapsed');
+       $(this).removeClass('contentsPreviewItem__expander').addClass('contentsPreviewItem__collapser');
       
      });
      $(document).on('click', '.contentsPreviewItem__collapser', function(e){
        e.preventDefault();
        var cid         = $(this).data('cid');
-       var $boqx_show  =  $('[data-boqx='+cid+']');
-       $boqx_show.addClass('collapsed');
-       $(this).removeClass('contentsPreviewItem__collapser');
-       $(this).addClass('contentsPreviewItem__expander');
+       var boqx      = $('#'+cid);
+       var boqx_edit = $('[data-boqx='+cid+']');
+       var boqx_id   = $(boqx).data('boqx');
+       if(boqx.hasClass('has_contents'))
+          $('.hierarchy[data-boqx='+boqx_id+']').attr('data-state','collapsed');
+       $(boqx_edit).addClass('collapsed');
+       $(this).removeClass('contentsPreviewItem__collapser').addClass('contentsPreviewItem__expander');
       
      });
     
@@ -1153,18 +1159,22 @@ $(document).ready(function(){
     });
     $(document).on("click", "a.collapser-item", function(e) {
 /**Note: In the case of cloned and dropped boqxes, the 'cid' will not be unique until a page refresh.  This necessitates a careful identification of the target.*/
-        e.preventDefault();
-        console.log('a.collapser-item');
+        e.preventDefault();                                                                           console.log('a.collapser-item');
         if ($(this).parents('.empty-boqx').length == 0){     //item is not in an empty-boqx
             var cid           = $(this).data("cid");
             var $boqx         = $('#'+cid);
             var fill_level    = $boqx.attr('boqx-fill-level'),
                 $this_panel   = $boqx.children('.ItemEdit___7asBc1YY'),
-                parent_cid    = $boqx.attr('data-boqx');
+                parent_cid    = $boqx.attr('data-boqx')
+                in_envelope   = $boqx.hasClass('envelope__NkIZUrK4');
             var $parent_boqx  = $('#'+parent_cid);  
             var $show_panel   = $boqx.children('.ItemShow_Btc471up');
             var $add_panel    = $boqx.children('.AddSubresourceButton___oKRbUbg6');
             var $preview_panel= $('.preview[data-cid='+parent_cid+']');
+            if (in_envelope){
+                $add_panel    = $boqx.children('.AddSubresourceButton___2PetQjcb'),
+                $this_panel   = $boqx.children('.EffortEdit_fZJyC62e');
+            }
             if ($boqx.parent().hasClass('boqx-pallet')){    
                 if (fill_level == 'full' || fill_level >= 1){
                    $show_panel.show();
@@ -1174,6 +1184,10 @@ $(document).ready(function(){
                    $add_panel.show();
                    $this_panel.hide();
                  }
+            }
+            else if(in_envelope){
+               $add_panel.show();
+               $this_panel.hide();
             }
             else{
               $preview_panel.removeClass('collapsed');
@@ -1221,7 +1235,12 @@ $(document).ready(function(){
           if($('.ItemEdit__descriptionContainer___Mr67pXjd.ItemEditContainer__'+cid).hasClass('open'))
                $('.ItemEdit__descriptionContainer___Mr67pXjd.ItemEditContainer__'+cid).removeClass('open');
           else $('.ItemEdit__descriptionContainer___Mr67pXjd.ItemEditContainer__'+cid).addClass('open');
-//          $('.ItemEdit__descriptionContainer___Mr67pXjd.ItemEditContainer__'+cid).toggle();
+    });
+    $(document).on('click', '.ShowInventoryDetailsButton__7OEGZ2m3', function(e){
+          var cid = $(this).data('cid');                                                                                  console.log('cid: '+cid);
+          if($('.InventoryEdit_descriptionContainer__JCesEC6l.InventoryEditContainer__'+cid).hasClass('open'))
+               $('.InventoryEdit_descriptionContainer__JCesEC6l.InventoryEditContainer__'+cid).removeClass('open');
+          else $('.InventoryEdit_descriptionContainer__JCesEC6l.InventoryEditContainer__'+cid).addClass('open');
     });
     $(document).on('focus', '.textContainer___2EcYJKlD', function(e){
           $(this).addClass('textContainer--focused___3O2vB2yM');
@@ -1239,14 +1258,23 @@ $(document).ready(function(){
         $(this).hide();
         $(textarea).focus();
     });
-/*    $(document).on('blur', 'textarea.AutosizeTextarea__textarea___1LL2IPEy', function(){
-        contents = $(this).val();
-        this_container = $(this).parents('.DescriptionEdit___1FO6wKeX');
-        show_container =  $(this_container).parent().children('.DescriptionShow___3-QsNMNj');
-        $(show_container).text(contents)
-        $(show_container).show();
-        $(this_container).hide();
-    });*/
+    $(document).on('blur', '.AutosizeTextarea__textarea___1LL2IPEy', function(){
+        var contents = $(this).val(),
+            envelope = $(this).closest('.envelope__NkIZUrK4');
+        var fill_level = parseInt($(envelope).attr('boqx-fill-level'));
+        if(contents.length > 0){
+          fill_level = fill_level+1
+          $(envelope).attr('boqx-fill-level',fill_level);
+          $(envelope).find('.TaskShow__title___O4DM7q').text(contents);     
+        }
+        if(contents.length == 0){
+          fill_level = fill_level-1
+          if(fill_level<0)
+               fill_level = 0;          
+          $(envelope).attr('boqx-fill-level',fill_level);
+          $(envelope).find('.TaskShow__title___O4DM7q').text('');
+          }
+    });
     $(document).on("click", ".ServiceShow___3-QsNMNj", function(e) {
         e.preventDefault();
         var edit = $(this).next(".ServiceEdit___1FO6wKeX");
@@ -1261,10 +1289,9 @@ $(document).ready(function(){
         e.preventDefault();
         if($(this).hasClass('disabled')) return;
         var cid  = $(this).data('cid');
-        var edit = $("[data-aid=TaskEdit][data-cid="+cid+"]"),
-            envelope = $('#'+cid);
-        $(edit).show();
+        var envelope = $('#'+cid);
         $(this).hide();
+        $(envelope).children('.TaskEdit___1Xmiy6lz').show();
         $(envelope).attr('data-aid', 'edit');
     });
     $(document).on("click", ".EffortShow_haqOwGZY", function(e) {
@@ -1344,9 +1371,12 @@ $(document).ready(function(){
     $(document).on('click', '.reveal', function(e){
           var cid  = $(this).data('cid'),
               guid = $(this).data('guid'),
-              type = $(this).data('type');
-          var target = $('.boqx.'+type+'[data-guid='+guid+']:not(#'+cid+')');
-          var visible = $(target).children(':not(.collapsed)');
+              type = $(this).data('type'),
+              visible;
+          var target = $('.boqx.'+type+'[data-guid='+guid+']:not(#'+cid+'):not(.quebx-shelf-item):not(.clone)');  //prevent from targeting itself or its representation on the shelf
+          if($(this).closest('.boqx').hasClass('clone'))                                                          //give clones special treatment 
+              target = $('#'+cid+':not(.clone)');                                                                 //prevent from targeting itself if it's a clone
+          visible    = $(target).children(':not(.collapsed)');
           $(visible).addClass('highlight');
           $(visible).focus();
     });
@@ -1531,6 +1561,9 @@ $(document).ready(function(){
         $('div.Item__nhjb4ONn#'+cid).remove();
     });*/ 
     $(document).on('click', 'button.IconButton___4wjSqnXU', function(e){
+    /* Used in:
+     * experiences>add>issue_effort 
+    */
         e.preventDefault();
         var cid        = $(this).data('cid'),
             parent_cid = $(this).data('parent-cid');
@@ -1617,6 +1650,31 @@ $(document).ready(function(){
            },
            success: function(e){
               $(item).remove();
+           }
+        });
+    });
+    
+    $(document).on('click','.unpackItem_DKnVrwM4',function(e){
+/*remove contents from an item
+     used in : .boqx.item .boqx.contents .Item__nhjb4ONn.boqx-item
+ */
+        e.preventDefault();
+        var action      = $(this).data('aid'),
+            item_id     = $(this).data('cid'),
+            boqx_id     = $(this).data('parent-cid');
+        var item        = $('#'+item_id),
+            boqx        = $('#'+boqx_id);
+        var guid        = $(item).data('guid'),
+            aspect      = $(boqx).data('aspect'),
+            essence     = $(boqx).data('essence');                      console.log('essence: '+essence);console.log('guid: '+guid);console.log('aspect: '+aspect);console.log('action: '+action);
+        elgg.action("shelf/pack", {
+           data: {guid     : guid,
+                  aspect   : aspect,
+                  essence  : essence,
+                  action   : action
+           },
+           success: function(e){
+              $(boqx).remove();
            }
         });
     });
@@ -2655,26 +2713,18 @@ $(document).ready(function(){
         cursorAt: { left: 160, top: 28 },
         zIndex: 1050,
         appendTo: "#root",
-        snap:'.dropboqx',
+//        snap:'.dropboqx',
+        snap: false,
         snapMode: 'inner',
        classes: {'ui-draggable':'dragging'},
         helper: function(event){
-//           item         = $(this);
-//           item_guid    = $(this).closest('.boqx').data('guid');
-//           aspect       = $(this).closest('.boqx').data('aspect');
-          icon         = $(this).closest('.boqx').clone().addClass('dragging_item');
-//          icon         = $(item).closest('.boqx').html();
-//          boqx_classes = $(item).closest('.boqx').attr('class');
-          avatar       = icon;
-//          avatar       = "<div class='"+boqx_classes+" dragging_item' data-guid='"+item_guid+"'>"+icon+"</div>";
-//          console.log(avatar);
-          return avatar;
+          return $(this).closest('.boqx').clone().addClass('dragging_item');
        }
     });
     $('.boqx.item').draggable({
        scope: 'things',
     });
-    $('.quebx-shelf-item').draggable({
+/*    $('.quebx-shelf-item').draggable({
          refreshPositions: true,
          revert:false,
          cursor: "move",
@@ -2708,7 +2758,7 @@ $(document).ready(function(){
          classes:{
                'ui-droppable-active': "box-state-highlight"} 
          });
-/*    $('.dropboqx').droppable({
+    $('.dropboqx').droppable({
     	accept: '.quebx-shelf-item',
     	tolerance: "touch",
     	 activate:  function(event, ui){
@@ -2722,7 +2772,7 @@ $(document).ready(function(){
       	        .html( "stopped  " );
       	     }
     });
-*/    $(document).on('dropactivate','.dropboqx', function( event, ui ) {
+    $(document).on('dropactivate','.dropboqx', function( event, ui ) {
     	console.log('+framework.dropboqx.on(dropactivate)');
     	  	var boqx = $(this);
         	var boqx_div = $('.dropboqx');
@@ -2749,7 +2799,7 @@ $(document).ready(function(){
 	        .find( ".dropboqx-dropspot" )
 	        .html( "stopped " );
 	     });
-    $(document).on('click', 'a.elgg-after', function(e){
+*/    $(document).on('click', 'a.elgg-after', function(e){
         $('.qbox-open').droppable({
         	accept: '.quebx-shelf-item',
         	tolerance: "touch",

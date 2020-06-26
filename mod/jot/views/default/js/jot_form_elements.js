@@ -146,16 +146,20 @@ define(function(require) {
             ajax              = new Ajax(),
             cid               = $(this).data('cid'),
             show_service      = true;
-	    var boqx              = $('#'+cid),
-            parent_cid        = $('#'+cid).data('boqx');
+	    var boqx,
+	        parent_cid        = $('#'+cid).data('boqx'),
+            envelope_id       = $('#'+cid).data('envelope'),
+            presence          = $('#'+cid).data('presence');
+	    switch (presence){
+	    	case 'empty boqx' : boqx = $('#'+envelope_id); break;
+    		default           : boqx = $('#'+cid);         break;}            
     	var carton_id         = $(boqx).data('carton'),
 		    guid              = $(boqx).data('guid'),
 		    aspect            = $(boqx).data('aspect'),
-		    presence          = $(boqx).data('presence'),
 		    presentation      = $(boqx).data('presentation'),
+            state             = $(boqx).data('aid'),
 		    perspective       = 'add',
 		    action            = 'add',
-            state             = $(boqx).data('aid'),
             display_state     = 'add';
 		var carton            = $('#'+carton_id);
 		var carton_aspect     = $(carton).data('aspect'),
@@ -179,12 +183,13 @@ define(function(require) {
 				filled_boqxes++;
 		});	                                                                                         console.log('empty_boqxes: '+empty_boqxes);console.log('filled_boqxes: '+filled_boqxes);console.log('state: '+state);
 		switch (carton_aspect){
+		  case 'item' :        handler = 'market';      section = 'single_thing';    perspective = 'edit';      if(filled_boqxes==1) carton_show_title = 'item';      else carton_show_title = 'items';       break;
 		  case 'discoveries':  handler = 'experiences'; section = 'issue_discovery'; snippet = 'discovery';     if(filled_boqxes==1) carton_show_title = 'discovery'; else carton_show_title = 'discoveries'; break;
 		  case 'remedies':     handler = 'experiences'; section = 'issue_remedy';    snippet = 'remedy';        if(filled_boqxes==1) carton_show_title = 'remedy';    else carton_show_title = 'remedies';    break;
 		  case 'issues':       handler = 'experiences'; section = 'issue';                                      if(filled_boqxes==1) carton_show_title = 'issue';     else carton_show_title = 'issues';      break;
 		  case 'parts':        handler = 'transfers';   section = 'boqx_contents';   snippet = 'single_part';   if(filled_boqxes==1) carton_show_title = 'part';      else carton_show_title = 'parts';       break;
 		  case 'efforts':      handler = 'transfers';   section = 'boqx_contents';   snippet = 'single_effort'; if(filled_boqxes==1) carton_show_title = 'effort';    else carton_show_title = 'efforts';     break;
-		  case 'item' :        handler = 'market';      section = 'single_thing';    perspective = 'edit';      if(filled_boqxes==1) carton_show_title = 'item';      else carton_show_title = 'items';       break;
+		  case 'qim' :         handler = 'transfers';   section = 'boqx_contents';   snippet = 'single_thing';  if(filled_boqxes==1) carton_show_title = 'item';      else carton_show_title = 'items';       break;
 		  case 'receipt_item': handler = 'transfers';   section = 'boqx_contents';   snippet = 'single_item';   if(filled_boqxes==1) carton_show_title = 'item';      else carton_show_title = 'items';       break;
 		  case 'receipts':     handler = 'transfers';   section = 'thing_receipt';   snippet = 'receipt';       if(filled_boqxes==1) carton_show_title = 'receipt';   else carton_show_title = 'receipts';    break;
 	   }
@@ -197,7 +202,7 @@ define(function(require) {
 			}                                                                             console.log('handler: '+handler);console.log('section: '+section);console.log('snippet: '+snippet);console.log('parent_cid: '+parent_cid);console.log('carton_aspect: '+carton_aspect);console.log('carton_id: '+carton_id);
 		   ajax.view('partials/jot_form_elements',{
 			   data: {
-				   element: 'conveyor',
+				   element      : 'conveyor',
 				   view         : handler,
 				   action       : action,
 				   perspective  : perspective,
@@ -257,9 +262,38 @@ define(function(require) {
     	   },
 	       }).done(function(output) {
                $(envelope).remove();
-	    	   carton.append($(output));
+               if (presence == 'contents') carton.prepend($(output));
+               else              	       carton.append($(output));
 		       tally   = $(".envelope__NkIZUrK4[data-boqx="+carton_id+"]").length;
 		       $(carton).children('.tally').attr('boqxes', tally);
+		       $('.media_drop').droppable({
+					  	accept: '.boqx.file, .boqx.media',
+					    tolerance: "touch",
+					    over: function(event, ui) {
+					      $(this).addClass('ui-droppable-hover');
+					    },
+					    out: function() {
+					      $(this).removeClass('ui-droppable-hover');
+					    },
+					    drop: function() {
+					      $(this).removeClass('ui-droppable-hover');
+					    }
+				  });
+			    $('.item_drop').droppable({
+					    accept: '.boqx.item',
+					    tolerance: "touch",
+					    greedy:true,
+					    scope: 'things',
+					    over: function(event, ui) {
+					      $(this).addClass('ui-droppable-hover');
+					    },
+					    out: function() {
+					      $(this).removeClass('ui-droppable-hover');
+					    },
+					    drop: function() {
+					      $(this).removeClass('ui-droppable-hover');
+					    }
+				  });
 	       });
     });
 	$(document).on('click', '.disableItem_WCeQcYKQ', function(e){
@@ -281,6 +315,13 @@ define(function(require) {
                }).done(function () {
                });
        }  
+    });
+	$(document).on('click','.IconButton___kmh1IhBB',function(e){
+		  e.preventDefault();
+	      var ajax          = new Ajax(),
+	          this_row      = $(this).closest('.rTableRow'),
+	          this_table    = $(this).closest('rTable');
+	      this_row.remove();    
     });
 	$(document).on('click', '.replace-card, .IconButton___2y4Scyq6, .trashEnvelope_0HziOPGx', function(e){
 		  e.preventDefault();
@@ -924,7 +965,9 @@ define(function(require) {
            $this_panel.hide();
        }
    });
-   $(document).on('click', '.submitBundle_q0kFhFBf, .packCarton_GAz9q0NX', function(e){
+   $(document).on('click', '.submitBundle_q0kFhFBf, .packCarton_GAz9q0NX', function(e){ 
+// Temporarily disable for testing
+//	   return;
 /* submitBundle_q0kFhFBf used in:
  	* forms/transfers/edit  > add  > things_bundle
  	* forms/transfers/edit  > edit > things_bundle
@@ -966,7 +1009,7 @@ define(function(require) {
 	  if($(this).hasClass('submitBundle_q0kFhFBf'))
 		  response = 'submit bundle';
 	  if ($(this).hasClass('packCarton_GAz9q0NX'))
-		  response = 'pack carton';
+		  response = 'pack carton';                                                       console.log('response: '+response);
 	  if (boqx_exists && response == 'submit bundle'){
 		  $(show_boqx).show();
 	      $(this_boqx).remove();
@@ -980,10 +1023,11 @@ define(function(require) {
 	  if (boqx_exists && response == 'pack carton'){
 		  $(this_boqx).addClass('collapsed');
 	      $(header_preview).removeClass('collapsed');
+	      $(header_preview).find('.contentsPreviewItem__collapser').removeClass('.contentsPreviewItem__collapser').addClass('.contentsPreviewItem__expander');
 	      $(preview_titles).text(title);
 	  }
 	  switch(carton_aspect){
-	  case 'q_item':
+	  case 'qim':
 		  cache = $('.BoqxThings__Ei7CMCSo.cache[data-cid='+boqx_id+']');
 		  break;
 	  case 'receipts':
@@ -1010,8 +1054,8 @@ define(function(require) {
 					if(value['ui_response'] == 'create' && ('guid' in value))
 						create.push(value);
 				});
-				$.each(create, function(index,value){                                           console.log('create.'+index + ": " + value );
-					$.each(value, function(index1, value1){                 					console.log('create.'+index1 + ": " + value1 );
+				$.each(create, function(index,value){                                           //console.log('create.'+index + ": " + value );
+					$.each(value, function(index1, value1){                 					//console.log('create.'+index1 + ": " + value1 );
 					});
 					var contents  = value['contents'],
 					    guid      = value['guid'],
@@ -1037,6 +1081,10 @@ define(function(require) {
 			    	   },
 					}).done(function(output){
 						$(cache).append($(output));
+					});
+				});
+				$.each(update, function(index,value){                                           //console.log('update.'+index + ": " + value );
+					$.each(value, function(index1, value1){                 					//console.log('update.'+index1 + ": " + value1 );
 					});
 				});
 			}).success(function(result) {
@@ -2492,6 +2540,8 @@ define(function(require) {
 	  var $boqx_show  = $(item_boqx).children('.Item__nhjb4ONn[data-boqx='+cid+']'),
           $boqx_preview = $(this).closest('header.preview[data-cid='+cid+']');
       var $boqx_exists = $boqx_show.length>0;
+      if($(item_boqx).hasClass('clone'))                                                  //bail if item_boqx is a clone
+    	  return false;
       if($(this).parents('.open-boqx').length>0)
     	  presence    = 'open_boqx';
       if(presence=='open_boqx' && !slot.hasClass('maximized')){
@@ -2519,7 +2569,12 @@ define(function(require) {
 				  },
 			  }).done(function(output){
 				  $(item_boqx).append($(output));
-				   
+				  
+				  var media        = $('.boqx.file, .boqx.media'),
+			          item         = $('.boqx.item'),
+				      media_drop   = $('.media_drop'),
+				      item_drop    = $('.item_drop');
+				  
 				  $('.dropboqx.things').droppable({
 				    	greedy: true,
 				        accept: '.boqx',
@@ -2528,9 +2583,24 @@ define(function(require) {
 					    classes:{
 				           'ui-droppable-active': "box-state-highlight"} 
 					});
-				  $('.media_drop').droppable({
-					    accept: $('.boqx.file, .boqx.media'),
+				  media_drop.droppable({
+					  	accept: media,
 					    tolerance: "touch",
+					    over: function(event, ui) {
+					      $(this).addClass('ui-droppable-hover');
+					    },
+					    out: function() {
+					      $(this).removeClass('ui-droppable-hover');
+					    },
+					    drop: function() {
+					      $(this).removeClass('ui-droppable-hover');
+					    }
+				  });
+				  item_drop.droppable({
+					    accept: item,
+					    tolerance: "touch",
+					    greedy:true,
+					    scope: 'things',
 					    over: function(event, ui) {
 					      $(this).addClass('ui-droppable-hover');
 					    },
@@ -2712,7 +2782,9 @@ define(function(require) {
 	$(function() {
 	  var ajax         = new Ajax(),
           media        = $('.boqx.file, .boqx.media'),
-	      media_drop   = $('.media_drop');
+          item         = $('.boqx.item'),
+	      media_drop   = $('.media_drop'),
+	      item_drop    = $('.item_drop');
 
 	  media_drop.droppable({
 	    accept: media,
@@ -2727,23 +2799,39 @@ define(function(require) {
 	      $(this).removeClass('ui-droppable-hover');
 	    }
 	  });
+	  item_drop.droppable({
+		    accept: item,
+		    tolerance: "touch",
+		    greedy:true,
+		    scope: 'things',
+		    over: function(event, ui) {
+		      $(this).addClass('ui-droppable-hover');
+		    },
+		    out: function() {
+		      $(this).removeClass('ui-droppable-hover');
+		    },
+		    drop: function(event, ui) {
+		      
+		      $(this).removeClass('ui-droppable-hover');
+		    }
+	  });
 	  $(document).on('dropover', '.media_drop', function(e, ui){
 	      $(media_drop).addClass('ready-to-receive');
 	  });
 	  $(document).on('dropout', '.media_drop', function(e, ui){
 	      $(media_drop).removeClass('ready-to-receive');
 	  });
-
 	  $(document).on('drop', '.media_drop', function(e,ui){
 	      var media      = ui.draggable,                                //the dragged boqx
 	          boqx_id    = $(this).data('boqx'),                        //the cid of the drop boqx
 	          cid        = $(this).data('cid'),
+	          carton_id  = $(this).data('carton'),
 	          presence   = $(this).data('presence');
 	      var boqx       = $('#'+boqx_id);
 		  var boqx_guid  = $(boqx).data('guid');                        //the guid of the receiving object
 	      var guid       = $(media).children('a.gallery-popup').data('guid'),
 	          hidden_fields;       
-	      var carton_id  = $(this).closest('.boqx-carton').attr('id');
+//	      var carton_id  = $(this).closest('.boqx-carton').attr('id');
 		  var carton     = $('#'+carton_id),
 		      media_boqx = $('.mediaBoqx_fnBMgIOE[data-carton="'+carton_id+'"]'),
 		      media_envelope = $('.envelope__NkIZUrK4[data-carton="'+carton_id+'"]'),
@@ -2763,7 +2851,7 @@ define(function(require) {
 			    	    }	    		  
 	    	  }).done(function(content, message, forward_url, status_code){
 		    		if(typeof content != 'undefined' && typeof content != 'string'){  
-	    		      guid = $.parseJSON(content['guid']);                   console.log('guid: '+guid);
+	    		      guid = $.parseJSON(content['guid']);                                                          console.log('guid: '+guid);console.log('guid returned: '+guid);
 	    		      hidden_fields = $.parseJSON(content['hidden_fields']); console.log('hidden_fields: '+hidden_fields);
 //	    		      guid = $.parseJSON(content);                   console.log('guid: '+guid);
 		    		  ajax.view('partials/jot_form_elements',{          //send the processed data to the view 'jot_form_elements'
@@ -2790,6 +2878,82 @@ define(function(require) {
 		  if (media.hasClass('file')){
 	      }
 	  });
+	  $(document).on('drop', '.item_drop', function(e,ui){
+		  e.stopPropagation();                                        //prevent the event from propagating to ancestor boqxes
+	      var item      = ui.draggable,                               //the dropped item
+	          boqx_id    = $(this).data('boqx'),                      //the cid of the receiving boqx
+	          cid        = $(this).attr('id'),
+	          carton_id  = $(this).data('carton'),
+	          presence   = $(this).data('presence');
+	      var boqx       = $('#'+boqx_id);
+		  var boqx_guid  = $(boqx).data('guid'),                      //the guid of the receiving object
+	          guid       = $(item).data('guid'),                      //the guid of the dragged item
+	          hidden_fields;       
+//	      var carton_id  = $(this).closest('.boqx-carton').attr('id');
+		  var carton        = $('#'+carton_id),
+		      item_boqx     = $('.contentsAdd_P1C3VSjT[data-carton="'+carton_id+'"]'),
+		      item_envelope = $('.envelope__NkIZUrK4[data-carton="'+carton_id+'"]'),
+		      item_cache    = $('.ItemContents__aXLIZva0.cache[data-cid='+boqx_id+']'),
+		      pieces        = $('.boqx.contents[data-boqx="'+boqx_id+'"]').length;
+		  var contents      = $(carton).data('aspect'),
+		      action        = $(item_envelope).attr('data-aid'),
+		      show_label    = $(item_envelope).find('.TaskShow__title___O4DM7q').text();                               console.log('guid: '+guid);console.log('boqx_guid: '+boqx_guid);console.log('boqx_id: '+boqx_id);console.log('carton_id: '+carton_id);
+	      if (item.hasClass('item')){
+	    	  ajax.action('shelf/pack',{
+			      data: {boqx_guid: boqx_guid,
+			      	     guid     : guid,
+			      	     cid      : cid,
+			    	     aspect   : 'contents',
+			    	     action   : 'pack',
+			    	     presence : presence
+			    	    }	    		  
+	    	  }).done(function(content, message, forward_url, status_code){
+		    		if(typeof content != 'undefined' && typeof content != 'string'){  
+	    		      guid = $.parseJSON(content['guid']);                   console.log('guid: '+guid);
+	    		      hidden_fields = $.parseJSON(content['hidden_fields']); console.log('hidden_fields: '+hidden_fields);
+//	    		      guid = $.parseJSON(content);                   console.log('guid: '+guid);
+		    		  ajax.view('partials/jot_form_elements',{          //send the processed data to the view 'jot_form_elements'
+				         data: {element       : 'conveyor',
+				        	 	view          : 'market',
+                                section       : 'contents_single_piece',
+								guid          : guid,
+								parent_cid    : cid,
+                                display_class : 'collapsed'
+				    	      	},
+						}).done(function(output){
+							$(output).find('.item_drop').droppable({
+									accept: '.boqx.item',
+									tolerance: "touch",
+									greedy:true,
+									scope: 'things',
+									over: function(event, ui) {
+									   $(this).addClass('ui-droppable-hover');
+									},
+									out: function() {
+									   $(this).removeClass('ui-droppable-hover');
+									},
+									drop: function() {
+									   $(this).removeClass('ui-droppable-hover');
+									}
+							});
+							$(item_boqx).after($(output));            //append the output from the view to the end of the item_boqx
+							pieces     = $('.boqx.contents[data-boqx="'+cid+'"]').length;
+							if(pieces == 1) show_label = 'piece'; else show_label = 'pieces';
+							$(item_envelope).attr('boqx-fill-level',pieces);
+							$(item_envelope).find('.TaskShow__qty_7lVp5tl4').text(pieces);
+							$(item_envelope).find('.TaskShow__title___O4DM7q').text(show_label);
+							$(carton).children('.tally').attr('boqxes',pieces);
+							$(item_cache).append(hidden_fields);
+							if(action == 'add' && pieces>0){
+								$(item_envelope).children('.AddSubresourceButton___2PetQjcb').hide();
+								$(item_envelope).children('.TaskShow___2LNLUMGe').show();
+								$(item_envelope).attr('data-aid','show');
+							}
+						});
+		    		}
+	    	  });
+	      }
+	  });
 	});
     $(document).on('click', '.panels .items .pallet_toggle', function(e){
           e.preventDefault();
@@ -2805,15 +2969,17 @@ define(function(require) {
           var min_size = 1900,
               required_size,
               floor_size;
-          var pallet;
+          var slot,
+              pallet;
           var last_slot = $('.slots').children('.slot').size();
 //@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
 //          var last_slot = $('.slots').children('.pallet').size();
           if (boqx == 'shelf') pallet = $('.tc_page_bulk_header');
           else                 pallet = $('#'+cid);
           materialized = pallet.length>0;
-          if (visible && materialized){ 
-              pallet.removeClass('visible');
+          if (visible && materialized){
+        	  slot = pallet.parent();
+              slot.removeClass('visible');
               $(this).parent().removeClass('visible');
               if (boqx == 'shelf') {
             	  $('.tc_page_nav_header').addClass('visible');
@@ -2829,7 +2995,8 @@ define(function(require) {
 			  return;
           }
           if (!visible && materialized) {
-              pallet.addClass('visible');
+        	  slot = pallet.parent();
+              slot.addClass('visible');
               $(this).parent().addClass('visible');
               if (boqx == 'shelf') {
             	  $('.tc_page_nav_header').removeClass('visible');
@@ -2863,8 +3030,20 @@ define(function(require) {
 		         floor_size    = required_size < min_size ? min_size : required_size;
 				 $('.slots').attr('data-slots', slots);
 				 $('.slots').css('width',floor_size);
-//@EDIT - 2020-05-18 - SAJ - Make the new pallet draggable
-				 $(".pallet").draggable({
+				 $('.slot').droppable({                                                                          //make the new slot droppable
+				    accept: ".pallet",
+				    tolerance: "pointer",
+				    over: function(event, ui) {
+				      $(this).addClass('ui-droppable-hover');
+				    },
+				    out: function() {
+				      $(this).removeClass('ui-droppable-hover');
+				    },
+				    drop: function() {
+				      $(this).removeClass('ui-droppable-hover');
+				    }
+				  });
+				 $(".pallet").draggable({                                                                        //@EDIT - 2020-05-18 - SAJ - Make the new pallet draggable
 				    containment: slots,
 				    helper: "clone",
 				    handle: '.tn-PanelHeader__inner___3Nt0t86w',
@@ -2915,19 +3094,106 @@ define(function(require) {
      });
     $(document).on('click', 'a.tn-CloseButton___2wUVKGfh', function(e){
        e.preventDefault();
-       var slot   = $(this).parents('.slot');
-//@EDIT - 2020-03-20 - SAJ - Replacing pallet behaviors with slot behaviors
-//       var pallet   = $(this).parents('.pallet');
-       var slots    = $('.slots'),
-    	   ajax     = new Ajax();
+       var ajax     = new Ajax(),
+		   slots    = $('.slots'),
+		   slots_rev= $('.slot').get().reverse(),
+    	   slot     = $(this).parents('.slot'),
+		   slot_id  = $(this).attr('id'),
+		   slot_no  = $(this).parents('.slot').data('slot'),
+	       pallet   = $(this).parents('.pallet'),
+		   pallet_guid = $(this).parents('.pallet').data('guid');                    console.log('pallet_guid: '+pallet_guid);
+	   var contents = $(pallet).data('contents'),
+	       cloned   = $(pallet).hasClass('cloned'),
+	       is_clone = $(pallet).hasClass('clone'),
+		   clone,
+		   this_slot,
+		   clone_slot_no,
+		   new_slot_no;
        var cid      = slot.attr('id');
-//       var last_slot = $(slots).children('.pallet').size();
        var last_slot = $(slots).children('.slot').size(),
-           handler  = slot.data('contents');
+           handler  = slot.data('contents'),
+		   cloned_pallet = $('.pallet.cloned[data-contents='+contents+']');
        var min_size = 1900,
-           required_size = ((last_slot-1)*400) + 100;
-       var floor_size = required_size < min_size ? min_size : required_size;
-       ajax.view('partials/jot_form_elements',{
+           required_size,
+		   floor_size;
+	   
+	   if(cloned || is_clone){                                                       //treat cloned pallets differently
+		   clone         = $('.pallet.clone[data-contents='+contents+']');           //identify the pallet clone
+		   clone_slot_no = $(clone).parent('.slot').data('slot');                    //identify the slot occupied by the pallet clone
+		   $(cloned_pallet).find('.palletControl_VHr65Izd[data-aid=ClonePallet]').removeClass('disabled');
+		   $(cloned_pallet).removeClass('cloned');
+		   $(clone).parent('.slot').remove();                                        //remove pallet clone slot
+		   slots_rev= $('.slot').get().reverse();
+		   $(slots_rev).each(function(){                                              //move each rightward pallet slot left
+				this_slot   = $(this).attr('data-slot');
+				pallet_guid = $(this).children('.pallet').data('guid');
+				new_slot_no = parseInt(this_slot)-1;                                 //calculate the new slot number
+				if(this_slot > clone_slot_no){
+					elgg.action("pallets/move",{                                      //record the new slot of the moved pallet in the database
+						data: {guid  : pallet_guid,
+							   column: new_slot_no
+						}
+					});
+					$(this).attr('data-slot',new_slot_no);                           //renumber the slot
+				}
+				else return false;				   
+		   });
+		   if(cloned){                                                               //determine whether the pallet is a cloned pallet
+		       slot_no  = $(this).parents('.slot').attr('data-slot');                //determine the current slot number after removing pallet clone
+	           $(slot).remove();                                                     //remove pallet slot
+			   slots_rev= $('.slot').get().reverse();
+			   $(slots_rev).each(function(){                                          //move each rightward pallet left
+					this_slot   = $(this).attr('data-slot'),
+					pallet_guid = $(this).children('.pallet').data('guid');
+				new_slot_no = parseInt(this_slot)-1;                                 //calculate the new slot number
+				if(this_slot > slot_no){
+					elgg.action("pallets/move",{                                      //record the new slot of the moved pallet in the database
+						data: {guid  : pallet_guid,
+							   column: new_slot_no
+						}
+					});
+					$(this).attr('data-slot',new_slot_no);                           //renumber the slot
+				}
+				else return false;				   
+			   });
+		   };
+		   last_slot  = $('.slots').children('.slot').size();
+		   required_size = ((last_slot)*400) + 100
+		   floor_size = required_size < min_size ? min_size : required_size;
+		   slots.attr('data-slots', last_slot);
+		   slots.css('width',floor_size);
+	   }
+	   
+	   if(!cloned && !is_clone)
+		   elgg.action("pallets/remove", {
+			   data: {guid     : pallet_guid
+					},
+			   success: function(e){
+				   slot.remove();
+				   slots_rev= $('.slot').get().reverse();
+				   $(slots_rev).each(function(){
+						this_slot   = $(this).attr('data-slot');
+						pallet_guid = $(this).children('.pallet').attr('data-guid');
+						var new_slot_no = parseInt(this_slot)-1;
+						if(this_slot > slot_no){
+							elgg.action("pallets/move",{
+								data: {guid  : pallet_guid,
+									   column: new_slot_no
+								}
+							});
+							$(this).attr('data-slot',new_slot_no);
+						}
+						else return false;				   
+					   });
+				   last_slot     = $('.slots').children('.slot').size();
+				   required_size = ((last_slot)*400) + 100
+				   floor_size    = required_size < min_size ? min_size : required_size;
+				   slots.attr('data-slots', last_slot);
+				   slots.css('width',floor_size);
+//				   $('li[cid='+cid+']').removeClass('visible');
+			   }
+			});
+/*       ajax.view('partials/jot_form_elements',{
     	   data: {
     		 element       : 'pallet',
     		 handler       : handler,
@@ -2938,7 +3204,7 @@ define(function(require) {
 			   slots.attr('data-slots', last_slot-1);
 			   slots.css('width',floor_size);
 		       $('li[cid='+cid+']').removeClass('visible');
-	       });
+	       });*/
     });
      $(document).on('click', '.tn-AddButton___hGq7Vqlr', function(e){
     	e.preventDefault();
@@ -2978,7 +3244,12 @@ define(function(require) {
 		    	   empty_boqx.append($(output));
 		    	   $('[data-boqx='+target+']').addClass('open').removeClass('collapsed');
     		       stack.addClass('open');
-    		       				   
+    		      
+				  var media        = $('.boqx.file, .boqx.media'),
+			          item         = $('.boqx.item'),
+				      media_drop   = $('.media_drop'),
+				      item_drop    = $('.item_drop');
+				  
 				  $('.dropboqx.things').droppable({
 				    	greedy: true,
 				        accept: '.boqx',
@@ -2986,10 +3257,25 @@ define(function(require) {
 				        scope: 'things',
 					    classes:{
 				           'ui-droppable-active': "box-state-highlight"} 
-					});
-				  $('.media_drop').droppable({
-					    accept: $('.boqx.file, .boqx.media'),
+				  });
+				  media_drop.droppable({
+					  	accept: media,
 					    tolerance: "touch",
+					    over: function(event, ui) {
+					      $(this).addClass('ui-droppable-hover');
+					    },
+					    out: function() {
+					      $(this).removeClass('ui-droppable-hover');
+					    },
+					    drop: function() {
+					      $(this).removeClass('ui-droppable-hover');
+					    }
+				  });
+				  item_drop.droppable({
+					    accept: item,
+					    tolerance: "touch",
+					    greedy:true,
+					    scope: 'things',
 					    over: function(event, ui) {
 					      $(this).addClass('ui-droppable-hover');
 					    },
@@ -3002,6 +3288,118 @@ define(function(require) {
 				  });
 		       });
      });
+     $(document).on('click','.palletActions_D8x8EuHj', function(e){
+    	 $(this).next('.tn-DropdownButton_3N5I43GN').removeClass('collapsed');
+     });
+     $(document).on('click','.tc_scrim',function(e){
+    	 $(	'.tn-DropdownButton_3N5I43GN').addClass('collapsed'); 
+     });
+     $(document).on('click','.palletControl_VHr65Izd',function(e){
+    	 var aid = $(this).data('aid');
+    	 switch(aid){
+    	 	case 'ClonePallet':
+		        var pallet = $(this).parents('.pallet');
+    	 		if($(pallet).hasClass('cloned')||$(pallet).hasClass('clone'))                                  //stop if this pallet has been cloned or is a clone
+		        	break;
+    	 		var slot   = $(this).parents('.slot'),
+    	 		    slot_id= $(this).attr('id'),
+    	 		    slot_no= parseInt($(this).parents('.slot').data('slot'));
+    	 		var slots  = $('.slot').get().reverse(),
+    	 		    new_slot = $(slot).clone(),
+    	 		    new_slot_id = "c"+Math.floor((Math.random()*99999)+1),
+    	 		    this_slot;
+		        var min_size = 1900,
+		            required_size,
+		            floor_size;
+		        var pallet,
+		            pallet_guid,
+		            slot_count;
+    	 		$(slots).each(function(){
+    	 			pallet_guid = $(this).children('.pallet').data('guid');
+    	 			this_slot = parseInt($(this).attr('data-slot'));
+    	 			new_slot_no = this_slot + 1;                                 //calculate the new slot number
+    	 			if(this_slot > slot_no){
+    	 				elgg.action("pallets/move",{                                      //record the new slot of the moved pallet in the database
+							data: {guid  : pallet_guid,
+								   column: new_slot_no
+							}
+						});
+						$(this).attr('data-slot',new_slot_no);                           //renumber the slot
+    	 			}
+    	 			else return false;
+    	 		});
+    	 		slot_count = $('.slots').children('.slot').size();
+    	 		required_size = ((parseInt(slot_count)+1)*400) + 100;
+	            floor_size    = required_size < min_size ? min_size : required_size;
+			    $('.slots').attr('data-slots', parseInt(slot_count)+1);
+			    $('.slots').css('width',floor_size);
+			    $(slot).children('.pallet').addClass('cloned');                                                  //identify this pallet as having been cloned
+			    $(new_slot).children('.pallet').addClass('clone');                                               //identify new pallet as a clone
+			    $(new_slot).attr('id',new_slot_id);                                                              //give the new slot a new id.
+			    $(new_slot).children('.pallet').attr('data-boqx',new_slot_id);                                   //give the new pallet the new id as its boqx.
+			    $(new_slot).find('.empty-boqx').children('.Effort__ATAgsAWL.open').remove()                      //'sterilize' the clone
+			    $(new_slot).find('header.tn-PanelHeader___c0XQCVI7').removeClass('open');                        //forceably close the header
+			    $(new_slot).find('.boqx').addClass('clone');                                                     //identify each cloned boqx as a clone
+    	 		$(new_slot).attr('data-slot',slot_no+1).insertAfter(slot);                                       //give the clone a slot number one greater than this slot. insert the clone after this slot
+    	 		$(new_slot).find('.Item__nhjb4ONn').addClass('collapsed');                                       //collapse any open boqx
+    	 		$(new_slot).find('header.preview').removeClass('collapsed');                                     //expand all previews
+    	 		$(new_slot).droppable({                                                                          //make the new slot droppable
+				    accept: ".pallet",
+				    tolerance: "pointer",
+				    over: function(event, ui) {
+				      $(this).addClass('ui-droppable-hover');
+				    },
+				    out: function() {
+				      $(this).removeClass('ui-droppable-hover');
+				    },
+				    drop: function() {
+				      $(this).removeClass('ui-droppable-hover');
+				    }
+				  });
+    	 		$(".pallet").draggable({                                                                         //make the clone pallet draggable
+				    containment: slots,
+				    helper: "clone",
+				    handle: '.tn-PanelHeader__inner___3Nt0t86w',
+				    axis: "x",
+				    stack: ".pallet",
+				    zIndex: 100,
+	                scroll: true,
+				    start: function() {
+				       $(this).css({
+				         opacity: .5
+				       });
+				    },
+				    stop: function() {
+				      $(this).css({
+				        opacity: 1
+				      });
+				    }
+				  });
+			    $('.boqx').draggable({                                                                           //register all cloned boqxes with the DOM as draggable
+			   	    refreshPositions: true,
+			        revert:"invalid",
+			        snap:true,
+			        disabled: false,
+			        cursor: "default",
+			        cursorAt: { left: 160, top: 28 },
+			        zIndex: 1050,
+			        appendTo: "#root",
+//			        snap:'.dropboqx',
+			        snapMode: 'inner',
+			        classes: {'ui-draggable':'dragging'},
+			        helper: function(event){
+			          icon         = $(this).closest('.boqx').clone().addClass('dragging_item');
+			          avatar       = icon;
+			          return avatar;
+			       }
+			    });
+			    $('.boqx.item').draggable({                                                                       //register all cloned item boqxes with the DOM as draggable
+			       scope: 'things',
+			    });
+    	 		break;
+    	 }
+     });
+     
 	   //Add a new label when one presses the 'comma' key
 	     $(document).on('keydown', 'input.LabelsSearch__input___3BARDmFr', function(e) { 
 	         var keyCode = e.keyCode || e.which; 

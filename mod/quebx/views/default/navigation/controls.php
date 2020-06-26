@@ -24,6 +24,7 @@ $button_class   = ['persistence'];
 $submit_class   = ['button','std','egg'];
 $close_class    = ['button','std'];
 $nav_class      = $action;// $display_state;
+$unpack_class   = 'unpackItem_DKnVrwM4';
 $delete_title   = 'Delete this boqx'.$disabled_label;
 if (elgg_entity_exists($guid)){
     $link       = elgg_get_site_url().get_entity($guid)->getSubtype().'/view/'.$guid;
@@ -65,9 +66,11 @@ $copy_link     = elgg_format_element('button',['type'=>'button','id'=>"story_cop
 $copy_id       = elgg_format_element('button',['type'=>'button','id'=>"story_copy_id_$cid"        ,'class'=>['clipboard_button','hoverable','id','use_click_to_copy'],'title'=>'Copy this ID to the clipboard'.$disabled_label,'data-clipboard-text'=>$guid                 ,'tabindex'=>'-1','disabled'=>$disabled]);
 $show_guid     = elgg_format_element('input' ,['type'=>'text'  ,'id'=>"story_copy_id_value_$cid"  ,'class'=>['id','text_value'],'readonly'=>'','value'=>$guid,'tabindex'=>'-1']);
 $import        = elgg_format_element('button',['type'=>'button','id'=>"receipt_import_button_$cid",'class'=>['import_receipt','hoverable','left_endcap']              ,'title'=>'Import receipt'.$disabled_label                                                            ,'tabindex'=>'-1','disabled'=>$disabled]);
-$clone         = elgg_format_element('button',['type'=>'button','id'=>"story_clone_button_$cid"   ,'class'=>['clone_story','hoverable','left_endcap']                 ,'title'=>'Clone this boqx'.$disabled_label                                                           ,'tabindex'=>'-1','disabled'=>$disabled]);
-$history       = elgg_format_element('button',['type'=>'button','id'=>"story_history_button_$cid" ,'class'=>['history','hoverable','capped']                          ,'title'=>'View the history of this boqx'.$disabled_label                                             ,'tabindex'=>'-1', 'disabled'=>$disabled]);
-$delete        = elgg_format_element('button',['type'=>'button','id'=>"story_delete_button_$cid"  ,'class'=>['delete','hoverable','right_endcap',$delete_class]       ,'title'=>$delete_title,'data-aid'=>$delete_action    ,'data-parent-cid'=>$parent_cid,'data-cid'=>$cid,'tabindex'=>'-1', 'disabled'=>$disabled]);
+$clone         = elgg_format_element('button',['type'=>'button','id'=>"clone_button_$cid"         ,'class'=>['clone_story','hoverable','left_endcap']                 ,'title'=>'Clone this boqx'.$disabled_label                                                           ,'tabindex'=>'-1','disabled'=>$disabled]);
+$history       = elgg_format_element('button',['type'=>'button','id'=>"history_button_$cid"       ,'class'=>['history','hoverable','capped']                          ,'title'=>'View the history of this boqx'.$disabled_label                                             ,'tabindex'=>'-1', 'disabled'=>$disabled]);
+$delete        = elgg_format_element('button',['type'=>'button','id'=>"delete_button_$cid"        ,'class'=>['delete','hoverable','right_endcap',$delete_class]       ,'title'=>$delete_title,'data-aid'=>$delete_action    ,'data-parent-cid'=>$parent_cid,'data-cid'=>$cid,'tabindex'=>'-1', 'disabled'=>$disabled]);
+$unpack        = elgg_format_element('button',['type'=>'button','id'=>"unpack_button_$cid"        ,'class'=>['unpack_item','hoverable','right_endcap',$unpack_class]  ,'title'=>'Unpack from this boqx','data-aid'=>'unpack','data-parent-cid'=>$parent_cid,'data-cid'=>$cid,'tabindex'=>'-1', 'disabled'=>$disabled]);
+$reveal        = elgg_format_element('button',['type'=>'button','id'=>"reveal_button_$cid"        ,'class'=>['reveal_item','hoverable','right_endcap']                ,'title'=>'Unpack from this boqx','data-aid'=>'unpack','data-parent-cid'=>$parent_cid,'data-cid'=>$cid,'tabindex'=>'-1', 'disabled'=>$disabled]);
 $add_effort    = elgg_format_element('button',['type'=>'submit','form'=>$form_id                  ,'class'=>$submit_class                                                                    ,'data-aid'=>'addEffortButton' ,'data-parent-cid'=>$parent_cid,'data-cid'=>$cid, 'data-presence'=>$presence,'value'=>'Add'],'Add');
 $close_effort  = elgg_format_element('button',['type'=>'submit','form'=>$form_id                  ,'class'=>$submit_class                                                                    ,'data-aid'=>'editEffortButton','data-parent-cid'=>$parent_cid,'data-cid'=>$cid, 'data-presence'=>$presence,'data-guid'=>$guid,'value'=>'Close'],'Close');
 $close_boqx    = elgg_format_element('button',[                                                    'class'=>$close_class                                                                     ,'data-aid'=>'closeBoqxButton' ,'data-parent-cid'=>$parent_cid,'data-cid'=>$cid, 'data-presence'=>$presence,'data-guid'=>$guid],'Close');
@@ -85,6 +88,7 @@ if($buttons){
     $clone         = $buttons['clone']     ? $clone         : false;
     $history       = $buttons['history']   ? $history       : false;
     $delete        = $buttons['delete']    ? $delete        : false;
+    $unpack        = $buttons['unpack']    ? $unpack        : false;
     $submit        = elgg_extract('submit',$buttons,true) ? $submit : false;
     
     if (!$cancel_effort) $button_class[] = 'affirmative';
@@ -104,6 +108,7 @@ $nav_controls =
         		$import.
         		$clone.
         		$history.
+                $unpack.
         		$delete)));
 
 echo $nav_controls;

@@ -24,6 +24,8 @@ switch($section){
             $class        = ['media-item'];
             if ($image_guid == $entity->icon)
                $class[]   = 'selected';
+            if(!elgg_entity_exists($image_guid))
+                continue;
             if(get_entity($image_guid)->getSubtype() != 'hjalbumimage')
                 continue;
             $thumbnail    = elgg_view('market/display/gallery',['section'=>'thumbnail','boqx'=>$boqx,'cid'=>$thumbnail_id,'image_guid'=>$image_guid,'entity'=>$entity,'size'=>$size,'origin'=>'market/display/gallery>'.$section]);

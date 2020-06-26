@@ -12,15 +12,19 @@ if (!elgg_instanceof($widget, 'object', 'widget')) {
 	return true;
 }
 //@EDIT 2019-06-22 - SAJ
-$class       = elgg_extract('class', $vars);
-$body_class  = elgg_extract('body_class', $vars, 'full-pallet__stack');
+$class       = elgg_extract('class'      , $vars);
+$body_class  = elgg_extract('body_class' , $vars, 'full-pallet__stack');
 $module_type = elgg_extract('module_type', $vars);
-$parent_cid  = elgg_extract('parent_cid', $vars);                                                            $display .= '20 $parent_cid = '.$parent_cid.'<br>';
+$parent_cid  = elgg_extract('parent_cid' , $vars);                                                            $display .= '20 $parent_cid = '.$parent_cid.'<br>';
+$cid         = elgg_extract('cid'        , $vars, quebx_new_id('c'));
+$module_id   = elgg_extract('module_id'  , $vars, quebx_new_id('c'));
+
 //$parent_cid  = elgg_extract('parent_cid', $vars, quebx_new_id('c'));
 $show_access = elgg_extract('show_access', $vars, true);
-$this_slot   = elgg_extract('this_slot', $vars, $widget->column);                                             $display .= '20 $this_slot = '.$this_slot.'<br>';
+$this_slot   = elgg_extract('this_slot'  , $vars, $widget->column);                                             $display .= '20 $this_slot = '.$this_slot.'<br>';
 $contents_count = elgg_extract('contents_count', $vars, false);
 $presentation = elgg_extract('presentation', $vars, 'pallet');                                              $display .= '23 item_class: '.$vars['item_class'].'<br>';
+$control_options = elgg_extract('control_options', $vars);
 
 if (!($widget instanceof WidgetManagerWidget)) {
 	// need this for newly created widgets (elgg_create_widget returns ElggWidget)
@@ -30,9 +34,7 @@ if (!($widget instanceof WidgetManagerWidget)) {
 	_elgg_invalidate_cache_for_entity($widget->guid);
 	_elgg_invalidate_memcache_for_entity($widget->guid);
 }
-$cid           = quebx_new_id('c');
 $empty_boqx_id = quebx_new_id('c');
-$module_id     = quebx_new_id('c');
 
 elgg_set_config('widget_show_access', $show_access);
 
@@ -59,15 +61,18 @@ $can_edit = $widget->canEdit();
 $widget_header = '';
 if (($widget->widget_manager_hide_header !== 'yes') || $can_edit) {
 	$controls = elgg_view('object/pallet/elements/controls', [
-		'pallet' => $widget,
-		'show_edit' => $can_edit,
+		'pallet'         => $widget,
+		'show_edit'      => $can_edit,
 //@EDIT 2019-06-22 - SAJ
-	    'module_type'=>$module_type,
+	    'module_type'    =>$module_type,
 //@EDIT 2019-11-06 - SAJ
-        'cid' => $module_id,
-	    'target_boqx'=>$empty_boqx_id,
+        'cid'            => $module_id,
+	    'target_boqx'    =>$empty_boqx_id,
 //@EDIT 2019-12-27 - SAJ
 //        'contents_count'=>$contents_count
+        'contents_count' =>$contents_count,
+	    'title'          => $title,
+	    'control_options'=> $control_options,
 	]);
 $contents_tally = $contents_count > 0
                 ? elgg_format_element('span',['class'=>'palletControls__counter'],$contents_count)
@@ -77,11 +82,11 @@ $contents_tally = $contents_count > 0
 	$widget_header = elgg_format_element('div',['class'=>['tn-PanelHeader__inner___3Nt0t86w','tn-PanelHeader__inner--single___3Nq8VXGB']],
 //@EDIT - 2020-03-25 - SAJ - remove elgg classes
 //	$widget_header = elgg_format_element('div',['class'=>['elgg-widget-handle','clearfix','tn-PanelHeader__inner___3Nt0t86w','tn-PanelHeader__inner--single___3Nq8VXGB']],
-                           elgg_format_element('div',['class'=>'tn-PanelHeader_marquis_eYsgHffY'],
-                                $contents_tally.
-                                elgg_format_element('h3',['class'=>['tn-PanelHeader__name___2UfJ8ho9']],
+//                            elgg_format_element('div',['class'=>'tn-PanelHeader_marquis_eYsgHffY'],
+//                                 $contents_tally.
+//                                 elgg_format_element('h3',['class'=>['tn-PanelHeader__name___2UfJ8ho9']],
 //	                       elgg_format_element('h3',['class'=>['elgg-widget-title','tn-PanelHeader__name___2UfJ8ho9']],
-                                    $title)).
+//                                    $title)).
                            $controls);
 	$widget_header .= elgg_format_element('div',['class'=>'tn-PanelHeader__input__xCdUunkH'],
 	                      elgg_format_element('div',['id'=>$empty_boqx_id,'class'=>'empty-boqx', 'data-boqx'=>$module_id],

@@ -66,7 +66,7 @@ $context        = elgg_get_context();
 switch($fill_level){
     case 0: break;
     case 1:
-    case 2:  $points = $fill_level;
+    case 2:  $points = $fill_level; break;
     default: $points = 3;
 }
 $selected = $state == 'selected';
@@ -143,7 +143,8 @@ if ($points  == -1 && $point_scale == 'point_scale_linear'){
 Switch ($aspect){
     case 'thing'     : 
     case 'item'      : unset($estimate,$schedule,$has_tasks,$task_aspect,$estimatable,$point_scale);
-                       $this_aspect ='item';
+                       $this_aspect = 'item';
+                       $type        = 'item';
                        $points      = "-1";
                        $meta_span   = $icon;
     break;
@@ -154,7 +155,8 @@ Switch ($aspect){
     case 'transfer'  :
     case 'experience':
     case 'project'   :
-    case 'issue'     :$this_aspect     = $aspect;
+    case 'issue'     : $this_aspect     = $aspect;
+                       $type            = $aspect;
                        $estimate        = 'estimate_'.$points;
                        $meta_span       = elgg_format_element('span', [], $points);
                        $schedule        = 'unscheduled';
@@ -163,8 +165,9 @@ Switch ($aspect){
                        $estimatable     = true;
                        $point_scale     = 'point_scale_linear';
     break;
-    case 'contents'  : unset($reveal, $selector, $progress,$has_tasks);
+    case 'contents'  : unset($selector, $progress,$has_tasks);
                        $this_aspect     = $aspect;
+                       $type            = 'item';
                        $estimate        = 'estimate_'.$points;
                        if($child_toggle)
                             $meta_span  = $child_toggle;
@@ -178,6 +181,7 @@ Switch ($aspect){
     break;
     case 'accessory'  : unset($reveal, $selector, $progress,$has_tasks);
                        $this_aspect     = $aspect;
+                       $type            = $aspect;
                        $estimate        = 'estimate_'.$points;
                        if($child_toggle)
                             $meta_span  = $child_toggle;
@@ -222,7 +226,7 @@ if($presentation == 'nested'){
                               elgg_view_icon('delete-alt')))));
 }
 
-$reveal = elgg_format_element('a',['class'=>['reveal',$this_aspect,'button'],'data-cid'=>$cid,'data-guid'=>$guid,'data-type'=>$this_aspect,'data-handler'=>$handler, 'tabindex'=>'-1'],
+$reveal = elgg_format_element('a',['class'=>['reveal',$this_aspect,'button'],'data-cid'=>$cid,'data-guid'=>$guid,'data-type'=>$type,'data-handler'=>$handler, 'tabindex'=>'-1'],
               elgg_format_element('span',['class'=>'locator','title'=>'Reveal this item']));
 
 if ($aspect == 'issue') $issue = elgg_format_element('div', ['class'=>"blocker",'data-aid'=>"StoryPreviewBlocker"]);
@@ -245,7 +249,9 @@ $body =
           $edit;
                      $class[]='boqx';
 if($this_aspect)     $class[]=$this_aspect;
-if($presentation)    $class[]=$presentation;
+if($presentation && 
+   $presentation != $this_aspect)
+                     $class[]=$presentation;
 if($has_tasks)       $class[]='has_tasks';
 if($has_description) $class[]='description'; 
 if($has_attachments) $class[]='attachments';
@@ -259,7 +265,8 @@ if($estimatable)     $class[]='is_estimatable';
                      $class[]='not_collapsed';
 if($has_issues)      $class[]='has_issues';
 if($has_contents)    $class[]='has_contents';
-if($boqx_class)      $class[] = $boqx_class;
+if($boqx_class)      $class[]=$boqx_class;
+if($essence)         $class[]=$essence;
 if (shelf_item_is_on_shelf($guid) && $open_state != 'closed'){
                      $class[]='open';
                      $open_attr=$open_state;

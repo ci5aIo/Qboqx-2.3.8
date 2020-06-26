@@ -61,8 +61,8 @@ if (empty($vars['tags']) && isset($vars['entity'])) {
 		$item_class = "$item_class {$vars['item_class']}";
 	}
 	
-//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
-	if ($subtype == 'market' || $subtype == 'item' || $subtype == 'q_item' || !empty($vars['tags'])){
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'qim'
+	if ($subtype == 'market' || $subtype == 'item' || $subtype == 'qim' || !empty($vars['tags'])){
 	
 		$icon_class = elgg_extract('icon_class', $vars);
 		$list_items = '<li><span title = "Attach Labels">' . 

@@ -19,12 +19,13 @@ $visible        = elgg_extract('visible'          , $vars, 'add');
 $has_collapser  = elgg_extract('has_collapser'    , $vars) =='yes' ? true : false;
 $presentation   = elgg_extract('presentation'     , $vars);
 $presence       = elgg_extract('presence'         , $vars);
-$fill_level     = elgg_extract('fill_level'       , $vars, 0);
+$tally          = elgg_extract('tally'            , $vars, false);
+$fill_level     = elgg_extract('fill_level'       , $vars, $tally ?: 0);
 $allow_delete   = elgg_extract('allow_delete'     , $vars, true);
 $form_wrapper   = elgg_extract('form_wrapper'     , $vars, false);
 $display_state  = elgg_extract('display_state'    , $vars);
-$tally          = elgg_extract('tally'            , $vars);
 $origin         = elgg_extract('origin'           , $vars);
+$class_boqx     = (array) elgg_extract('class'    , $vars);
 /**/ 
 $disabled       = $display_state == 'view';
 
@@ -32,6 +33,7 @@ $class_boqx[]     = 'envelope__NkIZUrK4';
 $class_add[]      = 'envelopeWindow__3hpw9wdN';
 $class_edit[]     = 'envelopeWindow__3hpw9wdN';
 $class_show[]     = 'envelopeWindow__3hpw9wdN';
+$class_liner[]    = 'liner';
 $class_qty        = 'TaskShow__qty_7lVp5tl4';
 $class_title      = 'TaskShow__title___O4DM7q';
 $class_total[]    = 'TaskShow__item_total__Dgd1dOSZ';
@@ -312,7 +314,7 @@ $show = $show_boqx ?
     elgg_format_element('div',['class'=>$class_show,'data-aid'=>'TaskShow','data-cid'=>$cid,'style'=>$show_visible],
         elgg_format_element('input',['class'=>'TaskShow__checkbox___2BQ9bNAA','type'=>'checkbox','title'=>'mark task complete','data-aid'=>'toggle-complete','data-focus-id'=>"TaskShow__checkbox--$cid"]).
         elgg_format_element('div',['class'=>['TaskShow__description___3R_4oT7G','tracker_markup_xxx'], 'data-aid'=>'TaskDescription','tabindex'=>'0'],$show_title_span).
-         elgg_format_element('nav',['class'=>['TaskShow__actions___3dCdQMej','undefined','TaskShow__actions--unfocused___3SQSv294']],$delete));
+        elgg_format_element('nav',['class'=>['TaskShow__actions___3dCdQMej','undefined','TaskShow__actions--unfocused___3SQSv294']],$delete));
 
 // if (strlen($show_boqx)>0)
 //     $show = elgg_format_element('div',['class'=>$class_show,'data-aid'=>'TaskShow','data-cid'=>$cid,'style'=>$show_visible],$show_boqx);
@@ -334,7 +336,7 @@ else $edit_boqx = $hidden_fields.$collapser.$info_boqx;
     
 $edit = elgg_format_element('div',['class'=>$class_edit,'data-aid'=>'TaskEdit','data-cid'=>$cid,'style'=>$edit_visible],$edit_boqx);*/
 if($liner)
-    $info_boqx = elgg_format_element('div',['class'=>'liner','data-cid'=>$cid],$info_boqx);
+    $info_boqx = elgg_format_element('div',['class'=>$class_liner,'data-cid'=>$cid],$info_boqx);
 if ($form_wrapper){
     $submit_button = $form_wrapper['body_vars']['submit_button'];
     $form_wrapper['form_vars']['body']= $hidden_fields.$collapser.$info_boqx.$submit_button;

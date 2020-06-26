@@ -12,8 +12,8 @@
 // $marketguid = $vars['marketguid'];
 // $entity     = get_entity($marketguid);
 $entity     = $vars['entity'];
-//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
-if ((elgg_instanceof($entity, 'object', 'market') || elgg_instanceof($entity, 'object', 'q_item')) && !empty($entity->icon)){
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'qim'
+if ((elgg_instanceof($entity, 'object', 'market') || elgg_instanceof($entity, 'object', 'qim')) && !empty($entity->icon)){
     $marketguid = $entity->icon;
 }
 else {

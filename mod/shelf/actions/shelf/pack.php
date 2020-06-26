@@ -8,8 +8,9 @@ $boqx_guid= (int) get_input('boqx_guid');
 $origin   =       get_input('origin');
 $aspect   =       get_input('aspect', $jot['aspect']);
 $section  =       get_input('section');
-$action   =       get_input('action', 'add');
+$action   =       get_input('action', 'pack');
 $presence =       get_input('presence');
+$essence  =       get_input('essence');
 
 Switch ($aspect){
 	case 'item':
@@ -210,22 +211,45 @@ if ($guid){                                           $display .= 'Packing a sin
     $subtype  = $contents->getSubtype();
     $boqx     = get_entity($boqx_guid);
     Switch ($aspect){
-    	case 'content':
-		    $contents->container_guid = $boqx_guid;
-		    $contents->location = $boqx_guid;
-		    if ($contents->save()){
-		        system_message("$contents->title packed into $boqx->title");
-		    } 
-		    if (check_entity_relationship($guid, 'accessory', $boqx_guid)){
-    			remove_entity_relationship($guid, 'accessory', $boqx_guid);
-    		}
-		    if (check_entity_relationship($guid, 'component', $boqx_guid)){
-    			remove_entity_relationship($guid, 'component', $boqx_guid);
-    		}
-    		// Clean-up
-    		remove_entity_relationship($guid, 'component', $guid);                 // can't be a component of itself
-    		remove_entity_relationship($guid, 'accessory', $guid);                 // can't be an accessory of itself
-			    	
+    	case 'contents':
+    	    switch ($action){
+    	        case 'pack':
+        		    $contents->container_guid = $boqx_guid;
+        		    $contents->location = $boqx_guid;
+        		    if ($contents->save()){
+        		        system_message("$contents->title packed into $boqx->title");
+        		    } 
+        		    if (check_entity_relationship($guid, 'accessory', $boqx_guid)){
+            			remove_entity_relationship($guid, 'accessory', $boqx_guid);
+            		}
+        		    if (check_entity_relationship($guid, 'component', $boqx_guid)){
+            			remove_entity_relationship($guid, 'component', $boqx_guid);
+            		}
+            		// Clean-up
+            		remove_entity_relationship($guid, 'component', $guid);                 // can't be a component of itself
+            		remove_entity_relationship($guid, 'accessory', $guid);                 // can't be an accessory of itself
+        
+            		$content['guid'] = $guid;
+                    $hidden[] = ['name'=>"jot[$cid][guid]",'value'=>$guid,'data-guid'=>$guid];
+                    $content['hidden_fields'] = json_encode(quebx_format_elements('hidden',$hidden));//}
+                    return elgg_ok_response(json_encode($content, JSON_HEX_QUOT | JSON_HEX_TAG), '');
+                    break;
+    	        case 'unpack':
+    	            switch($essence){
+    	                case 'realized':
+    	                   $contents->container_guid = $contents->owner_guid;
+    			           $contents->save();        
+    	                   break;
+    	                case 'unrealized':
+                           $subtype_id = (int)get_subtype_id('object', 'qim');
+                           $db_prefix  = elgg_get_config('dbprefix');
+                           update_data("UPDATE {$db_prefix}entities
+                                        SET subtype = $subtype_id WHERE guid = $guid");
+    	                   break;
+    	            }
+    	            
+    	            break;
+    	    }
 		    break;
     	case 'accessory':
     		if ($contents->container_guid == $boqx_guid){ 
@@ -322,6 +346,7 @@ if ($guid){                                           $display .= 'Packing a sin
 // swaps guid_one and guid_two
 // uses default $relationship
     	    switch ($action){
+    	        case 'pack':
     	        case 'add':
                     if (!check_entity_relationship($boqx_guid, $relationship, $guid))
             			add_entity_relationship($boqx_guid, $relationship, $guid);
@@ -335,3 +360,4 @@ if ($guid){                                           $display .= 'Packing a sin
 }
 eof:
 //register_error($display);
+print_r($display);

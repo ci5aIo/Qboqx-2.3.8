@@ -33,7 +33,7 @@ $options = ['type'       => 'object',
             'limit'      => 0,];
 $jot_options = $options;
 unset($jot_options['order_by_metadata']);
-$jot_options['subtype']=['q_item'];
+$jot_options['subtype']=['qim'];
 //$jot_options['subtype']=['market'];
 $jot_options['wheres'] = ["NOT EXISTS (SELECT *
                                        FROM {$dbprefix}metadata md
@@ -58,7 +58,7 @@ $jot_options = $options;
 $jot_options['subtype'] = 'transfer';
 $transfers_count = count(elgg_get_entities_from_metadata($jot_options));
 
-$panel_list_items[]=['title'=>'Things'     , 'class'=>'things'                     , 'name'=>'things'     , 'handler'=>'market'      , 'count'=>$things_count     , 'id'=>'market_'.$space_id       , 'cid'=>quebx_new_id('c')];
+$panel_list_items[]=['title'=>'Things'     , 'class'=>'things'                     , 'name'=>'things'     , 'handler'=>'market'      , 'count'=>$things_count     , 'id'=>'market_'.$space_id       , 'cid'=>quebx_new_id('c'),'control_options'=>['clone']];
 $panel_list_items[]=['title'=>'Experiences', 'class'=>'experiences'                , 'name'=>'experiences', 'handler'=>'experience'  , 'count'=>$experiences_count, 'id'=>'experience_'.$space_id   , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'Issues'     , 'class'=>['blockers','issues']        , 'name'=>'issues'     , 'handler'=>'issue'       , 'count'=>$issues_count     , 'id'=>'issue_'.$space_id        , 'cid'=>quebx_new_id('c')];
 $panel_list_items[]=['title'=>'Albums'     , 'class'=>'albums'                     , 'name'=>'albums'     , 'handler'=>'albums'      , 'count'=>$albums_count     , 'id'=>'albums_'.$space_id       , 'cid'=>quebx_new_id('c')];
@@ -114,11 +114,13 @@ foreach($slot_contents as $key=>$widget){
             $cid            = $panel_item['cid'];                   // grab the $panel_item[cid]
             $panel_list_items[$key1]['visible'] = true;
             $contents_count = $panel_list_items[$key1]['count'];
+            $control_options= $panel_item['control_options'];
             continue;
         }
-    }                                                                       $display .= '114 $item_class = '.$item_class.'<br>114 $cid ='.$cid.'<br>114 $this_slot ='.$widget->slot.'<br>';
+    }                                                                                                       $display .= '114 $item_class = '.$item_class.'<br>114 $cid ='.$cid.'<br>114 $this_slot ='.$widget->slot.'<br>';
     $container_contents[$slots] = elgg_view_entity($widget, ['show_access'    => $show_access,
-        	                                                 'class'          => ['container', 'tn-panelWrapper___fTILOVmk','q-module','q-module-widget'],
+                                                             'control_options'=> $control_options,
+        	                                                 'class'          => ['tn-panelWrapper___fTILOVmk','q-module','q-module-widget'],
                                                              'item_class'     => $item_class,
         //@EDIT - 2020-03-20 - SAJ - Remove widget behaviors.  Replacing with slot and pallet behaviors
         //	                                                 'class'          => ['container', 'tn-panelWrapper___fTILOVmk','q-module','q-module-widget'], 
@@ -126,7 +128,9 @@ foreach($slot_contents as $key=>$widget){
         	                                                 'module_type'    => 'warehouse',
                                                              'widget_id'      => $widget->handler,
                                                              'contents_count' => $contents_count,
-        	                                                 'parent_cid'     => $cid,
+                                                             'parent_cid'     => quebx_new_id('c'),
+//         	                                                 'cid'            => $cid,
+                                                             'module_id'      => $cid,
                                                              'this_slot'      => $widget->slot]);
 }
 if ($container_contents)
@@ -139,7 +143,7 @@ $floor_size    = $required_size < $minimum_size ? $minimum_size : $required_size
 
 foreach($panel_list_items as $panel_item){
     unset($attributes, $text);
-    $cid = elgg_extract('cid', $panel_item, quebx_new_id('c'));
+    $cid              = elgg_extract('cid', $panel_item, quebx_new_id('c'));
     $panel_visibility = $panel_item['visible'] ? ' visible' : ' available';
     foreach($panel_item as $aspect=>$value){
         if ($aspect == 'title') continue;

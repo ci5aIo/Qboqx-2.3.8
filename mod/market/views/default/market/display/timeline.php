@@ -24,8 +24,8 @@ $contents = elgg_get_entities_from_relationship(array(
 ));
 $contents = array_merge($contents, elgg_get_entities(array(
 				'type' => 'object',
-//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
-                'subtypes' => ['market', 'item','q_item'],
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'qim'
+                'subtypes' => ['market', 'item','qim'],
 				'wheres' => array(
 					"e.container_guid = $item_guid",
 				),

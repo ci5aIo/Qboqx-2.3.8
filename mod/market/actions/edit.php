@@ -123,8 +123,8 @@ else {
   else {
     // creating a new market item                                                     //$display .= 'creating a new item...<br>';
     $entity                   = new ElggObject();
-//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
-    $entity->subtype          = 'q_item';
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'qim'
+    $entity->subtype          = 'qim';
 //    $entity->subtype          = 'market';
     $entity->owner_guid       = $user_guid;
 //    $change_category          = true;

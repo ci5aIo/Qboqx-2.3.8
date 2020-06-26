@@ -168,6 +168,7 @@ function quebx_init() {
 	elgg_register_action('q_widgets/move', "{$action_url}q_widgets/move.php");
 	elgg_register_action('q_widgets/delete', "{$action_url}q_widgets/delete.php");
 	elgg_register_action('pallets/move', "{$action_url}pallets/move.php");
+	elgg_register_action('pallets/remove', "{$action_url}pallets/remove.php");
 	
 	elgg_load_library('elgg:quebx');
     elgg_load_library('elgg:quebx:navigation');

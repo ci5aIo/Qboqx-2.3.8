@@ -57,8 +57,8 @@ Switch ($pick['retain_line_label']){
         break;
     case 'create':
         $item = new ElggObject();
-//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
-       $item->subtype = 'q_item';
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'qim'
+       $item->subtype = 'qim';
 //        $item->subtype = 'market';
         $item->owner_guid = $owner_guid;
         $item->title      = $container->title;

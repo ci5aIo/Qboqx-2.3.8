@@ -59,6 +59,7 @@ $owner_guid     = elgg_get_logged_in_user_guid();
 if ($entity){
     $tags  = elgg_extract('markettags', $vars, $entity->gettags());
     $owner = get_entity($entity->owner_guid);
+    $subtype = $entity->getSubtype();
 }
 
 $disabled      = $display_state == 'view';
@@ -69,7 +70,7 @@ foreach($values as $value=>$field){
 //	$display .= $value.'=>'.$field.'<br>';
 }
 //$form .= $display;
-echo "<!--origin=$origin, perspective=$perspective, section=$section, snippet=$snippet, presentation=$presentation, presence=$presence, display_state=$display_state, 'disabled'=>$disabled, submit=$submit, boqx_cid=>$boqx_cid -->";
+echo "<!--origin=$origin, perspective=$perspective, section=$section, snippet=$snippet, presentation=$presentation, presence=$presence, display_state=$display_state, 'disabled'=>$disabled, submit=$submit, boqx_cid=>$boqx_cid, carton_id=>$carton_id -->";
 
 /******************************************************************************************************
  * 
@@ -112,7 +113,7 @@ Switch ($perspective){
 //                         $tabs[]   = ['title'=>'Media'      , 'aspect'=>'media'        , 'section'=>'docs', 'note'=>'Documents, Pictures, Video'          , 'class'=>['qbox-q3'], 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'library'];
                         foreach($tabs as $key=>$tab){
                             unset($content);
-                            $content = elgg_view("forms/market/edit", array_merge($vars, ['section'=>$tab['aspect'], 'parent_cid'=>$parent_cid, 'entity'=>$entity]));
+                            $content = elgg_view("forms/market/edit", array_merge($vars, ['section'=>$tab['aspect'], 'parent_cid'=>$parent_cid, 'guid'=>$guid,'origin'=>'forms/market/edit>'.$perspective.'>'.$section]));
                             $panels[] = ['aspect'=>$tab['aspect'], 'id'=>$tab['data-qid']    , 'class'=>"option-panel ".$tab['aspect']."-option-panel"    , 'content'=> $content];
                             $tabs[$key]['selected'] = $tab['aspect'] == $selected;
                         }
@@ -128,7 +129,7 @@ Switch ($perspective){
                      	$tabs[]   = ['title'=>'Item'       , 'aspect'=>'item'         , 'section'=>'us'  , 'note'=>'Characteristics, Contents, Components, Accessories', 'class'=>['qbox-q3'], 'data-qid'=>quebx_new_id('q'), 'selected'=>$selected == 'family'];
                         foreach($tabs as $key=>$tab){
                             unset($content);
-                            $content = elgg_view("forms/market/edit", array_merge($vars, ['section'=>$tab['aspect'], 'parent_cid'=>$parent_cid, 'entity'=>$entity]));
+                            $content = elgg_view("forms/market/edit", array_merge($vars, ['section'=>$tab['aspect'], 'parent_cid'=>$parent_cid, 'guid'=>$guid,'origin'=>'forms/market/edit>'.$perspective.'>'.$section]));
                             $panels[] = ['aspect'=>$tab['aspect'], 'id'=>$tab['data-qid']    , 'class'=>"option-panel ".$tab['aspect']."-option-panel"    , 'content'=> $content];
                             $tabs[$key]['selected'] = $tab['aspect'] == $selected;
                         }
@@ -172,41 +173,27 @@ Switch ($perspective){
                 
                 break;
                 /****************************************
-*add********** $section = 'item'                       *****************************************************************
+*add********** $section = 'item_xxx'                       *****************************************************************
 				 ****************************************/
-            case 'item':
-                unset($hidden, $hidden_fields);
-                if (!empty($hidden)){                
-                    foreach($hidden as $key=>$field){
-                        $hidden_fields .= elgg_view('input/hidden', $field);}}
+            case 'item_xxx':
+                unset($hidden_fields);
+                $hidden_fields = quebx_format_elements('hidden', $hidden);
                 switch ($snippet){
                     case 'characteristics':
                         
                         break;
                     default:
-                        
+                        $manufacturers         = elgg_get_entities(['type'=>'group','subtype'=>'merchant']);
+        				foreach($manufacturers as $manufacturer)
+        					$manufacturer_guids[] = $manufacturer->getGUID();
+        				
                        	$pick = elgg_view('output/url', array(
                         		'text' => '[pick]',
                         		'class' => 'elgg-lightbox',
                         		'data-colorbox-opts' => '{"width":600, "height":525}',
                        			'href' => "pick_test/family_characteristics/" . $entity->guid));
                        	$pick_menu = "<span title='Select family characteristics'>$pick</span>";
-                       	
-                        $components = elgg_get_entities_from_relationship([
-                        	'type' => 'object',
-                        	'relationship' => 'component',
-                        	'relationship_guid' => $entity->guid,
-                            'inverse_relationship' => true,
-                        	'limit' => false,
-                        ]);
-                        $accessories = elgg_get_entities_from_relationship([
-                        	'type' => 'object',
-                        	'relationship' => 'accessory',
-                        	'relationship_guid' => $entity->guid,
-                            'inverse_relationship' => true,
-                        	'limit' => false,
-                        ]);
-                        if($entity->characteristic_names) $characteristic_names = is_array($entity->characteristic_names) ? $entity->characteristic_names : (array) $entity->characteristic_names;
+                       	if($entity->characteristic_names) $characteristic_names = is_array($entity->characteristic_names) ? $entity->characteristic_names : (array) $entity->characteristic_names;
                         if($entity->characteristic_values) $characteristic_values = is_array($entity->characteristic_values) ? $entity->characteristic_values : (array) $entity->characteristic_values;
                         if($entity->features) $features = is_array($entity->features) ? $entity->features : (array) $entity->features;
                         if($entity->this_characteristic_names) $this_characteristic_names = is_array($entity->this_characteristic_names) ? $entity->this_characteristic_names : (array) $entity->this_characteristic_names;
@@ -255,7 +242,7 @@ Switch ($perspective){
                                     elgg_format_element('div',['class'=>'rTableRow'],
                         				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:30%;padding:0px 5px'],'<b>Manufacturer</b>').
                         				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:70%;padding:0px 5px'],
-                        				    elgg_view('input/text', array('name' => "jot[$cid][manufacturer]", 'value' => $entity->manufacturer, 'placeholder'=>'Manufacturer','disabled'=>$disabled)))).
+                        				    elgg_view('input/grouppicker', array('name' => "jot[$cid][manufacturer]", 'value' => $entity->manufacturer, 'placeholder'=>'Manufacturer','disabled'=>$disabled)))).
                                     elgg_format_element('div',['class'=>'rTableRow'],
                         				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:30%;padding:0px 5px'],'<b>Brand</b>').
                         				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:70%;padding:0px 5px'],
@@ -268,6 +255,10 @@ Switch ($perspective){
                                         elgg_format_element('div',['class'=>'rTableCell','style'=>'width:30%;padding:0px 5px'],'<b>Part #</b>').
                         				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:70%;padding:0px 5px'],
                         				    elgg_format_element('input',['type'=>'text','name' => "jot[$cid][part_no]", 'value' => $entity->part_no, 'placeholder'=>'Part #','disabled'=>$disabled]))).
+                        			elgg_format_element('div',['class'=>'rTableRow'],
+                                        elgg_format_element('div',['class'=>'rTableCell','style'=>'width:30%;padding:0px 5px'],'<b>SKU</b>').
+                        				elgg_format_element('div',['class'=>'rTableCell','style'=>'width:70%;padding:0px 5px'],
+                        				    elgg_format_element('input',['type'=>'text','name' => "jot[$cid][sku]", 'value' => $entity->sku, 'placeholder'=>'SKU','disabled'=>$disabled]))).
                                     $characteristics.
                                     elgg_format_element('div',['class'=>'new_characteristic','data-cid'=>$cid]))).
                             elgg_view('page/elements/envelope',['task'=>'characteristic','action'=>$perspective, 'guid'=>$guid, 'parent_cid'=>$parent_cid,'carton_id'=>$carton_id, 'cid'=>$cid,'visible'=>'add','has_collapser'=>'no', 'hidden_fields'=>$hidden_fields,'presentation'=>$presentation, 'presence'=>$presence]).
@@ -282,7 +273,109 @@ Switch ($perspective){
                 
                 $form = $hidden_fields.$content;
                 break;
-				/****************************************
+                /****************************************
+*add********** $section = 'item'                       *****************************************************************
+				 ****************************************/
+            case 'item':
+				unset($hidden_fields);
+				$characteristics       = [];
+				$features              = [];
+				$characteristic_fields = [];
+				$feature_fields        = [];
+                $hidden_fields         = quebx_format_elements('hidden', $hidden);
+				$class_delete          = 'IconButton___kmh1IhBB';      
+				$class_remove          = 'remove-item';
+
+				$pick                  = elgg_view('output/url', ['text' => '[pick]','class' => 'elgg-lightbox','data-colorbox-opts' => '{"width":600, "height":525}','href' => "pick_test/family_characteristics/" . $entity->guid]);
+				$pick_menu             = "<span title='Select family characteristics'>$pick</span>";
+				$delete         	   = elgg_format_element('button',['class'=>[$class_delete,'IconButton--small___3D375vVd'],'data-aid'=>'delete','aria-label'=>'Delete','data-cid'=>$cid],
+											  elgg_format_element("span",['class'=>$class_remove],
+												  elgg_format_element('a', ['title' =>'remove item'], 
+													  elgg_view_icon('delete-alt'))));   
+
+				if($entity->characteristic_names)       $characteristic_names       = is_array($entity->characteristic_names)       ? $entity->characteristic_names       : (array) $entity->characteristic_names;
+				if($entity->characteristic_values)      $characteristic_values      = is_array($entity->characteristic_values)      ? $entity->characteristic_values      : (array) $entity->characteristic_values;
+				if($entity->features)                   $features                   = is_array($entity->features)                   ? $entity->features                   : (array) $entity->features;
+				if($entity->this_characteristic_names)  $this_characteristic_names  = is_array($entity->this_characteristic_names)  ? $entity->this_characteristic_names  : (array) $entity->this_characteristic_names;
+				if($entity->this_characteristic_values) $this_characteristic_values = is_array($entity->this_characteristic_values) ? $entity->this_characteristic_values : (array) $entity->this_characteristic_values;
+				if($entity->this_features)              $this_features              = is_array($entity->this_features)              ? $entity->this_features              : (array) $entity->this_features;
+				$attribute[] = 'manufacturer';
+				$attribute[] = 'brand';
+				$attribute[] = 'model_no';
+				$attribute[] = 'part_no';
+				$attribute[] = 'sku';
+				
+				if($characteristic_names)
+					foreach($characteristic_names as $key=>$name){
+						if(in_array_recursive($name,$characteristic_fields) || in_array_recursive($name,$attribute)) continue;
+						$characteristic_fields[] = ['name'=>$name, 'type'=>'text','value'=>$characteristic_values[$key]];
+					}
+				if($this_characteristic_names)
+					foreach($this_characteristic_names as $key=>$name){
+						if(in_array_recursive($name,$characteristic_fields) || in_array_recursive($name,$attribute)) continue;
+						$characteristic_fields[] = ['name'=>$name, 'type'=>'text','value'=>$this_characteristic_values[$key]];
+					}
+				if($features)
+					foreach ($features as  $key=>$name){
+						if(in_array_recursive($name,$feature_fields)) continue;
+						$feature_fields[] = ['type'=>'text','value'=>$name];
+					}
+				if($this_features)
+					foreach ($this_features as  $key=>$name){
+						if(in_array_recursive($name,$feature_fields)) continue;
+						$feature_fields[] = ['type'=>'text','value'=>$name];
+					}
+						
+				$attributes[0] = ['name'=>$attribute[0],'value'=>$entity->manufacturer,'type'=>'text'       ,'title'=>'Manufacturer','placeholder'=>'Manufacturer'];
+				$attributes[1] = ['name'=>$attribute[1],'value'=>$entity->brand       ,'type'=>'text'       ,'title'=>'Brand'       ,'placeholder'=>'Brand'];
+				$attributes[2] = ['name'=>$attribute[2],'value'=>$entity->model_no    ,'type'=>'text'       ,'title'=>'Model #'     ,'placeholder'=>'Model #'];
+				$attributes[3] = ['name'=>$attribute[3],'value'=>$entity->part_no     ,'type'=>'text'       ,'title'=>'Part #'      ,'placeholder'=>'Part #'];
+				$attributes[4] = ['name'=>$attribute[4],'value'=>$entity->sku         ,'type'=>'text'       ,'title'=>'SKU'         ,'placeholder'=>'SKU'];
+				
+				foreach($attributes as $field){
+					$placeholder = $field['type'] != 'number' ? $field['title'] : false;
+					$rows[] = elgg_format_element('div',['class'=>'rTableRow'],
+								   elgg_format_element('div',['class'=>'rTableCell','style'=>'width:30%;padding:0px 5px'],$field['title']).
+								   elgg_format_element('div',['class'=>'rTableCell','style'=>'width:70%;padding:0px 5px'],
+									    elgg_format_element('input', ['type'=>$field['type'], 'name' => "jot[$cid][{$field['name']}]", 'value' => $field['value'], 'placeholder'=>$placeholder,'disabled'=>$disabled])));
+				}
+				if($characteristic_fields)
+					foreach($characteristic_fields as $key=>$field)
+						$rows[] = elgg_format_element('div',['class'=>['rTableRow','has_value']],
+									   elgg_format_element('div',['class'=>'rTableCell','style'=>'width:30%;padding:0px 5px'],
+											elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][characteristic_names][]", 'value'=>$field['name'], 'placeholder'=>'Characteristic'])).
+									   elgg_format_element('div',['class'=>'rTableCell','style'=>'width:70%;padding:0px 5px'],
+											elgg_format_element('input', ['type'=>$field['type'], 'name'=>"jot[$cid][characteristic_values][]", 'value'=>$field['value'],'disabled'=>$disabled])).
+									   elgg_format_element('nav',['class'=>['Row__actions__Yhon73Vo','undefined','TaskShow__actions--unfocused___3SQSv294']],$delete));
+				$rows[] = elgg_format_element('div',['class'=>'rTableRow'],
+							   elgg_format_element('div',['class'=>'rTableCell','style'=>'width:30%;padding:0px 5px'],
+									elgg_format_element('input', ['type'=>'text', 'name'=>"jot[$cid][characteristic_names][]", 'placeholder'=>'Characteristic'])).
+							   elgg_format_element('div',['class'=>'rTableCell','style'=>'width:70%;padding:0px 5px'],
+									elgg_format_element('input',['type'=>'text', 'name'=>"jot[$cid][characteristic_values][]", 'placeholder'=>'Value','class' => 'last_characteristic'])));
+				$rows[] = elgg_format_element('div',['class'=>'new_characteristic','data-cid'=>$cid]);
+				if($feature_fields)
+					foreach($feature_fields as $key=>$field)
+						$feature_rows[] = elgg_format_element('div',['class'=>['rTableRow','has_value']],
+        									   elgg_format_element('input', ['type'=>$field['type'], 'name'=>"jot[$cid][features][]", 'value'=>$field['value'],'disabled'=>$disabled]).
+        						               elgg_format_element('nav',['class'=>['Row__actions__Yhon73Vo','undefined','TaskShow__actions--unfocused___3SQSv294']],$delete));
+				$feature_rows[] = elgg_format_element('div',['class'=>'rTableRow'],
+                            		  elgg_format_element('div',['class'=>'rTableCell','style'=>'width:100%'],
+							              elgg_format_element('input', ['type'=>'text', 'name'=>"jot[$cid][features][]",'class'=> 'last_feature','placeholder'=>'Feature'])));
+				$feature_rows[] = elgg_format_element('div',['class'=>'new_feature','data-cid'=>$cid]);
+				$content = elgg_format_element('div',['class'=>'rTable','style'=>'width:100%;margin-top:10px;'],
+							   elgg_format_element('div',['class'=>['rTableBody','itemCharacteristics_Dcl702bW'],'data-cid'=>$cid],
+								   implode('',$rows))).
+                            elgg_view('page/elements/envelope',['task'=>'characteristic','action'=>$perspective, 'guid'=>$guid, 'parent_cid'=>$parent_cid,'carton_id'=>$carton_id, 'cid'=>$cid,'visible'=>'add','has_collapser'=>'no', 'hidden_fields'=>$hidden_fields,'presentation'=>$presentation, 'presence'=>$presence]).
+							elgg_format_element('div',['class'=>'rTable','style'=>'width:100%'],
+        		               elgg_format_element('div',['class'=>['rTableBody','itemFeatures_LU71nPs4'],'id'=>$cid.'_features','data-cid'=>$cid],
+                                   elgg_format_element('div',['class'=>['rTableRow','pin']],
+                                       elgg_format_element('div',['class'=>'rTableCell'],'<b>Features</b>')).
+        		                   implode('',$feature_rows))).
+                            elgg_view('page/elements/envelope',['task'=>'feature','action'=>$perspective, 'guid'=>$guid, 'parent_cid'=>$parent_cid,'carton_id'=>$carton_id, 'cid'=>$cid,'visible'=>'add','has_collapser'=>'no', 'hidden_fields'=>$hidden_fields,'presentation'=>$presentation, 'presence'=>$presence]);
+				
+        		$form = $hidden_fields.$content;
+        		break;
+                /****************************************
 *add********** $section = 'individual'                   *****************************************************************
 				 ****************************************/
             case 'individual':
@@ -452,9 +545,178 @@ Switch ($perspective){
 				 ****************************************/
             case 'contents':
                 unset($hidden, $hidden_fields);
-                
-                $form = $hidden_fields.'Contents';
+				$task   = 'thing';
+				$aspect = 'contents';
+				$params = array_merge($vars,['boqx_id'     => $parent_cid,
+											 'boqx_guid'   => $boqx_guid,
+				                             //'guid'         => 0,
+											 //'parent_cid'   => $cid ?: quebx_new_id('c'),
+											 'parent_cid'   => $parent_cid,
+				                             'cid'          => $cid,
+											 'fill_level'   => '0',
+//											 'perspective'  => 'edit',
+//				                             'section'      => 'item edit',
+				                             'section'      => 'contents add',
+											 'action'       => 'add',
+											 'form_method'  => 'pack',
+											 'presentation' => 'pallet',
+											 'proximity'    => 'in',
+											 'aspect'       => $aspect,
+											 'display_state'=> 'edit',
+				                             'cancel_class' => 'cancelReplace__mw0ODp0p',
+											 'origin'       => 'forms/market/edit>'.$perspective.'>'.$section]);
+				unset($params['guid']);
+				$info_boqx = elgg_view("forms/market/edit",$params);
+				$form      = elgg_view('page/elements/envelope',['class'=>'contentsAdd_P1C3VSjT', 'task'=>$task,'action'=>$action,'has_collapser'=>false, 'guid'=>$guid, 'presentation'=>$presentation, 'presence'=>$presence, 'parent_cid'=>$parent_cid,'envelope_id'=>$envelope_id,'carton_id'=>$carton_id, 'cid'=>$cid, 'qid'=>$qid, 'hidden_fields'=>$hidden_fields, 'info_boqx'=>$info_boqx, 'visible'=>$visible,'origin'=>'forms/market/edit>'.$perspective.'>'.$section.'>'.$snippet]);
+                    
                 break;
+               /****************************************
+*add********** $section = 'contents add'                       *****************************************************************
+               ****************************************/
+            case 'contents add':
+                unset($form_body, $hidden, $hidden_fields);
+                $proximity = elgg_extract('proximity', $vars, 'boqx');
+                $form_method = $presence == 'empty boqx' ? 'stuff' : 'post';
+                $form_method = elgg_extract('form_method', $vars);
+//                 if($origin != 'forms/market/edit>edit>single_thing' && $origin != 'forms/market/edit>add>contents'){
+//                     unset($form_id);
+    				$hidden[] =['name'=>"jot[cid]"                , 'value' => $parent_cid];
+    				$hidden[] =['name'=>"jot[$parent_cid][aspect]", 'value' => 'things'];
+    				$hidden[] =['name'=>"jot[$parent_cid][boqx]"  , 'value' => $boqx_cid ?: '...'];
+    				$hidden[] =['name'=>"jot[$parent_cid][guid]"  , 'value' => $boqx_guid];
+    				$hidden[] =['name'=>"jot[$parent_cid][cid]"   , 'value' => $parent_cid];
+//                }
+                $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
+                $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
+				if($guid)
+					$hidden[] =['name'=>"jot[$cid][guid]"  , 'value' => $guid];
+                $hidden[] =['name'=>"jot[$cid][proximity]" , 'value' => $proximity];
+                $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $aspect    , 'data-focus-id' => "Aspect--{$cid}"];
+                $hidden[] =['name'=>"jot[$cid][contents]"  , 'value' => 'qim'      , 'data-focus-id' => "Contents--{$cid}"];
+                $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => $fill_level, 'data-focus-id' => "FillLevel--{$cid}"];
+                $hidden[] =['name'=>"jot[$cid][sort_order]", 'value' => "$n"       , 'data-focus-id' => "SortOrder--{$cid}"];
+                //$qid_n = "{$cid}_{$n}";
+                $collapser          = elgg_format_element('a',['class'=>'collapser-item', 'id'=>"item_collapser_{$cid}",'data-cid'=>"$cid", 'tabindex'=>'-1', 'style'=>'margin-top:0;']);
+                $view               = 'forms/transfers/edit';
+                $unpack_class       ='';
+                $unpack_title_label = 'Unpack this item';
+                $unpack_label       = 'Unpack item';
+                $clone_class        ='';
+                $delete_class       ='';
+                $cancel_class       = elgg_extract('cancel_class', $vars, 'cancel-pallet');
+                if ($presence == 'empty boqx') $cancel_class='cancelReplace__mw0ODp0p';                
+                switch($aspect){
+                    case 'item':
+                    case 'q_item':
+                    case 'qim':
+                        $unpack_class    = 'selected';
+                        $unpack_toggle   = 1;
+                        $unpack_tag_toggle = 'display:inline;';
+                        $clone_disabled  = 'disabled';
+                        $clone_title_label = ' (disabled)';
+                        $delete_disabled = 'disabled';
+                        $delete_title_label = ' (disabled)';
+                        break;
+                    case 'receipt_item':
+                        $unpack_toggle   = 0;
+                        $unpack_tag_toggle = 'display:none;';
+                        $clone_disabled  = 'disabled';
+                        $clone_title_label = ' (disabled)';
+                        $delete_disabled = 'disabled';
+                        $delete_title_label = ' (disabled)';		                                
+                        break;
+                }
+                if ($unpacked){
+                        $unpack_disabled = 'disabled';
+                        $unpack_title_label = 'Item unpacked';
+                        unset($unpack_label);
+                }
+                $style_add = $style_show = $style_edit = "style='display:none;'";
+                switch ($display_state){case 'add':  unset($style_add);  break;
+    	                                case 'show': unset($style_show); break;
+										case 'view':
+    	                                case 'edit': $style_edit = "style='display:flex;'"; break;}                        
+                $hidden[] =['name'=>"jot[$cid][unpack]"    , 'value' => $unpack_toggle , 'data-focus-id' => "Unpack--{$cid}"];
+                $hidden_fields = quebx_format_elements('hidden', $hidden);
+                if($display_state == 'view')
+					unset($hidden_fields);
+                $unpack_button = elgg_format_element('button',['class'=>['autosaves', 'unpack_item', 'hoverable', 'left_endcap', $unpack_class],
+                                                               'title'=>$unpack_title_label,
+                                                               'id'=>"item_unpack_button_$cid",
+                                                               'data-aid'=>'Unpack',
+                                                               'tabindex'=>'-1',
+                                                                'disabled'=>$unpack_disabled]);
+                $clone_button  = elgg_format_element('button',['class'=>['autosaves', 'clone_item', 'hoverable', 'left_endcap', $clone_class],
+                                                               'title'=>'Clone this item'.$clone_title_label,
+                                                               'id'=>"item_clone_button_$cid",
+                                                               'data-aid'=>'Clone',
+                                                               'tabindex'=>'-1',
+                                                                'disabled'=>$clone_disabled]);
+                $delete_button  = elgg_format_element('button',['class'=>['autosaves', 'delete', 'hoverable', 'right_endcap', $delete_class],
+                                                                'title'=>'Delete this item'.$delete_title_label,
+                                                                'id'=>"item_delete_button_$cid",
+                                                                'data-aid'=>'Delete',
+                                                                'tabindex'=>'-1',
+                                                                 'disabled'=>$delete_disabled]);
+                if ($aspect == 'receipt_item'){
+            	            $section_vars = $vars;
+            	            $section_vars['section'] = 'acquisition details';
+            	            $acquisition_details  = elgg_view('forms/market/edit',$section_vars);
+            	        }
+            	$labels_maker = elgg_view('forms/transfers/edit',[ 
+										  'perspective'   => $perspective,
+										  'section'       =>'labels_maker',
+            	                          'display_state' => $display_state,
+            	                          'parent_cid'    => $parent_cid,
+										  'cid'           => $cid,
+            	                          'entity'        => $entity]);
+				$fieldset    = elgg_format_element('fieldset',['class'=>'name'],
+									 elgg_format_element('div',['class'=>'AutosizeTextarea___2iWScFt6','style'=>'display: flex;'],
+										 elgg_format_element('div',['class'=>'AutosizeTextarea___2iWScFt62','style'=>'flex-basis: 320px;'],
+											 elgg_format_element('div',['class'=>'AutosizeTextarea__container___31scfkZp'],
+												 elgg_format_element('input',['type'=>'text','class'=>['AutosizeTextarea__textarea___1LL2IPEy2',"NameEdit___Mak_{$cid}"],'data-aid'=>'name','value'=>$entity->title, 'tabindex'=>'0','data-focus-id'=>"NameEdit--$cid",'name'=>"jot[$cid][title]",'placeholder'=>'Item name', 'disabled'=>$disabled],
+													  $entity->title)))));
+                $boqx_header = elgg_format_element('section',['class'=>'boqx_header'],
+                                     $collapser.
+									 /**/
+									 $fieldset);
+                $nav_controls             = elgg_view('navigation/controls',['form_method'=>$form_method,'form_id'=>$form_id,'parent_cid'=>$parent_cid,'wrapper_cid'=>$wrapper_cid,'cid'=>$cid,'guid'=>$guid,'action'=>$action,'presentation'=>$presentation,'presence'=>$presence, 'display_state'=>$display_state,'buttons'=>['copy_link'=>true,'copy_id'=>true,'show_guid'=>true,'import'=>false,'clone'=>false,'history'=>false,'delete'=>true,'delete_action'=>'disable','maximize'=>true,'cancel'=>true,'cancel_class'=>$cancel_class,'action'=>true,'submit'=>$submit],'forms/market/edit>'.$perspective.'>'.$section]);
+                $item_details_class       = ['ItemEdit__descriptionContainer___Mr67pXjd',"ItemEditContainer__$cid"];
+                $inventory_details_class  = ['InventoryEdit_descriptionContainer__JCesEC6l',"InventoryEditContainer__$cid"];
+                if($presence == 'empty boqx'){
+                    $item_details_class[] = 'open';
+                }
+				$options                  = ['perspective'=>'edit', 'section'=>'item details','presentation'=>$presentation,'presence'=>$presence, 'display_state'=>$display_state, 'cid'=>$cid];
+				if($guid) $options['guid']= $guid;
+/*                $item_details             = elgg_format_element('div',['class'=>'ShowItemDetails__Uc3MWjrS'],
+                    							elgg_format_element('div',['class'=>'ShowItemDetailsButton__qWXhMy9t','data-cid'=>$cid],
+                    								elgg_format_element('h3',[],elgg_view_icon('settings-alt').' Item Details')).
+                    							elgg_format_element('section',['class'=>$item_details_class],
+                    								elgg_format_element('section',['class'=>['item-properties',"item-properties__$cid"]],
+                    								    elgg_view('forms/market/edit', $options))));
+*/				$options['section']       = 'item inventory';
+                $item_inventory           = elgg_format_element('div',['class'=>'ShowInventoryDetails__Suh7f1o7'],
+                    							elgg_format_element('div',['class'=>'ShowInventoryDetailsButton__7OEGZ2m3','data-cid'=>$cid],
+                    								elgg_format_element('h3',[],elgg_view_icon('settings-alt').' Inventory')).
+                    							elgg_format_element('section',['class'=>$inventory_details_class],
+                    								elgg_format_element('section',['class'=>['item-properties',"item-properties__$cid"]],
+                    								    elgg_view('forms/market/edit', $options))));                
+                $form_vars                  = elgg_extract('form_vars', $vars,['id'=>$form_id,'ajax'=>true,'enctype'=>'multipart/form-data','action'=>'action/jot/edit_pallet']);
+				if($display_state == 'view') unset($hidden_fields);
+    	        $form_vars['body']        = $hidden_fields.
+        				                    $boqx_header.
+        									elgg_format_element('section',['class'=>'ItemLedger__KY8DM3qs'               ,'data-cid'=>$cid],$nav_controls.$acquisition_details.$item_details.$item_inventory).
+        									elgg_format_element('section',['class'=>'ItemLabels__HqGmyX2Y'               ,'data-cid'=>$cid],$labels_maker).
+        									elgg_format_element('section',['class'=>['ItemMedia__Nyaa0xmV','cache']      ,'data-cid'=>$cid]).
+        									elgg_format_element('section',['class'=>['ItemContents__aXLIZva0','cache']   ,'data-cid'=>$cid]).
+        									elgg_format_element('section',['class'=>['ItemIssues__3d5EmH6b','cache']     ,'data-cid'=>$cid]).
+        									elgg_format_element('section',['class'=>['ItemExperiences__yVf0QCHi','cache'],'data-cid'=>$cid]);
+				
+                if($display_state == 'view')
+                     $boqx_contents_edit = $form_vars['body'];
+                else $boqx_contents_edit = elgg_view_form('',$form_vars);
+				$form                    = $boqx_contents_edit;
+				break;
 				/****************************************
 *add********** $section = 'accessory'                      *****************************************************************
 				 ****************************************/
@@ -594,49 +856,82 @@ Switch ($perspective){
 											  elgg_format_element('div', ['class'=>'row'],
 												  "<em>Category</em>".
 												  $boqx_selector)));
-    	        if($presentation=='pallet' || $presentation=='envelope')   unset($nav_controls, $boqx_header);
+    	        if($presentation=='pallet' || $presentation=='envelope' || $presentation == 'contents')   unset($nav_controls, $boqx_header);
     	        $form      = $boqx_header
     	                    .$item_description
     	                    .$nav_controls
     	                    .$item_category
-    	                    .elgg_view('forms/market/edit', ['presentation'=>$presentation, 'presence'=>$presence, 'perspective'=>'add', 'display_state'=>$display_state, 'cid'=>$cid, 'entity'=>$entity]);
+    	                    .elgg_view('forms/market/edit', ['perspective'=>'add', 'presentation'=>$presentation, 'presence'=>$presence, 'display_state'=>$display_state, 'cid'=>$cid, 'guid'=>$guid,'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
+                break;
+               /****************************************
+*edit********** $section = 'item inventory'               *****************************************************************
+               ****************************************/
+            case 'item inventory':
+                $inventory_details_class  = ['InventoryEdit_descriptionContainer__JCesEC6l',"InventoryEditContainer__$cid"];
+                $nav_controls  = elgg_view('navigation/controls',['form_method'=>'post', 'parent_cid'=>$parent_cid,'cid'=>$cid,'guid'=>$guid,'action'=>$perspective,'presentation'=>$presentation,'display_state'=>$display_state,'buttons'=>['copy_link'=>true,'copy_id'=>true,'show_guid'=>true,'import'=>false,'clone'=>false,'history'=>false,'delete'=>true,'maximize'=>true,'cancel'=>true,'action'=>true]]);
+                $boqx_header   = elgg_format_element('section',['class'=>'boqx_header'],
+                                     elgg_format_element('fieldset',['class'=>'name'],
+                                         elgg_format_element('div',['class'=>'AutosizeTextarea___2iWScFt6','style'=>'display: flex;'],
+                                             elgg_format_element('div',['class'=>'AutosizeTextarea___2iWScFt62','style'=>'flex-basis: 100%;'],
+                                                 elgg_format_element('div',['class'=>'AutosizeTextarea__container___31scfkZp'],
+                                                     elgg_format_element('input',['type'=>'text','class'=>['AutosizeTextarea__textarea___1LL2IPEy2',"NameEdit___Mak_{$cid}"],'data-aid'=>'name','value'=>$entity->title, 'tabindex'=>'0','data-focus-id'=>"NameEdit--$cid",'name'=>"jot[$cid][title]",'placeholder'=>'Item name','disabled'=>$disabled],
+                                                          $entity->title))))));
+                $info_boqx     = elgg_view('forms/transfers/edit', ['perspective'=>'add','section'=>'boqx_contents','snippet'=>'inventory','presentation'=>$presentation, 'presence'=>$presence, 'perspective'=>'add', 'display_state'=>$display_state, 'cid'=>$cid, 'guid'=>$guid,'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
+				if($presentation=='pallet' || $presentation=='envelope'){
+				    unset($nav_controls, $boqx_header);
+				    //wrap info_boqx in a cloak when presented within an expandable section 
+				    $info_boqx     = elgg_format_element('section',['class'=>$inventory_details_class],
+                    				  elgg_format_element('section',['class'=>['item-properties',"item-properties__$cid"]],
+                    					   $info_boqx));
+				}
+				elseif ($presentation == 'contents')
+				    unset($nav_controls, $boqx_header);
+				else 
+				    $info_boqx = elgg_view_layout('carton',['cid'=>$cid,'carton_id'=>$carton_id,'aspect'=>'qim','pieces'=>$info_boqx,'title'=>'Inventory']);
+				$form      = $boqx_header
+    	                    .$nav_controls
+    	                    .$info_boqx;
                 break;
                /****************************************
 *edit********** $section = 'item edit'                       *****************************************************************
                ****************************************/
             case 'item edit':
                 unset($form_body, $hidden, $hidden_fields, $id_value);
-                $form_id = elgg_extract('form_id', $vars['form_vars'], quebx_new_id('f'));
+                $proximity = elgg_extract('proximity', $vars, 'boqx');
                 $form_method = $presence == 'empty boqx' ? 'stuff' : 'post';
                 $form_method = elgg_extract('form_method', $vars);
-                if($origin != 'forms/market/edit>edit>single_thing'){
-                    unset($form_id);
+// @EDIT 2020-06-23 - SAJ - Remove condition until the purpose is determined.
+//                if($origin != 'forms/market/edit>edit>single_thing'){
+//                    unset($form_id);
     				$hidden[] =['name'=>"jot[cid]"                , 'value' => $parent_cid];
     				$hidden[] =['name'=>"jot[$parent_cid][aspect]", 'value' => 'things'];
     				$hidden[] =['name'=>"jot[$parent_cid][boqx]"  , 'value' => $boqx_cid ?: '...'];
+    				$hidden[] =['name'=>"jot[$parent_cid][guid]"  , 'value' => $boqx_guid];
     				$hidden[] =['name'=>"jot[$parent_cid][cid]"   , 'value' => $parent_cid];
-                }
+//                }
                 $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
                 $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
                 $hidden[] =['name'=>"jot[$cid][guid]"      , 'value' => $guid];
-                $hidden[] =['name'=>"jot[$cid][proximity]" , 'value' => 'boqx'];
+                $hidden[] =['name'=>"jot[$cid][proximity]" , 'value' => $proximity];
                 $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $aspect    , 'data-focus-id' => "Aspect--{$cid}"];
-                $hidden[] =['name'=>"jot[$cid][contents]"  , 'value' => 'market'   , 'data-focus-id' => "Contents--{$cid}"];
+                $hidden[] =['name'=>"jot[$cid][contents]"  , 'value' => 'qim'      , 'data-focus-id' => "Contents--{$cid}"];
                 $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => $fill_level, 'data-focus-id' => "FillLevel--{$cid}"];
                 $hidden[] =['name'=>"jot[$cid][sort_order]", 'value' => "$n"       , 'data-focus-id' => "SortOrder--{$cid}"];
                 //$qid_n = "{$cid}_{$n}";
-                $collapser = elgg_format_element('a',['class'=>'collapser-item', 'id'=>"item_collapser_{$cid}",'data-cid'=>"$cid", 'tabindex'=>'-1', 'style'=>'margin-top:0;']);
-                $view = 'forms/transfers/edit';
-                $id_value = $guid;
-                $unpack_class='';
+                $collapser          = elgg_format_element('a',['class'=>'collapser-item', 'id'=>"item_collapser_{$cid}",'data-cid'=>"$cid", 'tabindex'=>'-1', 'style'=>'margin-top:0;']);
+                $view               = 'forms/transfers/edit';
+                $id_value           = $guid;
+                $unpack_class       ='';
                 $unpack_title_label = 'Unpack this item';
-                $unpack_label    = 'Unpack item';
-                $clone_class='';
-                $delete_class='';
-                $cancel_class = $presence == 'empty boqx' ? 'cancelReplace__mw0ODp0p' : 'cancel-pallet';
+                $unpack_label       = 'Unpack item';
+                $clone_class        ='';
+                $delete_class       ='';
+                $cancel_class       = elgg_extract('cancel_class', $vars, 'cancel-pallet');
+                if ($presence == 'empty boqx') $cancel_class='cancelReplace__mw0ODp0p';                
                 switch($aspect){
                     case 'item':
                     case 'q_item':
+                    case 'qim':
                         $unpack_class    = 'selected';
                         $unpack_toggle   = 1;
                         $unpack_tag_toggle = 'display:inline;';
@@ -708,9 +1003,10 @@ Switch ($perspective){
                                      $collapser.
 									 /**/
 									 $fieldset);
-                $nav_controls             = elgg_view('navigation/controls',['form_method'=>$form_method,'form_id'=>$form_id,'parent_cid'=>$parent_cid,'wrapper_cid'=>$wrapper_cid,'cid'=>$cid,'guid'=>$guid,'action'=>$action,'presentation'=>$presentation,'presence'=>$presence, 'display_state'=>$display_state,'buttons'=>['copy_link'=>true,'copy_id'=>true,'show_guid'=>true,'import'=>false,'clone'=>false,'history'=>false,'delete'=>true,'delete_action'=>'disable','maximize'=>true,'cancel'=>true,'cancel_class'=>$cancel_class,'action'=>true,'submit'=>$submit],'forms/market/edit>'.$perspective.'>'.$section]);
+                $nav_controls             = elgg_view('navigation/controls',['form_method'=>$form_method,'form_id'=>$form_id,'parent_cid'=>$parent_cid,'wrapper_cid'=>$wrapper_cid,'cid'=>$cid,'guid'=>$guid,'action'=>$action,'presentation'=>$presentation,'presence'=>$presence, 'display_state'=>$display_state,'buttons'=>['copy_link'=>true,'copy_id'=>true,'show_guid'=>true,'import'=>false,'clone'=>false,'history'=>false,'delete'=>true,'delete_action'=>'disable','maximize'=>true,'cancel'=>true,'cancel_class'=>$cancel_class,'action'=>true,'submit'=>$submit],'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
 //                $nav_controls             = elgg_view('navigation/controls',['form_method'=>'post','parent_cid'=>$parent_cid,'cid'=>$cid,'guid'=>$guid,'action'=>$perspective,'presentation'=>$presentation, 'display_state'=>$display_state,'buttons'=>['copy_link'=>true,'copy_id'=>true,'show_guid'=>true,'import'=>false,'clone'=>false,'history'=>false,'delete'=>true,'maximize'=>true,'cancel'=>true,'cancel_class'=>'cancel-pallet','action'=>true,'submit'=>$submit]]);
                 $item_details_class       = ['ItemEdit__descriptionContainer___Mr67pXjd',"ItemEditContainer__$cid"];
+                $inventory_details_class  = ['InventoryEdit_descriptionContainer__JCesEC6l',"InventoryEditContainer__$cid"];
                 if($presence == 'empty boqx'){
                     $item_details_class[] = 'open';
 //                     $info_boqx            = $boqx_header;
@@ -722,12 +1018,16 @@ Switch ($perspective){
                     								elgg_format_element('h3',[],elgg_view_icon('settings-alt').' Item Details')).
                     							elgg_format_element('section',['class'=>$item_details_class],
                     								elgg_format_element('section',['class'=>['item-properties',"item-properties__$cid"]],
-                    								    elgg_view('forms/market/edit', ['presentation'=>$presentation,'presence'=>$presence, 'perspective'=>$perspective, 'display_state'=>$display_state, 'section'=>'item details','cid'=>$cid, 'entity'=>$entity]))));                
-				$form_vars                = elgg_extract('form_vars', $vars,['id'=>$form_id,'ajax'=>true,'name'=>'marketForm','enctype'=>'multipart/form-data','action'=>'action/jot/edit_pallet']);
+                    								    elgg_view('forms/market/edit', ['section'=>'item details','presentation'=>$presentation,'presence'=>$presence, 'perspective'=>$perspective, 'display_state'=>$display_state, 'cid'=>$cid,'guid'=>$guid,'origin'=>'forms/market/edit>'.$perspective.'>'.$section]))));                
+                $item_inventory             = elgg_format_element('div',['class'=>'ShowInventoryDetails__Suh7f1o7'],
+                    							elgg_format_element('div',['class'=>'ShowInventoryDetailsButton__7OEGZ2m3','data-cid'=>$cid],
+                    								elgg_format_element('h3',[],elgg_view_icon('settings-alt').' Inventory')).
+                    							elgg_view('forms/market/edit', ['section'=>'item inventory','presentation'=>$presentation,'presence'=>$presence, 'perspective'=>$perspective, 'display_state'=>$display_state, 'cid'=>$cid,'guid'=>$guid,'origin'=>'forms/market/edit>'.$perspective.'>'.$section]));                
+                $form_vars                  = elgg_extract('form_vars', $vars,['id'=>$form_id,'ajax'=>true,'enctype'=>'multipart/form-data','action'=>'action/jot/edit_pallet']);
 				if($display_state == 'view') unset($hidden_fields);
     	        $form_vars['body']        = $hidden_fields.
         				                    $boqx_header.
-        									elgg_format_element('section',['class'=>'ItemLedger__KY8DM3qs'               ,'data-cid'=>$cid],$nav_controls.$acquisition_details.$item_details).
+        									elgg_format_element('section',['class'=>'ItemLedger__KY8DM3qs'               ,'data-cid'=>$cid],$nav_controls.$acquisition_details.$item_details.$item_inventory).
         									elgg_format_element('section',['class'=>'ItemLabels__HqGmyX2Y'               ,'data-cid'=>$cid],$labels_maker).
         									elgg_format_element('section',['class'=>['ItemMedia__Nyaa0xmV','cache']      ,'data-cid'=>$cid]).
         									elgg_format_element('section',['class'=>['ItemContents__aXLIZva0','cache']   ,'data-cid'=>$cid]).
@@ -772,36 +1072,40 @@ Switch ($perspective){
             case 'contents':
                 $action = 'add';
                 $pieces = 0;
-                if($entity)
-                   	$contents = elgg_get_entities([
-                        'type' => 'object',
-//@EDIT 2020-05-06 - SAJ subtype 'market' changed to 'q_item'
-                   	    'subtypes' => array('q_item', 'item', 'contents'),
-//                   	  'subtypes' => array('market', 'item', 'contents'),
-                        'joins'    => array('JOIN elgg_objects_entity e2 on e.guid = e2.guid'),
-        				'wheres' => array(
-        					"e.container_guid = $entity->guid",
-                            "NOT EXISTS (SELECT *
-                                         from elgg_entity_relationships s1
-                                         WHERE s1.relationship = 'component'
-                                           AND s1.guid_two = e.container_guid)"
-        				),
-                        'order_by' => 'e2.title',
-                        'limit' => false,
-        			]);
-                $add_contents = elgg_view('forms/market/edit',['perspective'=>'add','section'=>'contents']);
-                if (count($contents)>0) {
+                if($entity){
+                    $guid = $entity->getGUID();
+                    $contents = quebx_count_pieces($guid, 'contents','contents');
+                    $tally    = quebx_count_pieces($guid, 'contents','count');
+//                    	$contents = elgg_get_entities([
+//                         'type' => 'object',
+// //@EDIT 2020-05-06 - SAJ subtype 'market' changed to 'q_item'
+//                    	    'subtypes' => array('q_item', 'item', 'contents'),
+// //                   	  'subtypes' => array('market', 'item', 'contents'),
+//                         'joins'    => array('JOIN elgg_objects_entity e2 on e.guid = e2.guid'),
+//         				'wheres' => array(
+//         					"e.container_guid = $guid",
+//                             "NOT EXISTS (SELECT *
+//                                          from elgg_entity_relationships s1
+//                                          WHERE s1.relationship = 'component'
+//                                            AND s1.guid_two = e.container_guid)"
+//         				),
+//                         'order_by' => 'e2.title',
+//                         'limit' => false,
+//         			]);
+                }
+                $item_contents['contents'] = elgg_view('forms/market/edit',['perspective'=>'add','section'=>'contents', 'boqx_guid'=>$guid,'parent_cid'=>$envelope_id,'carton_id'=>$carton_id]);
+//@EDIT 2020-06-11 - SAJ - replacing the hierarchy with nested boqxes
+/*                 if (count($contents)>0) {
                     if($presentation == 'carton')
                         $ul_id = $envelope_id;
                     else $ul_id = $parent_cid;
                     $action = 'edit';
-                    $pieces = count($contents);
-                    $contents_count = 0;
+//                    $pieces = count($contents);
+                    $tally  = quebx_count_pieces($guid, 'contents','count');
                     $contents   = elgg_get_entities(['type'=>'object', 'subtypes'=>ELGG_ENTITIES_ANY_VALUE, 'limit' => false,]);
                     foreach ($contents as $content)
             			$elements[] = ['guid'=> $content->guid,'container_guid'=>$content->container_guid,'title'=> $content->title];
             		foreach ($elements as $element) {
-            		    ++$contents_count;
             		    $id = $element['guid'];
             		    $parent_id = $element['container_guid'];
             		    $data[$id] = $element;
@@ -809,21 +1113,26 @@ Switch ($perspective){
             		}
             		$display_options = ['data'=>$data,'index'=>$index,'aspect'=>'contents', 'parent_id'=>$entity->guid,'parent_cid'=>$ul_id,'ul_class'=>'hierarchy','collapsible'=>true,'collapse_level'=>1,'level'=>0,'links'=>false,'presentation'=>'contents','presence'=>$presence];
             		$item_contents = quebx_display_child_nodes_III($display_options);
+                }*/
+                if($tally>0){
+                    foreach($contents as $content){
+                        $boqx[] = elgg_view('forms/market/edit',['perspective'=>'edit','section'=>'contents_single_piece','parent_cid'=>$envelope_id,'guid'=>$content->getGUID(),'presentation'=>'contents']); 
+                    }
+                    $item_contents['contents'] .= implode('',$boqx);
                 }
-//                else $item_contents = 'Empty';
-//               $form = $item_contents;
                 switch($presentation){
                     case 'carton':
-                        $info_boqx = $add_contents.$item_contents['contents'];
-                        if($pieces==1) $show_title = "1 Item";
-                        if($pieces>1)  $show_title = "$pieces Items";
-                        if($pieces>0)  $visible="show";
+                        $info_boqx    = $item_contents['contents'];
+                        $window_title = $tally==1 ? 'Item' : 'Items';
+                        $show_title   = elgg_format_element('span',['class'=>'TaskShow__qty_7lVp5tl4'], $tally).
+                                           elgg_format_element('span',['class'=>'TaskShow__title___O4DM7q'], $window_title);
+                        if($tally>0 || $display_state == 'view')
+                           $visible   = 'show';
                         if($display_state == 'view'){
-                            $visible = 'show';
-                            $show_title = "$pieces Items";
+                            $visible  = 'show';
                         }
-                        $carton_contents = elgg_view('page/elements/envelope',['task'=>'contents', 'action'=>$action, 'guid'=>$guid, 'parent_cid'=>$parent_cid, 'cid'=>$envelope_id, 'carton_id'=>$carton_id, 'qid'=>$qid, 'hidden_fields'=>$hidden_fields,'show_boqx'=>$show_boqx,'info_boqx'=>$info_boqx,'presentation'=>'contents','presence'=>$presence,'display_state'=>$display_state,'visible'=>$visible,'title'=>$title,'show_title'=>$show_title,'has_collapser'=>'yes','allow_delete'=>false,'tally'=>$pieces]);
-                        $form = elgg_view_layout('carton',['cid'=>$cid,'carton_id'=>$carton_id,'aspect'=>$aspect,'pieces'=>$carton_contents,'title'=>'Contents'] );
+                        $carton_contents = elgg_view('page/elements/envelope',['class'=>'item_drop', 'task'=>'contents', 'action'=>$action, 'guid'=>$guid, 'parent_cid'=>$parent_cid, 'cid'=>$envelope_id, 'carton_id'=>$carton_id, 'qid'=>$qid, 'hidden_fields'=>$hidden_fields,'show_boqx'=>$show_boqx,'info_boqx'=>$info_boqx,'presentation'=>'contents','presence'=>$presence,'display_state'=>$display_state,'visible'=>$visible,'title'=>$title,'show_title'=>$show_title,'has_collapser'=>'yes','allow_delete'=>false,'tally'=>$tally,'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
+                        $form            = elgg_view_layout('carton',['cid'=>$parent_cid,'carton_id'=>$carton_id,'aspect'=>$aspect,'pieces'=>$carton_contents,'title'=>'Contents'] );
                         break;
                     default:
                         $form = $item_contents['contents'];
@@ -831,9 +1140,9 @@ Switch ($perspective){
                 }
                 break;
 				/****************************************
-*edit********** $section = 'contents_edit_boqx'          *****************************************************************
+*edit********** $section = 'contents_single_piece'          *****************************************************************
 				 ****************************************/
-            case 'contents_edit_boqx':
+            case 'contents_single_piece':
                 /**
                  * Show:
                  *   Quantity
@@ -844,15 +1153,124 @@ Switch ($perspective){
                  *   Transfer
                  * 
                  */
-                $essence = elgg_extract('essence', $vars, 'unrealized');
+                $essence          = elgg_extract('essence', $vars, 'unrealized');
+                $edit_id          =  quebx_new_id('c');
+//	            $guid             = $entity->getGUID();
+//                $content = $entity;
+                $tally            = quebx_count_pieces($guid, 'contents','count');
+                $display_options  = [];
+                if ($tally > 0)
+                    $child_toggle = elgg_format_element('span',['class'=>['contentsToggle','contentsExpand_Vs2YepGp'], 'title'=>'expand','data-boqx'=>$parent_cid, 'data-target'=>$child_id],$tally);
+                $display_options  = array_merge($display_options, ['guid'=>$guid,'aspect'=>'contents','boqx_id'=>$parent_cid,'cid'=>$cid,'carton_id'=>$carton_id,'child_toggle'=>$child_toggle,'icon'=>$icon,'has_description'=>isset($entity->description),'has_attachments'=>count($attachments)>0,'has_contents'=>$has_children,'fill_level'=>$tally,'presentation'=>'contents','presence'=>$presence,'mobility'=>'stationary']);
+                $form_version     = 'market/edit';
+                $form_vars        = elgg_extract('form_vars', $vars,['id'=>$form_id,'ajax'=>true,'enctype' => 'multipart/form-data', 'action' => 'action/jot/edit_pallet']);
+                $body_vars        = [];
+                switch($entity->getSubtype()){
+            	    case 'market':
+            	    case 'item':
+            	    case 'qim':
+            	        $display_options['task_aspect']= 'feature';
+            	        $essence  = 'realized';
+            	        break;
+            	}
+            	$display_options['essence']   = $essence;
+                /********* Item *********
+                *************************/
+    	        $section_vars                = array_merge($vars,['section'=>'piece','parent_cid'=>$cid,'cid'=>$edit_id,'guid'=>$guid,'wrapper_cid'=> $boqx_cid,'form_id'=>$form_id,'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
+    	        $boqx_edit                   = elgg_view('forms/'.$form_version,$section_vars);
+    	        
+                /******** Media ******
+                 ************************/
+    	        $section_vars                = array_merge($vars,['section'=>'media','guid'=>$guid,'parent_cid'=>$parent_cid,'cid'=>$cid,'wrapper_cid'=> $boqx_cid,'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
+		        $item_media                  = elgg_view('forms/'.$form_version,$section_vars); 
                 
-                $form = elgg_format_element('div',['id'=>$cid, 'class'=>'collapsed','data-boqx'=>$parent_cid,'data-guid'=>$guid],'Placeholder');
-                $form = "<div id='$cid' class='collapsed' data-boqx='$parent_cid' data-guid='$guid'>
-                             <div>
-                                 <div></div>
-                                 <div>Quantity</div>
-                                 <div></div>";
+                /******** Contents ******
+                 ************************/
+                $section_vars                = array_merge($vars,['section'=>'contents','presentation'=>'carton','presence'=>'contents','parent_cid'=>$edit_id,'form_wrapper'=> ['action'=>'','form_vars'=>$form_vars,'body_vars'=>$body_vars],'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
+                unset($section_vars['cid']);
+    	        if($presence == 'empty boqx')
+                    unset($section_vars['form_wrapper'],$section_vars['carton_id']);
+                $item_contents               = elgg_format_element('section',['class'=>'ItemContents__aXLIZva0','data-cid'=>$edit_id],
+                                                   elgg_view('forms/'.$form_version,$section_vars));
                 
+                /**** Assembled Item  ***
+                 ************************/           
+//             	if ($unpacked) unset($boqx_details_add,$boqx_details_show);
+/*                $boqx_details_edit          = elgg_view('forms/market/edit',[  'perspective'=> 'edit',
+                                                        					   'section'=> 'single_thing',
+                                                        					   'form_method'=> 'pack',
+                                                        					   'parent_cid'=> $parent_cid,
+                                                        					   'guid'=> $guid,
+                                                        					   'aspect'=> 'contents',
+                                                        					   'presentation'=> 'pallet',
+                                                        					   'presence'=> 'pallet']);
+*/             	$boqx_details_edit           = elgg_format_element('section',['class'=>['ItemEdit___7asBc1YY','info_box','free'],'style'=>$style_edit,'data-aid'=>'ItemEdit','data-cid'=>$edit_id],
+         	                                       elgg_format_element('div',['class'=>'ItemEditValue'],/*$hidden_fields.*/$boqx_edit.$item_inventory.$item_media.$item_contents));
+        	    $class                       = ['Item__nhjb4ONn','boqx-item'];
+            	$class[]                     = 'collapsed';
+                $display_options['edit_boqx']= elgg_format_element('div',['id'=>$edit_id,'class'=>$class,'data-guid'=>$guid,'data-boqx'=>$cid,'data-carton'=>$carton_id,'data-aspect'=>$aspect,'data-aid'=>$action,'data-presentation'=>$presentation,'data-presence'=>$presence,'boqx-fill-level'=>'0'], 
+                                                   $boqx_details_add.$boqx_details_show.$boqx_details_edit);
+
+               $form = elgg_view('page/components/pallet_boqx', $display_options);
+                
+                break;
+				/****************************************
+*edit********** $section = 'piece'                  *****************************************************************
+				 ****************************************/
+                case 'piece':
+    				$hidden[] =['name'=>"jot[cid]"                , 'value' => $parent_cid];
+    				$hidden[] =['name'=>"jot[$parent_cid][aspect]", 'value' => 'things'];
+    				$hidden[] =['name'=>"jot[$parent_cid][boqx]"  , 'value' => $boqx_cid ?: '...'];
+    				$hidden[] =['name'=>"jot[$parent_cid][guid]"  , 'value' => $boqx_guid];
+    				$hidden[] =['name'=>"jot[$parent_cid][cid]"   , 'value' => $parent_cid];
+                    $hidden[] =['name'=>"jot[$cid][boqx]"      , 'value' => $parent_cid];
+                    $hidden[] =['name'=>"jot[$cid][cid]"       , 'value' => $cid];
+                    $hidden[] =['name'=>"jot[$cid][guid]"      , 'value' => $guid];
+                    $hidden[] =['name'=>"jot[$cid][proximity]" , 'value' => $proximity];
+                    $hidden[] =['name'=>"jot[$cid][aspect]"    , 'value' => $aspect    , 'data-focus-id' => "Aspect--{$cid}"];
+                    $hidden[] =['name'=>"jot[$cid][contents]"  , 'value' => 'qim'      , 'data-focus-id' => "Contents--{$cid}"];
+                    $hidden[] =['name'=>"jot[$cid][fill_level]", 'value' => $fill_level, 'data-focus-id' => "FillLevel--{$cid}"];
+                    $hidden[] =['name'=>"jot[$cid][sort_order]", 'value' => "$n"       , 'data-focus-id' => "SortOrder--{$cid}"];
+                    $hidden_fields = quebx_format_elements('hidden',$hidden);
+                    $essence       = elgg_extract('essence', $vars, 'unrealized');
+                    $form_method   = 'pack carton';
+					$form_vars     = elgg_extract('form_vars', $vars,['id'=>$form_id,'ajax'=>true,'enctype' => 'multipart/form-data', 'action' => 'action/jot/edit_pallet']);
+                    $boqx_header   = elgg_format_element('section',['class'=>'boqx_header'],
+    					                 elgg_format_element('a',['class'=>'collapser-item', 'id'=>"item_collapser_{$cid}",'data-cid'=>"$cid", 'tabindex'=>'-1', 'style'=>'margin-top:0;']).  
+                                         elgg_format_element('fieldset',['class'=>'name'],
+                                             elgg_format_element('div',['class'=>'AutosizeTextarea___2iWScFt6','style'=>'display: flex;'],
+                                                 elgg_format_element('div',['class'=>'AutosizeTextarea___2iWScFt62','style'=>'flex-basis: 100%;'],
+                                                     elgg_format_element('div',['class'=>'AutosizeTextarea__container___31scfkZp'],
+                                                         elgg_format_element('input',['type'=>'text','class'=>['AutosizeTextarea__textarea___1LL2IPEy2',"NameEdit___Mak_{$cid}"],'data-aid'=>'name','value'=>$entity->title, 'tabindex'=>'0','data-focus-id'=>"NameEdit--$cid",'name'=>"jot[$cid][title]",'placeholder'=>'Item name','disabled'=>$disabled],
+                                                              $entity->title))))));
+                    $nav_controls  = elgg_view('navigation/controls',['form_method'=>$form_method,'form_id'=>$form_id,'parent_cid'=>$parent_cid,'wrapper_cid'=>$wrapper_cid,'cid'=>$cid,'guid'=>$guid,'action'=>$action,'presentation'=>$presentation,'presence'=>$presence, 'display_state'=>$display_state,'buttons'=>['copy_link'=>true,'copy_id'=>true,'show_guid'=>true,'import'=>false,'clone'=>false,'history'=>false,'delete'=>($essence=='unrealized'),'unpack'=>true,'delete_action'=>'disable','maximize'=>false,'cancel'=>false,'cancel_class'=>$cancel_class,'action'=>true,'submit'=>$submit],'forms/market/edit>'.$perspective.'>'.$section]);
+                    /********* Item *********
+                    *************************/
+        	        $item_details_class       = ['ItemEdit__descriptionContainer___Mr67pXjd',"ItemEditContainer__$cid"];
+/*                    $item_details             = elgg_format_element('div',['class'=>'ShowItemDetails__Uc3MWjrS'],
+                        							elgg_format_element('div',['class'=>'ShowItemDetailsButton__qWXhMy9t','data-cid'=>$cid],
+                        								elgg_format_element('h3',[],elgg_view_icon('settings-alt').' Item Details')).
+                        							elgg_format_element('section',['class'=>$item_details_class],
+                        								elgg_format_element('section',['class'=>['item-properties',"item-properties__$cid"]],
+                        								    elgg_view('forms/market/edit', ['section'=>'item details','presentation'=>$presentation,'presence'=>$presence, 'perspective'=>$perspective, 'display_state'=>$display_state, 'cid'=>$cid, 'guid'=>$guid]))));                
+*/                
+                    /******* Inventory*******
+                    *************************/
+        	        $section_vars  = array_merge($vars,['section'=>'item inventory','presentation'=>$presentation,'presence'=>$presence, 'display_state'=>$display_state, 'cid'=>$cid, 'guid'=>$guid]);
+        	        $item_inventory= elgg_view('forms/market/edit',$section_vars);
+                    /******** Labels ********
+                    *************************/
+        	        $labels_maker = elgg_view('forms/transfers/edit',array_merge($vars,['section'=>'labels_maker']));            	        
+					
+        	        $form_vars['body']        = $hidden_fields.
+            				                    $boqx_header.
+            									elgg_format_element('section',['class'=>'ItemLedger__KY8DM3qs'               ,'data-cid'=>$cid],$nav_controls.$item_details.$item_inventory).
+            									elgg_format_element('section',['class'=>'ItemLabels__HqGmyX2Y'               ,'data-cid'=>$cid],$labels_maker).
+            									elgg_format_element('section',['class'=>['ItemMedia__Nyaa0xmV','cache']      ,'data-cid'=>$cid]).
+            									elgg_format_element('section',['class'=>['ItemContents__aXLIZva0','cache']   ,'data-cid'=>$cid]).
+            									elgg_format_element('section',['class'=>['ItemIssues__3d5EmH6b','cache']     ,'data-cid'=>$cid]).
+            									elgg_format_element('section',['class'=>['ItemExperiences__yVf0QCHi','cache'],'data-cid'=>$cid]);
+        	        $form                     = elgg_view_form('',$form_vars);
                 break;
                /****************************************
 *edit********** $section = 'media'                       *****************************************************************
@@ -860,8 +1278,9 @@ Switch ($perspective){
             case 'media':
                 $default_album   = elgg_get_entities_from_metadata(['type'=>'object', 'subtype'=>'hjalbum','owner_guid'=>$owner->guid,'limit'=>1,'metadata values metadata_name_value_pairs'=>['name'=>'default']]);
             	$media_class     = 'media_drop';
+            	$media_count     = 0;
     	        $carton_id       = quebx_new_id('c');
-    	        $form_id         = quebx_new_id('f');
+//    	        $form_id         = quebx_new_id('f');
                 $form_vars       = ['enctype' => 'multipart/form-data', 'action' => 'action/shelf/upload','id'=>$form_id];
                 $submit_class[]  ='dropZone__uNpSdLP4';
                 $submit_button   = elgg_format_element('button',['type'=>'submit','form'=>$form_id,'class'=>$submit_class,'data-aid'=>'addEffortButton' ,'data-parent-cid'=>$parent_cid,'data-cid'=>$cid, 'data-presence'=>$presence,'value'=>'Add'],'Add');
@@ -871,9 +1290,9 @@ Switch ($perspective){
                     $action = 'edit';
                     $entity        = get_entity($guid);
                     $image_guids   = (array)$entity->images;
-                    $image_guids[] = $entity->icon;
-                    $image_guids   = array_unique(array_filter($image_guids));
-                    $media_count   = count($image_guids);   
+                    $image_guids[] = $entity->icon;                                                          //echo "<!-- icon: {$entity->icon}-->";
+                    $image_guids   = array_unique(array_filter($image_guids));                               //echo "<!-- images: ".elgg_dump($image_guids)." -->";
+                    $media_count   = count($image_guids);                                                         
                     $hidden[] = ['name'=>"jot[$cid][guid]",'value'=>$guid];
     	        }
                 $media_output  = elgg_view('market/display/gallery',['entity'=>$entity,'image_guids'=>$image_guids, 'boqx'=>$cid,'carton_id'=>$carton_id,'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
@@ -901,7 +1320,7 @@ Switch ($perspective){
 										 elgg_format_element('div',['class'=>'AutosizeTextarea___2iWScFt6'],
 											 elgg_format_element('div',['class'=>'AutosizeTextarea__container___31scfkZp'],
 												 elgg_view('input/gallery/filedrop', ['container_guid'=>$default_album[0]->getGUID(), 'default-message'=>'<strong>Drop files here</strong><br /><span>or click to select from your computer</span>','max'=>25,'accept'=>'image/*, video/*, application/vnd.*, application/pdf, text/plain','multiple'=>true,'compact'=>true,'style'=>'padding:0;']))))))));
-				$media_input[] = elgg_format_element('section',['class'=>['ItemMedia__Nyaa0xmV',$media_class],'data-cid'=>$cid,'data-carton'=>$carton_id,'data-presence'=>$presence],
+				$media_input[] = elgg_format_element('section',['class'=>['ItemMedia__Nyaa0xmV',$media_class],'data-boqx'=>$cid,'data-cid'=>$cid,'data-carton'=>$carton_id,'data-presence'=>$presence],
 //				$media_input[] = elgg_format_element('section',['class'=>['ItemMedia__Nyaa0xmV',$media_class],'data-boqx'=>$parent_cid,'data-cid'=>$cid,'data-carton'=>$carton_id,'data-presence'=>$presence],
 									elgg_view('page/elements/envelope',['task'=>'media','action'=>$action,'guid'=>$guid,'parent_cid'=>$cid,'hidden_fields'=>$hidden_fields,'form_wrapper'=> ['action'=>'','form_vars'=>$form_vars,'body_vars'=>$body_vars],'info_boqx'=>$media_info_boqx,'show_boqx'=>$media_thumb,'presentation'=>$presentation, 'presence'=>$presence, 'visible'=>'add', 'has_collapser'=>'yes','fill_level'=>'open','origin'=>'forms/market/edit>'.$perspective.'>'.$section.'>'.$snippet]));
 				$form          = elgg_view_layout('carton',['cid'=>$cid,'carton_id'=>$carton_id,'aspect'=>'media','pieces'=>$media_input,'title'=>'Media','tally'=>$pieces]);
@@ -910,7 +1329,7 @@ Switch ($perspective){
 *edit********** $section = 'single_thing'                       *****************************************************************
                ****************************************/
             case 'single_thing':                                                                  $display.= "guid=$guid, perspective=$perspective, section=$section, snippet=$snippet, presentation=$presentation, presence=$presence, submit=$submit";
-                $hidden_fields                  = elgg_extract('hidden', $vars,'');
+                $hidden_fields         = elgg_extract('hidden', $vars,'');
                 unset($vars['hidden']);
                 switch($presentation){
                     case 'open_boqx':
@@ -958,15 +1377,15 @@ Switch ($perspective){
 //														'enctype' => 'multipart/form-data', 
 //														'action' => 'action/jot/edit_pallet']);
 //                     	$boqx_details_edit = elgg_view_form($form_version,$form_vars,$section_vars);
-            	        $section_vars                = array_merge($vars,['parent_cid'=> $parent_cid,'cid'=>$cid,'wrapper_cid'=> $boqx_cid,'section'=>'item edit','origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
+            	        $section_vars                = array_merge($vars,['section'=>'item edit','parent_cid'=> $parent_cid,'cid'=>$cid,'carton_id'=>$carton_id,'wrapper_cid'=> $boqx_cid,'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
             	        $boqx_edit                   = elgg_view('forms/'.$form_version,$section_vars);
                         
                         /******** Media ******
                          ************************/
                         $form_version                = 'market/edit';
-            	        $section_vars                = array_merge($vars,['parent_cid'=> $parent_cid,'cid'=>$cid,'wrapper_cid'=> $boqx_cid,'section'=>'media','origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
+            	        $section_vars                = array_merge($vars,['section'=>'media','parent_cid'=>$parent_cid,'cid'=>$cid,'wrapper_cid'=> $boqx_cid,'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
 				        $item_media                  = elgg_view('forms/'.$form_version,$section_vars); 
-                        unset($carton_id);
+//                        unset($carton_id);
                         
                         /******** Contents ******
                          ************************/
@@ -974,11 +1393,24 @@ Switch ($perspective){
                         $form_version                = 'market/edit';
                         $form_vars                   = ['enctype' => 'multipart/form-data', 'action' => 'action/jot/edit_pallet'];
                         $body_vars                   = [];
-                        $section_vars                = array_merge($vars,['section'=> 'contents','presentation'=>'carton','presence'=>'contents','parent_cid'=>$cid,'form_wrapper'=> ['action'=>'','form_vars'=>$form_vars,'body_vars'=>$body_vars],'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
+                        $section_vars                = array_merge($vars,['section'=>'contents','presentation'=>'carton','presence'=>'contents','parent_cid'=>$cid,'form_wrapper'=> ['action'=>'','form_vars'=>$form_vars,'body_vars'=>$body_vars],'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
                         unset($section_vars['cid']);
             	        if($presence == 'empty boqx')
                             unset($section_vars['form_wrapper'],$section_vars['carton_id']);
                         $item_contents               = elgg_format_element('section',['class'=>'ItemContents__aXLIZva0','data-cid'=>$cid],
+                                                           elgg_view('forms/'.$form_version,$section_vars));
+                        
+                        /******** Attachments ******
+                         ************************/
+
+                        $form_version                = 'market/edit';
+                        $form_vars                   = ['enctype' => 'multipart/form-data', 'action' => 'action/jot/edit_pallet'];
+                        $body_vars                   = [];
+                        $section_vars                = array_merge($vars,['section'=>'attachments','presentation'=>'carton','presence'=>'contents','parent_cid'=>$cid,'form_wrapper'=> ['action'=>'','form_vars'=>$form_vars,'body_vars'=>$body_vars],'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
+                        unset($section_vars['cid']);
+            	        if($presence == 'empty boqx')
+                            unset($section_vars['form_wrapper'],$section_vars['carton_id']);
+                        $item_attachments_xxx           = elgg_format_element('section',['class'=>'ItemContents__aXLIZva0','data-cid'=>$cid],
                                                            elgg_view('forms/'.$form_version,$section_vars));
                         
                         /******** Issues ********
@@ -987,10 +1419,10 @@ Switch ($perspective){
                         $form_version                = 'experiences/edit';
                         $form_vars                   = ['enctype' => 'multipart/form-data', 'action' => 'action/jot/edit_pallet'];
                         $body_vars                   = [];
-                        $section_vars                = array_merge($vars,['action'=> $perspective,'section'=> 'issues','aspect'=>'issues','presentation'=>'carton','presence'=>'contents','container_guid'=>$guid,'parent_cid'=>$cid,'form_wrapper'=> ['action'=>'','form_vars'=>$form_vars,'body_vars'=>$body_vars],'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
+                        $section_vars                = array_merge($vars,['action'=> $perspective,'section'=> 'issues','aspect'=>'issues','presentation'=>'carton','presence'=>'contents','container_guid'=>$guid,'cid'=>$cid,'form_wrapper'=> ['action'=>'','form_vars'=>$form_vars,'body_vars'=>$body_vars],'origin'=>'forms/market/edit>'.$perspective.'>'.$section]);
                         if($presence == 'empty boqx')
                             unset($section_vars['form_wrapper']);
-                        unset($section_vars['perspective'],$section_vars['cid'],$section_vars['carton_id'], $section_vars['form_method']);
+                        unset($section_vars['perspective'],$section_vars['parent_cid'],$section_vars['carton_id'], $section_vars['form_method']);
 //                        $section_vars                = array_merge($section_vars, ['form_method' => 'post']);
                         $item_issues                 = elgg_format_element('section',['class'=>'ItemIssues__3d5EmH6b','data-cid'=>$cid],
                                                            elgg_view('forms/'.$form_version,$section_vars));
@@ -1014,11 +1446,12 @@ Switch ($perspective){
                     
                     	if ($unpacked) unset($boqx_details_add,$boqx_details_show);
                     	$boqx_details_edit           = elgg_format_element('section',['class'=>['ItemEdit___7asBc1YY','info_box','free'],'style'=>$style_edit,'data-aid'=>'ItemEdit','data-cid'=>$cid],
-                	                                       elgg_format_element('div',['class'=>'ItemEditValue'],/*$hidden_fields.*/$boqx_edit.$item_media.$item_contents.$item_issues.$item_experiences));
+                	                                       elgg_format_element('div',['class'=>'ItemEditValue'],/*$hidden_fields.*/$boqx_edit.$item_media.$item_contents.$item_attachments.$item_issues.$item_experiences));
                 	    $class                       = ['Item__nhjb4ONn','boqx-item'];
                     	if ($display_class)
                     	    $class[]                 = $display_class;
-                        $single_thing                = elgg_format_element('div',['id'=>$cid,'class'=>$class,'data-guid'=>$guid,'data-boqx'=>$boqx_cid,'data-aspect'=>$aspect,'data-aid'=>$action,'data-presentation'=>$presentation,'data-presence'=>$presence,'boqx-fill-level'=>'0'], $boqx_details_add.$boqx_details_show.$boqx_details_edit);
+                        $single_thing                = elgg_format_element('div',['id'=>$cid,'class'=>$class,'data-guid'=>$guid,'data-boqx'=>$boqx_cid,'data-envelope'=>$envelope_id,'data-aspect'=>$aspect,'data-aid'=>$action,'data-presentation'=>$presentation,'data-presence'=>$presence,'boqx-fill-level'=>'0'], 
+                                                                                  $boqx_details_add.$boqx_details_show.$boqx_details_edit);
         		                        
                        $form = $single_thing;
                        break;

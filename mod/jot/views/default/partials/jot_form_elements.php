@@ -1189,8 +1189,8 @@ register_error($display);
 	            break;
 	    }
 	    break;
+//pass-through request
 	case 'conveyor':
-	    $creation              = $params['creation'];                                     $display = print_r($creation, true);
 	    $form_body = elgg_view("forms/{$view}/edit",$vars);
 	    break;
 	case 'show boqx':
@@ -1198,30 +1198,31 @@ register_error($display);
 	    unset($params['cid']);
 	    
 	    Switch ($subtype){
-//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
-	        case 'q_item'    :
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'qim'
+	        case 'qim'    :
 	        case 'market'    : 
-            case 'item'      : $view = 'market';
+            case 'item'      : $view                    = 'market';
                                $params['perspective']   = 'edit';// $presentation == 'nested' ? 'view' : 'edit';  // when $presentation is 'nested', the perspective should be 'view'.  Otherwise, the perspective should be 'edit' 
                         	   $params['section']       = 'single_thing';
                         	   $params['presentation']  = 'pallet';// $presentation ?: 'pallet'; // default to 'pallet' when $presentation is null
-                        	   $params['aspect']        = 'q_item';
+                        	   $params['aspect']        = 'qim';
                         	   $params['display_state'] = $presentation == 'nested' ? 'view' : 'edit';  // when $presentation is 'nested', the display state should be 'view'.  Otherwise, the display state should be 'edit'
                         	   $params['submit']        = $presence != 'carton';// when presence == 'carton', cancel/close buttons are not available from 'navigation/controls'
-            break;
+                unset ($params['boqx_cid']);
+                break;
             case 'receipt'   : 
             case 'transfer'  : $view = 'transfers';
-            break;
+                break;
             case 'experience': $view   = 'experiences';
                                $params = array_merge($params,['action'=>'add','section'=>'single_experience','presentation'=>'pallet','presence'=>'experience boqx','visible'=>'show']);
-            break;
+                break;
             case 'project'   : $view = 'experiences';
-            break;
+                break;
             case 'issue'     : $view   = 'experiences';
                                $params = array_merge($params,['action'=>'add','section'=>'issue','presentation'=>'pallet'/*,'presence'=>'issue boqx'*/,'visible'=>'show']);            
-            break;
+                break;
             default          : $view   = 'market';
-                               $params = array_merge($params,['perspective'=>'edit','section'=>'single_thing','presentation'=>'pallet','aspect'=>'q_item','display_state'=>$presentation == 'nested' ? 'view' : 'edit']);
+                               $params = array_merge($params,['perspective'=>'edit','section'=>'single_thing','presentation'=>'pallet','aspect'=>'qim','display_state'=>$presentation == 'nested' ? 'view' : 'edit']);
            
 	    }
         $form_body = elgg_view("forms/{$view}/edit",$params);
@@ -1256,24 +1257,25 @@ register_error($display);
                 
                 break;
             case 'issue':
-                $issue_vars  = array_merge($vars,['guid' => 0,'action'=>$perspective,'section'=>$handler,'parent_cid'=> $parent_cid,'carton_id'=> $carton_id]);
-                unset($issue_vars['cid'],$issue_vars['entity'],$issue_vars['guid']);
-                $form_body   = elgg_view('forms/experiences/edit',$issue_vars);
-                break;
             case 'experience':
-                 unset($body_vars['cid']);                // cause the form to generate a new cid
-        		 $body_vars['action']       = 'add';
-        		 $body_vars['section']      = 'experience';
-        		 $body_vars['presentation'] = 'pallet';
-        		 $body_vars['presence']     = 'empty boqx';
-        		 $body_vars['parent_cid']   = $empty_boqx_id;
-        		 $form_version              = 'experiences/edit';
-            	 $action                    = 'jot/edit_pallet';
+//                  unset($body_vars['cid']);                // cause the form to generate a new cid
+//         		 $body_vars['action']       = 'add';
+//         		 $body_vars['section']      = 'experience';
+//         		 $body_vars['presentation'] = 'pallet';
+//         		 $body_vars['presence']     = 'empty boqx';
+//         		 $body_vars['parent_cid']   = $empty_boqx_id;
+//         		 $form_version              = 'experiences/edit';
+//             	 $action                    = 'jot/edit_pallet';
                 
-        	     $form_vars = ['name'    => $section, 
-                               'enctype' => 'multipart/form-data', 
-                               'action'  => "action/$action"];
-        	     $form_body = elgg_view_form($form_version, $form_vars, $body_vars);
+//         	     $form_vars = ['name'    => $section, 
+//                                'enctype' => 'multipart/form-data', 
+//                                'action'  => "action/$action"];
+//         	     $form_body = elgg_view_form($form_version, $form_vars, $body_vars);
+        	     
+        	     
+                $body_vars  = array_merge($vars,['guid' => 0,'action'=>$perspective,'section'=>$handler,'parent_cid'=> $parent_cid,'carton_id'=> $carton_id]);
+                unset($body_vars['cid'],$body_vars['entity'],$body_vars['guid']);
+                $form_body   = elgg_view('forms/experiences/edit',$body_vars);
                 break;
             case 'filerepo':
                 
@@ -1351,7 +1353,7 @@ register_error($display);
                     $pallet     = get_entity($guid);
                     set_private_setting($guid, 'column', $this_slot);
                 }
-        	    $form_body      = elgg_view_entity($pallet, ['show_access' => $show_access, 'class'=>['boqx', 'container', 'droppable', 'tn-panelWrapper___fTILOVmk'],'module_type' =>'warehouse','widget_id'=>$space_contents,'contents_count' => $contents_count,'parent_cid'=>$cid,'slot'=>$this_slot]);
+        	    $form_body      = elgg_view_entity($pallet, ['show_access' => $show_access, 'class'=>['boqx', 'container', 'tn-panelWrapper___fTILOVmk'],'module_type' =>'warehouse','widget_id'=>$space_contents,'contents_count' => $contents_count,'parent_cid'=>$cid,'slot'=>$this_slot]);
                 
         }                                                                            $display .= '$pallet->column = '.$pallet->column.'<br>';
 //register_error($display);
@@ -1368,7 +1370,7 @@ register_error($display);
 	    break;
 	case 'pack boqx':
 	    switch($aspect){
-    	  case 'q_item':
+    	  case 'qim':
     		  $proximity = 'in';
     		  break;
     	  case 'receipts':

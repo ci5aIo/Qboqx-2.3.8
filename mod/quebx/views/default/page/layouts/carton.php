@@ -8,7 +8,7 @@ $pieces    = elgg_extract('pieces'       , $vars, false);
 $footer    = elgg_extract('footer'       , $vars);
 $wrapper   = elgg_extract('wrapper_class', $vars, false);
 $class     = elgg_extract_class($vars, false);
-$tally_count = elgg_extract('tally'      , $vars, 0);
+$tally_count = elgg_extract('tally'      , $vars, 0);                        $display .= 'page/layouts/carton $cid:'. $cid.'<br>';
 /*
 if($pieces && !is_array($pieces))
     $pieces = (array) $pieces;
@@ -40,3 +40,4 @@ else
                     $footer);
 echo '<!-- layout=carton, $tally='.$tally_count.'-->';
 echo $form_body;
+//register_error($display);

@@ -61,8 +61,8 @@ function quebx_get_navigation_tree($container) {
 
 	$top_pages = new ElggBatch('elgg_get_entities', array(
 		'type' => 'object',
-//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'q_item'
-	    'subtype' => 'q_item',
+//@EDIT 2020-05-06 - SAJ subtype 'market' replaced by 'qim'
+	    'subtype' => 'qim',
 //	    'subtype' => 'market',
 		'container_guid' => $container->getGUID(),
 		'limit' => false,
