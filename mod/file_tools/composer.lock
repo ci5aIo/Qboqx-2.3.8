@@ -1,10 +1,9 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "hash": "36be0a147300af4536cce66cf67741bf",
     "content-hash": "87a8d66a51be153abc9d7599bf2b0de7",
     "packages": [
         {
@@ -232,7 +231,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2016-08-13 20:53:52"
+            "time": "2016-08-13T20:53:52+00:00"
         }
     ],
     "packages-dev": [
@@ -242,12 +241,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ColdTrick/releases.git",
-                "reference": "5965ce8cf0bf3b6c2cd0e61153be0b2977eeb9a5"
+                "reference": "790b9eaba25cf29e0f0e1c39ba356c7e5ec44d92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ColdTrick/releases/zipball/5965ce8cf0bf3b6c2cd0e61153be0b2977eeb9a5",
-                "reference": "5965ce8cf0bf3b6c2cd0e61153be0b2977eeb9a5",
+                "url": "https://api.github.com/repos/ColdTrick/releases/zipball/790b9eaba25cf29e0f0e1c39ba356c7e5ec44d92",
+                "reference": "790b9eaba25cf29e0f0e1c39ba356c7e5ec44d92",
                 "shasum": ""
             },
             "type": "library",
@@ -261,7 +260,17 @@
                 "release",
                 "travis"
             ],
-            "time": "2016-10-06 13:03:44"
+            "funding": [
+                {
+                    "url": "https://www.paypal.me/ColdTrick",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/ColdTrick",
+                    "type": "github"
+                }
+            ],
+            "time": "2021-09-16T14:21:52+00:00"
         },
         {
             "name": "coldtrick/sniffs",
@@ -288,67 +297,50 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "description": "Elgg coding standards",
-            "time": "2015-02-17 14:47:25"
+            "funding": [
+                {
+                    "url": "https://www.paypal.me/ColdTrick",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/ColdTrick",
+                    "type": "github"
+                }
+            ],
+            "time": "2015-02-17T14:47:25+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "2.7.0",
+            "version": "3.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "571e27b6348e5b3a637b2abc82ac0d01e6d7bbed"
+                "reference": "5e4e71592f69da17871dba6e80dd51bce74a351a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/571e27b6348e5b3a637b2abc82ac0d01e6d7bbed",
-                "reference": "571e27b6348e5b3a637b2abc82ac0d01e6d7bbed",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/5e4e71592f69da17871dba6e80dd51bce74a351a",
+                "reference": "5e4e71592f69da17871dba6e80dd51bce74a351a",
                 "shasum": ""
             },
             "require": {
                 "ext-simplexml": "*",
                 "ext-tokenizer": "*",
                 "ext-xmlwriter": "*",
-                "php": ">=5.1.2"
+                "php": ">=5.4.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.0"
+                "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
             "bin": [
-                "scripts/phpcs",
-                "scripts/phpcbf"
+                "bin/phpcs",
+                "bin/phpcbf"
             ],
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.x-dev"
+                    "dev-master": "3.x-dev"
                 }
-            },
-            "autoload": {
-                "classmap": [
-                    "CodeSniffer.php",
-                    "CodeSniffer/CLI.php",
-                    "CodeSniffer/Exception.php",
-                    "CodeSniffer/File.php",
-                    "CodeSniffer/Fixer.php",
-                    "CodeSniffer/Report.php",
-                    "CodeSniffer/Reporting.php",
-                    "CodeSniffer/Sniff.php",
-                    "CodeSniffer/Tokens.php",
-                    "CodeSniffer/Reports/",
-                    "CodeSniffer/Tokenizers/",
-                    "CodeSniffer/DocGenerators/",
-                    "CodeSniffer/Standards/AbstractPatternSniff.php",
-                    "CodeSniffer/Standards/AbstractScopeSniff.php",
-                    "CodeSniffer/Standards/AbstractVariableSniff.php",
-                    "CodeSniffer/Standards/IncorrectPatternException.php",
-                    "CodeSniffer/Standards/Generic/Sniffs/",
-                    "CodeSniffer/Standards/MySource/Sniffs/",
-                    "CodeSniffer/Standards/PEAR/Sniffs/",
-                    "CodeSniffer/Standards/PSR1/Sniffs/",
-                    "CodeSniffer/Standards/PSR2/Sniffs/",
-                    "CodeSniffer/Standards/Squiz/Sniffs/",
-                    "CodeSniffer/Standards/Zend/Sniffs/"
-                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -361,12 +353,12 @@
                 }
             ],
             "description": "PHP_CodeSniffer tokenizes PHP, JavaScript and CSS files and detects violations of a defined set of coding standards.",
-            "homepage": "http://www.squizlabs.com/php-codesniffer",
+            "homepage": "https://github.com/squizlabs/PHP_CodeSniffer",
             "keywords": [
                 "phpcs",
                 "standards"
             ],
-            "time": "2016-09-01 23:53:02"
+            "time": "2021-12-12T21:44:58+00:00"
         }
     ],
     "aliases": [],
@@ -378,5 +370,6 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }
